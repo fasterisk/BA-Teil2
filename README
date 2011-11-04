@@ -1,0 +1,10 @@
+Bakkalaureatsarbeit 2. Teil
+Spechtenhauser Florian
+
+Generelle Aufgabe: 3D Diffusion fuer Shape morphing implementieren
+
+2. 3D Viewer
+--- 2 surfaces laden/alignen
+--- Bounding box anzeigen, Aufloesung in x/y/z als parameter
+--- 3D Diffusion ( http://gamma.cs.unc.edu/VORONOI/ )
+//--- Isosurfaces mit VolumeShop anzeigen
