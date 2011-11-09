@@ -27,9 +27,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>BasicHLSL10</ProjectName>
+    <ProjectName>VolumetricDiffusion</ProjectName>
     <ProjectGuid>{D3D10100-96D0-4629-88B8-122C0256058C}</ProjectGuid>
-    <RootNamespace>BasicHLSL10</RootNamespace>
+    <RootNamespace>VolumetricDiffusion</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -383,10 +383,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="BasicHLSL.fx" />
-    <None Include="BasicHLSL10.fx" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="DXUT\Core\DXUT.h" />
     <ClInclude Include="DXUT\Core\DXUTenum.h" />
     <ClInclude Include="DXUT\Core\DXUTmisc.h" />
@@ -400,7 +396,6 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BasicHLSL10.cpp" />
     <ClCompile Include="DXUT\Core\DXUT.cpp" />
     <ClCompile Include="DXUT\Core\DXUTenum.cpp" />
     <ClCompile Include="DXUT\Core\DXUTmisc.cpp" />
@@ -411,9 +406,15 @@
     <ClCompile Include="DXUT\Optional\DXUTShapes.cpp" />
     <ClCompile Include="DXUT\Optional\SDKmesh.cpp" />
     <ClCompile Include="DXUT\Optional\SDKmisc.cpp" />
+    <ClCompile Include="VolumetricDiffusion10.cpp" />
+    <ClCompile Include="VolumetricDiffusion9.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="BasicHLSL10.rc" />
+    <ResourceCompile Include="VolumetricDiffusion.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shader.fx" />
+    <None Include="Shader10.fx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -145,7 +145,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
     DXUTInit( true, true, NULL ); // Parse the command line, show msgboxes on error, no extra command line params
     DXUTSetCursorSettings( true, true ); // Show the cursor and clip it when in full screen
     DXUTCreateWindow( L"BasicHLSL10" );
-    DXUTCreateDevice( true, 640, 480 );
+    DXUTCreateDevice( true, 800, 600 );
     DXUTMainLoop(); // Enter into the DXUT render loop
 
     return DXUTGetExitCode();
@@ -266,7 +266,7 @@ void RenderText()
     g_pTxtHelper->Begin();
     g_pTxtHelper->SetInsertionPos( 2, 0 );
     g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 0.0f, 1.0f ) );
-    g_pTxtHelper->DrawTextLine( DXUTGetFrameStats( DXUTIsVsyncEnabled() ) );
+    g_pTxtHelper->DrawTextLine( DXUTGetFrameStats( true ) );
     g_pTxtHelper->DrawTextLine( DXUTGetDeviceStats() );
 
     // Draw help
@@ -451,7 +451,7 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
 
     // Read the D3DX effect file
     WCHAR str[MAX_PATH];
-    V_RETURN( DXUTFindDXSDKMediaFileCch( str, MAX_PATH, L"BasicHLSL10.fx" ) );
+    V_RETURN( DXUTFindDXSDKMediaFileCch( str, MAX_PATH, L"Shader10.fx" ) );
     V_RETURN( D3DX10CreateEffectFromFile( str, NULL, NULL, "fx_4_0", dwShaderFlags, 0, pd3dDevice, NULL,
                                           NULL, &g_pEffect10, NULL, NULL ) );
 
