@@ -79,7 +79,6 @@
     <ClCompile Include="DXUT\Optional\SDKmisc.cpp">
       <Filter>DXUT</Filter>
     </ClCompile>
-    <ClCompile Include="VolumetricDiffusion9.cpp" />
     <ClCompile Include="VolumetricDiffusion10.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -407,7 +407,6 @@
     <ClCompile Include="DXUT\Optional\SDKmesh.cpp" />
     <ClCompile Include="DXUT\Optional\SDKmisc.cpp" />
     <ClCompile Include="VolumetricDiffusion10.cpp" />
-    <ClCompile Include="VolumetricDiffusion9.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VolumetricDiffusion.rc" />

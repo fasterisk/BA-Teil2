@@ -34,9 +34,7 @@ int                                 g_nActiveLight;
 bool                                g_bShowHelp = false;    // If true, it renders the UI control text
 
 // Direct3D9 resources
-extern ID3DXFont*                   g_pFont9;         // Font for drawing text
-extern ID3DXSprite*                 g_pSprite9;       // Sprite for batching draw text calls
-CDXUTTextHelper*                    g_pTxtHelper = NULL;
+CDXUTTextHelper*        g_pTxtHelper = NULL;
 
 // Direct3D10 resources
 ID3DX10Font*                        g_pFont10 = NULL;
@@ -75,33 +73,17 @@ ID3D10EffectScalarVariable*         g_pnNumLights = NULL;
 //--------------------------------------------------------------------------------------
 // Forward declarations 
 //--------------------------------------------------------------------------------------
-bool CALLBACK ModifyDeviceSettings( DXUTDeviceSettings* pDeviceSettings, void* pUserContext );
-void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext );
-LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool* pbNoFurtherProcessing,
-                          void* pUserContext );
-void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext );
-void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, void* pUserContext );
-
-extern bool CALLBACK IsD3D9DeviceAcceptable( D3DCAPS9* pCaps, D3DFORMAT AdapterFormat, D3DFORMAT BackBufferFormat,
-                                             bool bWindowed, void* pUserContext );
-extern HRESULT CALLBACK OnD3D9CreateDevice( IDirect3DDevice9* pd3dDevice,
-                                            const D3DSURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext );
-extern HRESULT CALLBACK OnD3D9ResetDevice( IDirect3DDevice9* pd3dDevice, const D3DSURFACE_DESC* pBackBufferSurfaceDesc,
-                                           void* pUserContext );
-extern void CALLBACK OnD3D9FrameRender( IDirect3DDevice9* pd3dDevice, double fTime, float fElapsedTime,
-                                        void* pUserContext );
-extern void CALLBACK OnD3D9LostDevice( void* pUserContext );
-extern void CALLBACK OnD3D9DestroyDevice( void* pUserContext );
-
-bool CALLBACK IsD3D10DeviceAcceptable( UINT Adapter, UINT Output, D3D10_DRIVER_TYPE DeviceType,
-                                       DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext );
-HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc,
-                                      void* pUserContext );
-HRESULT CALLBACK OnD3D10ResizedSwapChain( ID3D10Device* pd3dDevice, IDXGISwapChain* pSwapChain,
-                                          const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext );
-void CALLBACK OnD3D10ReleasingSwapChain( void* pUserContext );
-void CALLBACK OnD3D10DestroyDevice( void* pUserContext );
-void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float fElapsedTime, void* pUserContext );
+bool	CALLBACK ModifyDeviceSettings( DXUTDeviceSettings* pDeviceSettings, void* pUserContext );
+void	CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext );
+LRESULT	CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool* pbNoFurtherProcessing, void* pUserContext );
+void	CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext );
+void	CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, void* pUserContext );
+bool	CALLBACK IsD3D10DeviceAcceptable( UINT Adapter, UINT Output, D3D10_DRIVER_TYPE DeviceType, DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext );
+HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext );
+HRESULT CALLBACK OnD3D10ResizedSwapChain( ID3D10Device* pd3dDevice, IDXGISwapChain* pSwapChain, const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext );
+void	CALLBACK OnD3D10ReleasingSwapChain( void* pUserContext );
+void	CALLBACK OnD3D10DestroyDevice( void* pUserContext );
+void	CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float fElapsedTime, void* pUserContext );
 
 void InitApp();
 void RenderText();
@@ -126,13 +108,6 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
     DXUTSetCallbackMsgProc( MsgProc );
     DXUTSetCallbackKeyboard( OnKeyboard );
     DXUTSetCallbackFrameMove( OnFrameMove );
-
-    DXUTSetCallbackD3D9DeviceAcceptable( IsD3D9DeviceAcceptable );
-    DXUTSetCallbackD3D9DeviceCreated( OnD3D9CreateDevice );
-    DXUTSetCallbackD3D9DeviceReset( OnD3D9ResetDevice );
-    DXUTSetCallbackD3D9FrameRender( OnD3D9FrameRender );
-    DXUTSetCallbackD3D9DeviceLost( OnD3D9LostDevice );
-    DXUTSetCallbackD3D9DeviceDestroyed( OnD3D9DestroyDevice );
 
     DXUTSetCallbackD3D10DeviceAcceptable( IsD3D10DeviceAcceptable );
     DXUTSetCallbackD3D10DeviceCreated( OnD3D10CreateDevice );
@@ -420,7 +395,7 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
                                 OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE,
                                 L"Arial", &g_pFont10 ) );
     V_RETURN( D3DX10CreateSprite( pd3dDevice, 512, &g_pSprite10 ) );
-    g_pTxtHelper = new CDXUTTextHelper( g_pFont9, g_pSprite9, g_pFont10, g_pSprite10, 15 );
+    g_pTxtHelper = new CDXUTTextHelper( NULL, NULL, g_pFont10, g_pSprite10, 15 );
 
     g_SampleUI.GetStatic( IDC_NUM_LIGHTS_STATIC )->SetVisible( false );
     g_SampleUI.GetSlider( IDC_NUM_LIGHTS )->SetVisible( false );
