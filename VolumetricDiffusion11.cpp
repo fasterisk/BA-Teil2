@@ -34,8 +34,6 @@ ID3D11InputLayout*                  g_pPatchLayout = NULL;
 
 ID3D11VertexShader*                 g_pVertexShader = NULL;
 ID3D11HullShader*                   g_pHullShaderInteger = NULL;
-ID3D11HullShader*                   g_pHullShaderFracEven = NULL;
-ID3D11HullShader*                   g_pHullShaderFracOdd = NULL;
 ID3D11DomainShader*                 g_pDomainShader = NULL;
 ID3D11PixelShader*                  g_pPixelShader = NULL;
 ID3D11PixelShader*                  g_pSolidColorPS = NULL;
@@ -78,10 +76,6 @@ E_PARTITION_MODE                    g_iPartitionMode = PARTITION_INTEGER;
 #define IDC_PATCH_SUBDIVS         5
 #define IDC_PATCH_SUBDIVS_STATIC  6
 #define IDC_TOGGLE_LINES          7
-#define IDC_PARTITION_MODE        8
-#define IDC_PARTITION_INTEGER     9
-#define IDC_PARTITION_FRAC_EVEN   10
-#define IDC_PARTITION_FRAC_ODD    11
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -169,12 +163,6 @@ void InitApp()
 
     iY += 24;
     g_SampleUI.AddCheckBox( IDC_TOGGLE_LINES, L"Toggle Wires", 20, iY += 26, 150, 22, g_bDrawWires );
-
-    iY += 24;
-    g_SampleUI.AddRadioButton( IDC_PARTITION_INTEGER, IDC_PARTITION_MODE, L"Integer", 20, iY += 26, 170, 22 );
-    g_SampleUI.AddRadioButton( IDC_PARTITION_FRAC_EVEN, IDC_PARTITION_MODE, L"Fractional Even", 20, iY += 26, 170, 22 );
-    g_SampleUI.AddRadioButton( IDC_PARTITION_FRAC_ODD, IDC_PARTITION_MODE, L"Fractional Odd", 20, iY += 26, 170, 22 );
-    g_SampleUI.GetRadioButton( IDC_PARTITION_INTEGER )->SetChecked( true );
 
     // Setup the camera's view parameters
     D3DXVECTOR3 vecEye( 1.0f, 1.5f, -3.5f );
@@ -291,15 +279,6 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
         case IDC_TOGGLE_LINES:
             g_bDrawWires = g_SampleUI.GetCheckBox( IDC_TOGGLE_LINES )->GetChecked();
             break;
-        case IDC_PARTITION_INTEGER:
-            g_iPartitionMode = PARTITION_INTEGER;
-            break;
-        case IDC_PARTITION_FRAC_EVEN:
-            g_iPartitionMode = PARTITION_FRACTIONAL_EVEN;
-            break;
-        case IDC_PARTITION_FRAC_ODD:
-            g_iPartitionMode = PARTITION_FRACTIONAL_ODD;
-            break;
     }
 }
 
@@ -364,22 +343,14 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     // Compile shaders
     ID3DBlob* pBlobVS = NULL;
     ID3DBlob* pBlobHSInt = NULL;
-    ID3DBlob* pBlobHSFracEven = NULL;
-    ID3DBlob* pBlobHSFracOdd = NULL;
     ID3DBlob* pBlobDS = NULL;
     ID3DBlob* pBlobPS = NULL;
     ID3DBlob* pBlobPSSolid = NULL;
 
-    // This macro is used to compile the hull shader with different partition modes
-    // Please see the partitioning mode attribute for the hull shader for more information
-    D3D_SHADER_MACRO integerPartitioning[] = { { "BEZIER_HS_PARTITION", "\"integer\"" }, { 0 } };
-    D3D_SHADER_MACRO fracEvenPartitioning[] = { { "BEZIER_HS_PARTITION", "\"fractional_even\"" }, { 0 } };
-    D3D_SHADER_MACRO fracOddPartitioning[] = { { "BEZIER_HS_PARTITION", "\"fractional_odd\"" }, { 0 } };
+    
 
     V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", NULL, "BezierVS", "vs_5_0",  &pBlobVS ) );
-    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", integerPartitioning, "BezierHS", "hs_5_0", &pBlobHSInt ) );
-    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", fracEvenPartitioning, "BezierHS", "hs_5_0", &pBlobHSFracEven ) );
-    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", fracOddPartitioning, "BezierHS", "hs_5_0", &pBlobHSFracOdd ) );
+    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", NULL, "BezierHS", "hs_5_0", &pBlobHSInt ) );
     V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", NULL, "BezierDS", "ds_5_0", &pBlobDS ) );
     V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", NULL, "BezierPS", "ps_5_0", &pBlobPS ) );
     V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", NULL, "SolidColorPS", "ps_5_0", &pBlobPSSolid ) );
@@ -389,13 +360,7 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     DXUT_SetDebugName( g_pVertexShader, "BezierVS" );
 
     V_RETURN( pd3dDevice->CreateHullShader( pBlobHSInt->GetBufferPointer(), pBlobHSInt->GetBufferSize(), NULL, &g_pHullShaderInteger ) );
-    DXUT_SetDebugName( g_pHullShaderInteger, "BezierHS int" );
-
-    V_RETURN( pd3dDevice->CreateHullShader( pBlobHSFracEven->GetBufferPointer(), pBlobHSFracEven->GetBufferSize(), NULL, &g_pHullShaderFracEven ) );
-    DXUT_SetDebugName( g_pHullShaderFracEven, "BezierHS frac even" );
-
-    V_RETURN( pd3dDevice->CreateHullShader( pBlobHSFracOdd->GetBufferPointer(), pBlobHSFracOdd->GetBufferSize(), NULL, &g_pHullShaderFracOdd ) );
-    DXUT_SetDebugName( g_pHullShaderFracOdd, "BezierHS frac odd" );
+    DXUT_SetDebugName( g_pHullShaderInteger, "BezierHS" );
 
     V_RETURN( pd3dDevice->CreateDomainShader( pBlobDS->GetBufferPointer(), pBlobDS->GetBufferSize(), NULL, &g_pDomainShader ) );
     DXUT_SetDebugName( g_pDomainShader, "BezierDS" );
@@ -418,8 +383,6 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 
     SAFE_RELEASE( pBlobVS );
     SAFE_RELEASE( pBlobHSInt );
-    SAFE_RELEASE( pBlobHSFracEven );
-    SAFE_RELEASE( pBlobHSFracOdd );
     SAFE_RELEASE( pBlobDS );
     SAFE_RELEASE( pBlobPS );
     SAFE_RELEASE( pBlobPSSolid );
@@ -539,16 +502,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 
     // Set the shaders
     pd3dImmediateContext->VSSetShader( g_pVertexShader, NULL, 0 );
-
-    // For this sample, choose either the "integer", "fractional_even",
-    // or "fractional_odd" hull shader
-    if (g_iPartitionMode == PARTITION_INTEGER)
-        pd3dImmediateContext->HSSetShader( g_pHullShaderInteger, NULL, 0 );
-    else if (g_iPartitionMode == PARTITION_FRACTIONAL_EVEN)
-        pd3dImmediateContext->HSSetShader( g_pHullShaderFracEven, NULL, 0 );
-    else if (g_iPartitionMode == PARTITION_FRACTIONAL_ODD)
-        pd3dImmediateContext->HSSetShader( g_pHullShaderFracOdd, NULL, 0 );
-
+    pd3dImmediateContext->HSSetShader( g_pHullShaderInteger, NULL, 0 );
     pd3dImmediateContext->DSSetShader( g_pDomainShader, NULL, 0 );
     pd3dImmediateContext->GSSetShader( NULL, NULL, 0 );
     pd3dImmediateContext->PSSetShader( g_pPixelShader, NULL, 0 );
@@ -607,8 +561,6 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 
     SAFE_RELEASE( g_pVertexShader );
     SAFE_RELEASE( g_pHullShaderInteger );
-    SAFE_RELEASE( g_pHullShaderFracEven );
-    SAFE_RELEASE( g_pHullShaderFracOdd );
     SAFE_RELEASE( g_pDomainShader );
     SAFE_RELEASE( g_pPixelShader );
     SAFE_RELEASE( g_pSolidColorPS );

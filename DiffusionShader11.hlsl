@@ -7,14 +7,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //--------------------------------------------------------------------------------------
 
-// This allows us to compile the shader with a #define to choose
-// the different partition modes for the hull shader.
-// See the hull shader: [partitioning(BEZIER_HS_PARTITION)]
-// This sample demonstrates "integer", "fractional_even", and "fractional_odd"
-#ifndef BEZIER_HS_PARTITION
-#define BEZIER_HS_PARTITION "integer"
-#endif // BEZIER_HS_PARTITION
-
 // The input patch size.  In this sample, it is 16 control points.
 // This value should match the call to IASetPrimitiveTopology()
 #define INPUT_PATCH_SIZE 16
@@ -107,7 +99,7 @@ HS_CONSTANT_DATA_OUTPUT BezierConstantHS( InputPatch<VS_CONTROL_POINT_OUTPUT, IN
 // tessellator stage to calculate the UVW and domain points.
 
 [domain("quad")]
-[partitioning(BEZIER_HS_PARTITION)]
+[partitioning("integer")]
 [outputtopology("triangle_cw")]
 [outputcontrolpoints(OUTPUT_PATCH_SIZE)]
 [patchconstantfunc("BezierConstantHS")]
