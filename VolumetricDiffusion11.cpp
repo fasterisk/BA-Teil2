@@ -13,7 +13,7 @@
 #include "DXUTsettingsDlg.h"
 #include "SDKmisc.h"
 #include "resource.h"
-#include "MobiusStrip.h"
+#include "Surface.h"
 
 const DWORD MIN_DIVS = 4;
 const DWORD MAX_DIVS = 16; // Min and Max divisions of the patch per side for the slider control
@@ -26,6 +26,9 @@ CModelViewerCamera                  g_Camera;                // A model viewing 
 CD3DSettingsDlg                     g_D3DSettingsDlg;        // Device settings dialog
 CDXUTDialog                         g_HUD;                   // manages the 3D   
 CDXUTDialog                         g_SampleUI;              // dialog for sample specific controls
+
+
+Surface*							g_surface1;
 
 // Resources
 CDXUTTextHelper*                    g_pTxtHelper = NULL;
@@ -347,8 +350,6 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     ID3DBlob* pBlobPS = NULL;
     ID3DBlob* pBlobPSSolid = NULL;
 
-    
-
     V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", NULL, "BezierVS", "vs_5_0",  &pBlobVS ) );
     V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", NULL, "BezierHS", "hs_5_0", &pBlobHSInt ) );
     V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", NULL, "BezierDS", "ds_5_0", &pBlobDS ) );
@@ -398,6 +399,11 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &g_pcbPerFrame ) );
     DXUT_SetDebugName( g_pcbPerFrame, "CB_PER_FRAME_CONSTANTS" );
 
+
+	g_surface1 = new Surface();
+	g_surface1->ReadVectorFile("Media\\surface2.xml");
+
+
     // Create solid and wireframe rasterizer state objects
     D3D11_RASTERIZER_DESC RasterDesc;
     ZeroMemory( &RasterDesc, sizeof(D3D11_RASTERIZER_DESC) );
@@ -413,15 +419,17 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 
     D3D11_BUFFER_DESC vbDesc;
     ZeroMemory( &vbDesc, sizeof(D3D11_BUFFER_DESC) );
-    vbDesc.ByteWidth = sizeof(BEZIER_CONTROL_POINT) * ARRAYSIZE(g_MobiusStrip);
+	vbDesc.ByteWidth = sizeof(BEZIER_CONTROL_POINT) * g_surface1->m_pNum;
     vbDesc.Usage = D3D11_USAGE_DEFAULT;
     vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
     D3D11_SUBRESOURCE_DATA vbInitData;
     ZeroMemory( &vbInitData, sizeof(vbInitData) );
-    vbInitData.pSysMem = g_MobiusStrip;
+    vbInitData.pSysMem = g_surface1->m_controlpoints;
     V_RETURN( pd3dDevice->CreateBuffer( &vbDesc, &vbInitData, &g_pControlPointVB ) );
     DXUT_SetDebugName( g_pControlPointVB, "Control Points" );
+
+	
 
     return S_OK;
 }
@@ -525,7 +533,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     pd3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST );
 
     // Draw the mesh
-    pd3dImmediateContext->Draw( ARRAYSIZE(g_MobiusStrip), 0 );
+	pd3dImmediateContext->Draw( g_surface1->m_pNum, 0 );
 
     pd3dImmediateContext->RSSetState( g_pRasterizerStateSolid );
 

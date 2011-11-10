@@ -12,18 +12,18 @@ struct BLURRPOINT
 	int			off;
 };
 
-struct CB_PER_FRAME_CONSTANTS
+struct BEZIER_CONTROL_POINT
 {
-    D3DXMATRIX mViewProjection;
-    D3DXVECTOR3 vCameraPosWorld;
-    float fTessellationFactor;
+	float x;
+	float y;
+	float z;
 };
 
 class Surface
 {
 public:
 	int m_pNum;
-	D3DXVECTOR3 *m_controlpoints;
+	BEZIER_CONTROL_POINT *m_controlpoints;
 	int m_clNum;
 	COLORPOINT *m_colors_left;
 	int m_crNum;

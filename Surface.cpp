@@ -34,7 +34,7 @@ Surface::~Surface()
 
 void Surface::InitBuffers(ID3D11Device *pd3dDevice)
 {
-	D3D11_BUFFER_DESC vertexBufferDesc;
+	/*D3D11_BUFFER_DESC vertexBufferDesc;
 	vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	vertexBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -43,7 +43,7 @@ void Surface::InitBuffers(ID3D11Device *pd3dDevice)
 
 	pd3dDevice->CreateBuffer(&vertexBufferDesc, NULL, &m_vertexBuffer);
 	//DXUT_SetDebugName(m_vertexBuffer, "CB_PER_FRAME_CONSTANTS");
-
+	*/
 	
 }
 
@@ -99,7 +99,7 @@ void Surface::ReadVectorFile(char *s)
 	D3DXVECTOR3 maxBound = D3DXVECTOR3(-1000000,-1000000,-1000000);
 	D3DXVECTOR3 minBound = D3DXVECTOR3(1000000,1000000,1000000);
 	
-	m_controlpoints = new D3DXVECTOR3[m_pNum];
+	m_controlpoints = new BEZIER_CONTROL_POINT[m_pNum];
 	for(int i=0; i < m_pNum; i++)
 	{
 		while(!stringStartsWith(buff, "  <control_point "))
@@ -123,7 +123,7 @@ void Surface::ReadVectorFile(char *s)
 		fputs(c, F_out);
 
 		//extend the bounds if necessary
-			if (m_controlpoints[i].y < minBound.y)
+		/*	if (m_controlpoints[i].y < minBound.y)
 				minBound.y = m_controlpoints[i].y;
 			if (m_controlpoints[i].y > maxBound.y)
 				maxBound.y = m_controlpoints[i].y;
@@ -134,7 +134,7 @@ void Surface::ReadVectorFile(char *s)
 			if (m_controlpoints[i].z < minBound.z)
 				minBound.z = m_controlpoints[i].z;
 			if (m_controlpoints[i].z > maxBound.z)
-				maxBound.z = m_controlpoints[i].z;
+				maxBound.z = m_controlpoints[i].z;*/
 	}
 	
 	m_colors_left = new COLORPOINT[m_clNum];
