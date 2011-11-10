@@ -90,7 +90,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="SimpleBezier11.hlsl">
+    <None Include="DiffusionShader11.hlsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -1,5 +1,6 @@
 //--------------------------------------------------------------------------------------
-// File: SimpleBezier11.cpp
+// File: VolumetricDiffusion11.cpp 
+// derived from SimpleBezier11.cpp
 //
 // This sample shows an simple implementation of the DirectX 11 Hardware Tessellator
 // for rendering a Bezier Patch.
@@ -375,13 +376,13 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     D3D_SHADER_MACRO fracEvenPartitioning[] = { { "BEZIER_HS_PARTITION", "\"fractional_even\"" }, { 0 } };
     D3D_SHADER_MACRO fracOddPartitioning[] = { { "BEZIER_HS_PARTITION", "\"fractional_odd\"" }, { 0 } };
 
-    V_RETURN( CompileShaderFromFile( L"SimpleBezier11.hlsl", NULL, "BezierVS", "vs_5_0",  &pBlobVS ) );
-    V_RETURN( CompileShaderFromFile( L"SimpleBezier11.hlsl", integerPartitioning, "BezierHS", "hs_5_0", &pBlobHSInt ) );
-    V_RETURN( CompileShaderFromFile( L"SimpleBezier11.hlsl", fracEvenPartitioning, "BezierHS", "hs_5_0", &pBlobHSFracEven ) );
-    V_RETURN( CompileShaderFromFile( L"SimpleBezier11.hlsl", fracOddPartitioning, "BezierHS", "hs_5_0", &pBlobHSFracOdd ) );
-    V_RETURN( CompileShaderFromFile( L"SimpleBezier11.hlsl", NULL, "BezierDS", "ds_5_0", &pBlobDS ) );
-    V_RETURN( CompileShaderFromFile( L"SimpleBezier11.hlsl", NULL, "BezierPS", "ps_5_0", &pBlobPS ) );
-    V_RETURN( CompileShaderFromFile( L"SimpleBezier11.hlsl", NULL, "SolidColorPS", "ps_5_0", &pBlobPSSolid ) );
+    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", NULL, "BezierVS", "vs_5_0",  &pBlobVS ) );
+    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", integerPartitioning, "BezierHS", "hs_5_0", &pBlobHSInt ) );
+    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", fracEvenPartitioning, "BezierHS", "hs_5_0", &pBlobHSFracEven ) );
+    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", fracOddPartitioning, "BezierHS", "hs_5_0", &pBlobHSFracOdd ) );
+    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", NULL, "BezierDS", "ds_5_0", &pBlobDS ) );
+    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", NULL, "BezierPS", "ps_5_0", &pBlobPS ) );
+    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", NULL, "SolidColorPS", "ps_5_0", &pBlobPSSolid ) );
 
     // Create shaders
     V_RETURN( pd3dDevice->CreateVertexShader( pBlobVS->GetBufferPointer(), pBlobVS->GetBufferSize(), NULL, &g_pVertexShader ) );
