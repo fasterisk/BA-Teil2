@@ -7,3 +7,5 @@ ipch
 *.sdf
 *.suo
 *.user
+
+Media/test_ReadVectorFile.txt

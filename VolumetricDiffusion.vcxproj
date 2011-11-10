@@ -394,6 +394,7 @@
     <ClInclude Include="DXUT\Optional\SDKmesh.h" />
     <ClInclude Include="DXUT\Optional\SDKmisc.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Surface.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXUT\Core\DXUT.cpp" />
@@ -406,13 +407,13 @@
     <ClCompile Include="DXUT\Optional\DXUTShapes.cpp" />
     <ClCompile Include="DXUT\Optional\SDKmesh.cpp" />
     <ClCompile Include="DXUT\Optional\SDKmisc.cpp" />
+    <ClCompile Include="Surface.cpp" />
     <ClCompile Include="VolumetricDiffusion10.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VolumetricDiffusion.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shader.fx" />
     <None Include="Shader10.fx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

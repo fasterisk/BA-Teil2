@@ -47,6 +47,7 @@
     <ClInclude Include="DXUT\Optional\SDKmisc.h">
       <Filter>DXUT</Filter>
     </ClInclude>
+    <ClInclude Include="Surface.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXUT\Core\DXUT.cpp">
@@ -80,6 +81,7 @@
       <Filter>DXUT</Filter>
     </ClCompile>
     <ClCompile Include="VolumetricDiffusion10.cpp" />
+    <ClCompile Include="Surface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VolumetricDiffusion.rc">
@@ -88,9 +90,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader10.fx">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Shader.fx">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

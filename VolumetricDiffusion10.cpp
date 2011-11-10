@@ -13,6 +13,7 @@
 #include "SDKmisc.h"
 #include "SDKMesh.h"
 #include "resource.h"
+#include "Surface.h"
 
 //#define DEBUG_VS   // Uncomment this line to debug D3D9 vertex shaders 
 //#define DEBUG_PS   // Uncomment this line to debug D3D9 pixel shaders 
@@ -132,6 +133,9 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 //--------------------------------------------------------------------------------------
 void InitApp()
 {
+	Surface s;
+	s.ReadVectorFile("Media\\surface1.xml");
+
     for( int i = 0; i < MAX_LIGHTS; i++ )
         g_LightControl[i].SetLightDirection( D3DXVECTOR3( sinf( D3DX_PI * 2 * i / MAX_LIGHTS - D3DX_PI / 6 ),
                                                           0, -cosf( D3DX_PI * 2 * i / MAX_LIGHTS - D3DX_PI / 6 ) ) );

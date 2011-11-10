@@ -46,11 +46,13 @@ void Surface::ReadVectorFile(char *s)
 
 	FILE *F = fopen(s, "rb");
 
+	FILE *F_out = fopen("Media\\test_ReadVectorFile.txt", "w");
+	char c[256];
+
 	while (fgets(buff, 255, F))
 		if (stringStartsWith(buff, "<!DOCTYPE SurfaceXML"))
 		{
-			StringCchPrintf(wcFileInfo, 512, L"(INFO) : This seems to be a diffusion surface file.\n");
-			OutputDebugString(wcFileInfo);
+			fputs ("(INFO) : This seems to be a diffusion surface file.\n", F_out);//test
 			break;
 		}
 	fgets(buff, 255, F);
@@ -59,18 +61,26 @@ void Surface::ReadVectorFile(char *s)
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
 	m_pNum = atof(token);
+	sprintf(c, "m_pNum: %d \n", m_pNum);//test
+	fputs(c, F_out);//test
 	while (!stringStartsWith(token, "nb_left_colors="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
 	m_clNum = atof(token);
+	sprintf(c, "m_clNum: %d \n", m_clNum);//test
+	fputs(c, F_out);//test
 	while (!stringStartsWith(token, "nb_right_colors="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
 	m_crNum = atof(token);
+	sprintf(c, "m_crNum: %d \n", m_crNum);//test
+	fputs(c, F_out);//test
 	while (!stringStartsWith(token, "nb_blur_points="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
 	m_bNum = atof(token);
+	sprintf(c, "m_bNum: %d \n", m_bNum);//test
+	fputs(c, F_out);//test
 	
 	D3DXVECTOR3 maxBound = D3DXVECTOR3(-1000000,-1000000,-1000000);
 	D3DXVECTOR3 minBound = D3DXVECTOR3(1000000,1000000,1000000);
@@ -94,6 +104,9 @@ void Surface::ReadVectorFile(char *s)
 		token = strtok(NULL, " \"\t");
 		m_controlpoints[i].z = atof(token);
 		fgets(buff, 255, F);
+		
+		sprintf(c, "controlpoint[%d]=(%g,%g,%g) \n", i, m_controlpoints[i].x, m_controlpoints[i].y, m_controlpoints[i].z);
+		fputs(c, F_out);
 
 		//extend the bounds if necessary
 			if (m_controlpoints[i].y < minBound.y)
@@ -113,7 +126,7 @@ void Surface::ReadVectorFile(char *s)
 	m_colors_left = new COLORPOINT[m_clNum];
 	for (int i = 0; i < m_clNum; i++)
 	{
-		while (!stringStartsWith(buff, "   <left_color "))
+		while (!stringStartsWith(buff, "  <left_color "))
 			fgets(buff, 255, F);
 		token = strtok(buff, " \"\t");
 		while (!stringStartsWith(token, "G="))
@@ -136,13 +149,16 @@ void Surface::ReadVectorFile(char *s)
 		token = strtok(NULL, " \"\t");
 		m_colors_left[i].col.x = atof(token)/256.0;
 		fgets(buff, 255, F);
+
+		sprintf(c, "color_left[%d]=(%g,%g,%g,%d) \n", i, m_colors_left[i].col.x, m_colors_left[i].col.y, m_colors_left[i].col.z, m_colors_left[i].off);
+		fputs(c, F_out);
 	}
 	
 	m_colors_right = new COLORPOINT[m_crNum];
 	m_colors_left = new COLORPOINT[m_clNum];
 	for (int i = 0; i < m_clNum; i++)
 	{
-		while (!stringStartsWith(buff, "   <right_color "))
+		while (!stringStartsWith(buff, "  <right_color "))
 			fgets(buff, 255, F);
 		token = strtok(buff, " \"\t");
 		while (!stringStartsWith(token, "G="))
@@ -165,12 +181,15 @@ void Surface::ReadVectorFile(char *s)
 		token = strtok(NULL, " \"\t");
 		m_colors_right[i].col.x = atof(token)/256.0;
 		fgets(buff, 255, F);
+
+		sprintf(c, "color_right[%d]=(%g,%g,%g,%d) \n", i, m_colors_right[i].col.x, m_colors_right[i].col.y, m_colors_right[i].col.z, m_colors_right[i].off);
+		fputs(c, F_out);
 	}
 
 	m_blurrpoints = new BLURRPOINT[m_bNum];
 	for (int i = 0; i < m_bNum; i++)
 	{
-		while (!stringStartsWith(buff, "   <best_scale"))
+		while (!stringStartsWith(buff, "  <best_scale"))
 			fgets(buff, 255, F);
 		token = strtok(buff, " \"\t");
 		while (!stringStartsWith(token, "value="))
@@ -183,8 +202,12 @@ void Surface::ReadVectorFile(char *s)
 		token = strtok(NULL, " \"\t");
 		m_blurrpoints[i].off = atof(token);
 		fgets(buff, 255, F);
+
+		sprintf(c, "blurrpoint[%d]=(%f,%d) \n", i, m_blurrpoints[i].blurr, m_blurrpoints[i].off);
+		fputs(c, F_out);
 	}
 	fclose(F);
+	fclose(F_out);
 
 	//scale the whole image between -1 and 1
 	/*D3DXVECTOR2 middlePan = D3DXVECTOR2( 0.5*(maxBound.x+minBound.x), 0.5*(maxBound.y+minBound.y));
