@@ -5,11 +5,10 @@
 #pragma warning( disable: 4996 )
 #include <strsafe.h>
 #pragma warning( default: 4996 )
-// Include the D3D10 headers
+// Include the D3D11 headers
 //--------------------------
-#include <d3d10.h>
-#include <d3dx10.h>
-#include <d3dx9.h>
+#include <d3d11.h>
+#include <d3dx11.h>
 
 #include <string>
 #include <stdlib.h>
@@ -33,6 +32,22 @@ Surface::~Surface()
 {
 }
 
+void Surface::InitBuffers(ID3D11Device *pd3dDevice)
+{
+	D3D11_BUFFER_DESC vertexBufferDesc;
+	vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	vertexBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vertexBufferDesc.MiscFlags = 0;
+	vertexBufferDesc.ByteWidth = sizeof(CB_PER_FRAME_CONSTANTS);
+
+	pd3dDevice->CreateBuffer(&vertexBufferDesc, NULL, &m_vertexBuffer);
+	//DXUT_SetDebugName(m_vertexBuffer, "CB_PER_FRAME_CONSTANTS");
+
+	
+}
+
+
 bool stringStartsWith(const char *s, const char *val)
 {
         return !strncmp(s, val, strlen(val));
@@ -41,7 +56,6 @@ bool stringStartsWith(const char *s, const char *val)
 void Surface::ReadVectorFile(char *s)
 {
 	char buff[256];
-	WCHAR wcFileInfo[512];
 	char *token;
 
 	FILE *F = fopen(s, "rb");
@@ -208,16 +222,9 @@ void Surface::ReadVectorFile(char *s)
 	}
 	fclose(F);
 	fclose(F_out);
+}
 
-	//scale the whole image between -1 and 1
-	/*D3DXVECTOR2 middlePan = D3DXVECTOR2( 0.5*(maxBound.x+minBound.x), 0.5*(maxBound.y+minBound.y));
-	for (int i1=0; i1<m_cNum; i1++)
-		for (int i2=0; i2<m_curve[i1].pNum; i2++)
-		{
-			m_curve[i1].p[i2].x = 2.0f*(m_curve[i1].p[i2].x-middlePan.x)/m_fWidth;
-			m_curve[i1].p[i2].y = 2.0f*(m_curve[i1].p[i2].y-middlePan.y)/m_fHeight;
-		}
-	StringCchPrintf( wcFileInfo, 512, L"(INFO) : %d curve segments found in file.\n", m_cSegNum);
-	OutputDebugString( wcFileInfo );
-	*/
+void Surface::ConstructSurface(ID3D11Device *pd3dDevice)
+{
+
 }
