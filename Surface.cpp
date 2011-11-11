@@ -25,16 +25,30 @@
 
 Surface::Surface()
 {
+	m_pcbPerFrame = NULL;
 }
 
 
 Surface::~Surface()
 {
+	SAFE_RELEASE(m_vertexbuffer);
+	SAFE_RELEASE(m_pcbPerFrame);
 }
 
-HRESULT Surface::InitVertexBuffer(ID3D11Device* pd3dDevice)
+HRESULT Surface::InitBuffers(ID3D11Device* pd3dDevice)
 {
 	HRESULT hr;
+
+	// Create constant buffers
+    D3D11_BUFFER_DESC Desc;
+    Desc.Usage = D3D11_USAGE_DYNAMIC;
+    Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    Desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    Desc.MiscFlags = 0;
+
+    Desc.ByteWidth = sizeof( CB_PER_FRAME_CONSTANTS );
+    V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &m_pcbPerFrame ) );
+    DXUT_SetDebugName( m_pcbPerFrame, "CB_PER_FRAME_CONSTANTS" );
 	
 	D3D11_BUFFER_DESC vbDesc1;
     ZeroMemory( &vbDesc1, sizeof(D3D11_BUFFER_DESC) );
@@ -49,8 +63,26 @@ HRESULT Surface::InitVertexBuffer(ID3D11Device* pd3dDevice)
     DXUT_SetDebugName( m_vertexbuffer, "Control Points for surface 1" );
 }
 
-void Surface::Render(ID3D11DeviceContext* pd3dImmediateContext)
+void Surface::Render(ID3D11DeviceContext* pd3dImmediateContext, UINT iBindPerFrame, D3DXMATRIX mViewProjection, D3DXVECTOR3 vCamEye, float fSubdivs)
 {
+	// Update per-frame variables
+    D3D11_MAPPED_SUBRESOURCE MappedResource;
+    pd3dImmediateContext->Map( m_pcbPerFrame, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
+    CB_PER_FRAME_CONSTANTS* pData = ( CB_PER_FRAME_CONSTANTS* )MappedResource.pData;
+
+    D3DXMatrixTranspose( &pData->mViewProjection, &mViewProjection );
+	pData->vCameraPosWorld = vCamEye;
+    pData->fTessellationFactor = (float)fSubdivs;
+
+    pd3dImmediateContext->Unmap( m_pcbPerFrame, 0 );
+
+	// Render the meshes
+    // Bind all of the CBs
+    pd3dImmediateContext->VSSetConstantBuffers( iBindPerFrame, 1, &m_pcbPerFrame );
+    pd3dImmediateContext->HSSetConstantBuffers( iBindPerFrame, 1, &m_pcbPerFrame );
+    pd3dImmediateContext->DSSetConstantBuffers( iBindPerFrame, 1, &m_pcbPerFrame );
+    pd3dImmediateContext->PSSetConstantBuffers( iBindPerFrame, 1, &m_pcbPerFrame );
+
 	UINT Stride = sizeof( BEZIER_CONTROL_POINT );
     UINT Offset = 0;
 

@@ -19,6 +19,13 @@ struct BEZIER_CONTROL_POINT
 	float z;
 };
 
+struct CB_PER_FRAME_CONSTANTS
+{
+    D3DXMATRIX mViewProjection;
+    D3DXVECTOR3 vCameraPosWorld;
+    float fTessellationFactor;
+};
+
 class Surface
 {
 public:
@@ -31,6 +38,7 @@ public:
 	int m_bNum;
 	BLURRPOINT *m_blurrpoints;
 
+	ID3D11Buffer* m_pcbPerFrame;
 	ID3D11Buffer* m_vertexbuffer;
 
 	D3DXMATRIX m_mModel;
@@ -38,8 +46,8 @@ public:
 	Surface();
 	~Surface();
 
-	HRESULT InitVertexBuffer(ID3D11Device* pd3dDevice);
-	void Render(ID3D11DeviceContext* pd3dImmediateContext);
+	HRESULT InitBuffers(ID3D11Device* pd3dDevice);
+	void Render(ID3D11DeviceContext* pd3dImmediateContext, UINT iBindPerFrame, D3DXMATRIX mViewProjection, D3DXVECTOR3 vCamEye, float fSubdivs);
 
 	void ReadVectorFile(char *s);
 };

@@ -31,10 +31,6 @@ CDXUTDialog                         g_SampleUI;              // dialog for sampl
 Surface*							g_surface1;
 Surface*							g_surface2;
 
-// Vertex buffer
-ID3D11Buffer*						g_pSurface1VB;
-ID3D11Buffer*						g_pSurface2VB;
-
 // Resources
 CDXUTTextHelper*                    g_pTxtHelper = NULL;
 
@@ -48,14 +44,6 @@ ID3D11PixelShader*                  g_pSolidColorPS = NULL;
 
 ID3D11Buffer*   g_pControlPointVB;                           // Control points for mesh
 
-struct CB_PER_FRAME_CONSTANTS
-{
-    D3DXMATRIX mViewProjection;
-    D3DXVECTOR3 vCameraPosWorld;
-    float fTessellationFactor;
-};
-
-ID3D11Buffer*                       g_pcbPerFrame = NULL;
 UINT                                g_iBindPerFrame = 0;
 
 ID3D11RasterizerState*              g_pRasterizerStateSolid = NULL;
@@ -393,17 +381,6 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     SAFE_RELEASE( pBlobPS );
     SAFE_RELEASE( pBlobPSSolid );
 
-    // Create constant buffers
-    D3D11_BUFFER_DESC Desc;
-    Desc.Usage = D3D11_USAGE_DYNAMIC;
-    Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    Desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    Desc.MiscFlags = 0;
-
-    Desc.ByteWidth = sizeof( CB_PER_FRAME_CONSTANTS );
-    V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &g_pcbPerFrame ) );
-    DXUT_SetDebugName( g_pcbPerFrame, "CB_PER_FRAME_CONSTANTS" );
-
     // Create solid and wireframe rasterizer state objects
     D3D11_RASTERIZER_DESC RasterDesc;
     ZeroMemory( &RasterDesc, sizeof(D3D11_RASTERIZER_DESC) );
@@ -420,12 +397,12 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	// Create surface1 and its vertex buffer
 	g_surface1 = new Surface();
 	g_surface1->ReadVectorFile("Media\\surface1.xml");
-	g_surface1->InitVertexBuffer(pd3dDevice);
+	g_surface1->InitBuffers(pd3dDevice);
     
 	// Create surface2 and its vertex buffer
 	g_surface2 = new Surface();
 	g_surface2->ReadVectorFile("Media\\surface2.xml");
-	g_surface2->InitVertexBuffer(pd3dDevice);
+	g_surface2->InitBuffers(pd3dDevice);
 	
     return S_OK;
 }
@@ -506,30 +483,10 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     D3DXMATRIX mView = *g_Camera.GetViewMatrix();
 
     mViewProjection = mView * mProj;
-	
-	
-
-    // Update per-frame variables
-    D3D11_MAPPED_SUBRESOURCE MappedResource;
-    pd3dImmediateContext->Map( g_pcbPerFrame, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-    CB_PER_FRAME_CONSTANTS* pData = ( CB_PER_FRAME_CONSTANTS* )MappedResource.pData;
-
-    D3DXMatrixTranspose( &pData->mViewProjection, &mViewProjection );
-    pData->vCameraPosWorld = *( g_Camera.GetEyePt() );
-    pData->fTessellationFactor = (float)g_fSubdivs;
-
-    pd3dImmediateContext->Unmap( g_pcbPerFrame, 0 );
-
-    // Render the meshes
-    // Bind all of the CBs
-    pd3dImmediateContext->VSSetConstantBuffers( g_iBindPerFrame, 1, &g_pcbPerFrame );
-    pd3dImmediateContext->HSSetConstantBuffers( g_iBindPerFrame, 1, &g_pcbPerFrame );
-    pd3dImmediateContext->DSSetConstantBuffers( g_iBindPerFrame, 1, &g_pcbPerFrame );
-    pd3dImmediateContext->PSSetConstantBuffers( g_iBindPerFrame, 1, &g_pcbPerFrame );
-
-    
-	g_surface1->Render(pd3dImmediateContext);
-	g_surface2->Render(pd3dImmediateContext);
+	    
+	// Draw surfaces   
+	g_surface1->Render(pd3dImmediateContext, g_iBindPerFrame, mViewProjection, *(g_Camera.GetEyePt()), g_fSubdivs);
+	g_surface2->Render(pd3dImmediateContext, g_iBindPerFrame, mViewProjection, *(g_Camera.GetEyePt()), g_fSubdivs);
 	
 	
     pd3dImmediateContext->RSSetState( g_pRasterizerStateSolid );
@@ -562,7 +519,6 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
     DXUTGetGlobalResourceCache().OnDestroyDevice();
     SAFE_DELETE( g_pTxtHelper );
     SAFE_RELEASE( g_pPatchLayout );
-    SAFE_RELEASE( g_pcbPerFrame );
 
     SAFE_RELEASE( g_pVertexShader );
     SAFE_RELEASE( g_pHullShaderInteger );
@@ -573,6 +529,6 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
     SAFE_RELEASE( g_pRasterizerStateSolid );
     SAFE_RELEASE( g_pRasterizerStateWireframe );
 
-    SAFE_RELEASE( g_pSurface1VB );
-	SAFE_RELEASE( g_pSurface2VB );
+	SAFE_DELETE(g_surface1);
+	SAFE_DELETE(g_surface2);
 }
