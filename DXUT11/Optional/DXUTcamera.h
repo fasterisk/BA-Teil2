@@ -220,6 +220,9 @@ public:
         return m_bMouseRButtonDown;
     }
 
+	int m_nMouseWheelDelta;     // Amount of middle wheel scroll (+/-)
+	D3DXVECTOR2 m_vMouseDelta;          // Mouse relative delta smoothed over a few frames
+
 protected:
     // Functions to map a WM_KEYDOWN key to a D3DUtil_CameraKeys enum
     virtual D3DUtil_CameraKeys  MapKey( UINT nKey );
@@ -254,8 +257,8 @@ protected:
     bool m_bMouseMButtonDown;    // True if middle button is down 
     bool m_bMouseRButtonDown;    // True if right button is down 
     int m_nCurrentButtonMask;   // mask of which buttons are down
-    int m_nMouseWheelDelta;     // Amount of middle wheel scroll (+/-) 
-    D3DXVECTOR2 m_vMouseDelta;          // Mouse relative delta smoothed over a few frames
+    
+    
     float m_fFramesToSmoothMouseData; // Number of frames to smooth mouse data over
 
     D3DXVECTOR3 m_vDefaultEye;          // Default camera eye position
@@ -405,6 +408,8 @@ public:
         m_mWorld = mWorld; m_bDragSinceLastUpdate = true;
     }
 
+	int m_nZoomButtonMask;
+
 protected:
     CD3DArcBall m_WorldArcBall;
     CD3DArcBall m_ViewArcBall;
@@ -414,7 +419,7 @@ protected:
     D3DXMATRIX m_mWorld;               // World matrix of model
 
     int m_nRotateModelButtonMask;
-    int m_nZoomButtonMask;
+    
     int m_nRotateCameraButtonMask;
 
     bool m_bAttachCameraToModel;
