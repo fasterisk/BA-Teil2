@@ -43,7 +43,7 @@ void Surface::Rotate(float x, float y, float z)
 	D3DXMatrixRotationY(&mRotY, y);
 	D3DXMatrixRotationZ(&mRotZ, z);
 
-	m_mModel = (mRotX * mRotY * mRotZ) * m_mModel;
+	m_mModel = (mRotZ * mRotX * mRotY) * m_mModel;
 }
 
 HRESULT Surface::InitBuffers(ID3D11Device* pd3dDevice)

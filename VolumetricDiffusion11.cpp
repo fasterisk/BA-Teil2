@@ -53,6 +53,8 @@ ID3D11RasterizerState*              g_pRasterizerStateWireframe = NULL;
 float                               g_fSubdivs = 8;          // Startup subdivisions per side
 bool                                g_bDrawWires = false;    // Draw the mesh with wireframe overlay
 
+float								g_fElapsedTime = 0;
+
 enum E_PARTITION_MODE
 {
    PARTITION_INTEGER,
@@ -76,22 +78,17 @@ E_PARTITION_MODE                    g_iPartitionMode = PARTITION_INTEGER;
 //--------------------------------------------------------------------------------------
 // Forward declarations 
 //--------------------------------------------------------------------------------------
-bool CALLBACK ModifyDeviceSettings( DXUTDeviceSettings* pDeviceSettings, void* pUserContext );
-void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext );
-LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool* pbNoFurtherProcessing,
-                          void* pUserContext );
-void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, void* pUserContext );
-
-bool CALLBACK IsD3D11DeviceAcceptable( const CD3D11EnumAdapterInfo *AdapterInfo, UINT Output, const CD3D11EnumDeviceInfo *DeviceInfo,
-                                       DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext );
-HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc,
-                                      void* pUserContext );
-HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapChain* pSwapChain,
-                                          const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext );
-void CALLBACK OnD3D11ReleasingSwapChain( void* pUserContext );
-void CALLBACK OnD3D11DestroyDevice( void* pUserContext );
-void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime,
-                                  float fElapsedTime, void* pUserContext );
+bool	CALLBACK ModifyDeviceSettings( DXUTDeviceSettings* pDeviceSettings, void* pUserContext );
+void	CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext );
+LRESULT	CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool* pbNoFurtherProcessing, void* pUserContext );
+void    CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext );
+void	CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, void* pUserContext );
+bool	CALLBACK IsD3D11DeviceAcceptable( const CD3D11EnumAdapterInfo *AdapterInfo, UINT Output, const CD3D11EnumDeviceInfo *DeviceInfo, DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext );
+HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext );
+HRESULT	CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapChain* pSwapChain, const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext );
+void	CALLBACK OnD3D11ReleasingSwapChain( void* pUserContext );
+void	CALLBACK OnD3D11DestroyDevice( void* pUserContext );
+void	CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime, float fElapsedTime, void* pUserContext );
 
 
 void InitApp();
@@ -114,6 +111,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
     // Set DXUT callbacks
     DXUTSetCallbackDeviceChanging( ModifyDeviceSettings );
     DXUTSetCallbackMsgProc( MsgProc );
+	DXUTSetCallbackKeyboard( OnKeyboard );
     DXUTSetCallbackFrameMove( OnFrameMove );
 
     DXUTSetCallbackD3D11DeviceAcceptable( IsD3D11DeviceAcceptable );
@@ -246,6 +244,24 @@ LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bo
 
     return 0;
 }
+
+//--------------------------------------------------------------------------------------
+// Handle key presses
+//--------------------------------------------------------------------------------------
+void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext )
+{
+	static int cVertex = 0;
+	
+	if( bKeyDown )
+	{
+		switch( nChar )
+		{
+		case 'X': g_surface1->Rotate(10.0*g_fElapsedTime, 0.0, 0.0);
+			break;
+		}
+    }
+}
+
 
 //--------------------------------------------------------------------------------------
 // Handles the GUI events
@@ -439,12 +455,14 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime,
                                   float fElapsedTime, void* pUserContext )
 {
+	g_fElapsedTime = fElapsedTime;
+
     // If the settings dialog is being shown, then render it instead of rendering the app's scene
     if( g_D3DSettingsDlg.IsActive() )
     {
         g_D3DSettingsDlg.OnRender( fElapsedTime );
         return;
-    }
+	}
 
 	// Clear the render target and depth stencil
     float ClearColor[4] = { 0.05f, 0.05f, 0.05f, 0.0f };
