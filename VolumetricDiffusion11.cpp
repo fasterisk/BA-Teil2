@@ -30,6 +30,8 @@ CDXUTDialog                         g_SampleUI;              // dialog for sampl
 // Surfaces
 Surface*							g_surface1;
 Surface*							g_surface2;
+Surface*							g_controlledSurface;
+bool								g_surface1IsControlled = true;
 
 // Resources
 CDXUTTextHelper*                    g_pTxtHelper = NULL;
@@ -74,6 +76,8 @@ E_PARTITION_MODE                    g_iPartitionMode = PARTITION_INTEGER;
 #define IDC_PATCH_SUBDIVS         5
 #define IDC_PATCH_SUBDIVS_STATIC  6
 #define IDC_TOGGLE_LINES          7
+
+#define IDC_CHANGE_CONTROL		  8
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -125,7 +129,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
     DXUTInit( true, true ); // Parse the command line, show msgboxes on error, and an extra cmd line param to force REF for now
     DXUTSetCursorSettings( true, true ); // Show the cursor and clip it when in full screen
     DXUTCreateWindow( L"SimpleBezier11" );
-    DXUTCreateDevice( D3D_FEATURE_LEVEL_11_0,  true, 640, 480 );
+    DXUTCreateDevice( D3D_FEATURE_LEVEL_11_0,  true, 800, 600 );
     DXUTMainLoop(); // Enter into the DXUT render loop
 
     return DXUTGetExitCode();
@@ -143,9 +147,10 @@ void InitApp()
     g_SampleUI.Init( &g_DialogResourceManager );
 
     g_HUD.SetCallback( OnGUIEvent ); int iY = 20;
-    g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 0, iY, 170, 22 );
-    g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 0, iY += 26, 170, 22, VK_F3 );
-    g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 0, iY += 26, 170, 22, VK_F2 );
+    g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 0, iY, 170, 30 );
+    g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 0, iY += 26, 170, 30, VK_F3 );
+    g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 0, iY += 26, 170, 30, VK_F2 );
+	g_HUD.AddButton( IDC_CHANGE_CONTROL, L"Change contr. surface", 0, iY += 26, 170, 30);
 
     g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
 
@@ -256,7 +261,7 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 	{
 		switch( nChar )
 		{
-		case 'X': g_surface1->Rotate(10.0*g_fElapsedTime, 0.0, 0.0);
+		case 'X': g_controlledSurface->Rotate(10.0*g_fElapsedTime, 0.0, 0.0);
 			break;
 		}
     }
@@ -279,6 +284,12 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
             g_D3DSettingsDlg.SetActive( !g_D3DSettingsDlg.IsActive() ); break;
 
             // Custom app controls
+		case IDC_CHANGE_CONTROL:
+			if(g_surface1IsControlled)
+				g_controlledSurface = g_surface2;
+			else
+				g_controlledSurface = g_surface1;
+			g_surface1IsControlled = !g_surface1IsControlled;
         case IDC_PATCH_SUBDIVS:
         {
             g_fSubdivs = g_SampleUI.GetSlider( IDC_PATCH_SUBDIVS )->GetValue() / 10.0f;
@@ -419,6 +430,8 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	g_surface2 = new Surface();
 	g_surface2->ReadVectorFile("Media\\surface2.xml");
 	g_surface2->InitBuffers(pd3dDevice);
+
+	g_controlledSurface = g_surface1;
 	
     return S_OK;
 }
