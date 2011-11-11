@@ -32,6 +32,33 @@ Surface::~Surface()
 {
 }
 
+HRESULT Surface::InitVertexBuffer(ID3D11Device* pd3dDevice)
+{
+	HRESULT hr;
+	
+	D3D11_BUFFER_DESC vbDesc1;
+    ZeroMemory( &vbDesc1, sizeof(D3D11_BUFFER_DESC) );
+	vbDesc1.ByteWidth = sizeof(BEZIER_CONTROL_POINT) * m_pNum;
+    vbDesc1.Usage = D3D11_USAGE_DEFAULT;
+    vbDesc1.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA vbInitData1;
+    ZeroMemory( &vbInitData1, sizeof(vbInitData1) );
+    vbInitData1.pSysMem = m_controlpoints;
+    V_RETURN( pd3dDevice->CreateBuffer( &vbDesc1, &vbInitData1, &m_vertexbuffer ) );
+    DXUT_SetDebugName( m_vertexbuffer, "Control Points for surface 1" );
+}
+
+void Surface::Render(ID3D11DeviceContext* pd3dImmediateContext)
+{
+	UINT Stride = sizeof( BEZIER_CONTROL_POINT );
+    UINT Offset = 0;
+
+	// Draw
+	pd3dImmediateContext->IASetVertexBuffers( 0, 1, &m_vertexbuffer, &Stride, &Offset );
+    pd3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST );
+	pd3dImmediateContext->Draw( m_pNum, 0 );
+}
 
 bool stringStartsWith(const char *s, const char *val)
 {

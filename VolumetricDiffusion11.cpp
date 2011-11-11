@@ -416,41 +416,17 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     RasterDesc.FillMode = D3D11_FILL_WIREFRAME;
     V_RETURN( pd3dDevice->CreateRasterizerState( &RasterDesc, &g_pRasterizerStateWireframe ) );
     DXUT_SetDebugName( g_pRasterizerStateWireframe, "Wireframe" );
-
-
+	
 	// Create surface1 and its vertex buffer
 	g_surface1 = new Surface();
 	g_surface1->ReadVectorFile("Media\\surface1.xml");
-	
-    D3D11_BUFFER_DESC vbDesc1;
-    ZeroMemory( &vbDesc1, sizeof(D3D11_BUFFER_DESC) );
-	vbDesc1.ByteWidth = sizeof(BEZIER_CONTROL_POINT) * g_surface1->m_pNum;
-    vbDesc1.Usage = D3D11_USAGE_DEFAULT;
-    vbDesc1.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-    D3D11_SUBRESOURCE_DATA vbInitData1;
-    ZeroMemory( &vbInitData1, sizeof(vbInitData1) );
-    vbInitData1.pSysMem = g_surface1->m_controlpoints;
-    V_RETURN( pd3dDevice->CreateBuffer( &vbDesc1, &vbInitData1, &g_pSurface1VB ) );
-    DXUT_SetDebugName( g_pSurface1VB, "Control Points for surface 1" );
-
+	g_surface1->InitVertexBuffer(pd3dDevice);
+    
 	// Create surface2 and its vertex buffer
 	g_surface2 = new Surface();
 	g_surface2->ReadVectorFile("Media\\surface2.xml");
-
-	D3D11_BUFFER_DESC vbDesc2;
-    ZeroMemory( &vbDesc2, sizeof(D3D11_BUFFER_DESC) );
-	vbDesc2.ByteWidth = sizeof(BEZIER_CONTROL_POINT) * g_surface2->m_pNum;
-    vbDesc2.Usage = D3D11_USAGE_DEFAULT;
-    vbDesc2.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-    D3D11_SUBRESOURCE_DATA vbInitData2;
-    ZeroMemory( &vbInitData2, sizeof(vbInitData2) );
-    vbInitData2.pSysMem = g_surface2->m_controlpoints;
-    V_RETURN( pd3dDevice->CreateBuffer( &vbDesc2, &vbInitData2, &g_pSurface2VB ) );
-    DXUT_SetDebugName( g_pSurface2VB, "Control Points for surface 2" );
+	g_surface2->InitVertexBuffer(pd3dDevice);
 	
-
     return S_OK;
 }
 
@@ -493,12 +469,45 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
         return;
     }
 
+	// Clear the render target and depth stencil
+    float ClearColor[4] = { 0.05f, 0.05f, 0.05f, 0.0f };
+    ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
+    pd3dImmediateContext->ClearRenderTargetView( pRTV, ClearColor );
+    ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
+    pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
+
+	// Set state for solid rendering
+    pd3dImmediateContext->RSSetState( g_pRasterizerStateSolid );
+
+	// Optionally draw the wireframe
+    if( g_bDrawWires )
+    {
+        pd3dImmediateContext->PSSetShader( g_pSolidColorPS, NULL, 0 );
+        pd3dImmediateContext->RSSetState( g_pRasterizerStateWireframe ); 
+    }
+
+	// Set the shaders
+    pd3dImmediateContext->VSSetShader( g_pVertexShader, NULL, 0 );
+    pd3dImmediateContext->HSSetShader( g_pHullShaderInteger, NULL, 0 );
+    pd3dImmediateContext->DSSetShader( g_pDomainShader, NULL, 0 );
+    pd3dImmediateContext->GSSetShader( NULL, NULL, 0 );
+    pd3dImmediateContext->PSSetShader( g_pPixelShader, NULL, 0 );
+
+	// Set the input assembler
+    // This sample uses patches with 16 control points each
+    // Although the Mobius strip only needs to use a vertex buffer,
+    // you can use an index buffer as well by calling IASetIndexBuffer().
+    pd3dImmediateContext->IASetInputLayout( g_pPatchLayout );
+    
+
     // WVP
     D3DXMATRIX mViewProjection;
     D3DXMATRIX mProj = *g_Camera.GetProjMatrix();
     D3DXMATRIX mView = *g_Camera.GetViewMatrix();
 
     mViewProjection = mView * mProj;
+	
+	
 
     // Update per-frame variables
     D3D11_MAPPED_SUBRESOURCE MappedResource;
@@ -511,16 +520,6 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 
     pd3dImmediateContext->Unmap( g_pcbPerFrame, 0 );
 
-    // Clear the render target and depth stencil
-    float ClearColor[4] = { 0.05f, 0.05f, 0.05f, 0.0f };
-    ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
-    pd3dImmediateContext->ClearRenderTargetView( pRTV, ClearColor );
-    ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
-    pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
-
-    // Set state for solid rendering
-    pd3dImmediateContext->RSSetState( g_pRasterizerStateSolid );
-
     // Render the meshes
     // Bind all of the CBs
     pd3dImmediateContext->VSSetConstantBuffers( g_iBindPerFrame, 1, &g_pcbPerFrame );
@@ -528,38 +527,11 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     pd3dImmediateContext->DSSetConstantBuffers( g_iBindPerFrame, 1, &g_pcbPerFrame );
     pd3dImmediateContext->PSSetConstantBuffers( g_iBindPerFrame, 1, &g_pcbPerFrame );
 
-    // Set the shaders
-    pd3dImmediateContext->VSSetShader( g_pVertexShader, NULL, 0 );
-    pd3dImmediateContext->HSSetShader( g_pHullShaderInteger, NULL, 0 );
-    pd3dImmediateContext->DSSetShader( g_pDomainShader, NULL, 0 );
-    pd3dImmediateContext->GSSetShader( NULL, NULL, 0 );
-    pd3dImmediateContext->PSSetShader( g_pPixelShader, NULL, 0 );
-
-    // Optionally draw the wireframe
-    if( g_bDrawWires )
-    {
-        pd3dImmediateContext->PSSetShader( g_pSolidColorPS, NULL, 0 );
-        pd3dImmediateContext->RSSetState( g_pRasterizerStateWireframe ); 
-    }
-
-    // Set the input assembler
-    // This sample uses patches with 16 control points each
-    // Although the Mobius strip only needs to use a vertex buffer,
-    // you can use an index buffer as well by calling IASetIndexBuffer().
-    pd3dImmediateContext->IASetInputLayout( g_pPatchLayout );
-    UINT Stride = sizeof( BEZIER_CONTROL_POINT );
-    UINT Offset = 0;
     
-	// Draw surface1
-	pd3dImmediateContext->IASetVertexBuffers( 0, 1, &g_pSurface1VB, &Stride, &Offset );
-    pd3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST );
-	pd3dImmediateContext->Draw( g_surface1->m_pNum, 0 );
+	g_surface1->Render(pd3dImmediateContext);
+	g_surface2->Render(pd3dImmediateContext);
 	
-	// Draw surface2
-	pd3dImmediateContext->IASetVertexBuffers( 0, 1, &g_pSurface2VB, &Stride, &Offset );
-    pd3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST );
-	pd3dImmediateContext->Draw( g_surface2->m_pNum, 0 );
-
+	
     pd3dImmediateContext->RSSetState( g_pRasterizerStateSolid );
 
     // Render the HUD
