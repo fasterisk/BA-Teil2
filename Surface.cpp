@@ -32,21 +32,6 @@ Surface::~Surface()
 {
 }
 
-void Surface::InitBuffers(ID3D11Device *pd3dDevice)
-{
-	/*D3D11_BUFFER_DESC vertexBufferDesc;
-	vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	vertexBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	vertexBufferDesc.MiscFlags = 0;
-	vertexBufferDesc.ByteWidth = sizeof(CB_PER_FRAME_CONSTANTS);
-
-	pd3dDevice->CreateBuffer(&vertexBufferDesc, NULL, &m_vertexBuffer);
-	//DXUT_SetDebugName(m_vertexBuffer, "CB_PER_FRAME_CONSTANTS");
-	*/
-	
-}
-
 
 bool stringStartsWith(const char *s, const char *val)
 {
@@ -224,7 +209,3 @@ void Surface::ReadVectorFile(char *s)
 	fclose(F_out);
 }
 
-void Surface::ConstructSurface(ID3D11Device *pd3dDevice)
-{
-
-}

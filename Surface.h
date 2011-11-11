@@ -31,15 +31,9 @@ public:
 	int m_bNum;
 	BLURRPOINT *m_blurrpoints;
 
-	ID3D11Buffer *m_vertexBuffer;
-
 
 	Surface();
 	~Surface();
 
-	void InitBuffers(ID3D11Device *pd3dDevice);
-	void Render(ID3D11Device *pd3dDevice);
-
 	void ReadVectorFile(char *s);
-	void ConstructSurface(ID3D11Device *pd3dDevice);
 };

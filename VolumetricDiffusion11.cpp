@@ -27,8 +27,13 @@ CD3DSettingsDlg                     g_D3DSettingsDlg;        // Device settings 
 CDXUTDialog                         g_HUD;                   // manages the 3D   
 CDXUTDialog                         g_SampleUI;              // dialog for sample specific controls
 
-
+// Surfaces
 Surface*							g_surface1;
+Surface*							g_surface2;
+
+// Vertex buffer
+ID3D11Buffer*						g_pSurface1VB;
+ID3D11Buffer*						g_pSurface2VB;
 
 // Resources
 CDXUTTextHelper*                    g_pTxtHelper = NULL;
@@ -399,11 +404,6 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &g_pcbPerFrame ) );
     DXUT_SetDebugName( g_pcbPerFrame, "CB_PER_FRAME_CONSTANTS" );
 
-
-	g_surface1 = new Surface();
-	g_surface1->ReadVectorFile("Media\\surface2.xml");
-
-
     // Create solid and wireframe rasterizer state objects
     D3D11_RASTERIZER_DESC RasterDesc;
     ZeroMemory( &RasterDesc, sizeof(D3D11_RASTERIZER_DESC) );
@@ -417,18 +417,38 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     V_RETURN( pd3dDevice->CreateRasterizerState( &RasterDesc, &g_pRasterizerStateWireframe ) );
     DXUT_SetDebugName( g_pRasterizerStateWireframe, "Wireframe" );
 
-    D3D11_BUFFER_DESC vbDesc;
-    ZeroMemory( &vbDesc, sizeof(D3D11_BUFFER_DESC) );
-	vbDesc.ByteWidth = sizeof(BEZIER_CONTROL_POINT) * g_surface1->m_pNum;
-    vbDesc.Usage = D3D11_USAGE_DEFAULT;
-    vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
-    D3D11_SUBRESOURCE_DATA vbInitData;
-    ZeroMemory( &vbInitData, sizeof(vbInitData) );
-    vbInitData.pSysMem = g_surface1->m_controlpoints;
-    V_RETURN( pd3dDevice->CreateBuffer( &vbDesc, &vbInitData, &g_pControlPointVB ) );
-    DXUT_SetDebugName( g_pControlPointVB, "Control Points" );
+	// Create surface1 and its vertex buffer
+	g_surface1 = new Surface();
+	g_surface1->ReadVectorFile("Media\\surface1.xml");
+	
+    D3D11_BUFFER_DESC vbDesc1;
+    ZeroMemory( &vbDesc1, sizeof(D3D11_BUFFER_DESC) );
+	vbDesc1.ByteWidth = sizeof(BEZIER_CONTROL_POINT) * g_surface1->m_pNum;
+    vbDesc1.Usage = D3D11_USAGE_DEFAULT;
+    vbDesc1.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
+    D3D11_SUBRESOURCE_DATA vbInitData1;
+    ZeroMemory( &vbInitData1, sizeof(vbInitData1) );
+    vbInitData1.pSysMem = g_surface1->m_controlpoints;
+    V_RETURN( pd3dDevice->CreateBuffer( &vbDesc1, &vbInitData1, &g_pSurface1VB ) );
+    DXUT_SetDebugName( g_pSurface1VB, "Control Points for surface 1" );
+
+	// Create surface2 and its vertex buffer
+	g_surface2 = new Surface();
+	g_surface2->ReadVectorFile("Media\\surface2.xml");
+
+	D3D11_BUFFER_DESC vbDesc2;
+    ZeroMemory( &vbDesc2, sizeof(D3D11_BUFFER_DESC) );
+	vbDesc2.ByteWidth = sizeof(BEZIER_CONTROL_POINT) * g_surface2->m_pNum;
+    vbDesc2.Usage = D3D11_USAGE_DEFAULT;
+    vbDesc2.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA vbInitData2;
+    ZeroMemory( &vbInitData2, sizeof(vbInitData2) );
+    vbInitData2.pSysMem = g_surface2->m_controlpoints;
+    V_RETURN( pd3dDevice->CreateBuffer( &vbDesc2, &vbInitData2, &g_pSurface2VB ) );
+    DXUT_SetDebugName( g_pSurface2VB, "Control Points for surface 2" );
 	
 
     return S_OK;
@@ -529,11 +549,16 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     pd3dImmediateContext->IASetInputLayout( g_pPatchLayout );
     UINT Stride = sizeof( BEZIER_CONTROL_POINT );
     UINT Offset = 0;
-    pd3dImmediateContext->IASetVertexBuffers( 0, 1, &g_pControlPointVB, &Stride, &Offset );
+    
+	// Draw surface1
+	pd3dImmediateContext->IASetVertexBuffers( 0, 1, &g_pSurface1VB, &Stride, &Offset );
     pd3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST );
-
-    // Draw the mesh
 	pd3dImmediateContext->Draw( g_surface1->m_pNum, 0 );
+	
+	// Draw surface2
+	pd3dImmediateContext->IASetVertexBuffers( 0, 1, &g_pSurface2VB, &Stride, &Offset );
+    pd3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST );
+	pd3dImmediateContext->Draw( g_surface2->m_pNum, 0 );
 
     pd3dImmediateContext->RSSetState( g_pRasterizerStateSolid );
 
@@ -576,5 +601,6 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
     SAFE_RELEASE( g_pRasterizerStateSolid );
     SAFE_RELEASE( g_pRasterizerStateWireframe );
 
-    SAFE_RELEASE( g_pControlPointVB );
+    SAFE_RELEASE( g_pSurface1VB );
+	SAFE_RELEASE( g_pSurface2VB );
 }
