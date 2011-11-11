@@ -46,6 +46,14 @@ void Surface::Rotate(float x, float y, float z)
 	m_mModel = (mRotZ * mRotX * mRotY) * m_mModel;
 }
 
+void Surface::Scale(float fFactor)
+{
+	D3DXMATRIX mScale;
+	D3DXMatrixScaling(&mScale, fFactor, fFactor, fFactor);
+
+	m_mModel = mScale * m_mModel;
+}
+
 HRESULT Surface::InitBuffers(ID3D11Device* pd3dDevice)
 {
 	HRESULT hr;

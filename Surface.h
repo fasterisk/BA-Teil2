@@ -47,6 +47,7 @@ public:
 	~Surface();
 
 	void Rotate(float x, float y, float z);
+	void Scale(float fFactor);
 
 	HRESULT InitBuffers(ID3D11Device* pd3dDevice);
 	void Render(ID3D11DeviceContext* pd3dImmediateContext, UINT iBindPerFrame, D3DXMATRIX mViewProjection, D3DXVECTOR3 vCamEye, float fSubdivs);

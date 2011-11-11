@@ -32,6 +32,7 @@ Surface*							g_surface1;
 Surface*							g_surface2;
 Surface*							g_controlledSurface;
 bool								g_surface1IsControlled = true;
+bool								g_mouseLButtonDown = false;
 
 // Resources
 CDXUTTextHelper*                    g_pTxtHelper = NULL;
@@ -453,7 +454,7 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
     g_Camera.SetProjParams( D3DX_PI / 4, fAspectRatio, 0.1f, 20.0f );
     g_Camera.SetWindow( pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height );
     g_Camera.SetButtonMasks( MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_LEFT_BUTTON );
-
+	
     g_HUD.SetLocation( pBackBufferSurfaceDesc->Width - 170, 0 );
     g_HUD.SetSize( 170, 170 );
     g_SampleUI.SetLocation( pBackBufferSurfaceDesc->Width - 170, pBackBufferSurfaceDesc->Height - 300 );
@@ -475,6 +476,35 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     {
         g_D3DSettingsDlg.OnRender( fElapsedTime );
         return;
+	}
+
+	// Camera movement
+	if( g_Camera.m_nMouseWheelDelta && g_Camera.m_nZoomButtonMask == MOUSE_WHEEL )
+	{
+		g_controlledSurface->Scale(g_Camera.m_nMouseWheelDelta * 0.2);
+	    g_Camera.m_nMouseWheelDelta = 0;
+	}
+
+	if ((!g_Camera.IsMouseRButtonDown()) && (g_mouseLButtonDown == true))
+	{
+		g_mouseLButtonDown = false;
+	}
+	else if (g_Camera.IsMouseRButtonDown())
+		g_mouseLButtonDown = true;
+	else
+		g_mouseLButtonDown = false;
+
+    if( g_Camera.IsBeingDragged() )
+	{
+		/*float ff = 1.0f;
+		if (g_Camera.IsMouseRButtonDown())
+			ff = 0.127f; 
+		float xFac = ff*4.0f/g_vsCombinedObj->g_controlledObj->m_sizeX;
+		float yFac = ff*4.0f/g_vsCombinedObj->g_controlledObj->m_sizeY;
+		g_vsCombinedObj->g_controlledObj->m_pan += D3DXVECTOR2(xFac*g_Camera.m_vMouseDelta.x,-yFac*g_Camera.m_vMouseDelta.y);
+		g_Camera.m_vMouseDelta.x = 0;
+		g_Camera.m_vMouseDelta.y = 0;
+		*/
 	}
 
 	// Clear the render target and depth stencil
