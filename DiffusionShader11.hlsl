@@ -19,7 +19,7 @@
 //--------------------------------------------------------------------------------------
 cbuffer cbPerFrame : register( b0 )
 {
-    matrix g_mViewProjection;
+    matrix g_mModelViewProjection;
     float3 g_vCameraPosWorld;
     float  g_fTessellationFactor;
 };
@@ -189,7 +189,7 @@ DS_OUTPUT BezierDS( HS_CONSTANT_DATA_OUTPUT input,
     float3 Norm = normalize( cross( Tangent, BiTangent ) );
 
     DS_OUTPUT Output;
-    Output.vPosition = mul( float4(WorldPos,1), g_mViewProjection );
+    Output.vPosition = mul( float4(WorldPos,1), g_mModelViewProjection );
     Output.vWorldPos = WorldPos;
     Output.vNormal = Norm;
 

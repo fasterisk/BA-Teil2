@@ -26,6 +26,7 @@
 Surface::Surface()
 {
 	m_pcbPerFrame = NULL;
+	D3DXMatrixIdentity(&m_mModel);
 }
 
 
@@ -33,6 +34,16 @@ Surface::~Surface()
 {
 	SAFE_RELEASE(m_vertexbuffer);
 	SAFE_RELEASE(m_pcbPerFrame);
+}
+
+void Surface::Rotate(float x, float y, float z)
+{
+	D3DXMATRIX mRotX, mRotY, mRotZ;
+	D3DXMatrixRotationX(&mRotX, x);
+	D3DXMatrixRotationY(&mRotY, y);
+	D3DXMatrixRotationZ(&mRotZ, z);
+
+	m_mModel = (mRotX * mRotY * mRotZ) * m_mModel;
 }
 
 HRESULT Surface::InitBuffers(ID3D11Device* pd3dDevice)
@@ -65,12 +76,14 @@ HRESULT Surface::InitBuffers(ID3D11Device* pd3dDevice)
 
 void Surface::Render(ID3D11DeviceContext* pd3dImmediateContext, UINT iBindPerFrame, D3DXMATRIX mViewProjection, D3DXVECTOR3 vCamEye, float fSubdivs)
 {
+	D3DXMATRIX mModelViewProjection = m_mModel * mViewProjection;
+
 	// Update per-frame variables
     D3D11_MAPPED_SUBRESOURCE MappedResource;
     pd3dImmediateContext->Map( m_pcbPerFrame, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
     CB_PER_FRAME_CONSTANTS* pData = ( CB_PER_FRAME_CONSTANTS* )MappedResource.pData;
 
-    D3DXMatrixTranspose( &pData->mViewProjection, &mViewProjection );
+    D3DXMatrixTranspose( &pData->mModelViewProjection, &mModelViewProjection );
 	pData->vCameraPosWorld = vCamEye;
     pData->fTessellationFactor = (float)fSubdivs;
 

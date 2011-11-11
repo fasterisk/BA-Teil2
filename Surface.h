@@ -21,7 +21,7 @@ struct BEZIER_CONTROL_POINT
 
 struct CB_PER_FRAME_CONSTANTS
 {
-    D3DXMATRIX mViewProjection;
+    D3DXMATRIX mModelViewProjection;
     D3DXVECTOR3 vCameraPosWorld;
     float fTessellationFactor;
 };
@@ -45,6 +45,8 @@ public:
 
 	Surface();
 	~Surface();
+
+	void Rotate(float x, float y, float z);
 
 	HRESULT InitBuffers(ID3D11Device* pd3dDevice);
 	void Render(ID3D11DeviceContext* pd3dImmediateContext, UINT iBindPerFrame, D3DXMATRIX mViewProjection, D3DXVECTOR3 vCamEye, float fSubdivs);
