@@ -94,7 +94,7 @@ HRESULT	CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 void	CALLBACK OnD3D11ReleasingSwapChain( void* pUserContext );
 void	CALLBACK OnD3D11DestroyDevice( void* pUserContext );
 void	CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime, float fElapsedTime, void* pUserContext );
-
+void	CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, bool bSide1Down, bool bSide2Down, int iWheelDelta, int iX, int iY, void* pUserContext);
 
 void InitApp();
 void RenderText();
@@ -118,6 +118,8 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
     DXUTSetCallbackMsgProc( MsgProc );
 	DXUTSetCallbackKeyboard( OnKeyboard );
     DXUTSetCallbackFrameMove( OnFrameMove );
+	bool includeMouseMoveEvents = true;
+	DXUTSetCallbackMouse(OnMouseEvent, includeMouseMoveEvents);
 
     DXUTSetCallbackD3D11DeviceAcceptable( IsD3D11DeviceAcceptable );
     DXUTSetCallbackD3D11DeviceCreated( OnD3D11CreateDevice );
@@ -266,6 +268,14 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 			break;
 		}
     }
+}
+
+//--------------------------------------------------------------------------------------
+// Handle mouse
+//--------------------------------------------------------------------------------------
+void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, bool bSide1Down, bool bSide2Down, int iWheelDelta, int iX, int iY, void* pUserContext)
+{
+
 }
 
 
