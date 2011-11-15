@@ -284,8 +284,8 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 
 	if(bLeftDown)
 	{
-		g_controlledSurface->RotateX((g_mouseY-iY)*g_fElapsedTime*2);
-		g_controlledSurface->RotateY((g_mouseX-iX)*g_fElapsedTime*2);
+		g_controlledSurface->RotateX((g_mouseY-iY)*g_fElapsedTime*10);
+		g_controlledSurface->RotateY((g_mouseX-iX)*g_fElapsedTime*10);
 	}
 	g_mouseX = iX;
 	g_mouseY = iY;
