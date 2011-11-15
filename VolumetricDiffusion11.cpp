@@ -248,7 +248,7 @@ LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bo
         return 0;
 
     // Pass all remaining windows messages to camera so it can respond to user input
-    g_Camera.HandleMessages( hWnd, uMsg, wParam, lParam );
+    //g_Camera.HandleMessages( hWnd, uMsg, wParam, lParam );
 
     return 0;
 }
