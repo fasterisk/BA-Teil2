@@ -275,7 +275,11 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 //--------------------------------------------------------------------------------------
 void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, bool bSide1Down, bool bSide2Down, int iWheelDelta, int iX, int iY, void* pUserContext)
 {
+	if(bLeftDown)
+		g_controlledSurface->Rotate(10*g_fElapsedTime, 0.0, 0.0);
 
+	if(bRightDown)
+		g_controlledSurface->Rotate(-10*g_fElapsedTime, 0.0, 0.0);
 }
 
 
