@@ -42,11 +42,21 @@ public:
 	ID3D11Buffer* m_vertexbuffer;
 
 	D3DXMATRIX m_mModel;
+	D3DXMATRIX m_mRot;
+	
 
 	Surface();
 	~Surface();
 
-	void Rotate(float x, float y, float z);
+
+	const D3DXVECTOR3* m_xAxis;
+	const D3DXVECTOR3* m_yAxis;
+	const D3DXVECTOR3* m_zAxis;
+	
+	void RotateX(float fFactor);
+	void RotateY(float fFactor);
+	void RotateZ(float fFactor);
+
 	void Scale(float fFactor);
 
 	HRESULT InitBuffers(ID3D11Device* pd3dDevice);

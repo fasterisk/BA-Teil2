@@ -27,6 +27,11 @@ Surface::Surface()
 {
 	m_pcbPerFrame = NULL;
 	D3DXMatrixIdentity(&m_mModel);
+	D3DXMatrixIdentity(&m_mRot);
+
+	m_xAxis = new D3DXVECTOR3(1.0, 0.0, 0.0);
+	m_yAxis = new D3DXVECTOR3(0.0, 1.0, 0.0);
+	m_zAxis = new D3DXVECTOR3(0.0, 0.0, 1.0);
 }
 
 
@@ -36,14 +41,23 @@ Surface::~Surface()
 	SAFE_RELEASE(m_pcbPerFrame);
 }
 
-void Surface::Rotate(float x, float y, float z)
+void Surface::RotateX(float fFactor)
 {
-	D3DXMATRIX mRotX, mRotY, mRotZ;
-	D3DXMatrixRotationX(&mRotX, x);
-	D3DXMatrixRotationY(&mRotY, y);
-	D3DXMatrixRotationZ(&mRotZ, z);
-
-	m_mModel = (mRotZ * mRotX * mRotY) * m_mModel;
+	D3DXMATRIX mRot;
+	D3DXMatrixRotationAxis(&mRot, m_xAxis, fFactor);
+	m_mModel *= mRot;
+}
+void Surface::RotateY(float fFactor)
+{
+	D3DXMATRIX mRot;
+	D3DXMatrixRotationAxis(&mRot, m_yAxis, fFactor);
+	m_mModel *= mRot;
+}
+void Surface::RotateZ(float fFactor)
+{
+	D3DXMATRIX mRot;
+	D3DXMatrixRotationAxis(&mRot, m_zAxis, fFactor);
+	m_mRot = mRot * m_mRot;
 }
 
 void Surface::Scale(float fFactor)

@@ -32,7 +32,8 @@ Surface*							g_surface1;
 Surface*							g_surface2;
 Surface*							g_controlledSurface;
 bool								g_surface1IsControlled = true;
-bool								g_mouseLButtonDown = false;
+int									g_mouseX = 0;
+int									g_mouseY = 0;
 
 // Resources
 CDXUTTextHelper*                    g_pTxtHelper = NULL;
@@ -264,8 +265,7 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 	{
 		switch( nChar )
 		{
-		case 'X': g_controlledSurface->Rotate(10.0*g_fElapsedTime, 0.0, 0.0);
-			break;
+		
 		}
     }
 }
@@ -275,11 +275,20 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 //--------------------------------------------------------------------------------------
 void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, bool bSide1Down, bool bSide2Down, int iWheelDelta, int iX, int iY, void* pUserContext)
 {
-	if(bLeftDown)
-		g_controlledSurface->Rotate(10*g_fElapsedTime, 0.0, 0.0);
+	if(g_mouseX == 0 && g_mouseY == 0)
+	{
+		g_mouseX = iX;
+		g_mouseY = iY;
+	}
+		
 
-	if(bRightDown)
-		g_controlledSurface->Rotate(-10*g_fElapsedTime, 0.0, 0.0);
+	if(bLeftDown)
+	{
+		g_controlledSurface->RotateX((g_mouseY-iY)*g_fElapsedTime*2);
+		g_controlledSurface->RotateY((g_mouseX-iX)*g_fElapsedTime*2);
+	}
+	g_mouseX = iX;
+	g_mouseY = iY;
 }
 
 
