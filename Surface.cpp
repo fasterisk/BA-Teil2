@@ -77,6 +77,7 @@ void Surface::RotateZ(float fFactor)
 {
 	D3DXMATRIX mRot;
 	D3DXMatrixRotationAxis(&mRot, m_zAxis, fFactor);
+
 	m_mModel *= m_mTransInv * mRot * m_mTrans;
 }
 

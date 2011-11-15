@@ -34,6 +34,7 @@ Surface*							g_controlledSurface;
 bool								g_surface1IsControlled = true;
 int									g_mouseX = 0;
 int									g_mouseY = 0;
+bool								g_bRotatesWithMouse = true;
 
 // Resources
 CDXUTTextHelper*                    g_pTxtHelper = NULL;
@@ -80,6 +81,9 @@ E_PARTITION_MODE                    g_iPartitionMode = PARTITION_INTEGER;
 #define IDC_TOGGLE_LINES          7
 
 #define IDC_CHANGE_CONTROL		  8
+#define IDC_ROTATE_OR_MOVE		  9
+#define IDC_ROTATE				 10
+#define IDC_MOVE				 11
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -154,7 +158,10 @@ void InitApp()
     g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 0, iY, 170, 30 );
     g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 0, iY += 26, 170, 30, VK_F3 );
     g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 0, iY += 26, 170, 30, VK_F2 );
-	g_HUD.AddButton( IDC_CHANGE_CONTROL, L"Change contr. surface", 0, iY += 26, 170, 30);
+	g_HUD.AddButton( IDC_CHANGE_CONTROL, L"Change contr. surface", 0, iY += 52, 170, 30);
+	g_HUD.AddRadioButton( IDC_ROTATE, IDC_ROTATE_OR_MOVE, L"Rotate", 0, iY += 26, 170, 30);
+	g_HUD.AddRadioButton( IDC_MOVE, IDC_ROTATE_OR_MOVE, L"Move", 0, iY += 26, 170, 30);
+	g_HUD.GetRadioButton( IDC_ROTATE )->SetChecked(true);
 
     g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
 
@@ -283,8 +290,15 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 
 	if(bLeftDown)
 	{
-		g_controlledSurface->RotateX((g_mouseY-iY)*g_fElapsedTime*10);
-		g_controlledSurface->RotateY((g_mouseX-iX)*g_fElapsedTime*10);
+		if(g_bRotatesWithMouse)
+		{
+			g_controlledSurface->RotateX((g_mouseY-iY)*g_fElapsedTime*10);
+			g_controlledSurface->RotateY((g_mouseX-iX)*g_fElapsedTime*10);
+		}
+		else
+		{
+			g_controlledSurface->Translate((iX-g_mouseX)*g_fElapsedTime*10, (g_mouseY-iY)*g_fElapsedTime*10, 0);
+		}
 	}
 	g_mouseX = iX;
 	g_mouseY = iY;
@@ -313,6 +327,13 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			else
 				g_controlledSurface = g_surface1;
 			g_surface1IsControlled = !g_surface1IsControlled;
+			break;
+		case IDC_ROTATE:
+			g_bRotatesWithMouse = true;
+			break;
+		case IDC_MOVE:
+			g_bRotatesWithMouse = false;
+			break;
         case IDC_PATCH_SUBDIVS:
         {
             g_fSubdivs = g_SampleUI.GetSlider( IDC_PATCH_SUBDIVS )->GetValue() / 10.0f;
