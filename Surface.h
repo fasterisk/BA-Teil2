@@ -43,15 +43,20 @@ public:
 
 	D3DXMATRIX m_mModel;
 	D3DXMATRIX m_mRot;
+	D3DXMATRIX m_mTrans;
+	D3DXMATRIX m_mTransInv;
 	
 
 	Surface();
 	~Surface();
 
+	D3DXVECTOR3 m_translation;
 
 	const D3DXVECTOR3* m_xAxis;
 	const D3DXVECTOR3* m_yAxis;
 	const D3DXVECTOR3* m_zAxis;
+
+	void Translate(float fX, float fY, float fZ);
 	
 	void RotateX(float fFactor);
 	void RotateY(float fFactor);

@@ -279,8 +279,7 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	{
 		g_mouseX = iX;
 		g_mouseY = iY;
-	}
-		
+	}  
 
 	if(bLeftDown)
 	{
