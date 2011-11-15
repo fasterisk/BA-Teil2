@@ -35,6 +35,7 @@ bool								g_surface1IsControlled = true;
 int									g_mouseX = 0;
 int									g_mouseY = 0;
 bool								g_bRotatesWithMouse = true;
+bool								g_bCameraActive = false;
 
 // Resources
 CDXUTTextHelper*                    g_pTxtHelper = NULL;
@@ -81,9 +82,10 @@ E_PARTITION_MODE                    g_iPartitionMode = PARTITION_INTEGER;
 #define IDC_TOGGLE_LINES          7
 
 #define IDC_CHANGE_CONTROL		  8
-#define IDC_ROTATE_OR_MOVE		  9
+#define IDC_ROTATE_MOVE_CAMERA	  9
 #define IDC_ROTATE				 10
 #define IDC_MOVE				 11
+#define IDC_CAMERA				 12
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -159,8 +161,9 @@ void InitApp()
     g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 0, iY += 26, 170, 30, VK_F3 );
     g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 0, iY += 26, 170, 30, VK_F2 );
 	g_HUD.AddButton( IDC_CHANGE_CONTROL, L"Change contr. surface", 0, iY += 52, 170, 30);
-	g_HUD.AddRadioButton( IDC_ROTATE, IDC_ROTATE_OR_MOVE, L"Rotate", 0, iY += 26, 170, 30);
-	g_HUD.AddRadioButton( IDC_MOVE, IDC_ROTATE_OR_MOVE, L"Move", 0, iY += 26, 170, 30);
+	g_HUD.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 26, 170, 30);
+	g_HUD.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 26, 170, 30);
+	g_HUD.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 26, 170, 30);
 	g_HUD.GetRadioButton( IDC_ROTATE )->SetChecked(true);
 
     g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
@@ -256,7 +259,8 @@ LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bo
         return 0;
 
     // Pass all remaining windows messages to camera so it can respond to user input
-    //g_Camera.HandleMessages( hWnd, uMsg, wParam, lParam );
+    if(g_bCameraActive)
+		g_Camera.HandleMessages( hWnd, uMsg, wParam, lParam );
 
     return 0;
 }
@@ -282,6 +286,9 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 //--------------------------------------------------------------------------------------
 void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, bool bSide1Down, bool bSide2Down, int iWheelDelta, int iX, int iY, void* pUserContext)
 {
+	if(g_bCameraActive)
+		return;
+
 	if(g_mouseX == 0 && g_mouseY == 0)
 	{
 		g_mouseX = iX;
@@ -330,9 +337,14 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			break;
 		case IDC_ROTATE:
 			g_bRotatesWithMouse = true;
+			g_bCameraActive = false;
 			break;
 		case IDC_MOVE:
 			g_bRotatesWithMouse = false;
+			g_bCameraActive = false;
+			break;
+		case IDC_CAMERA:
+			g_bCameraActive = true;
 			break;
         case IDC_PATCH_SUBDIVS:
         {
