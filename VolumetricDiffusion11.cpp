@@ -34,6 +34,7 @@ Surface*							g_controlledSurface;
 bool								g_surface1IsControlled = true;
 int									g_mouseX = 0;
 int									g_mouseY = 0;
+int									g_mouseSpeed = 5;
 bool								g_bRotatesWithMouse = true;
 bool								g_bCameraActive = false;
 
@@ -301,6 +302,7 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 		{
 			g_controlledSurface->RotateX((g_mouseY-iY)*g_fElapsedTime*10);
 			g_controlledSurface->RotateY((g_mouseX-iX)*g_fElapsedTime*10);
+			
 		}
 		else
 		{
@@ -309,14 +311,18 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 			D3DXVECTOR3 lookRight = D3DXVECTOR3(mView->_11, mView->_21,mView->_31);
 			D3DXVECTOR3 lookUp = D3DXVECTOR3(mView->_12, mView->_22,mView->_32);
 			
-			g_controlledSurface->Translate(10*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, 10*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, 10*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
-			g_controlledSurface->Translate(10*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, 10*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, 10*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
+			g_controlledSurface->Translate(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
+			g_controlledSurface->Translate(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
 		}
 	}
 	g_mouseX = iX;
 	g_mouseY = iY;
-}
 
+	if(iWheelDelta>0)
+		g_controlledSurface->Scale(1.0+g_fElapsedTime*100);
+	else if(iWheelDelta<0)
+		g_controlledSurface->Scale(1.0-g_fElapsedTime*100);
+}
 
 //--------------------------------------------------------------------------------------
 // Handles the GUI events
