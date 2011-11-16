@@ -34,7 +34,7 @@ Surface*							g_controlledSurface;
 bool								g_surface1IsControlled = true;
 int									g_mouseX = 0;
 int									g_mouseY = 0;
-int									g_mouseSpeed = 5;
+int									g_mouseSpeed = 10;
 bool								g_bRotatesWithMouse = true;
 bool								g_bCameraActive = false;
 
@@ -290,38 +290,49 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	if(g_bCameraActive)
 		return;
 
+	
 	if(g_mouseX == 0 && g_mouseY == 0)
 	{
 		g_mouseX = iX;
 		g_mouseY = iY;
-	}  
+	}
 
-	if(bLeftDown)
+	
+	if(g_bRotatesWithMouse)//Rotate&Scale object
 	{
-		if(g_bRotatesWithMouse)
+		if(bLeftDown)
 		{
 			g_controlledSurface->RotateX((g_mouseY-iY)*g_fElapsedTime*10);
 			g_controlledSurface->RotateY((g_mouseX-iX)*g_fElapsedTime*10);
-			
 		}
-		else
+
+		if(iWheelDelta>0)
+			g_controlledSurface->Scale(1.0+g_fElapsedTime*100);
+		else if(iWheelDelta<0)
+			g_controlledSurface->Scale(1.0-g_fElapsedTime*100);
+
+	}
+	else//Move object
+	{
+		const D3DXMATRIX* mView = g_Camera.GetViewMatrix();
+		D3DXVECTOR3 lookAt = D3DXVECTOR3(mView->_13, mView->_23,mView->_33);
+		D3DXVECTOR3 lookRight = D3DXVECTOR3(mView->_11, mView->_21,mView->_31);
+		D3DXVECTOR3 lookUp = D3DXVECTOR3(mView->_12, mView->_22,mView->_32);
+		
+		if(bLeftDown)
 		{
-			const D3DXMATRIX* mView = g_Camera.GetViewMatrix();
-			D3DXVECTOR3 lookAt = D3DXVECTOR3(mView->_13, mView->_23,mView->_33);
-			D3DXVECTOR3 lookRight = D3DXVECTOR3(mView->_11, mView->_21,mView->_31);
-			D3DXVECTOR3 lookUp = D3DXVECTOR3(mView->_12, mView->_22,mView->_32);
-			
 			g_controlledSurface->Translate(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
 			g_controlledSurface->Translate(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
 		}
+
+		if(iWheelDelta>0)
+			g_controlledSurface->Translate(100*g_fElapsedTime*lookAt.x, 100*g_fElapsedTime*lookAt.y, 100*g_fElapsedTime*lookAt.z);
+		else if(iWheelDelta<0)
+			g_controlledSurface->Translate(-100*g_fElapsedTime*lookAt.x, -100*g_fElapsedTime*lookAt.y, -100*g_fElapsedTime*lookAt.z);
 	}
+
 	g_mouseX = iX;
 	g_mouseY = iY;
-
-	if(iWheelDelta>0)
-		g_controlledSurface->Scale(1.0+g_fElapsedTime*100);
-	else if(iWheelDelta<0)
-		g_controlledSurface->Scale(1.0-g_fElapsedTime*100);
 }
 
 //--------------------------------------------------------------------------------------
