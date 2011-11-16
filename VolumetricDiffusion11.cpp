@@ -304,7 +304,13 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 		}
 		else
 		{
-			g_controlledSurface->Translate((iX-g_mouseX)*g_fElapsedTime*10, (g_mouseY-iY)*g_fElapsedTime*10, 0);
+			const D3DXMATRIX* mView = g_Camera.GetViewMatrix();
+			D3DXVECTOR3 lookAt = D3DXVECTOR3(mView->_13, mView->_23,mView->_33);
+			D3DXVECTOR3 lookRight = D3DXVECTOR3(mView->_11, mView->_21,mView->_31);
+			D3DXVECTOR3 lookUp = D3DXVECTOR3(mView->_12, mView->_22,mView->_32);
+			
+			g_controlledSurface->Translate(10*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, 10*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, 10*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
+			g_controlledSurface->Translate(10*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, 10*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, 10*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
 		}
 	}
 	g_mouseX = iX;
@@ -568,9 +574,9 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     D3DXMATRIX mViewProjection;
     D3DXMATRIX mProj = *g_Camera.GetProjMatrix();
     D3DXMATRIX mView = *g_Camera.GetViewMatrix();
+	
+	mViewProjection = mView * mProj;
 
-    mViewProjection = mView * mProj;
-	    
 	// Draw surfaces   
 	g_surface1->Render(pd3dImmediateContext, g_iBindPerFrame, mViewProjection, *(g_Camera.GetEyePt()), g_fSubdivs);
 	g_surface2->Render(pd3dImmediateContext, g_iBindPerFrame, mViewProjection, *(g_Camera.GetEyePt()), g_fSubdivs);
