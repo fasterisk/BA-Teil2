@@ -400,6 +400,7 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 
     V_RETURN( pd3dDevice->CreateInputLayout( layout, ARRAYSIZE( layout ), pVertexShaderBuffer->GetBufferPointer(), pVertexShaderBuffer->GetBufferSize(), &g_pVertexLayout11 ) );
     DXUT_SetDebugName( g_pVertexLayout11, "Primary" );
+	
 	pd3dImmediateContext->IASetInputLayout(g_pVertexLayout11);
 
     SAFE_RELEASE( pVertexShaderBuffer );
@@ -481,19 +482,21 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
     pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 	
+	// Set the shaders
+    pd3dImmediateContext->VSSetShader( g_pVertexShader, NULL, 0 );
+    pd3dImmediateContext->PSSetShader( g_pPixelShader, NULL, 0 );
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
 	pd3dImmediateContext->IASetVertexBuffers(0, 1, &vertexbuffer, &stride, &offset);
 	pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	pd3dImmediateContext->Draw(3,0);
-
-    /*DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
+	
+	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_HUD.OnRender( fElapsedTime );
     g_SampleUI.OnRender( fElapsedTime );
     RenderText();
     DXUT_EndPerfEvent();
-	*/
 }
 
 
