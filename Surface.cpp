@@ -19,13 +19,16 @@
 #include "DXUTgui.h"
 #include "DXUTsettingsDlg.h"
 #include "SDKmisc.h"
-#include "SDKMesh.h"
+
 #include "Surface.h"
 
 
 Surface::Surface()
 {
-	m_pcbPerFrame = NULL;
+	m_pcbPSPerObject = NULL;
+	m_pcbVSPerObject = NULL;
+	m_iCBVSPerObjectBind = 0;
+	m_iCBPSPerObjectBind = 0;
 	D3DXMatrixIdentity(&m_mModel);
 	D3DXMatrixIdentity(&m_mRot);
 	D3DXMatrixIdentity(&m_mTrans);
@@ -42,7 +45,8 @@ Surface::Surface()
 Surface::~Surface()
 {
 	SAFE_RELEASE(m_vertexbuffer);
-	SAFE_RELEASE(m_pcbPerFrame);
+	SAFE_RELEASE(m_pcbVSPerObject);
+	SAFE_RELEASE(m_pcbPSPerObject);
 }
 
 void Surface::Translate(float fX, float fY, float fZ)
@@ -100,52 +104,105 @@ HRESULT Surface::InitBuffers(ID3D11Device* pd3dDevice)
     Desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     Desc.MiscFlags = 0;
 
-    Desc.ByteWidth = sizeof( CB_PER_FRAME_CONSTANTS );
-    V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &m_pcbPerFrame ) );
-    DXUT_SetDebugName( m_pcbPerFrame, "CB_PER_FRAME_CONSTANTS" );
+    Desc.ByteWidth = sizeof( CB_VS_PER_OBJECT );
+    V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &m_pcbVSPerObject) );
+    DXUT_SetDebugName( m_pcbVSPerObject, "CB_VS_PER_OBJECT" );
+
+	/*Desc.ByteWidth = sizeof( CB_PS_PER_OBJECT );
+    V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &m_pcbPSPerObject) );
+    DXUT_SetDebugName( m_pcbPSPerObject, "CB_PS_PER_OBJECT" );
 	
 	D3D11_BUFFER_DESC vbDesc1;
     ZeroMemory( &vbDesc1, sizeof(D3D11_BUFFER_DESC) );
-	vbDesc1.ByteWidth = sizeof(BEZIER_CONTROL_POINT) * m_pNum;
+	vbDesc1.ByteWidth = sizeof(VERTEX) * m_vNum;
     vbDesc1.Usage = D3D11_USAGE_DEFAULT;
     vbDesc1.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
     D3D11_SUBRESOURCE_DATA vbInitData1;
     ZeroMemory( &vbInitData1, sizeof(vbInitData1) );
-    vbInitData1.pSysMem = m_controlpoints;
+    vbInitData1.pSysMem = m_pVertices;
     V_RETURN( pd3dDevice->CreateBuffer( &vbDesc1, &vbInitData1, &m_vertexbuffer ) );
-    DXUT_SetDebugName( m_vertexbuffer, "Control Points for surface 1" );
+    DXUT_SetDebugName( m_vertexbuffer, "Vertexbuffer" );
+
+	D3D11_BUFFER_DESC vbDesc2;
+    ZeroMemory( &vbDesc2, sizeof(D3D11_BUFFER_DESC) );
+	vbDesc1.ByteWidth = sizeof(int) * m_iNum;
+    vbDesc1.Usage = D3D11_USAGE_DEFAULT;
+    vbDesc1.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA vbInitData2;
+    ZeroMemory( &vbInitData2, sizeof(vbInitData2) );
+    vbInitData2.pSysMem = m_pIndices;
+    V_RETURN( pd3dDevice->CreateBuffer( &vbDesc2, &vbInitData2, &m_indexbuffer) );
+	DXUT_SetDebugName( m_indexbuffer, "Indexbuffer" );
+	*/
+	V_RETURN( m_Mesh11.Create( pd3dDevice, L"Media\\Teapot.sdkmesh", true ) );
+
+
 }
 
-void Surface::Render(ID3D11DeviceContext* pd3dImmediateContext, UINT iBindPerFrame, D3DXMATRIX mViewProjection, D3DXVECTOR3 vCamEye, float fSubdivs)
+void Surface::Render(ID3D11DeviceContext* pd3dImmediateContext, D3DXMATRIX mViewProjection, D3DXVECTOR3 vCamEye, float fSubdivs)
 {
 	D3DXMATRIX mModelViewProjection = m_mModel * mViewProjection;
 
-	// Update per-frame variables
-    D3D11_MAPPED_SUBRESOURCE MappedResource;
-    pd3dImmediateContext->Map( m_pcbPerFrame, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-    CB_PER_FRAME_CONSTANTS* pData = ( CB_PER_FRAME_CONSTANTS* )MappedResource.pData;
-
-    D3DXMatrixTranspose( &pData->mModelViewProjection, &mModelViewProjection );
-	pData->vCameraPosWorld = vCamEye;
-    pData->fTessellationFactor = (float)fSubdivs;
-
-    pd3dImmediateContext->Unmap( m_pcbPerFrame, 0 );
-
+	
+	
+	/*
 	// Render the meshes
     // Bind all of the CBs
-    pd3dImmediateContext->VSSetConstantBuffers( iBindPerFrame, 1, &m_pcbPerFrame );
-    pd3dImmediateContext->HSSetConstantBuffers( iBindPerFrame, 1, &m_pcbPerFrame );
-    pd3dImmediateContext->DSSetConstantBuffers( iBindPerFrame, 1, &m_pcbPerFrame );
-    pd3dImmediateContext->PSSetConstantBuffers( iBindPerFrame, 1, &m_pcbPerFrame );
+    pd3dImmediateContext->VSSetConstantBuffers( m_iCBVSPerObjectBind, 1, &m_pcbVSPerObject);
 
-	UINT Stride = sizeof( BEZIER_CONTROL_POINT );
+
+	UINT Stride = sizeof( VERTEX );
     UINT Offset = 0;
 
 	// Draw
 	pd3dImmediateContext->IASetVertexBuffers( 0, 1, &m_vertexbuffer, &Stride, &Offset );
-    pd3dImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST );
-	pd3dImmediateContext->Draw( m_pNum, 0 );
+	pd3dImmediateContext->IASetIndexBuffer(m_indexbuffer, DXGI_FORMAT_D16_UNORM, Offset);
+	pd3dImmediateContext->Draw( m_vNum, 0 );
+	*/
+
+	//Get the mesh
+    //IA setup
+    UINT Strides[1];
+    UINT Offsets[1];
+    ID3D11Buffer* pVB[1];
+    pVB[0] = m_Mesh11.GetVB11( 0, 0 );
+    Strides[0] = ( UINT )m_Mesh11.GetVertexStride( 0, 0 );
+    Offsets[0] = 0;
+    pd3dImmediateContext->IASetVertexBuffers( 0, 1, pVB, Strides, Offsets );
+    pd3dImmediateContext->IASetIndexBuffer( m_Mesh11.GetIB11( 0 ), m_Mesh11.GetIBFormat11( 0 ), 0 );
+
+    // Update per-object variables
+    D3D11_MAPPED_SUBRESOURCE MappedResource;
+    pd3dImmediateContext->Map( m_pcbVSPerObject, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
+    CB_VS_PER_OBJECT* pData = ( CB_VS_PER_OBJECT* )MappedResource.pData;
+
+    D3DXMatrixTranspose( &pData->m_mModelViewProj, &mModelViewProjection );
+	
+    pd3dImmediateContext->Unmap( m_pcbVSPerObject, 0 );
+
+
+    pd3dImmediateContext->VSSetConstantBuffers( m_iCBVSPerObjectBind, 1, &m_pcbVSPerObject );
+
+    //Render
+    SDKMESH_SUBSET* pSubset = NULL;
+    D3D11_PRIMITIVE_TOPOLOGY PrimType;
+
+    for( UINT subset = 0; subset < m_Mesh11.GetNumSubsets( 0 ); ++subset )
+    {
+        // Get the subset
+        pSubset = m_Mesh11.GetSubset( 0, subset );
+
+        PrimType = CDXUTSDKMesh::GetPrimitiveType11( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
+        pd3dImmediateContext->IASetPrimitiveTopology( PrimType );
+
+        // TODO: D3D11 - material loading
+        ID3D11ShaderResourceView* pDiffuseRV = m_Mesh11.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
+        pd3dImmediateContext->PSSetShaderResources( 0, 1, &pDiffuseRV );
+
+        pd3dImmediateContext->DrawIndexed( ( UINT )pSubset->IndexCount, 0, ( UINT )pSubset->VertexStart );
+    }
 }
 
 bool stringStartsWith(const char *s, const char *val)
@@ -171,155 +228,61 @@ void Surface::ReadVectorFile(char *s)
 		}
 	fgets(buff, 255, F);
 	token = strtok(buff, " \"\t");
-	while (!stringStartsWith(token, "nb_control_points="))
+	while (!stringStartsWith(token, "nb_vertices="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
-	m_pNum = atof(token);
-	sprintf(c, "m_pNum: %d \n", m_pNum);//test
+	m_vNum = atof(token);
+	sprintf(c, "m_vNum: %d \n", m_vNum);//test
 	fputs(c, F_out);//test
-	while (!stringStartsWith(token, "nb_left_colors="))
+	while (!stringStartsWith(token, "nb_indices="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
-	m_clNum = atof(token);
-	sprintf(c, "m_clNum: %d \n", m_clNum);//test
+	m_iNum = atof(token);
+	sprintf(c, "m_iNum: %d \n", m_iNum);//test
 	fputs(c, F_out);//test
-	while (!stringStartsWith(token, "nb_right_colors="))
-		token = strtok(NULL, " \"\t");
-	token = strtok(NULL, " \"\t");
-	m_crNum = atof(token);
-	sprintf(c, "m_crNum: %d \n", m_crNum);//test
-	fputs(c, F_out);//test
-	while (!stringStartsWith(token, "nb_blur_points="))
-		token = strtok(NULL, " \"\t");
-	token = strtok(NULL, " \"\t");
-	m_bNum = atof(token);
-	sprintf(c, "m_bNum: %d \n", m_bNum);//test
-	fputs(c, F_out);//test
-	
 	D3DXVECTOR3 maxBound = D3DXVECTOR3(-1000000,-1000000,-1000000);
 	D3DXVECTOR3 minBound = D3DXVECTOR3(1000000,1000000,1000000);
 	
-	m_controlpoints = new BEZIER_CONTROL_POINT[m_pNum];
-	for(int i=0; i < m_pNum; i++)
+	m_pVertices = new VERTEX[m_vNum];
+	for(int i=0; i < m_vNum; i++)
 	{
-		while(!stringStartsWith(buff, "  <control_point "))
+		while(!stringStartsWith(buff, "  <vertex "))
 			fgets(buff, 255, F);
 		token = strtok(buff, " \"\t");
 		while (!stringStartsWith(token, "x="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_controlpoints[i].x = atof(token);
+		m_pVertices[i].x = atof(token);
 		while (!stringStartsWith(token, "y="))
 			token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_controlpoints[i].y = atof(token);
+		m_pVertices[i].y = atof(token);
 		while (!stringStartsWith(token, "z="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_controlpoints[i].z = atof(token);
+		m_pVertices[i].z = atof(token);
 		fgets(buff, 255, F);
 		
-		sprintf(c, "controlpoint[%d]=(%g,%g,%g) \n", i, m_controlpoints[i].x, m_controlpoints[i].y, m_controlpoints[i].z);
+		sprintf(c, "vertex[%d]=(%g,%g,%g) \n", i, m_pVertices[i].x, m_pVertices[i].y, m_pVertices[i].z);
 		fputs(c, F_out);
 
-		//extend the bounds if necessary
-		/*	if (m_controlpoints[i].y < minBound.y)
-				minBound.y = m_controlpoints[i].y;
-			if (m_controlpoints[i].y > maxBound.y)
-				maxBound.y = m_controlpoints[i].y;
-			if (m_controlpoints[i].x < minBound.x)
-				minBound.x = m_controlpoints[i].x;
-			if (m_controlpoints[i].x > maxBound.x)
-				maxBound.x = m_controlpoints[i].x;
-			if (m_controlpoints[i].z < minBound.z)
-				minBound.z = m_controlpoints[i].z;
-			if (m_controlpoints[i].z > maxBound.z)
-				maxBound.z = m_controlpoints[i].z;*/
 	}
 	
-	m_colors_left = new COLORPOINT[m_clNum];
-	for (int i = 0; i < m_clNum; i++)
+	m_pIndices = new int[m_iNum];
+	for (int i = 0; i < m_iNum; i++)
 	{
-		while (!stringStartsWith(buff, "  <left_color "))
-			fgets(buff, 255, F);
-		token = strtok(buff, " \"\t");
-		while (!stringStartsWith(token, "G="))
-			token = strtok(NULL, " \"\t");
-		token = strtok(NULL, " \"\t");
-		m_colors_left[i].col.y = atof(token)/256.0;
-		
-		while (!stringStartsWith(token, "R="))
-			token = strtok(NULL, " \"\t");
-		token = strtok(NULL, " \"\t");
-		m_colors_left[i].col.z = atof(token)/256.0;
-		
-		while (!stringStartsWith(token, "globalID="))
-			token = strtok(NULL, " \"\t");
-		token = strtok(NULL, " \"\t");
-		m_colors_left[i].off = atof(token);
-
-		while (!stringStartsWith(token, "B="))
-			token = strtok(NULL, " \"\t");
-		token = strtok(NULL, " \"\t");
-		m_colors_left[i].col.x = atof(token)/256.0;
-		fgets(buff, 255, F);
-
-		sprintf(c, "color_left[%d]=(%g,%g,%g,%d) \n", i, m_colors_left[i].col.x, m_colors_left[i].col.y, m_colors_left[i].col.z, m_colors_left[i].off);
-		fputs(c, F_out);
-	}
-	
-	m_colors_right = new COLORPOINT[m_crNum];
-	m_colors_left = new COLORPOINT[m_clNum];
-	for (int i = 0; i < m_clNum; i++)
-	{
-		while (!stringStartsWith(buff, "  <right_color "))
-			fgets(buff, 255, F);
-		token = strtok(buff, " \"\t");
-		while (!stringStartsWith(token, "G="))
-			token = strtok(NULL, " \"\t");
-		token = strtok(NULL, " \"\t");
-		m_colors_right[i].col.y = atof(token)/256.0;
-		
-		while (!stringStartsWith(token, "R="))
-			token = strtok(NULL, " \"\t");
-		token = strtok(NULL, " \"\t");
-		m_colors_right[i].col.z = atof(token)/256.0;
-		
-		while (!stringStartsWith(token, "globalID="))
-			token = strtok(NULL, " \"\t");
-		token = strtok(NULL, " \"\t");
-		m_colors_right[i].off = atof(token);
-
-		while (!stringStartsWith(token, "B="))
-			token = strtok(NULL, " \"\t");
-		token = strtok(NULL, " \"\t");
-		m_colors_right[i].col.x = atof(token)/256.0;
-		fgets(buff, 255, F);
-
-		sprintf(c, "color_right[%d]=(%g,%g,%g,%d) \n", i, m_colors_right[i].col.x, m_colors_right[i].col.y, m_colors_right[i].col.z, m_colors_right[i].off);
-		fputs(c, F_out);
-	}
-
-	m_blurrpoints = new BLURRPOINT[m_bNum];
-	for (int i = 0; i < m_bNum; i++)
-	{
-		while (!stringStartsWith(buff, "  <best_scale"))
+		while (!stringStartsWith(buff, "  <index "))
 			fgets(buff, 255, F);
 		token = strtok(buff, " \"\t");
 		while (!stringStartsWith(token, "value="))
 			token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_blurrpoints[i].blurr = atof(token);
+		m_pIndices[i] = atof(token);
 
-		while (!stringStartsWith(token, "globalID="))
-			token = strtok(NULL, " \"\t");
-		token = strtok(NULL, " \"\t");
-		m_blurrpoints[i].off = atof(token);
-		fgets(buff, 255, F);
-
-		sprintf(c, "blurrpoint[%d]=(%f,%d) \n", i, m_blurrpoints[i].blurr, m_blurrpoints[i].off);
+		sprintf(c, "index[%d]=%d \n", i, m_pIndices[i]);
 		fputs(c, F_out);
 	}
+	
 	fclose(F);
 	fclose(F_out);
 }

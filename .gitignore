@@ -9,3 +9,4 @@ ipch
 *.user
 
 Media/test_ReadVectorFile.txt
+*.sdkmesh

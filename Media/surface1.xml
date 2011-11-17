@@ -1,81 +1,67 @@
 <!DOCTYPE SurfaceXML>
-<surface nb_control_points="64" nb_left_colors="2" nb_right_colors="2" nb_blur_points="2" >
- <control_points_set>
-  <control_point x="1.0f" y="-0.5" z="0.0" />
-  <control_point x="1.0" y="-0.5" z="0.5" />
-  <control_point x="0.5" y="-0.3536" z="1.354" />
-  <control_point x="0.0" y="-0.3536" z="1.354" />
-  <control_point x="1.0" y="-0.1667" z="0.0" />
-  <control_point x="1.0" y="-0.1667" z="0.5" />
-  <control_point x="0.5" y="-0.1179" z="1.118" />
-  <control_point x="0.0" y="-0.1179" z="1.118" />
-  <control_point x="1.0" y="0.1667" z="0.0" />
-  <control_point x="1.0" y="0.1667" z="0.5" />
-  <control_point x="0.5" y="0.1179" z="0.8821" />
-  <control_point x="0.0" y="0.1179" z="0.8821" />
-  <control_point x="1.0" y="0.5" z="0.0" />
-  <control_point x="1.0" y="0.5" z="0.5" />
-  <control_point x="0.5" y="0.3536" z="0.6464" />
-  <control_point x="0.0" y="0.3536" z="0.6464" />
-  <control_point x="0.0" y="-0.3536" z="1.354" />
-  <control_point x="-0.5" y="-0.3536" z="1.354" />
-  <control_point x="-1.5" y="0.0" z="0.5" />
-  <control_point x="-1.5" y="0.0" z="0.0" />
-  <control_point x="0.0" y="-0.1179" z="1.118" />
-  <control_point x="-0.5" y="-0.1179" z="1.118" />
-  <control_point x="-1.167" y="0.0" z="0.5" />
-  <control_point x="-1.167" y="0.0" z="0.0" />
-  <control_point x="0.0" y="0.1179" z="0.8821" />
-  <control_point x="-0.5" y="0.1179" z="0.8821" />
-  <control_point x="-0.8333" y="0.0" z="0.5" />
-  <control_point x="-0.8333" y="0.0" z="0.0" />
-  <control_point x="0.0" y="0.3536" z="0.6464" />
-  <control_point x="-0.5" y="0.3536" z="0.6464" />
-  <control_point x="-0.5" y="0.0" z="0.5" />
-  <control_point x="-0.5" y="0.0" z="0.0" />
-  <control_point x="-1.5" y="0.0" z="0.0" />
-  <control_point x="-1.5" y="0.0" z="-0.5" />
-  <control_point x="-0.5" y="0.3536" z="-1.354" />
-  <control_point x="0.0" y="0.3536" z="-1.354" />
-  <control_point x="-1.167" y="0.0" z="0.0" />
-  <control_point x="-1.167" y="0.0" z="-0.5" />
-  <control_point x="-0.5" y="0.1179" z="-1.118" />
-  <control_point x="0.0" y="0.1179" z="-1.118" />
-  <control_point x="-0.8333" y="0.0" z="0.0" />
-  <control_point x="-0.8333" y="0.0" z="-0.5" />
-  <control_point x="-0.5" y="-0.1179" z="-0.8821" />
-  <control_point x="0.0" y="-0.1179" z="-0.8821" />
-  <control_point x="-0.5" y="0.0" z="0.0" />
-  <control_point x="-0.5" y="0.0" z="-0.5" />
-  <control_point x="-0.5" y="-0.3536" z="-0.6464" />
-  <control_point x="0.0" y="-0.3536" z="-0.6464" />
-  <control_point x="0.0" y="0.3536" z="-1.354" />
-  <control_point x="0.5" y="0.3536" z="-1.354" />
-  <control_point x="1.0" y="0.5" z="-0.5" />
-  <control_point x="1.0" y="0.5" z="0.0" />
-  <control_point x="0.0" y="0.1179" z="-1.118" />
-  <control_point x="0.5" y="0.1179" z="-1.118" />
-  <control_point x="1.0" y="0.1667" z="-0.5" />
-  <control_point x="1.0" y="0.1667" z="0.0" />
-  <control_point x="0.0" y="-0.1179" z="-0.8821" />
-  <control_point x="0.5" y="-0.1179" z="-0.8821" />
-  <control_point x="1.0" y="-0.1667" z="-0.5" />
-  <control_point x="1.0" y="-0.1667" z="0.0" />
-  <control_point x="0.0" y="-0.3536" z="-0.6464" />
-  <control_point x="0.5" y="-0.3536" z="-0.6464" />
-  <control_point x="1.0" y="-0.5" z="-0.5" />
-  <control_point x="1.0" y="-0.5" z="0.0" />
- </control_points_set>
- <left_colors_set>
-  <left_color G="25" R="25" globalID="0" B="130" />
-  <left_color G="25" R="25" globalID="220" B="130" />
- </left_colors_set>
- <right_colors_set>
-  <right_color G="255" R="255" globalID="0" B="255" />
-  <right_color G="255" R="255" globalID="220" B="255" />
- </right_colors_set>
- <blur_points_set>
-  <best_scale value="0" globalID="0" />
-  <best_scale value="0" globalID="220" />
- </blur_points_set>
+<surface nb_vertices="24" nb_indices="36">
+ <vertices_set>
+  <vertex x="-1" y="-1" z="-1" />
+  <vertex x="1.0" y="-1" z="-1" />
+  <vertex x="0.5" y="-0.3536" z="-1" />
+  <vertex x="-1" y="-0.3536" z="-1" />
+  <vertex x="-1" y="-1" z="-1" />
+  <vertex x="1.0" y="-1" z="-1" />
+  <vertex x="0.5" y="-1" z="1.118" />
+  <vertex x="-1" y="-1" z="1.118" />
+  <vertex x="1.0" y="-1" z="-1" />
+  <vertex x="1.0" y="0.1667" z="-1" />
+  <vertex x="0.5" y="0.1179" z="0.8821" />
+  <vertex x="0.0" y="-1" z="0.8821" />
+  <vertex x="1.0" y="0.5" z="-1" />
+  <vertex x="-1" y="0.5" z="-1" />
+  <vertex x="-1" y="0.3536" z="0.6464" />
+  <vertex x="0.0" y="0.3536" z="0.6464" />
+  <vertex x="-1" y="-0.3536" z="-1" />
+  <vertex x="-1" y="-1" z="-1" />
+  <vertex x="-1" y="-1" z="0.5" />
+  <vertex x="-1" y="0.0" z="0.0" />
+  <vertex x="-1" y="-1" z="1.118" />
+  <vertex x="-0.5" y="-1" z="1.118" />
+  <vertex x="-1.167" y="0.0" z="0.5" />
+  <vertex x="-1" y="0.0" z="0.0" />
+ </vertexs_set>
+ <indices_set>
+  <index value="0" />
+  <index value="2" />
+  <index value="1" />
+  <index value="0" />
+  <index value="3" />
+  <index value="2" />
+  <index value="4" />
+  <index value="5" />
+  <index value="6" />
+  <index value="4" />
+  <index value="6" />
+  <index value="7" />
+  <index value="8" />
+  <index value="9" />
+  <index value="10" />
+  <index value="8" />
+  <index value="10" />
+  <index value="11" />
+  <index value="12" />
+  <index value="13" />
+  <index value="14" />
+  <index value="12" />
+  <index value="14" />
+  <index value="15" />
+  <index value="16" />
+  <index value="17" />
+  <index value="18" />
+  <index value="16" />
+  <index value="18" />
+  <index value="19" />
+  <index value="20" />
+  <index value="21" />
+  <index value="22" />
+  <index value="20" />
+  <index value="22" />
+  <index value="23" />
+ </indices_set>
 </surface>

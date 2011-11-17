@@ -415,7 +415,8 @@
     <ResourceCompile Include="VolumetricDiffusion.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DiffusionShader11.hlsl" />
+    <None Include="DiffusionShader11_PS.hlsl" />
+    <None Include="DiffusionShader11_VS.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

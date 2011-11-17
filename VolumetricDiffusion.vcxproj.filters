@@ -90,7 +90,10 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DiffusionShader11.hlsl">
+    <None Include="DiffusionShader11_VS.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="DiffusionShader11_PS.hlsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -1,45 +1,41 @@
 #pragma once
+#include "SDKMesh.h"
 
-struct COLORPOINT
-{
-	D3DXVECTOR3 col;
-	int			off;
-};
-
-struct BLURRPOINT
-{
-	float		blurr;
-	int			off;
-};
-
-struct BEZIER_CONTROL_POINT
+struct VERTEX
 {
 	float x;
 	float y;
 	float z;
 };
 
-struct CB_PER_FRAME_CONSTANTS
+struct CB_VS_PER_OBJECT
 {
-    D3DXMATRIX mModelViewProjection;
-    D3DXVECTOR3 vCameraPosWorld;
-    float fTessellationFactor;
+    D3DXMATRIX m_mModelViewProj;
 };
+
+
+struct CB_PS_PER_OBJECT
+{
+    D3DXVECTOR4 m_vObjectColor;
+};
+
 
 class Surface
 {
 public:
-	int m_pNum;
-	BEZIER_CONTROL_POINT *m_controlpoints;
-	int m_clNum;
-	COLORPOINT *m_colors_left;
-	int m_crNum;
-	COLORPOINT *m_colors_right;
-	int m_bNum;
-	BLURRPOINT *m_blurrpoints;
+	int m_vNum;
+	VERTEX *m_pVertices;
+	int m_iNum;
+	int *m_pIndices;
 
-	ID3D11Buffer* m_pcbPerFrame;
+	ID3D11Buffer* m_pcbVSPerObject;
+	ID3D11Buffer* m_pcbPSPerObject;
 	ID3D11Buffer* m_vertexbuffer;
+	ID3D11Buffer* m_indexbuffer;
+
+	CDXUTSDKMesh m_Mesh11;
+	UINT m_iCBVSPerObjectBind;
+	UINT m_iCBPSPerObjectBind;
 
 	D3DXMATRIX m_mModel;
 	D3DXMATRIX m_mRot;
@@ -65,7 +61,7 @@ public:
 	void Scale(float fFactor);
 
 	HRESULT InitBuffers(ID3D11Device* pd3dDevice);
-	void Render(ID3D11DeviceContext* pd3dImmediateContext, UINT iBindPerFrame, D3DXMATRIX mViewProjection, D3DXVECTOR3 vCamEye, float fSubdivs);
+	void Render(ID3D11DeviceContext* pd3dImmediateContext, D3DXMATRIX mViewProjection, D3DXVECTOR3 vCamEye, float fSubdivs);
 
 	void ReadVectorFile(char *s);
 };
