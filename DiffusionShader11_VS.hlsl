@@ -40,8 +40,8 @@ VS_OUTPUT VSMain( VS_INPUT Input )
 	VS_OUTPUT Output;
 	
 	Output.vPosition = mul( Input.vPosition, g_mWorldViewProjection );
-	Output.vNormal = mul( Input.vNormal, (float3x3)g_mWorld );
-	Output.vTexcoord = Input.vTexcoord;
+	//Output.vNormal = mul( Input.vNormal, (float3x3)g_mWorld );
+	//Output.vTexcoord = Input.vTexcoord;
 	
 	return Output;
 }
