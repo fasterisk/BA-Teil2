@@ -14,37 +14,12 @@ cbuffer cbPerObject : register( b0 )
 	float4		g_vObjectColor			: packoffset( c0 );
 };
 
-cbuffer cbPerFrame : register( b1 )
-{
-	float3		g_vLightDir				: packoffset( c0 );
-	float		g_fAmbient				: packoffset( c0.w );
-};
-
-//--------------------------------------------------------------------------------------
-// Textures and Samplers
-//--------------------------------------------------------------------------------------
-Texture2D	g_txDiffuse : register( t0 );
-SamplerState g_samLinear : register( s0 );
-
-//--------------------------------------------------------------------------------------
-// Input / Output structures
-//--------------------------------------------------------------------------------------
-struct PS_INPUT
-{
-	float3 vNormal		: NORMAL;
-	float2 vTexcoord	: TEXCOORD0;
-};
-
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
 float4 PSMain() : SV_TARGET
 {
-	//float4 vDiffuse = g_txDiffuse.Sample( g_samLinear, Input.vTexcoord );
 	
-	//float fLighting = saturate( dot( g_vLightDir, Input.vNormal ) );
-	//fLighting = max( fLighting, g_fAmbient );
-	
-	return float4(1.0, 0.0, 0.0, 1.0);
+	return g_vObjectColor;
 }
 

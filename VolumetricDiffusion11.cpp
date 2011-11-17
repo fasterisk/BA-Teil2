@@ -44,7 +44,6 @@ ID3D11SamplerState*         g_pSamLinear = NULL;
 struct CB_VS_PER_OBJECT
 {
     D3DXMATRIX m_WorldViewProj;
-    D3DXMATRIX m_World;
 };
 UINT                        g_iCBVSPerObjectBind = 0;
 
@@ -554,7 +553,6 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     V( pd3dImmediateContext->Map( g_pcbVSPerObject, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource ) );
     CB_VS_PER_OBJECT* pVSPerObject = ( CB_VS_PER_OBJECT* )MappedResource.pData;
     D3DXMatrixTranspose( &pVSPerObject->m_WorldViewProj, &mWorldViewProjection );
-    D3DXMatrixTranspose( &pVSPerObject->m_World, &mWorld );
     pd3dImmediateContext->Unmap( g_pcbVSPerObject, 0 );
 
     pd3dImmediateContext->VSSetConstantBuffers( g_iCBVSPerObjectBind, 1, &g_pcbVSPerObject );
