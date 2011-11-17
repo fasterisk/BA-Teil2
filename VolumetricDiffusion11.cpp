@@ -53,15 +53,9 @@ struct CB_PS_PER_OBJECT
 };
 UINT                        g_iCBPSPerObjectBind = 0;
 
-struct CB_PS_PER_FRAME
-{
-    D3DXVECTOR4 m_vLightDirAmbient;
-};
-UINT                        g_iCBPSPerFrameBind = 1;
 
 ID3D11Buffer*               g_pcbVSPerObject = NULL;
 ID3D11Buffer*               g_pcbPSPerObject = NULL;
-ID3D11Buffer*               g_pcbPSPerFrame = NULL;
 
 //--------------------------------------------------------------------------------------
 // UI control IDs
@@ -411,21 +405,6 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     // Load the mesh
     V_RETURN( g_Mesh11.Create( pd3dDevice, L"Media\\tiny.sdkmesh", true ) );
 
-    // Create a sampler state
-    D3D11_SAMPLER_DESC SamDesc;
-    SamDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    SamDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-    SamDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-    SamDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-    SamDesc.MipLODBias = 0.0f;
-    SamDesc.MaxAnisotropy = 1;
-    SamDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-    SamDesc.BorderColor[0] = SamDesc.BorderColor[1] = SamDesc.BorderColor[2] = SamDesc.BorderColor[3] = 0;
-    SamDesc.MinLOD = 0;
-    SamDesc.MaxLOD = D3D11_FLOAT32_MAX;
-    V_RETURN( pd3dDevice->CreateSamplerState( &SamDesc, &g_pSamLinear ) );
-    DXUT_SetDebugName( g_pSamLinear, "Primary" );
-
     // Setup constant buffers
     D3D11_BUFFER_DESC Desc;
     Desc.Usage = D3D11_USAGE_DYNAMIC;
@@ -440,10 +419,6 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     Desc.ByteWidth = sizeof( CB_PS_PER_OBJECT );
     V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &g_pcbPSPerObject ) );
     DXUT_SetDebugName( g_pcbPSPerObject, "CB_PS_PER_OBJECT" );
-
-    Desc.ByteWidth = sizeof( CB_PS_PER_FRAME );
-    V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &g_pcbPSPerFrame ) );
-    DXUT_SetDebugName( g_pcbPSPerFrame, "CB_PS_PER_FRAME" );
 
     // Setup the camera's view parameters
     D3DXVECTOR3 vecEye( 0.0f, 0.0f, -100.0f );
@@ -516,16 +491,6 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     // Get the light direction
     vLightDir = g_LightControl.GetLightDirection();
 
-    // Per frame cb update
-    D3D11_MAPPED_SUBRESOURCE MappedResource;
-    V( pd3dImmediateContext->Map( g_pcbPSPerFrame, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource ) );
-    CB_PS_PER_FRAME* pPerFrame = ( CB_PS_PER_FRAME* )MappedResource.pData;
-    float fAmbient = 0.1f;
-    pPerFrame->m_vLightDirAmbient = D3DXVECTOR4( vLightDir.x, vLightDir.y, vLightDir.z, fAmbient );
-    pd3dImmediateContext->Unmap( g_pcbPSPerFrame, 0 );
-
-    pd3dImmediateContext->PSSetConstantBuffers( g_iCBPSPerFrameBind, 1, &g_pcbPSPerFrame );
-
     //Get the mesh
     //IA setup
     pd3dImmediateContext->IASetInputLayout( g_pVertexLayout11 );
@@ -550,6 +515,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     mWorldViewProjection = mWorld * mView * mProj;
         
     // VS Per object
+	D3D11_MAPPED_SUBRESOURCE MappedResource;
     V( pd3dImmediateContext->Map( g_pcbVSPerObject, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource ) );
     CB_VS_PER_OBJECT* pVSPerObject = ( CB_VS_PER_OBJECT* )MappedResource.pData;
     D3DXMatrixTranspose( &pVSPerObject->m_WorldViewProj, &mWorldViewProjection );
@@ -625,7 +591,6 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 
     SAFE_RELEASE( g_pcbVSPerObject );
     SAFE_RELEASE( g_pcbPSPerObject );
-    SAFE_RELEASE( g_pcbPSPerFrame );
 }
 
 
