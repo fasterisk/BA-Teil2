@@ -1,11 +1,9 @@
 #pragma once
-#include "SDKMesh.h"
 
 struct VERTEX
 {
-	float x;
-	float y;
-	float z;
+	float x, y, z;
+	D3DXCOLOR color;
 };
 
 struct CB_VS_PER_OBJECT
@@ -25,15 +23,12 @@ class Surface
 public:
 	int m_vNum;
 	VERTEX *m_pVertices;
-	int m_iNum;
-	int *m_pIndices;
 
 	ID3D11Buffer* m_pcbVSPerObject;
 	ID3D11Buffer* m_pcbPSPerObject;
 	ID3D11Buffer* m_vertexbuffer;
 	ID3D11Buffer* m_indexbuffer;
 
-	CDXUTSDKMesh m_Mesh11;
 	UINT m_iCBVSPerObjectBind;
 	UINT m_iCBPSPerObjectBind;
 

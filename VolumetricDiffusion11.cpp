@@ -12,6 +12,7 @@
 #include "DXUTsettingsDlg.h"
 #include "SDKmisc.h"
 #include "SDKMesh.h"
+#include "Surface.h"
 #include "resource.h"
 
 //--------------------------------------------------------------------------------------
@@ -19,52 +20,29 @@
 //--------------------------------------------------------------------------------------
 CDXUTDialogResourceManager  g_DialogResourceManager; // manager for shared resources of dialogs
 CModelViewerCamera          g_Camera;               // A model viewing camera
-CDXUTDirectionWidget        g_LightControl;
 CD3DSettingsDlg             g_D3DSettingsDlg;       // Device settings dialog
 CDXUTDialog                 g_HUD;                  // manages the 3D   
 CDXUTDialog                 g_SampleUI;             // dialog for sample specific controls
-D3DXMATRIXA16               g_mCenterMesh;
-float                       g_fLightScale;
-int                         g_nNumActiveLights;
-int                         g_nActiveLight;
-bool                        g_bShowHelp = false;    // If true, it renders the UI control text
 
-// Direct3D9 resources
+// Surfaces
+Surface*					g_surface1;
+Surface*					g_surface2;
+Surface*					g_controlledSurface;
+bool						g_surface1IsControlled = true;
+int							g_mouseX = 0;
+int							g_mouseY = 0;
+int							g_mouseSpeed = 10;
+bool						g_bRotatesWithMouse = true;
+bool						g_bCameraActive = false;
+
+
+// Resources
 CDXUTTextHelper*            g_pTxtHelper = NULL;
 
-CDXUTSDKMesh                g_Mesh11;
-
-ID3D11InputLayout*          g_pVertexLayout11 = NULL;
+ID3D11InputLayout*          g_pVertexLayout = NULL;
 ID3D11Buffer*               g_pVertexBuffer = NULL;
-ID3D11Buffer*               g_pIndexBuffer = NULL;
 ID3D11VertexShader*         g_pVertexShader = NULL;
 ID3D11PixelShader*          g_pPixelShader = NULL;
-ID3D11SamplerState*         g_pSamLinear = NULL;
-
-struct CB_VS_PER_OBJECT
-{
-    D3DXMATRIX m_WorldViewProj;
-};
-UINT                        g_iCBVSPerObjectBind = 0;
-
-struct CB_PS_PER_OBJECT
-{
-    D3DXVECTOR4 m_vObjectColor;
-};
-UINT                        g_iCBPSPerObjectBind = 0;
-
-
-ID3D11Buffer*               g_pcbVSPerObject = NULL;
-ID3D11Buffer*               g_pcbPSPerObject = NULL;
-
-//TEST
-struct VERTEX
-{
-	float x, y, z;
-	D3DXCOLOR color;
-};
-
-ID3D11Buffer* vertexbuffer;
 
 
 //--------------------------------------------------------------------------------------
@@ -154,10 +132,6 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 //--------------------------------------------------------------------------------------
 void InitApp()
 {
-    D3DXVECTOR3 vLightDir( -1, 1, -1 );
-    D3DXVec3Normalize( &vLightDir, &vLightDir );
-    g_LightControl.SetLightDirection( vLightDir );
-
     // Initialize dialogs
     g_D3DSettingsDlg.Init( &g_DialogResourceManager );
     g_HUD.Init( &g_DialogResourceManager );
@@ -220,30 +194,8 @@ void RenderText()
     g_pTxtHelper->DrawTextLine( DXUTGetFrameStats( DXUTIsVsyncEnabled() ) );
     g_pTxtHelper->DrawTextLine( DXUTGetDeviceStats() );
 
-    // Draw help
-    if( g_bShowHelp )
-    {
-        g_pTxtHelper->SetInsertionPos( 2, nBackBufferHeight - 20 * 6 );
-        g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 0.75f, 0.0f, 1.0f ) );
-        g_pTxtHelper->DrawTextLine( L"Controls:" );
+	g_pTxtHelper->End();
 
-        g_pTxtHelper->SetInsertionPos( 20, nBackBufferHeight - 20 * 5 );
-        g_pTxtHelper->DrawTextLine( L"Rotate model: Left mouse button\n"
-                                    L"Rotate light: Right mouse button\n"
-                                    L"Rotate camera: Middle mouse button\n"
-                                    L"Zoom camera: Mouse wheel scroll\n" );
-
-        g_pTxtHelper->SetInsertionPos( 550, nBackBufferHeight - 20 * 5 );
-        g_pTxtHelper->DrawTextLine( L"Hide help: F1\n"
-                                    L"Quit: ESC\n" );
-    }
-    else
-    {
-        g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 1.0f, 1.0f ) );
-        g_pTxtHelper->DrawTextLine( L"Press F1 for help" );
-    }
-
-    g_pTxtHelper->End();
 }
 
 
@@ -273,8 +225,6 @@ LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bo
     if( *pbNoFurtherProcessing )
         return 0;
 
-    g_LightControl.HandleMessages( hWnd, uMsg, wParam, lParam );
-
     // Pass all remaining windows messages to camera so it can respond to user input
     g_Camera.HandleMessages( hWnd, uMsg, wParam, lParam );
 
@@ -291,8 +241,6 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
     {
         switch( nChar )
         {
-            case VK_F1:
-                g_bShowHelp = !g_bShowHelp; break;
         }
     }
 }
@@ -398,10 +346,10 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 		{ "COLOR",	   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
-    V_RETURN( pd3dDevice->CreateInputLayout( layout, ARRAYSIZE( layout ), pVertexShaderBuffer->GetBufferPointer(), pVertexShaderBuffer->GetBufferSize(), &g_pVertexLayout11 ) );
-    DXUT_SetDebugName( g_pVertexLayout11, "Primary" );
+    V_RETURN( pd3dDevice->CreateInputLayout( layout, ARRAYSIZE( layout ), pVertexShaderBuffer->GetBufferPointer(), pVertexShaderBuffer->GetBufferSize(), &g_pVertexLayout ) );
+    DXUT_SetDebugName( g_pVertexLayout, "Primary" );
 	
-	pd3dImmediateContext->IASetInputLayout(g_pVertexLayout11);
+	pd3dImmediateContext->IASetInputLayout(g_pVertexLayout);
 
     SAFE_RELEASE( pVertexShaderBuffer );
     SAFE_RELEASE( pPixelShaderBuffer );
@@ -420,15 +368,14 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	bd.ByteWidth = sizeof(VERTEX) * 3;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	V_RETURN(pd3dDevice->CreateBuffer(&bd, NULL, &vertexbuffer));
+	V_RETURN(pd3dDevice->CreateBuffer(&bd, NULL, &g_pVertexBuffer));
 
 
 	//Fill vertex buffer with data
 	D3D11_MAPPED_SUBRESOURCE ms;
-	V(pd3dImmediateContext->Map(vertexbuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms));
+	V(pd3dImmediateContext->Map(g_pVertexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms));
 	memcpy(ms.pData, OurVertices, sizeof(OurVertices));
-	pd3dImmediateContext->Unmap(vertexbuffer, NULL);
-
+	pd3dImmediateContext->Unmap(g_pVertexBuffer, NULL);
 
     return S_OK;
 }
@@ -487,7 +434,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     pd3dImmediateContext->PSSetShader( g_pPixelShader, NULL, 0 );
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
-	pd3dImmediateContext->IASetVertexBuffers(0, 1, &vertexbuffer, &stride, &offset);
+	pd3dImmediateContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
 	pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	pd3dImmediateContext->Draw(3,0);
@@ -516,21 +463,17 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 {
     g_DialogResourceManager.OnD3D11DestroyDevice();
     g_D3DSettingsDlg.OnD3D11DestroyDevice();
-    //CDXUTDirectionWidget::StaticOnD3D11DestroyDevice();
     DXUTGetGlobalResourceCache().OnDestroyDevice();
     SAFE_DELETE( g_pTxtHelper );
 
-    g_Mesh11.Destroy();
-                
-    SAFE_RELEASE( g_pVertexLayout11 );
+    SAFE_RELEASE( g_pVertexLayout );
     SAFE_RELEASE( g_pVertexBuffer );
-    SAFE_RELEASE( g_pIndexBuffer );
     SAFE_RELEASE( g_pVertexShader );
     SAFE_RELEASE( g_pPixelShader );
-    SAFE_RELEASE( g_pSamLinear );
-
-    SAFE_RELEASE( g_pcbVSPerObject );
-    SAFE_RELEASE( g_pcbPSPerObject );
+	
+	//SAFE_DELETE( g_surface1);
+	//SAFE_DELETE( g_surface2);
+	//SAFE_DELETE( g_controlledSurface);
 }
 
 
