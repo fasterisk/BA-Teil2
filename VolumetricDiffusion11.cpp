@@ -57,6 +57,16 @@ UINT                        g_iCBPSPerObjectBind = 0;
 ID3D11Buffer*               g_pcbVSPerObject = NULL;
 ID3D11Buffer*               g_pcbPSPerObject = NULL;
 
+//TEST
+struct VERTEX
+{
+	float x, y, z;
+	D3DXCOLOR color;
+};
+
+ID3D11Buffer* vertexbuffer;
+
+
 //--------------------------------------------------------------------------------------
 // UI control IDs
 //--------------------------------------------------------------------------------------
@@ -364,16 +374,7 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     V_RETURN( g_D3DSettingsDlg.OnD3D11CreateDevice( pd3dDevice ) );
     g_pTxtHelper = new CDXUTTextHelper( pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15 );
 
-    D3DXVECTOR3 vCenter( 0.25767413f, -28.503521f, 111.00689f );
-    FLOAT fObjectRadius = 378.15607f;
-
-    D3DXMatrixTranslation( &g_mCenterMesh, -vCenter.x, -vCenter.y, -vCenter.z );
-    D3DXMATRIXA16 m;
-    D3DXMatrixRotationY( &m, D3DX_PI );
-    g_mCenterMesh *= m;
-    D3DXMatrixRotationX( &m, D3DX_PI / 2.0f );
-    g_mCenterMesh *= m;
-
+    
     // Compile the shaders using the lowest possible profile for broadest feature level support
     ID3DBlob* pVertexShaderBuffer = NULL;
     V_RETURN( CompileShaderFromFile( L"DiffusionShader11_VS.hlsl", "VSMain", "vs_5_0", &pVertexShaderBuffer ) );
@@ -382,49 +383,51 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     V_RETURN( CompileShaderFromFile( L"DiffusionShader11_PS.hlsl", "PSMain", "ps_5_0", &pPixelShaderBuffer ) );
 
     // Create the shaders
-    V_RETURN( pd3dDevice->CreateVertexShader( pVertexShaderBuffer->GetBufferPointer(),
-                                              pVertexShaderBuffer->GetBufferSize(), NULL, &g_pVertexShader ) );
+    V_RETURN( pd3dDevice->CreateVertexShader( pVertexShaderBuffer->GetBufferPointer(), pVertexShaderBuffer->GetBufferSize(), NULL, &g_pVertexShader ) );
     DXUT_SetDebugName( g_pVertexShader, "VSMain" );
-    V_RETURN( pd3dDevice->CreatePixelShader( pPixelShaderBuffer->GetBufferPointer(),
-                                             pPixelShaderBuffer->GetBufferSize(), NULL, &g_pPixelShader ) );
+    V_RETURN( pd3dDevice->CreatePixelShader( pPixelShaderBuffer->GetBufferPointer(), pPixelShaderBuffer->GetBufferSize(), NULL, &g_pPixelShader ) );
     DXUT_SetDebugName( g_pPixelShader, "PSMain" );
+
+	pd3dImmediateContext->VSSetShader(g_pVertexShader, 0, 0);
+	pd3dImmediateContext->PSSetShader(g_pPixelShader, 0, 0);
 
     // Create our vertex input layout
     const D3D11_INPUT_ELEMENT_DESC layout[] =
     {
         { "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR",	   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
-    V_RETURN( pd3dDevice->CreateInputLayout( layout, ARRAYSIZE( layout ), pVertexShaderBuffer->GetBufferPointer(),
-                                             pVertexShaderBuffer->GetBufferSize(), &g_pVertexLayout11 ) );
+    V_RETURN( pd3dDevice->CreateInputLayout( layout, ARRAYSIZE( layout ), pVertexShaderBuffer->GetBufferPointer(), pVertexShaderBuffer->GetBufferSize(), &g_pVertexLayout11 ) );
     DXUT_SetDebugName( g_pVertexLayout11, "Primary" );
+	pd3dImmediateContext->IASetInputLayout(g_pVertexLayout11);
 
     SAFE_RELEASE( pVertexShaderBuffer );
     SAFE_RELEASE( pPixelShaderBuffer );
+	
+	VERTEX OurVertices[] =
+	{
+	   {0.0f, 0.5f, 0.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+	  {0.45f, -0.5, 0.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},
+	  {-0.45f, -0.5f, 0.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)}
+	};
 
-    // Load the mesh
-    V_RETURN( g_Mesh11.Create( pd3dDevice, L"Media\\tiny.sdkmesh", true ) );
+	//Create Vertex buffer
+	D3D11_BUFFER_DESC bd;
+	ZeroMemory(&bd, sizeof(bd));
+	bd.Usage = D3D11_USAGE_DYNAMIC;
+	bd.ByteWidth = sizeof(VERTEX) * 3;
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	V_RETURN(pd3dDevice->CreateBuffer(&bd, NULL, &vertexbuffer));
 
-    // Setup constant buffers
-    D3D11_BUFFER_DESC Desc;
-    Desc.Usage = D3D11_USAGE_DYNAMIC;
-    Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    Desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    Desc.MiscFlags = 0;
 
-    Desc.ByteWidth = sizeof( CB_VS_PER_OBJECT );
-    V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &g_pcbVSPerObject ) );
-    DXUT_SetDebugName( g_pcbVSPerObject, "CB_VS_PER_OBJECT" );
+	//Fill vertex buffer with data
+	D3D11_MAPPED_SUBRESOURCE ms;
+	V(pd3dImmediateContext->Map(vertexbuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms));
+	memcpy(ms.pData, OurVertices, sizeof(OurVertices));
+	pd3dImmediateContext->Unmap(vertexbuffer, NULL);
 
-    Desc.ByteWidth = sizeof( CB_PS_PER_OBJECT );
-    V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &g_pcbPSPerObject ) );
-    DXUT_SetDebugName( g_pcbPSPerObject, "CB_PS_PER_OBJECT" );
-
-    // Setup the camera's view parameters
-    D3DXVECTOR3 vecEye( 0.0f, 0.0f, -100.0f );
-    D3DXVECTOR3 vecAt ( 0.0f, 0.0f, -0.0f );
-    g_Camera.SetViewParams( &vecEye, &vecAt );
-    g_Camera.SetRadius( fObjectRadius * 3.0f, fObjectRadius * 0.5f, fObjectRadius * 10.0f );
 
     return S_OK;
 }
@@ -470,93 +473,27 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
         g_D3DSettingsDlg.OnRender( fElapsedTime );
         return;
     }
-
+		
     // Clear the render target and depth stencil
     float ClearColor[4] = { 0.0f, 0.25f, 0.25f, 0.55f };
     ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
     pd3dImmediateContext->ClearRenderTargetView( pRTV, ClearColor );
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
     pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
+	
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	pd3dImmediateContext->IASetVertexBuffers(0, 1, &vertexbuffer, &stride, &offset);
+	pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    D3DXMATRIX mWorldViewProjection;
-    D3DXVECTOR3 vLightDir;
-    D3DXMATRIX mWorld;
-    D3DXMATRIX mView;
-    D3DXMATRIX mProj;
+	pd3dImmediateContext->Draw(3,0);
 
-    // Get the projection & view matrix from the camera class
-    mProj = *g_Camera.GetProjMatrix();
-    mView = *g_Camera.GetViewMatrix();
-
-    // Get the light direction
-    vLightDir = g_LightControl.GetLightDirection();
-
-    //Get the mesh
-    //IA setup
-    pd3dImmediateContext->IASetInputLayout( g_pVertexLayout11 );
-    UINT Strides[1];
-    UINT Offsets[1];
-    ID3D11Buffer* pVB[1];
-    pVB[0] = g_Mesh11.GetVB11( 0, 0 );
-    Strides[0] = ( UINT )g_Mesh11.GetVertexStride( 0, 0 );
-    Offsets[0] = 0;
-    pd3dImmediateContext->IASetVertexBuffers( 0, 1, pVB, Strides, Offsets );
-    pd3dImmediateContext->IASetIndexBuffer( g_Mesh11.GetIB11( 0 ), g_Mesh11.GetIBFormat11( 0 ), 0 );
-
-    // Set the shaders
-    pd3dImmediateContext->VSSetShader( g_pVertexShader, NULL, 0 );
-    pd3dImmediateContext->PSSetShader( g_pPixelShader, NULL, 0 );
-    
-    // Set the per object constant data
-    mWorld = g_mCenterMesh * *g_Camera.GetWorldMatrix();
-    mProj = *g_Camera.GetProjMatrix();
-    mView = *g_Camera.GetViewMatrix();
-
-    mWorldViewProjection = mWorld * mView * mProj;
-        
-    // VS Per object
-	D3D11_MAPPED_SUBRESOURCE MappedResource;
-    V( pd3dImmediateContext->Map( g_pcbVSPerObject, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource ) );
-    CB_VS_PER_OBJECT* pVSPerObject = ( CB_VS_PER_OBJECT* )MappedResource.pData;
-    D3DXMatrixTranspose( &pVSPerObject->m_WorldViewProj, &mWorldViewProjection );
-    pd3dImmediateContext->Unmap( g_pcbVSPerObject, 0 );
-
-    pd3dImmediateContext->VSSetConstantBuffers( g_iCBVSPerObjectBind, 1, &g_pcbVSPerObject );
-
-    // PS Per object
-    V( pd3dImmediateContext->Map( g_pcbPSPerObject, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource ) );
-    CB_PS_PER_OBJECT* pPSPerObject = ( CB_PS_PER_OBJECT* )MappedResource.pData;
-    pPSPerObject->m_vObjectColor = D3DXVECTOR4( 1, 1, 1, 1 );
-    pd3dImmediateContext->Unmap( g_pcbPSPerObject, 0 );
-
-    pd3dImmediateContext->PSSetConstantBuffers( g_iCBPSPerObjectBind, 1, &g_pcbPSPerObject );
-
-    //Render
-    SDKMESH_SUBSET* pSubset = NULL;
-    D3D11_PRIMITIVE_TOPOLOGY PrimType;
-
-    pd3dImmediateContext->PSSetSamplers( 0, 1, &g_pSamLinear );
-
-    for( UINT subset = 0; subset < g_Mesh11.GetNumSubsets( 0 ); ++subset )
-    {
-        // Get the subset
-        pSubset = g_Mesh11.GetSubset( 0, subset );
-
-        PrimType = CDXUTSDKMesh::GetPrimitiveType11( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
-        pd3dImmediateContext->IASetPrimitiveTopology( PrimType );
-
-        // TODO: D3D11 - material loading
-        ID3D11ShaderResourceView* pDiffuseRV = g_Mesh11.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
-        pd3dImmediateContext->PSSetShaderResources( 0, 1, &pDiffuseRV );
-
-        pd3dImmediateContext->DrawIndexed( ( UINT )pSubset->IndexCount, 0, ( UINT )pSubset->VertexStart );
-    }
-
-    DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
+    /*DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_HUD.OnRender( fElapsedTime );
     g_SampleUI.OnRender( fElapsedTime );
     RenderText();
     DXUT_EndPerfEvent();
+	*/
 }
 
 

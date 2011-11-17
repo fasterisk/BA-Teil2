@@ -1,25 +1,8 @@
 //--------------------------------------------------------------------------------------
-// File: BasicHLSL11_PS.hlsl
-//
-// The pixel shader file for the BasicHLSL11 sample.  
-// 
-// Copyright (c) Microsoft Corporation. All rights reserved.
-//--------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------
-// Globals
-//--------------------------------------------------------------------------------------
-cbuffer cbPerObject : register( b0 )
-{
-	float4		g_vObjectColor			: packoffset( c0 );
-};
-
-//--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-float4 PSMain() : SV_TARGET
+float4 PSMain(float4 position : SV_POSITION, float4 color : COLOR) : SV_TARGET
 {
-	
-	return g_vObjectColor;
+	return color;
 }
 
