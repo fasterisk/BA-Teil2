@@ -35,6 +35,7 @@ int							g_mouseSpeed = 10;
 bool						g_bRotatesWithMouse = true;
 bool						g_bCameraActive = false;
 
+float						g_fElapsedTime = 0;
 
 // Resources
 CDXUTTextHelper*            g_pTxtHelper = NULL;
@@ -44,45 +45,44 @@ ID3D11Buffer*               g_pVertexBuffer = NULL;
 ID3D11VertexShader*         g_pVertexShader = NULL;
 ID3D11PixelShader*          g_pPixelShader = NULL;
 
+ID3D11Buffer*				g_pcbPerFrame;
+UINT						g_iBindPerFrame = 0;
+
+struct CB_PER_FRAME_CONSTANTS
+{
+    D3DXMATRIX mModelViewProjection;
+};
+
+
+
 
 //--------------------------------------------------------------------------------------
 // UI control IDs
 //--------------------------------------------------------------------------------------
-#define IDC_TOGGLEFULLSCREEN    1
-#define IDC_TOGGLEREF           3
-#define IDC_CHANGEDEVICE        4
+#define IDC_TOGGLEFULLSCREEN		1
+#define IDC_TOGGLEREF				2
+#define IDC_CHANGEDEVICE			3
 
+#define IDC_CHANGE_CONTROL			4
+#define IDC_ROTATE_MOVE_CAMERA		5
+#define IDC_ROTATE					6
+#define IDC_MOVE					7
+#define IDC_CAMERA					8
 //--------------------------------------------------------------------------------------
 // Forward declarations 
 //--------------------------------------------------------------------------------------
 bool CALLBACK ModifyDeviceSettings( DXUTDeviceSettings* pDeviceSettings, void* pUserContext );
 void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext );
-LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool* pbNoFurtherProcessing,
-                          void* pUserContext );
+LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool* pbNoFurtherProcessing, void* pUserContext );
 void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext );
 void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, void* pUserContext );
-
-extern bool CALLBACK IsD3D9DeviceAcceptable( D3DCAPS9* pCaps, D3DFORMAT AdapterFormat, D3DFORMAT BackBufferFormat,
-                                             bool bWindowed, void* pUserContext );
-extern HRESULT CALLBACK OnD3D9CreateDevice( IDirect3DDevice9* pd3dDevice,
-                                            const D3DSURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext );
-extern HRESULT CALLBACK OnD3D9ResetDevice( IDirect3DDevice9* pd3dDevice, const D3DSURFACE_DESC* pBackBufferSurfaceDesc,
-                                           void* pUserContext );
-extern void CALLBACK OnD3D9FrameRender( IDirect3DDevice9* pd3dDevice, double fTime, float fElapsedTime,
-                                        void* pUserContext );
-extern void CALLBACK OnD3D9LostDevice( void* pUserContext );
-extern void CALLBACK OnD3D9DestroyDevice( void* pUserContext );
-
-bool CALLBACK IsD3D11DeviceAcceptable(const CD3D11EnumAdapterInfo *AdapterInfo, UINT Output, const CD3D11EnumDeviceInfo *DeviceInfo,
-                                       DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext );
-HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc,
-                                      void* pUserContext );
-HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapChain* pSwapChain,
-                                          const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext );
+bool CALLBACK IsD3D11DeviceAcceptable(const CD3D11EnumAdapterInfo *AdapterInfo, UINT Output, const CD3D11EnumDeviceInfo *DeviceInfo, DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext );
+HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext );
+HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapChain* pSwapChain, const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext );
 void CALLBACK OnD3D11ReleasingSwapChain( void* pUserContext );
 void CALLBACK OnD3D11DestroyDevice( void* pUserContext );
-void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime,
-                                  float fElapsedTime, void* pUserContext );
+void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime, float fElapsedTime, void* pUserContext );
+void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, bool bSide1Down, bool bSide2Down, int iWheelDelta, int iX, int iY, void* pUserContext);
 
 void InitApp();
 void RenderText();
@@ -107,6 +107,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
     DXUTSetCallbackMsgProc( MsgProc );
     DXUTSetCallbackKeyboard( OnKeyboard );
     DXUTSetCallbackFrameMove( OnFrameMove );
+	DXUTSetCallbackMouse(OnMouseEvent, true);
 
     DXUTSetCallbackD3D11DeviceAcceptable( IsD3D11DeviceAcceptable );
     DXUTSetCallbackD3D11DeviceCreated( OnD3D11CreateDevice );
@@ -118,7 +119,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
     InitApp();
     DXUTInit( true, true, NULL ); // Parse the command line, show msgboxes on error, no extra command line params
     DXUTSetCursorSettings( true, true ); // Show the cursor and clip it when in full screen
-    DXUTCreateWindow( L"BasicHLSL11" );
+    DXUTCreateWindow( L"Volumetric Diffusion" );
     DXUTCreateDevice (D3D_FEATURE_LEVEL_11_0, true, 800, 600 );
     //DXUTCreateDevice(true, 640, 480);
     DXUTMainLoop(); // Enter into the DXUT render loop
@@ -141,8 +142,18 @@ void InitApp()
     g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 0, iY, 170, 23 );
     g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 0, iY += 26, 170, 23, VK_F3 );
     g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 0, iY += 26, 170, 23, VK_F2 );
+	g_HUD.AddButton( IDC_CHANGE_CONTROL, L"Change contr. surface", 0, iY += 52, 170, 30);
+	g_HUD.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 26, 170, 30);
+	g_HUD.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 26, 170, 30);
+	g_HUD.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 26, 170, 30);
+	g_HUD.GetRadioButton( IDC_ROTATE )->SetChecked(true);
 
     g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
+
+	// Setup the camera's view parameters
+    D3DXVECTOR3 vecEye( 1.0f, 1.5f, -3.5f );
+    D3DXVECTOR3 vecAt ( 0.0f, 0.0f, 0.0f );
+    g_Camera.SetViewParams( &vecEye, &vecAt );
 }
 
 
@@ -185,16 +196,13 @@ void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext 
 //--------------------------------------------------------------------------------------
 void RenderText()
 {
-    UINT nBackBufferHeight = ( DXUTIsAppRenderingWithD3D9() ) ? DXUTGetD3D9BackBufferSurfaceDesc()->Height :
-            DXUTGetDXGIBackBufferSurfaceDesc()->Height;
-
     g_pTxtHelper->Begin();
     g_pTxtHelper->SetInsertionPos( 2, 0 );
     g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 0.0f, 1.0f ) );
     g_pTxtHelper->DrawTextLine( DXUTGetFrameStats( DXUTIsVsyncEnabled() ) );
     g_pTxtHelper->DrawTextLine( DXUTGetDeviceStats() );
 
-	g_pTxtHelper->End();
+	g_pTxtHelper->End();//important for SAFE_DELETE
 
 }
 
@@ -226,7 +234,8 @@ LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bo
         return 0;
 
     // Pass all remaining windows messages to camera so it can respond to user input
-    g_Camera.HandleMessages( hWnd, uMsg, wParam, lParam );
+	if(g_bCameraActive)
+		g_Camera.HandleMessages( hWnd, uMsg, wParam, lParam );
 
     return 0;
 }
@@ -245,6 +254,57 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
     }
 }
 
+//--------------------------------------------------------------------------------------
+// Handle mouse
+//--------------------------------------------------------------------------------------
+void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, bool bSide1Down, bool bSide2Down, int iWheelDelta, int iX, int iY, void* pUserContext)
+{
+	if(g_bCameraActive)
+		return;
+
+
+	if(g_mouseX == 0 && g_mouseY == 0)
+	{
+		g_mouseX = iX;
+		g_mouseY = iY;
+	}
+
+
+	if(g_bRotatesWithMouse)//Rotate&Scale object
+	{
+		if(bLeftDown)
+		{
+			g_controlledSurface->RotateX((g_mouseY-iY)*g_fElapsedTime*10);
+			g_controlledSurface->RotateY((g_mouseX-iX)*g_fElapsedTime*10);
+		}
+		
+		if(iWheelDelta>0)
+			g_controlledSurface->Scale(1.0+g_fElapsedTime*100);
+		else if(iWheelDelta<0)
+			g_controlledSurface->Scale(1.0-g_fElapsedTime*100);
+	}
+	else//Move object
+	{
+		const D3DXMATRIX* mView = g_Camera.GetViewMatrix();
+		D3DXVECTOR3 lookAt = D3DXVECTOR3(mView->_13, mView->_23,mView->_33);
+		D3DXVECTOR3 lookRight = D3DXVECTOR3(mView->_11, mView->_21,mView->_31);
+		D3DXVECTOR3 lookUp = D3DXVECTOR3(mView->_12, mView->_22,mView->_32);
+
+		if(bLeftDown)
+		{
+			g_controlledSurface->Translate(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
+			g_controlledSurface->Translate(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
+		}
+
+		if(iWheelDelta>0)
+			g_controlledSurface->Translate(100*g_fElapsedTime*lookAt.x, 100*g_fElapsedTime*lookAt.y, 100*g_fElapsedTime*lookAt.z);
+		else if(iWheelDelta<0)
+			g_controlledSurface->Translate(-100*g_fElapsedTime*lookAt.x, -100*g_fElapsedTime*lookAt.y, -100*g_fElapsedTime*lookAt.z);
+	}
+
+	g_mouseX = iX;
+	g_mouseY = iY;
+}
 
 //--------------------------------------------------------------------------------------
 // Handles the GUI events
@@ -254,11 +314,34 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
     switch( nControlID )
     {
         case IDC_TOGGLEFULLSCREEN:
-            DXUTToggleFullScreen(); break;
+            DXUTToggleFullScreen(); 
+			break;
         case IDC_TOGGLEREF:
-            DXUTToggleREF(); break;
+            DXUTToggleREF(); 
+			break;
         case IDC_CHANGEDEVICE:
-            g_D3DSettingsDlg.SetActive( !g_D3DSettingsDlg.IsActive() ); break;
+            g_D3DSettingsDlg.SetActive( !g_D3DSettingsDlg.IsActive() ); 
+			break;
+		
+		// Custom app controls
+		case IDC_CHANGE_CONTROL:
+			if(g_surface1IsControlled)
+				g_controlledSurface = g_surface2;
+			else
+				g_controlledSurface = g_surface1;
+			g_surface1IsControlled = !g_surface1IsControlled;
+			break;
+		case IDC_ROTATE:
+			g_bRotatesWithMouse = true;
+			g_bCameraActive = false;
+			break;
+		case IDC_MOVE:
+			g_bRotatesWithMouse = false;
+			g_bCameraActive = false;
+			break;
+		case IDC_CAMERA:
+			g_bCameraActive = true;
+			break;
     }
 
 }
@@ -354,18 +437,50 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     SAFE_RELEASE( pVertexShaderBuffer );
     SAFE_RELEASE( pPixelShaderBuffer );
 	
+	VERTEX OurVertices2[] =
+{
+{0.0f, 0.5f, 0.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+{0.45f, -1.5, 0.0f, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f)},
+{-0.45f, -0.5f, 0.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)}
+};
 	VERTEX OurVertices[] =
 	{
-	   {0.0f, 0.5f, 0.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-	  {0.45f, -0.5, 0.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},
-	  {-0.45f, -0.5f, 0.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)}
+		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},
+		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)},
+		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+  
+		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+
+		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+  
+		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+  
+		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+  
+		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{ 1.0f, -1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{ 1.0f,  1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)}
 	};
 
 	//Create Vertex buffer
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = D3D11_USAGE_DYNAMIC;
-	bd.ByteWidth = sizeof(VERTEX) * 3;
+	bd.ByteWidth = sizeof(VERTEX) * 24;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	V_RETURN(pd3dDevice->CreateBuffer(&bd, NULL, &g_pVertexBuffer));
@@ -376,6 +491,31 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	V(pd3dImmediateContext->Map(g_pVertexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms));
 	memcpy(ms.pData, OurVertices, sizeof(OurVertices));
 	pd3dImmediateContext->Unmap(g_pVertexBuffer, NULL);
+
+
+	// Create constant buffers
+    D3D11_BUFFER_DESC Desc;
+    Desc.Usage = D3D11_USAGE_DYNAMIC;
+    Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    Desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    Desc.MiscFlags = 0;
+
+    Desc.ByteWidth = sizeof( CB_PER_FRAME_CONSTANTS );
+    V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &g_pcbPerFrame ) );
+    DXUT_SetDebugName( g_pcbPerFrame, "CB_PER_FRAME_CONSTANTS" );
+
+
+	// Create surface1 and its vertex buffer
+g_surface1 = new Surface();
+//g_surface1->ReadVectorFile("Media\\surface1.xml");
+//g_surface1->InitBuffers(pd3dDevice);
+    
+// Create surface2 and its vertex buffer
+g_surface2 = new Surface();
+//g_surface2->ReadVectorFile("Media\\surface2.xml");
+//g_surface2->InitBuffers(pd3dDevice);
+
+g_controlledSurface = g_surface1;
 
     return S_OK;
 }
@@ -429,6 +569,24 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
     pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 	
+	D3DXMATRIX mViewProjection;
+    D3DXMATRIX mProj = *g_Camera.GetProjMatrix();
+    D3DXMATRIX mView = *g_Camera.GetViewMatrix();
+
+	mViewProjection = mView * mProj;
+
+	// Update per-frame variables
+    D3D11_MAPPED_SUBRESOURCE MappedResource;
+    pd3dImmediateContext->Map( g_pcbPerFrame, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
+    CB_PER_FRAME_CONSTANTS* pData = ( CB_PER_FRAME_CONSTANTS* )MappedResource.pData;
+
+    D3DXMatrixTranspose( &pData->mModelViewProjection, &mViewProjection );
+
+    pd3dImmediateContext->Unmap( g_pcbPerFrame, 0 );
+
+	pd3dImmediateContext->VSSetConstantBuffers(g_iBindPerFrame, 1, &g_pcbPerFrame);
+
+
 	// Set the shaders
     pd3dImmediateContext->VSSetShader( g_pVertexShader, NULL, 0 );
     pd3dImmediateContext->PSSetShader( g_pPixelShader, NULL, 0 );
@@ -437,7 +595,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	pd3dImmediateContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
 	pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	pd3dImmediateContext->Draw(3,0);
+	pd3dImmediateContext->Draw(24,0);
 	
 	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_HUD.OnRender( fElapsedTime );
@@ -470,6 +628,7 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
     SAFE_RELEASE( g_pVertexBuffer );
     SAFE_RELEASE( g_pVertexShader );
     SAFE_RELEASE( g_pPixelShader );
+	SAFE_RELEASE( g_pcbPerFrame);
 	
 	//SAFE_DELETE( g_surface1);
 	//SAFE_DELETE( g_surface2);

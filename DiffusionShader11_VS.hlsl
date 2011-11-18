@@ -1,4 +1,13 @@
 //--------------------------------------------------------------------------------------
+// Constant Buffers
+//--------------------------------------------------------------------------------------
+cbuffer cbPerFrame : register( b0 )
+{
+    matrix g_mModelViewProjection;
+};
+
+
+//--------------------------------------------------------------------------------------
 // Input / Output structures
 //--------------------------------------------------------------------------------------
 
@@ -15,7 +24,7 @@ VS_OUTPUT VSMain(float4 position : POSITION, float4 color : COLOR)
 {
 	VS_OUTPUT Output;
 	
-	Output.position = position;
+	Output.position = mul(position,g_mModelViewProjection);
 	Output.color = color;
 	
 	return Output;
