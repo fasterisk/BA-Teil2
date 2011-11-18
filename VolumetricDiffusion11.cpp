@@ -445,42 +445,49 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 };
 	VERTEX OurVertices[] =
 	{
-		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},
-		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)},
-		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-  
-		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-
-		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-  
-		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-  
-		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-  
-		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{ 1.0f, -1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{ 1.0f,  1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)}
+		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//0
+		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)},//2
+		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},//1
+		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//0
+		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//3
+		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)},//2
+		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//4
+		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//5
+		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//6
+		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//4
+		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//6
+		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//7
+		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//8
+		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//9
+		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//10
+		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//8
+		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//10
+		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//11
+		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//12
+		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//13
+		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//14
+		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//12
+		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//14
+		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//15
+  		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//16
+		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//17
+		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//18
+		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//16
+		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//18
+		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//19
+  		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//20
+		{ 1.0f, -1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//21
+		{ 1.0f,  1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//22
+		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//20
+		{ 1.0f,  1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//22
+		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)}//23
 	};
 
 	//Create Vertex buffer
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = D3D11_USAGE_DYNAMIC;
-	bd.ByteWidth = sizeof(VERTEX) * 24;
+	bd.ByteWidth = sizeof(VERTEX) * 36;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	V_RETURN(pd3dDevice->CreateBuffer(&bd, NULL, &g_pVertexBuffer));
@@ -595,7 +602,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	pd3dImmediateContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
 	pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	pd3dImmediateContext->Draw(24,0);
+	pd3dImmediateContext->Draw(36,0);
 	
 	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_HUD.OnRender( fElapsedTime );
