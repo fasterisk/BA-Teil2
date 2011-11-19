@@ -42,6 +42,7 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 
 ID3D11InputLayout*          g_pVertexLayout = NULL;
 ID3D11Buffer*               g_pVertexBuffer = NULL;
+ID3D11Buffer*				g_pIndexBuffer = NULL;
 ID3D11VertexShader*         g_pVertexShader = NULL;
 ID3D11PixelShader*          g_pPixelShader = NULL;
 
@@ -437,12 +438,7 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     SAFE_RELEASE( pVertexShaderBuffer );
     SAFE_RELEASE( pPixelShaderBuffer );
 	
-	VERTEX OurVertices2[] =
-{
-{0.0f, 0.5f, 0.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-{0.45f, -1.5, 0.0f, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f)},
-{-0.45f, -0.5f, 0.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)}
-};
+
 	VERTEX OurVertices[] =
 	{
 		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//0
@@ -483,22 +479,80 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)}//23
 	};
 
+	VERTEX OurVertices2[] =
+	{
+		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//0
+		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},//1
+		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)},//2
+		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//3
+		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//4
+		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//5
+		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//6
+		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//7
+		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//8
+		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//9
+		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//10
+		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//11
+		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//12
+		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//13
+		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//14
+		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//15
+  		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//16
+		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//17
+		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//18
+		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//19
+  		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//20
+		{ 1.0f, -1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//21
+		{ 1.0f,  1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//22
+		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)}//23
+	};
+
+	unsigned int INDICES[] = 
+	{
+      0, 2, 1, 0, 3, 2,
+      4, 5, 6, 4, 6, 7,
+      8, 9, 10, 8, 10, 11,
+      12, 13, 14, 12, 14, 15,
+      16, 17, 18, 16, 18, 19,
+      20, 21, 22, 20, 22, 23,
+	};
+
 	//Create Vertex buffer
-	D3D11_BUFFER_DESC bd;
-	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage = D3D11_USAGE_DYNAMIC;
-	bd.ByteWidth = sizeof(VERTEX) * 36;
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	V_RETURN(pd3dDevice->CreateBuffer(&bd, NULL, &g_pVertexBuffer));
+	D3D11_BUFFER_DESC vbd;
+	ZeroMemory(&vbd, sizeof(vbd));
+	vbd.Usage = D3D11_USAGE_DYNAMIC;
+	vbd.ByteWidth = sizeof(VERTEX) * 24;
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	V_RETURN(pd3dDevice->CreateBuffer(&vbd, NULL, &g_pVertexBuffer));
 
 
 	//Fill vertex buffer with data
-	D3D11_MAPPED_SUBRESOURCE ms;
-	V(pd3dImmediateContext->Map(g_pVertexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms));
-	memcpy(ms.pData, OurVertices, sizeof(OurVertices));
+	D3D11_MAPPED_SUBRESOURCE vms;
+	V(pd3dImmediateContext->Map(g_pVertexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &vms));
+	memcpy(vms.pData, OurVertices2, sizeof(OurVertices2));
 	pd3dImmediateContext->Unmap(g_pVertexBuffer, NULL);
 
+	//Create Index buffer
+	D3D11_BUFFER_DESC ibd;
+	ZeroMemory(&ibd, sizeof(ibd));
+	ibd.Usage = D3D11_USAGE_DYNAMIC;
+	ibd.ByteWidth = sizeof(unsigned int) * 36;
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	//ibd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA indexData;
+	indexData.pSysMem = &INDICES;
+	indexData.SysMemPitch = 0;
+	indexData.SysMemSlicePitch = 0;
+	V_RETURN(pd3dDevice->CreateBuffer(&ibd, &indexData, &g_pIndexBuffer));
+
+	//Fill index buffer with data
+	/*D3D11_MAPPED_SUBRESOURCE ims;
+	V(pd3dImmediateContext->Map(g_pIndexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ims));
+	memcpy(ims.pData, INDICES, sizeof(INDICES));
+	pd3dImmediateContext->Unmap(g_pIndexBuffer, NULL);
+	*/
 
 	// Create constant buffers
     D3D11_BUFFER_DESC Desc;
@@ -600,9 +654,10 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
 	pd3dImmediateContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+	pd3dImmediateContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	pd3dImmediateContext->Draw(36,0);
+	pd3dImmediateContext->DrawIndexed(36, 0, 0);
 	
 	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_HUD.OnRender( fElapsedTime );
@@ -633,6 +688,7 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 
     SAFE_RELEASE( g_pVertexLayout );
     SAFE_RELEASE( g_pVertexBuffer );
+	SAFE_RELEASE( g_pIndexBuffer);
     SAFE_RELEASE( g_pVertexShader );
     SAFE_RELEASE( g_pPixelShader );
 	SAFE_RELEASE( g_pcbPerFrame);
