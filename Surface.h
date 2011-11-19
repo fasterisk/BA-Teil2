@@ -6,15 +6,9 @@ struct VERTEX
 	D3DXCOLOR color;
 };
 
-struct CB_VS_PER_OBJECT
+struct CB_PER_FRAME_CONSTANTS
 {
-    D3DXMATRIX m_mModelViewProj;
-};
-
-
-struct CB_PS_PER_OBJECT
-{
-    D3DXVECTOR4 m_vObjectColor;
+    D3DXMATRIX mModelViewProjection;
 };
 
 
@@ -24,13 +18,13 @@ public:
 	int m_vNum;
 	VERTEX *m_pVertices;
 
-	ID3D11Buffer* m_pcbVSPerObject;
-	ID3D11Buffer* m_pcbPSPerObject;
-	ID3D11Buffer* m_vertexbuffer;
-	ID3D11Buffer* m_indexbuffer;
+	int m_iNum;
+	unsigned int *m_pIndices;
 
-	UINT m_iCBVSPerObjectBind;
-	UINT m_iCBPSPerObjectBind;
+	ID3D11Buffer* m_pVertexBuffer;
+	ID3D11Buffer* m_pIndexBuffer;
+	ID3D11Buffer* m_pcbPerFrame;
+	UINT m_iBindPerFrame;
 
 	D3DXMATRIX m_mModel;
 	D3DXMATRIX m_mRot;
@@ -55,8 +49,8 @@ public:
 
 	void Scale(float fFactor);
 
-	HRESULT InitBuffers(ID3D11Device* pd3dDevice);
-	void Render(ID3D11DeviceContext* pd3dImmediateContext, D3DXMATRIX mViewProjection, D3DXVECTOR3 vCamEye, float fSubdivs);
+	HRESULT InitBuffers(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext);
+	void Render(ID3D11DeviceContext* pd3dImmediateContext, D3DXMATRIX mViewProjection);
 
 	void ReadVectorFile(char *s);
 };

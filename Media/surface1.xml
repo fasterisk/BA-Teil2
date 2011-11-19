@@ -1,29 +1,68 @@
 <!DOCTYPE SurfaceXML>
-<surface nb_vertices="24">
+<surface nb_vertices="24" nb_indices="36" >
  <vertices_set>
   <vertex x="-1" y="-1" z="-1" />
-  <vertex x="1.0" y="-1" z="-1" />
-  <vertex x="0.5" y="-0.3536" z="-1" />
-  <vertex x="-1" y="-0.3536" z="-1" />
+  <vertex x="1" y="-1" z="-1" />
+  <vertex x="1" y="1" z="-1" />
+  <vertex x="-1" y="1" z="-1" />
   <vertex x="-1" y="-1" z="-1" />
-  <vertex x="1.0" y="-1" z="-1" />
-  <vertex x="0.5" y="-1" z="1.118" />
-  <vertex x="-1" y="-1" z="1.118" />
-  <vertex x="1.0" y="-1" z="-1" />
-  <vertex x="1.0" y="0.1667" z="-1" />
-  <vertex x="0.5" y="0.1179" z="0.8821" />
-  <vertex x="0.0" y="-1" z="0.8821" />
-  <vertex x="1.0" y="0.5" z="-1" />
-  <vertex x="-1" y="0.5" z="-1" />
-  <vertex x="-1" y="0.3536" z="0.6464" />
-  <vertex x="0.0" y="0.3536" z="0.6464" />
-  <vertex x="-1" y="-0.3536" z="-1" />
+  <vertex x="1" y="-1" z="-1" />
+  <vertex x="1" y="-1" z="1" />
+  <vertex x="-1" y="-1" z="1" />
+  <vertex x="1" y="-1" z="-1" />
+  <vertex x="1" y="1" z="-1" />
+  <vertex x="1" y="1" z="1" />
+  <vertex x="1" y="-1" z="1" />
+  <vertex x="1" y="1" z="-1" />
+  <vertex x="-1" y="1" z="-1" />
+  <vertex x="-1" y="1" z="1" />
+  <vertex x="1" y="1" z="1" />
+  <vertex x="-1" y="1" z="-1" />
   <vertex x="-1" y="-1" z="-1" />
-  <vertex x="-1" y="-1" z="0.5" />
-  <vertex x="-1" y="0.0" z="0.0" />
-  <vertex x="-1" y="-1" z="1.118" />
-  <vertex x="-0.5" y="-1" z="1.118" />
-  <vertex x="-1.167" y="0.0" z="0.5" />
-  <vertex x="-1" y="0.0" z="0.0" />
+  <vertex x="-1" y="-1" z="1" />
+  <vertex x="-1" y="1" z="1" />
+  <vertex x="-1" y="-1" z="1" />
+  <vertex x="1" y="-1" z="1" />
+  <vertex x="1" y="1" z="1" />
+  <vertex x="-1" y="1" z="1" />
  </vertices_set>
+ <indices_set>
+  <index value="0" />
+  <index value="2" />
+  <index value="1" />
+  <index value="0" />
+  <index value="3" />
+  <index value="2" />
+  <index value="4" />
+  <index value="5" />
+  <index value="6" />
+  <index value="4" />
+  <index value="6" />
+  <index value="7" />
+  <index value="8" />
+  <index value="9" />
+  <index value="10" />
+  <index value="8" />
+  <index value="10" />
+  <index value="11" />
+  <index value="12" />
+  <index value="13" />
+  <index value="14" />
+  <index value="12" />
+  <index value="14" />
+  <index value="15" />
+  <index value="16" />
+  <index value="17" />
+  <index value="18" />
+  <index value="16" />
+  <index value="18" />
+  <index value="19" />
+  <index value="20" />
+  <index value="21" />
+  <index value="22" />
+  <index value="20" />
+  <index value="22" />
+  <index value="23" />
+ </indices_set>
+ <color r="0.0f" g="0.0f" b="0.0f" />
 </surface>

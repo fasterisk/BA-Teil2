@@ -31,7 +31,7 @@ Surface*					g_controlledSurface;
 bool						g_surface1IsControlled = true;
 int							g_mouseX = 0;
 int							g_mouseY = 0;
-int							g_mouseSpeed = 10;
+int							g_mouseSpeed = 1;
 bool						g_bRotatesWithMouse = true;
 bool						g_bCameraActive = false;
 
@@ -41,19 +41,8 @@ float						g_fElapsedTime = 0;
 CDXUTTextHelper*            g_pTxtHelper = NULL;
 
 ID3D11InputLayout*          g_pVertexLayout = NULL;
-ID3D11Buffer*               g_pVertexBuffer = NULL;
-ID3D11Buffer*				g_pIndexBuffer = NULL;
 ID3D11VertexShader*         g_pVertexShader = NULL;
 ID3D11PixelShader*          g_pPixelShader = NULL;
-
-ID3D11Buffer*				g_pcbPerFrame;
-UINT						g_iBindPerFrame = 0;
-
-struct CB_PER_FRAME_CONSTANTS
-{
-    D3DXMATRIX mModelViewProjection;
-};
-
 
 
 
@@ -99,9 +88,6 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 #if defined(DEBUG) | defined(_DEBUG)
     _CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 #endif
-
-    // DXUT will create and use the best device (either D3D9 or D3D11) 
-    // that is available on the system depending on which D3D callbacks are set below
 
     // Set DXUT callbacks
     DXUTSetCallbackDeviceChanging( ModifyDeviceSettings );
@@ -275,8 +261,8 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	{
 		if(bLeftDown)
 		{
-			g_controlledSurface->RotateX((g_mouseY-iY)*g_fElapsedTime*10);
-			g_controlledSurface->RotateY((g_mouseX-iX)*g_fElapsedTime*10);
+			g_controlledSurface->RotateX((g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
+			g_controlledSurface->RotateY((g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
 		}
 		
 		if(iWheelDelta>0)
@@ -438,145 +424,17 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     SAFE_RELEASE( pVertexShaderBuffer );
     SAFE_RELEASE( pPixelShaderBuffer );
 	
-
-	VERTEX OurVertices[] =
-	{
-		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//0
-		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)},//2
-		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},//1
-		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//0
-		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//3
-		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)},//2
-		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//4
-		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//5
-		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//6
-		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//4
-		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//6
-		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//7
-		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//8
-		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//9
-		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//10
-		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//8
-		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//10
-		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//11
-		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//12
-		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//13
-		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//14
-		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//12
-		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//14
-		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//15
-  		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//16
-		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//17
-		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//18
-		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//16
-		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//18
-		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//19
-  		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//20
-		{ 1.0f, -1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//21
-		{ 1.0f,  1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//22
-		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//20
-		{ 1.0f,  1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//22
-		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)}//23
-	};
-
-	VERTEX OurVertices2[] =
-	{
-		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//0
-		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},//1
-		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)},//2
-		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//3
-		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//4
-		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//5
-		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//6
-		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//7
-		{ 1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//8
-		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//9
-		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//10
-		{ 1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//11
-		{ 1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//12
-		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//13
-		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//14
-		{ 1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//15
-  		{-1.0f,  1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//16
-		{-1.0f, -1.0f, -1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//17
-		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//18
-		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//19
-  		{-1.0f, -1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//20
-		{ 1.0f, -1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//21
-		{ 1.0f,  1.0f,  1.0f,D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},//22
-		{-1.0f,  1.0f,  1.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)}//23
-	};
-
-	unsigned int INDICES[] = 
-	{
-      0, 2, 1, 0, 3, 2,
-      4, 5, 6, 4, 6, 7,
-      8, 9, 10, 8, 10, 11,
-      12, 13, 14, 12, 14, 15,
-      16, 17, 18, 16, 18, 19,
-      20, 21, 22, 20, 22, 23,
-	};
-
-	//Create Vertex buffer
-	D3D11_BUFFER_DESC vbd;
-	ZeroMemory(&vbd, sizeof(vbd));
-	vbd.Usage = D3D11_USAGE_DYNAMIC;
-	vbd.ByteWidth = sizeof(VERTEX) * 24;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	V_RETURN(pd3dDevice->CreateBuffer(&vbd, NULL, &g_pVertexBuffer));
-
-
-	//Fill vertex buffer with data
-	D3D11_MAPPED_SUBRESOURCE vms;
-	V(pd3dImmediateContext->Map(g_pVertexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &vms));
-	memcpy(vms.pData, OurVertices2, sizeof(OurVertices2));
-	pd3dImmediateContext->Unmap(g_pVertexBuffer, NULL);
-
-	//Create Index buffer
-	D3D11_BUFFER_DESC ibd;
-	ZeroMemory(&ibd, sizeof(ibd));
-	ibd.Usage = D3D11_USAGE_DYNAMIC;
-	ibd.ByteWidth = sizeof(unsigned int) * 36;
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	//ibd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA indexData;
-	indexData.pSysMem = &INDICES;
-	indexData.SysMemPitch = 0;
-	indexData.SysMemSlicePitch = 0;
-	V_RETURN(pd3dDevice->CreateBuffer(&ibd, &indexData, &g_pIndexBuffer));
-
-	//Fill index buffer with data
-	/*D3D11_MAPPED_SUBRESOURCE ims;
-	V(pd3dImmediateContext->Map(g_pIndexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ims));
-	memcpy(ims.pData, INDICES, sizeof(INDICES));
-	pd3dImmediateContext->Unmap(g_pIndexBuffer, NULL);
-	*/
-
-	// Create constant buffers
-    D3D11_BUFFER_DESC Desc;
-    Desc.Usage = D3D11_USAGE_DYNAMIC;
-    Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    Desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    Desc.MiscFlags = 0;
-
-    Desc.ByteWidth = sizeof( CB_PER_FRAME_CONSTANTS );
-    V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &g_pcbPerFrame ) );
-    DXUT_SetDebugName( g_pcbPerFrame, "CB_PER_FRAME_CONSTANTS" );
-
-
 	// Create surface1 and its vertex buffer
-g_surface1 = new Surface();
-//g_surface1->ReadVectorFile("Media\\surface1.xml");
-//g_surface1->InitBuffers(pd3dDevice);
+	g_surface1 = new Surface();
+	g_surface1->ReadVectorFile("Media\\surface1.xml");
+	V_RETURN(g_surface1->InitBuffers(pd3dDevice, pd3dImmediateContext));
     
-// Create surface2 and its vertex buffer
-g_surface2 = new Surface();
-//g_surface2->ReadVectorFile("Media\\surface2.xml");
-//g_surface2->InitBuffers(pd3dDevice);
+	// Create surface2 and its vertex buffer
+	g_surface2 = new Surface();
+	g_surface2->ReadVectorFile("Media\\surface2.xml");
+	V_RETURN(g_surface2->InitBuffers(pd3dDevice, pd3dImmediateContext));
 
-g_controlledSurface = g_surface1;
+	g_controlledSurface = g_surface1;
 
     return S_OK;
 }
@@ -616,6 +474,8 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 {
     HRESULT hr;
 
+	g_fElapsedTime = fElapsedTime;
+
     // If the settings dialog is being shown, then render it instead of rendering the app's scene
     if( g_D3DSettingsDlg.IsActive() )
     {
@@ -636,28 +496,13 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 
 	mViewProjection = mView * mProj;
 
-	// Update per-frame variables
-    D3D11_MAPPED_SUBRESOURCE MappedResource;
-    pd3dImmediateContext->Map( g_pcbPerFrame, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-    CB_PER_FRAME_CONSTANTS* pData = ( CB_PER_FRAME_CONSTANTS* )MappedResource.pData;
-
-    D3DXMatrixTranspose( &pData->mModelViewProjection, &mViewProjection );
-
-    pd3dImmediateContext->Unmap( g_pcbPerFrame, 0 );
-
-	pd3dImmediateContext->VSSetConstantBuffers(g_iBindPerFrame, 1, &g_pcbPerFrame);
-
-
 	// Set the shaders
     pd3dImmediateContext->VSSetShader( g_pVertexShader, NULL, 0 );
     pd3dImmediateContext->PSSetShader( g_pPixelShader, NULL, 0 );
-	UINT stride = sizeof(VERTEX);
-	UINT offset = 0;
-	pd3dImmediateContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
-	pd3dImmediateContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
 
-	pd3dImmediateContext->DrawIndexed(36, 0, 0);
+	g_surface1->Render(pd3dImmediateContext, mViewProjection);
+	g_surface2->Render(pd3dImmediateContext, mViewProjection);
 	
 	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_HUD.OnRender( fElapsedTime );
@@ -687,15 +532,11 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
     SAFE_DELETE( g_pTxtHelper );
 
     SAFE_RELEASE( g_pVertexLayout );
-    SAFE_RELEASE( g_pVertexBuffer );
-	SAFE_RELEASE( g_pIndexBuffer);
     SAFE_RELEASE( g_pVertexShader );
     SAFE_RELEASE( g_pPixelShader );
-	SAFE_RELEASE( g_pcbPerFrame);
 	
-	//SAFE_DELETE( g_surface1);
-	//SAFE_DELETE( g_surface2);
-	//SAFE_DELETE( g_controlledSurface);
+	SAFE_DELETE( g_surface1);
+	SAFE_DELETE( g_surface2);
 }
 
 
