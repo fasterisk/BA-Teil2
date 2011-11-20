@@ -20,13 +20,21 @@ struct VS_OUTPUT
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-VS_OUTPUT VSMain(float4 position : POSITION, float4 color : COLOR)
+VS_OUTPUT VSMain(float3 position : POSITION, float4 color : COLOR)
 {
 	VS_OUTPUT Output;
 	
-	Output.position = mul(position,g_mModelViewProjection);
+	Output.position = mul(float4(position.x, position.y, position.z, 1.0),g_mModelViewProjection);
 	Output.color = color;
 	
 	return Output;
 }
 
+
+//--------------------------------------------------------------------------------------
+// Pixel Shader
+//--------------------------------------------------------------------------------------
+float4 PSMain(VS_OUTPUT vsOutput) : SV_TARGET
+{
+	return vsOutput.color;
+}

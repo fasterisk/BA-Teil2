@@ -393,7 +393,6 @@
     <ClInclude Include="DXUT11\Optional\DXUTsettingsdlg.h" />
     <ClInclude Include="DXUT11\Optional\SDKmesh.h" />
     <ClInclude Include="DXUT11\Optional\SDKmisc.h" />
-    <ClInclude Include="MobiusStrip.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Surface.h" />
   </ItemGroup>
@@ -415,8 +414,7 @@
     <ResourceCompile Include="VolumetricDiffusion.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DiffusionShader11_PS.hlsl" />
-    <None Include="DiffusionShader11_VS.hlsl" />
+    <None Include="DiffusionShader11.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -395,10 +395,10 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     
     // Compile the shaders using the lowest possible profile for broadest feature level support
     ID3DBlob* pVertexShaderBuffer = NULL;
-    V_RETURN( CompileShaderFromFile( L"DiffusionShader11_VS.hlsl", "VSMain", "vs_5_0", &pVertexShaderBuffer ) );
+    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", "VSMain", "vs_5_0", &pVertexShaderBuffer ) );
 
     ID3DBlob* pPixelShaderBuffer = NULL;
-    V_RETURN( CompileShaderFromFile( L"DiffusionShader11_PS.hlsl", "PSMain", "ps_5_0", &pPixelShaderBuffer ) );
+    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", "PSMain", "ps_5_0", &pPixelShaderBuffer ) );
 
     // Create the shaders
     V_RETURN( pd3dDevice->CreateVertexShader( pVertexShaderBuffer->GetBufferPointer(), pVertexShaderBuffer->GetBufferSize(), NULL, &g_pVertexShader ) );
@@ -500,7 +500,6 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     pd3dImmediateContext->VSSetShader( g_pVertexShader, NULL, 0 );
     pd3dImmediateContext->PSSetShader( g_pPixelShader, NULL, 0 );
 	
-
 	g_surface1->Render(pd3dImmediateContext, mViewProjection);
 	g_surface2->Render(pd3dImmediateContext, mViewProjection);
 	
