@@ -13,6 +13,7 @@
 #include "SDKmisc.h"
 #include "SDKMesh.h"
 #include "Surface.h"
+#include "BoundingBox.h"
 #include "resource.h"
 
 //--------------------------------------------------------------------------------------
@@ -29,6 +30,11 @@ Surface*					g_surface1;
 Surface*					g_surface2;
 Surface*					g_controlledSurface;
 bool						g_surface1IsControlled = true;
+
+// Bounding Box
+BoundingBox*				g_boundingbox;
+
+// Control parameters
 int							g_mouseX = 0;
 int							g_mouseY = 0;
 int							g_mouseSpeed = 8;
@@ -437,6 +443,10 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	V_RETURN(g_surface2->InitBuffers(pd3dDevice, pd3dImmediateContext));
 	g_surface2->Scale(0.5);
 
+	// Create bounding box
+	g_boundingbox = new BoundingBox(g_surface1, g_surface2);
+	V_RETURN(g_boundingbox->InitBuffers(pd3dDevice, pd3dImmediateContext));
+
 
 	g_controlledSurface = g_surface1;
 
@@ -498,12 +508,15 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 
 	mViewProjection = mView * mProj;
 
+	g_boundingbox->UpdateVertexBuffer(pd3dDevice);
+
 	// Set the shaders
     pd3dImmediateContext->VSSetShader( g_pVertexShader, NULL, 0 );
     pd3dImmediateContext->PSSetShader( g_pPixelShader, NULL, 0 );
 	
 	g_surface1->Render(pd3dImmediateContext, mViewProjection);
 	g_surface2->Render(pd3dImmediateContext, mViewProjection);
+	g_boundingbox->Render(pd3dImmediateContext, mViewProjection);
 	
 	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_HUD.OnRender( fElapsedTime );
@@ -538,6 +551,7 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 	
 	SAFE_DELETE( g_surface1);
 	SAFE_DELETE( g_surface2);
+	SAFE_DELETE( g_boundingbox);
 }
 
 

@@ -1,14 +1,14 @@
 <!DOCTYPE SurfaceXML>
 <surface nb_vertices="8" nb_indices="36" >
  <vertices_set>
-  <vertex x="-1" y="-1" z="-1" /><!-- 0 -->
-  <vertex x="1" y="-1" z="-1" /><!-- 1 -->
-  <vertex x="1" y="1" z="-1" /><!-- 2 -->
-  <vertex x="-1" y="1" z="-1" /><!-- 3 -->
-  <vertex x="1" y="-1" z="1" /><!-- 6/4 -->
-  <vertex x="-1" y="-1" z="1" /><!-- 7/5 -->
-  <vertex x="1" y="1" z="1" /><!-- 10/6 -->
-  <vertex x="-1" y="1" z="1" /><!-- 14/7 -->
+  <vertex x="-1" y="-1" z="-1" />
+  <vertex x="1" y="-1" z="-1" />
+  <vertex x="1" y="1" z="-1" />
+  <vertex x="-1" y="1" z="-1" />
+  <vertex x="1" y="-1" z="1" />
+  <vertex x="-1" y="-1" z="1" />
+  <vertex x="1" y="1" z="1" />
+  <vertex x="-1" y="1" z="1" />
  </vertices_set>
  <indices_set>
   <index value="0" />

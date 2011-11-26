@@ -9,4 +9,5 @@ ipch
 *.user
 
 Media/test_ReadVectorFile.txt
+Media/test_CreateBoundingBox.txt
 *.sdkmesh
