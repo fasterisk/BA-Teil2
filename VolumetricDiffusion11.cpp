@@ -43,9 +43,14 @@ bool						g_bCameraActive = false;
 
 float						g_fElapsedTime = 0;
 
-// Resources
+// Rasterizer states
+ID3D11RasterizerState*              g_pRasterizerStateSolid = NULL;
+ID3D11RasterizerState*              g_pRasterizerStateWireframe = NULL;
+
+// Texthelper
 CDXUTTextHelper*            g_pTxtHelper = NULL;
 
+// Inputlayout and shaders
 ID3D11InputLayout*          g_pVertexLayout = NULL;
 ID3D11VertexShader*         g_pVertexShader = NULL;
 ID3D11PixelShader*          g_pPixelShader = NULL;
@@ -430,6 +435,19 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 
     SAFE_RELEASE( pVertexShaderBuffer );
     SAFE_RELEASE( pPixelShaderBuffer );
+
+	// Create solid and wireframe rasterizer state objects
+    D3D11_RASTERIZER_DESC RasterDesc;
+    ZeroMemory( &RasterDesc, sizeof(D3D11_RASTERIZER_DESC) );
+    RasterDesc.FillMode = D3D11_FILL_SOLID;
+    RasterDesc.CullMode = D3D11_CULL_NONE;
+    RasterDesc.DepthClipEnable = TRUE;
+    V_RETURN( pd3dDevice->CreateRasterizerState( &RasterDesc, &g_pRasterizerStateSolid ) );
+    DXUT_SetDebugName( g_pRasterizerStateSolid, "Solid" );
+
+    RasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+    V_RETURN( pd3dDevice->CreateRasterizerState( &RasterDesc, &g_pRasterizerStateWireframe ) );
+    DXUT_SetDebugName( g_pRasterizerStateWireframe, "Wireframe" );
 	
 	// Create surface1 and its buffers
 	g_surface1 = new Surface();
@@ -514,10 +532,14 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     pd3dImmediateContext->VSSetShader( g_pVertexShader, NULL, 0 );
     pd3dImmediateContext->PSSetShader( g_pPixelShader, NULL, 0 );
 	
+	
 	g_surface1->Render(pd3dImmediateContext, mViewProjection);
 	g_surface2->Render(pd3dImmediateContext, mViewProjection);
+
+	pd3dImmediateContext->RSSetState(g_pRasterizerStateWireframe);
 	g_boundingbox->Render(pd3dImmediateContext, mViewProjection);
-	
+	pd3dImmediateContext->RSSetState(g_pRasterizerStateSolid); 
+
 	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_HUD.OnRender( fElapsedTime );
     g_SampleUI.OnRender( fElapsedTime );
@@ -543,15 +565,17 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
     g_DialogResourceManager.OnD3D11DestroyDevice();
     g_D3DSettingsDlg.OnD3D11DestroyDevice();
     DXUTGetGlobalResourceCache().OnDestroyDevice();
-    SAFE_DELETE( g_pTxtHelper );
+    SAFE_DELETE(g_pTxtHelper);
 
-    SAFE_RELEASE( g_pVertexLayout );
-    SAFE_RELEASE( g_pVertexShader );
-    SAFE_RELEASE( g_pPixelShader );
+    SAFE_RELEASE(g_pVertexLayout);
+    SAFE_RELEASE(g_pVertexShader);
+    SAFE_RELEASE(g_pPixelShader);
+	SAFE_RELEASE(g_pRasterizerStateSolid);
+	SAFE_RELEASE(g_pRasterizerStateWireframe);
 	
-	SAFE_DELETE( g_surface1);
-	SAFE_DELETE( g_surface2);
-	SAFE_DELETE( g_boundingbox);
+	SAFE_DELETE(g_surface1);
+	SAFE_DELETE(g_surface2);
+	SAFE_DELETE(g_boundingbox);
 }
 
 
