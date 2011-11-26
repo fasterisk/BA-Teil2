@@ -90,6 +90,14 @@ void Surface::Scale(float fFactor)
 	m_mModel *= mScale;
 }
 
+void Surface::SetColor(float fR, float fG, float fB)
+{
+	for(int i = 0; i < m_vNum; i++)
+	{
+		m_pVertices[i].color = D3DXCOLOR(fR, fG, fB, 1.0);
+	}
+}
+
 HRESULT Surface::InitBuffers(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext)
 {
 	HRESULT hr;

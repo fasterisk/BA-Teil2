@@ -49,6 +49,8 @@ public:
 
 	void Scale(float fFactor);
 
+	void SetColor(float fR, float fG, float fB);//has to be called before initbuffers or you have to repeat initbuffers
+
 	HRESULT InitBuffers(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext);
 	void Render(ID3D11DeviceContext* pd3dImmediateContext, D3DXMATRIX mViewProjection);
 

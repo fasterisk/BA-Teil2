@@ -31,7 +31,7 @@ Surface*					g_controlledSurface;
 bool						g_surface1IsControlled = true;
 int							g_mouseX = 0;
 int							g_mouseY = 0;
-int							g_mouseSpeed = 1;
+int							g_mouseSpeed = 8;
 bool						g_bRotatesWithMouse = true;
 bool						g_bCameraActive = false;
 
@@ -173,6 +173,7 @@ bool CALLBACK ModifyDeviceSettings( DXUTDeviceSettings* pDeviceSettings, void* p
 //--------------------------------------------------------------------------------------
 void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext )
 {
+	g_fElapsedTime = fElapsedTime;
     // Update the camera's position based on user input 
     g_Camera.FrameMove( fElapsedTime );
 }
@@ -424,15 +425,18 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     SAFE_RELEASE( pVertexShaderBuffer );
     SAFE_RELEASE( pPixelShaderBuffer );
 	
-	// Create surface1 and its vertex buffer
+	// Create surface1 and its buffers
 	g_surface1 = new Surface();
 	g_surface1->ReadVectorFile("Media\\surface1.xml");
 	V_RETURN(g_surface1->InitBuffers(pd3dDevice, pd3dImmediateContext));
     
-	// Create surface2 and its vertex buffer
+	// Create surface2 and its buffers
 	g_surface2 = new Surface();
-	g_surface2->ReadVectorFile("Media\\surface2.xml");
+	g_surface2->ReadVectorFile("Media\\surface1.xml");
+	g_surface2->SetColor(1.0, 1.0, 1.0);
 	V_RETURN(g_surface2->InitBuffers(pd3dDevice, pd3dImmediateContext));
+	g_surface2->Scale(0.5);
+
 
 	g_controlledSurface = g_surface1;
 
@@ -474,9 +478,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 {
     HRESULT hr;
 
-	g_fElapsedTime = fElapsedTime;
-
-    // If the settings dialog is being shown, then render it instead of rendering the app's scene
+	// If the settings dialog is being shown, then render it instead of rendering the app's scene
     if( g_D3DSettingsDlg.IsActive() )
     {
         g_D3DSettingsDlg.OnRender( fElapsedTime );
