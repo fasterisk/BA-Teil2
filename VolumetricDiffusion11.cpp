@@ -149,7 +149,7 @@ void InitApp()
     g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
 
 	// Setup the camera's view parameters
-    D3DXVECTOR3 vecEye( 1.0f, 1.5f, -3.5f );
+    D3DXVECTOR3 vecEye( 0.0f, 0.0f, -4.0f );
     D3DXVECTOR3 vecAt ( 0.0f, 0.0f, 0.0f );
     g_Camera.SetViewParams( &vecEye, &vecAt );
 }
@@ -464,7 +464,6 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	// Create bounding box
 	g_boundingbox = new BoundingBox(g_surface1, g_surface2);
 	V_RETURN(g_boundingbox->InitBuffers(pd3dDevice, pd3dImmediateContext));
-
 
 	g_controlledSurface = g_surface1;
 
