@@ -11,3 +11,6 @@ ipch
 Media/test_ReadVectorFile.txt
 Media/test_CreateBoundingBox.txt
 *.sdkmesh
+
+Effects11/Debug
+Effects11/Release
