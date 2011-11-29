@@ -49,6 +49,7 @@
       <Filter>DXUT</Filter>
     </ClInclude>
     <ClInclude Include="BoundingBox.h" />
+    <ClInclude Include="Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Surface.cpp" />
@@ -84,6 +85,7 @@
     </ClCompile>
     <ClCompile Include="VolumetricDiffusion11.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
+    <ClCompile Include="Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VolumetricDiffusion.rc">

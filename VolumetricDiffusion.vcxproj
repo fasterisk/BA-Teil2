@@ -395,6 +395,7 @@
     <ClInclude Include="DXUT11\Optional\SDKmesh.h" />
     <ClInclude Include="DXUT11\Optional\SDKmisc.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Surface.h" />
   </ItemGroup>
   <ItemGroup>
@@ -409,6 +410,7 @@
     <ClCompile Include="DXUT11\Optional\DXUTsettingsdlg.cpp" />
     <ClCompile Include="DXUT11\Optional\SDKmesh.cpp" />
     <ClCompile Include="DXUT11\Optional\SDKmisc.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="VolumetricDiffusion11.cpp" />
   </ItemGroup>

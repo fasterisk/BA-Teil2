@@ -12,8 +12,7 @@
 #include "DXUTsettingsDlg.h"
 #include "SDKmisc.h"
 #include "SDKMesh.h"
-#include "Surface.h"
-#include "BoundingBox.h"
+#include "Scene.h"
 #include "resource.h"
 
 //--------------------------------------------------------------------------------------
@@ -25,14 +24,8 @@ CD3DSettingsDlg             g_D3DSettingsDlg;       // Device settings dialog
 CDXUTDialog                 g_HUD;                  // manages the 3D   
 CDXUTDialog                 g_SampleUI;             // dialog for sample specific controls
 
-// Surfaces
-Surface*					g_surface1;
-Surface*					g_surface2;
-Surface*					g_controlledSurface;
-bool						g_surface1IsControlled = true;
-
-// Bounding Box
-BoundingBox*				g_boundingbox;
+// Scene
+Scene*						g_pScene;
 
 // Control parameters
 int							g_mouseX = 0;
@@ -43,18 +36,8 @@ bool						g_bCameraActive = false;
 
 float						g_fElapsedTime = 0;
 
-// Rasterizer states
-ID3D11RasterizerState*              g_pRasterizerStateSolid = NULL;
-ID3D11RasterizerState*              g_pRasterizerStateWireframe = NULL;
-
 // Texthelper
 CDXUTTextHelper*            g_pTxtHelper = NULL;
-
-// Inputlayout and shaders
-ID3D11InputLayout*          g_pVertexLayout = NULL;
-ID3D11VertexShader*         g_pVertexShader = NULL;
-ID3D11PixelShader*          g_pPixelShader = NULL;
-
 
 
 //--------------------------------------------------------------------------------------
@@ -273,14 +256,14 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	{
 		if(bLeftDown)
 		{
-			g_controlledSurface->RotateX((g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
-			g_controlledSurface->RotateY((g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
+			g_pScene->RotateX((g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
+			g_pScene->RotateY((g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
 		}
 		
 		if(iWheelDelta>0)
-			g_controlledSurface->Scale(1.0+g_fElapsedTime*100);
+			g_pScene->Scale(1.0+g_fElapsedTime*100);
 		else if(iWheelDelta<0)
-			g_controlledSurface->Scale(1.0-g_fElapsedTime*100);
+			g_pScene->Scale(1.0-g_fElapsedTime*100);
 	}
 	else//Move object
 	{
@@ -291,14 +274,14 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 
 		if(bLeftDown)
 		{
-			g_controlledSurface->Translate(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
-			g_controlledSurface->Translate(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
+			g_pScene->Translate(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
+			g_pScene->Translate(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
 		}
 
 		if(iWheelDelta>0)
-			g_controlledSurface->Translate(100*g_fElapsedTime*lookAt.x, 100*g_fElapsedTime*lookAt.y, 100*g_fElapsedTime*lookAt.z);
+			g_pScene->Translate(100*g_fElapsedTime*lookAt.x, 100*g_fElapsedTime*lookAt.y, 100*g_fElapsedTime*lookAt.z);
 		else if(iWheelDelta<0)
-			g_controlledSurface->Translate(-100*g_fElapsedTime*lookAt.x, -100*g_fElapsedTime*lookAt.y, -100*g_fElapsedTime*lookAt.z);
+			g_pScene->Translate(-100*g_fElapsedTime*lookAt.x, -100*g_fElapsedTime*lookAt.y, -100*g_fElapsedTime*lookAt.z);
 	}
 
 	g_mouseX = iX;
@@ -324,11 +307,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 		
 		// Custom app controls
 		case IDC_CHANGE_CONTROL:
-			if(g_surface1IsControlled)
-				g_controlledSurface = g_surface2;
-			else
-				g_controlledSurface = g_surface1;
-			g_surface1IsControlled = !g_surface1IsControlled;
+			g_pScene->ChangeControlledSurface();
 			break;
 		case IDC_ROTATE:
 			g_bRotatesWithMouse = true;
@@ -355,40 +334,7 @@ bool CALLBACK IsD3D11DeviceAcceptable( const CD3D11EnumAdapterInfo *AdapterInfo,
     return true;
 }
 
-//--------------------------------------------------------------------------------------
-// Find and compile the specified shader
-//--------------------------------------------------------------------------------------
-HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut )
-{
-    HRESULT hr = S_OK;
 
-    // find the file
-    WCHAR str[MAX_PATH];
-    V_RETURN( DXUTFindDXSDKMediaFileCch( str, MAX_PATH, szFileName ) );
-
-    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-#if defined( DEBUG ) || defined( _DEBUG )
-    // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
-    // Setting this flag improves the shader debugging experience, but still allows 
-    // the shaders to be optimized and to run exactly the way they will run in 
-    // the release configuration of this program.
-    dwShaderFlags |= D3DCOMPILE_DEBUG;
-#endif
-
-    ID3DBlob* pErrorBlob;
-    hr = D3DX11CompileFromFile( str, NULL, NULL, szEntryPoint, szShaderModel, 
-        dwShaderFlags, 0, NULL, ppBlobOut, &pErrorBlob, NULL );
-    if( FAILED(hr) )
-    {
-        if( pErrorBlob != NULL )
-            OutputDebugStringA( (char*)pErrorBlob->GetBufferPointer() );
-        SAFE_RELEASE( pErrorBlob );
-        return hr;
-    }
-    SAFE_RELEASE( pErrorBlob );
-
-    return S_OK;
-}
 
 
 //--------------------------------------------------------------------------------------
@@ -404,68 +350,10 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     V_RETURN( g_D3DSettingsDlg.OnD3D11CreateDevice( pd3dDevice ) );
     g_pTxtHelper = new CDXUTTextHelper( pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15 );
 
-    
-    // Compile the shaders using the lowest possible profile for broadest feature level support
-    ID3DBlob* pVertexShaderBuffer = NULL;
-    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", "VSMain", "vs_5_0", &pVertexShaderBuffer ) );
-
-    ID3DBlob* pPixelShaderBuffer = NULL;
-    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", "PSMain", "ps_5_0", &pPixelShaderBuffer ) );
-
-    // Create the shaders
-    V_RETURN( pd3dDevice->CreateVertexShader( pVertexShaderBuffer->GetBufferPointer(), pVertexShaderBuffer->GetBufferSize(), NULL, &g_pVertexShader ) );
-    DXUT_SetDebugName( g_pVertexShader, "VSMain" );
-    V_RETURN( pd3dDevice->CreatePixelShader( pPixelShaderBuffer->GetBufferPointer(), pPixelShaderBuffer->GetBufferSize(), NULL, &g_pPixelShader ) );
-    DXUT_SetDebugName( g_pPixelShader, "PSMain" );
-
-	pd3dImmediateContext->VSSetShader(g_pVertexShader, 0, 0);
-	pd3dImmediateContext->PSSetShader(g_pPixelShader, 0, 0);
-
-    // Create our vertex input layout
-    const D3D11_INPUT_ELEMENT_DESC layout[] =
-    {
-        { "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",	   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-    };
-
-    V_RETURN( pd3dDevice->CreateInputLayout( layout, ARRAYSIZE( layout ), pVertexShaderBuffer->GetBufferPointer(), pVertexShaderBuffer->GetBufferSize(), &g_pVertexLayout ) );
-    DXUT_SetDebugName( g_pVertexLayout, "Primary" );
-	
-	pd3dImmediateContext->IASetInputLayout(g_pVertexLayout);
-
-    SAFE_RELEASE( pVertexShaderBuffer );
-    SAFE_RELEASE( pPixelShaderBuffer );
-
-	// Create solid and wireframe rasterizer state objects
-    D3D11_RASTERIZER_DESC RasterDesc;
-    ZeroMemory( &RasterDesc, sizeof(D3D11_RASTERIZER_DESC) );
-    RasterDesc.FillMode = D3D11_FILL_SOLID;
-    RasterDesc.CullMode = D3D11_CULL_NONE;
-    RasterDesc.DepthClipEnable = TRUE;
-    V_RETURN( pd3dDevice->CreateRasterizerState( &RasterDesc, &g_pRasterizerStateSolid ) );
-    DXUT_SetDebugName( g_pRasterizerStateSolid, "Solid" );
-
-    RasterDesc.FillMode = D3D11_FILL_WIREFRAME;
-    V_RETURN( pd3dDevice->CreateRasterizerState( &RasterDesc, &g_pRasterizerStateWireframe ) );
-    DXUT_SetDebugName( g_pRasterizerStateWireframe, "Wireframe" );
-	
-	// Create surface1 and its buffers
-	g_surface1 = new Surface();
-	g_surface1->ReadVectorFile("Media\\surface1.xml");
-	V_RETURN(g_surface1->InitBuffers(pd3dDevice, pd3dImmediateContext));
-    
-	// Create surface2 and its buffers
-	g_surface2 = new Surface();
-	g_surface2->ReadVectorFile("Media\\surface1.xml");
-	g_surface2->SetColor(1.0, 1.0, 1.0);
-	V_RETURN(g_surface2->InitBuffers(pd3dDevice, pd3dImmediateContext));
-	g_surface2->Scale(0.5);
-
-	// Create bounding box
-	g_boundingbox = new BoundingBox(g_surface1, g_surface2);
-	V_RETURN(g_boundingbox->InitBuffers(pd3dDevice, pd3dImmediateContext));
-
-	g_controlledSurface = g_surface1;
+    g_pScene = new Scene(pd3dDevice, pd3dImmediateContext);
+	V_RETURN(g_pScene->InitShaders());
+	V_RETURN(g_pScene->InitRasterizerStates());
+	V_RETURN(g_pScene->InitSurfaces());
 
     return S_OK;
 }
@@ -525,19 +413,9 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 
 	mViewProjection = mView * mProj;
 
-	g_boundingbox->UpdateVertexBuffer(pd3dDevice);
+	g_pScene->Render(mViewProjection);
 
-	// Set the shaders
-    pd3dImmediateContext->VSSetShader( g_pVertexShader, NULL, 0 );
-    pd3dImmediateContext->PSSetShader( g_pPixelShader, NULL, 0 );
 	
-	
-	g_surface1->Render(pd3dImmediateContext, mViewProjection);
-	g_surface2->Render(pd3dImmediateContext, mViewProjection);
-
-	pd3dImmediateContext->RSSetState(g_pRasterizerStateWireframe);
-	g_boundingbox->Render(pd3dImmediateContext, mViewProjection);
-	pd3dImmediateContext->RSSetState(g_pRasterizerStateSolid); 
 
 	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_HUD.OnRender( fElapsedTime );
@@ -566,16 +444,5 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
     DXUTGetGlobalResourceCache().OnDestroyDevice();
     SAFE_DELETE(g_pTxtHelper);
 
-    SAFE_RELEASE(g_pVertexLayout);
-    SAFE_RELEASE(g_pVertexShader);
-    SAFE_RELEASE(g_pPixelShader);
-	SAFE_RELEASE(g_pRasterizerStateSolid);
-	SAFE_RELEASE(g_pRasterizerStateWireframe);
-	
-	SAFE_DELETE(g_surface1);
-	SAFE_DELETE(g_surface2);
-	SAFE_DELETE(g_boundingbox);
+    SAFE_DELETE(g_pScene);
 }
-
-
-
