@@ -20,26 +20,31 @@
 #include "DXUTsettingsDlg.h"
 #include "SDKmisc.h"
 #include "SDKMesh.h"
+
 #include "Surface.h"
 #include "BoundingBox.h"
 
 
-BoundingBox::BoundingBox(Surface* pSurface1, Surface* pSurface2)
+BoundingBox::BoundingBox(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11EffectTechnique* pMainTechnique, ID3DX11EffectMatrixVariable* pMVPVariable, Surface* pSurface1, Surface* pSurface2)
 {
+	m_pd3dDevice = pd3dDevice;
+	m_pd3dImmediateContext = pd3dImmediateContext;
+	m_pMainTechnique = pMainTechnique;
+	m_pMVPVariable = pMVPVariable;
+
 	m_pSurface1 = pSurface1;
 	m_pSurface2 = pSurface2;
-	m_iBindPerFrame = 0;
 }
 
 BoundingBox::~BoundingBox()
 {
 	SAFE_RELEASE(m_pVertexBuffer);
 	SAFE_RELEASE(m_pIndexBuffer);
-	SAFE_RELEASE(m_pcbPerFrame);
+
+	SAFE_DELETE(m_pVertices);
 }
 
-
-HRESULT BoundingBox::InitBuffers(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext)
+HRESULT BoundingBox::InitBuffers()
 {
 	HRESULT hr;
 
@@ -149,7 +154,7 @@ HRESULT BoundingBox::InitBuffers(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 	vertexData.pSysMem = m_pVertices;
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
-	V_RETURN(pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pVertexBuffer));
+	V_RETURN(m_pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pVertexBuffer));
 
 	//Create Index buffer
 	unsigned int indices[36] = {0,2,1,0,3,2,0,1,4,0,4,5,1,2,6,1,6,4,2,3,7,2,7,6,3,0,5,3,5,7,5,4,6,5,6,7};
@@ -165,26 +170,14 @@ HRESULT BoundingBox::InitBuffers(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 	indexData.pSysMem = indices;
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
-	V_RETURN(pd3dDevice->CreateBuffer(&ibd, &indexData, &m_pIndexBuffer));
-
-
-	// Create constant buffers
-    D3D11_BUFFER_DESC Desc;
-    Desc.Usage = D3D11_USAGE_DYNAMIC;
-    Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    Desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    Desc.MiscFlags = 0;
-
-    Desc.ByteWidth = sizeof( CB_PER_FRAME_CONSTANTS );
-    V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &m_pcbPerFrame ) );
-    DXUT_SetDebugName( m_pcbPerFrame, "CB_PER_FRAME_CONSTANTS" );
+	V_RETURN(m_pd3dDevice->CreateBuffer(&ibd, &indexData, &m_pIndexBuffer));
 
 	fclose(F_out);
 
 	return S_OK;
 }
 
-HRESULT BoundingBox::UpdateVertexBuffer(ID3D11Device* pd3dDevice)
+HRESULT BoundingBox::UpdateVertexBuffer()
 {
 	HRESULT hr;
 
@@ -277,29 +270,30 @@ HRESULT BoundingBox::UpdateVertexBuffer(ID3D11Device* pd3dDevice)
 	vertexData.pSysMem = m_pVertices;
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
-	V_RETURN(pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pVertexBuffer));
+	V_RETURN(m_pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pVertexBuffer));
 
 	return S_OK;
 }
 
-void BoundingBox::Render(ID3D11DeviceContext* pd3dImmediateContext, D3DXMATRIX mViewProjection)
+void BoundingBox::Render(D3DXMATRIX mViewProjection)
 {
-	// Update per-frame variables
-    D3D11_MAPPED_SUBRESOURCE MappedResource;
-    pd3dImmediateContext->Map( m_pcbPerFrame, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-    CB_PER_FRAME_CONSTANTS* pData = ( CB_PER_FRAME_CONSTANTS* )MappedResource.pData;
-
-    D3DXMatrixTranspose( &pData->mModelViewProjection, &mViewProjection );
-
-    pd3dImmediateContext->Unmap( m_pcbPerFrame, 0 );
-
-	pd3dImmediateContext->VSSetConstantBuffers(m_iBindPerFrame, 1, &m_pcbPerFrame);
+	m_pMVPVariable->SetMatrix(mViewProjection);
 
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
-	pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
-	pd3dImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+	m_pd3dImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	pd3dImmediateContext->DrawIndexed(36, 0, 0);
+	D3DX11_TECHNIQUE_DESC techDesc;
+	m_pMainTechnique->GetDesc(&techDesc);
+
+	for( UINT p = 0; p < techDesc.Passes; ++p )
+	{
+		//apply technique
+		m_pMainTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext );
+				
+		//draw
+		m_pd3dImmediateContext->DrawIndexed( 36, 0, 0 );
+	}
 }

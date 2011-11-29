@@ -10,19 +10,23 @@
 #include <d3d11.h>
 #include <d3dx11.h>
 
-#include <string>
-#include <stdlib.h>
-#include <stdio.h>
-#include <iostream>
+
 
 #include "DXUT.h"
 #include "DXUTgui.h"
 #include "DXUTsettingsDlg.h"
 #include "SDKmisc.h"
 #include "SDKMesh.h"
+
 #include "Surface.h"
 #include "BoundingBox.h"
 #include "Scene.h"
+
+
+#include <string>
+#include <stdlib.h>
+#include <stdio.h>
+#include <iostream>
 
 Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext)
 	: m_pd3dDevice(pd3dDevice), m_pd3dImmediateContext(pd3dImmediateContext)
@@ -31,9 +35,8 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 
 Scene::~Scene()
 {
-	SAFE_RELEASE(m_pVertexLayout);
-    SAFE_RELEASE(m_pVertexShader);
-    SAFE_RELEASE(m_pPixelShader);
+	SAFE_RELEASE(m_pEffect);
+	SAFE_RELEASE(m_pInputLayout);
 	SAFE_RELEASE(m_pRasterizerStateSolid);
 	SAFE_RELEASE(m_pRasterizerStateWireframe);
 	
@@ -46,37 +49,45 @@ Scene::~Scene()
 HRESULT Scene::InitShaders()
 {
 	HRESULT hr;
+	// Read the D3DX effect file
+    WCHAR str[MAX_PATH];
+	ID3D10Blob *effectBlob = 0, *errorsBlob = 0;
+    V_RETURN( DXUTFindDXSDKMediaFileCch( str, MAX_PATH, L"DiffusionShader11.fx" ) );
+    hr = D3DX11CompileFromFile( str, NULL, NULL, NULL, "fx_5_0", NULL, NULL, NULL, &effectBlob, &errorsBlob, NULL );
+	if(FAILED ( hr ))
+	{
+		std::string errStr((LPCSTR)errorsBlob->GetBufferPointer(), errorsBlob->GetBufferSize());
+		WCHAR err[256];
+		MultiByteToWideChar(CP_ACP, 0, errStr.c_str(), (int)errStr.size(), err, errStr.size());
+		MessageBox( NULL, (LPCWSTR)err, L"Error", MB_OK );
+		return hr;
+	}
 
-    	// Compile the shaders using the lowest possible profile for broadest feature level support
-    ID3DBlob* pVertexShaderBuffer = NULL;
-    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", "VSMain", "vs_5_0", &pVertexShaderBuffer ) );
+	V_RETURN(D3DX11CreateEffectFromMemory(effectBlob->GetBufferPointer(), effectBlob->GetBufferSize(), 0, m_pd3dDevice, &m_pEffect));
 
-    ID3DBlob* pPixelShaderBuffer = NULL;
-    V_RETURN( CompileShaderFromFile( L"DiffusionShader11.hlsl", "PSMain", "ps_5_0", &pPixelShaderBuffer ) );
 
-    // Create the shaders
-    V_RETURN( m_pd3dDevice->CreateVertexShader( pVertexShaderBuffer->GetBufferPointer(), pVertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader ) );
-    DXUT_SetDebugName( m_pVertexShader, "VSMain" );
-    V_RETURN( m_pd3dDevice->CreatePixelShader( pPixelShaderBuffer->GetBufferPointer(), pPixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader ) );
-    DXUT_SetDebugName( m_pPixelShader, "PSMain" );
+	m_pMainTechnique = m_pEffect->GetTechniqueByName("Main");
+	assert(m_pMainTechnique && m_pMainTechnique->IsValid());
+	
+	m_pMVPVariable = m_pEffect->GetVariableByName("g_mModelViewProjection")->AsMatrix();
 
-	m_pd3dImmediateContext->VSSetShader(m_pVertexShader, 0, 0);//check if needed
-	m_pd3dImmediateContext->PSSetShader(m_pPixelShader, 0, 0);
+	D3DX11_PASS_SHADER_DESC effectVsDesc;
+	m_pMainTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&effectVsDesc);
+	D3DX11_EFFECT_SHADER_DESC effectVsDesc2;
+	effectVsDesc.pShaderVariable->GetShaderDesc(effectVsDesc.ShaderIndex, &effectVsDesc2);
+	const void *vsCodePtr = effectVsDesc2.pBytecode;
+	unsigned vsCodeLen = effectVsDesc2.BytecodeLength;
 
 	// Create our vertex input layout
-    const D3D11_INPUT_ELEMENT_DESC layout[] =
+    D3D11_INPUT_ELEMENT_DESC layout[] =
     {
-        { "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",	   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
+	UINT numElements = 2;
 
-	V_RETURN( m_pd3dDevice->CreateInputLayout( layout, ARRAYSIZE( layout ), pVertexShaderBuffer->GetBufferPointer(), pVertexShaderBuffer->GetBufferSize(), &m_pVertexLayout ) );
-    DXUT_SetDebugName( m_pVertexLayout, "Primary" );
-	
-	m_pd3dImmediateContext->IASetInputLayout(m_pVertexLayout);
-
-    SAFE_RELEASE( pVertexShaderBuffer );
-    SAFE_RELEASE( pPixelShaderBuffer );
+	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pInputLayout));
+	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
 
 	return S_OK;
 }
@@ -107,20 +118,20 @@ HRESULT Scene::InitSurfaces()
 	HRESULT hr;
 
 	// Create surface1 and its buffers
-	m_pSurface1 = new Surface();
+	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pMainTechnique, m_pMVPVariable);
 	m_pSurface1->ReadVectorFile("Media\\surface1.xml");
-	V_RETURN(m_pSurface1->InitBuffers(m_pd3dDevice, m_pd3dImmediateContext));
+	V_RETURN(m_pSurface1->InitBuffers());
     
 	// Create surface2 and its buffers
-	m_pSurface2 = new Surface();
+	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pMainTechnique, m_pMVPVariable);
 	m_pSurface2->ReadVectorFile("Media\\surface1.xml");
 	m_pSurface2->SetColor(1.0, 1.0, 1.0);
-	V_RETURN(m_pSurface2->InitBuffers(m_pd3dDevice, m_pd3dImmediateContext));
+	V_RETURN(m_pSurface2->InitBuffers());
 	m_pSurface2->Scale(0.5);
 
 	// Create bounding box
-	m_pBoundingBox = new BoundingBox(m_pSurface1, m_pSurface2);
-	V_RETURN(m_pBoundingBox->InitBuffers(m_pd3dDevice, m_pd3dImmediateContext));
+	m_pBoundingBox = new BoundingBox(m_pd3dDevice, m_pd3dImmediateContext, m_pMainTechnique, m_pMVPVariable, m_pSurface1, m_pSurface2);
+	V_RETURN(m_pBoundingBox->InitBuffers());
 
 	m_pControlledSurface = m_pSurface1;
 
@@ -129,18 +140,13 @@ HRESULT Scene::InitSurfaces()
 
 void Scene::Render(D3DXMATRIX mViewProjection)
 {
-	m_pBoundingBox->UpdateVertexBuffer(m_pd3dDevice);
-
-	// Set the shaders
-    m_pd3dImmediateContext->VSSetShader( m_pVertexShader, NULL, 0 );
-    m_pd3dImmediateContext->PSSetShader( m_pPixelShader, NULL, 0 );
-	
-	
-	m_pSurface1->Render(m_pd3dImmediateContext, mViewProjection);
-	m_pSurface2->Render(m_pd3dImmediateContext, mViewProjection);
+	m_pBoundingBox->UpdateVertexBuffer();
+		
+	m_pSurface1->Render(mViewProjection);
+	m_pSurface2->Render(mViewProjection);
 
 	m_pd3dImmediateContext->RSSetState(m_pRasterizerStateWireframe);
-	m_pBoundingBox->Render(m_pd3dImmediateContext, mViewProjection);
+	m_pBoundingBox->Render(mViewProjection);
 	m_pd3dImmediateContext->RSSetState(m_pRasterizerStateSolid); 
 }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "d3dx11effect.h"
+
 struct VERTEX
 {
 	float x, y, z;
@@ -23,8 +25,6 @@ public:
 
 	ID3D11Buffer* m_pVertexBuffer;
 	ID3D11Buffer* m_pIndexBuffer;
-	ID3D11Buffer* m_pcbPerFrame;
-	UINT m_iBindPerFrame;
 
 	D3DXMATRIX m_mModel;
 	D3DXMATRIX m_mRot;
@@ -32,8 +32,15 @@ public:
 	D3DXMATRIX m_mTransInv;
 	
 
-	Surface();
+	Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11EffectTechnique* pMainTechnique, ID3DX11EffectMatrixVariable* pMVPVariable);
 	~Surface();
+
+
+	ID3D11Device*					m_pd3dDevice;
+	ID3D11DeviceContext*			m_pd3dImmediateContext;
+	ID3DX11EffectTechnique*			m_pMainTechnique;
+	ID3DX11EffectMatrixVariable*	m_pMVPVariable;
+
 
 	D3DXVECTOR3 m_translation;
 
@@ -51,8 +58,8 @@ public:
 
 	void SetColor(float fR, float fG, float fB);//has to be called before initbuffers or you have to repeat initbuffers
 
-	HRESULT InitBuffers(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext);
-	void Render(ID3D11DeviceContext* pd3dImmediateContext, D3DXMATRIX mViewProjection);
+	HRESULT InitBuffers();
+	void Render(D3DXMATRIX mViewProjection);
 
 	void ReadVectorFile(char *s);
 };

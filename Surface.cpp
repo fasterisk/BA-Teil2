@@ -20,16 +20,21 @@
 #include "DXUTsettingsDlg.h"
 #include "SDKmisc.h"
 #include "SDKMesh.h"
+
 #include "Surface.h"
 
 
-Surface::Surface()
+Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11EffectTechnique* pMainTechnique, ID3DX11EffectMatrixVariable* pMVPVariable)
 {
+	m_pd3dDevice = pd3dDevice;
+	m_pd3dImmediateContext = pd3dImmediateContext;
+	m_pMainTechnique = pMainTechnique;
+	m_pMVPVariable = pMVPVariable;
+
 	D3DXMatrixIdentity(&m_mModel);
 	D3DXMatrixIdentity(&m_mRot);
 	D3DXMatrixIdentity(&m_mTrans);
 	D3DXMatrixIdentity(&m_mTransInv);
-	m_iBindPerFrame = 0;
 
 	m_translation = D3DXVECTOR3(0.0, 0.0, 0.0);
 
@@ -43,7 +48,9 @@ Surface::~Surface()
 {
 	SAFE_RELEASE(m_pVertexBuffer);
 	SAFE_RELEASE(m_pIndexBuffer);
-	SAFE_RELEASE(m_pcbPerFrame);
+
+	SAFE_DELETE(m_pVertices);
+	SAFE_DELETE(m_pIndices);
 }
 
 void Surface::Translate(float fX, float fY, float fZ)
@@ -98,7 +105,7 @@ void Surface::SetColor(float fR, float fG, float fB)
 	}
 }
 
-HRESULT Surface::InitBuffers(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext)
+HRESULT Surface::InitBuffers()
 {
 	HRESULT hr;
 
@@ -113,7 +120,7 @@ HRESULT Surface::InitBuffers(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3d
 	vertexData.pSysMem = m_pVertices;
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
-	V_RETURN(pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pVertexBuffer));
+	V_RETURN(m_pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pVertexBuffer));
 
 	//Create Index buffer
 	D3D11_BUFFER_DESC ibd;
@@ -127,46 +134,37 @@ HRESULT Surface::InitBuffers(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3d
 	indexData.pSysMem = m_pIndices;
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
-	V_RETURN(pd3dDevice->CreateBuffer(&ibd, &indexData, &m_pIndexBuffer));
+	V_RETURN(m_pd3dDevice->CreateBuffer(&ibd, &indexData, &m_pIndexBuffer));
 
-
-	// Create constant buffers
-    D3D11_BUFFER_DESC Desc;
-    Desc.Usage = D3D11_USAGE_DYNAMIC;
-    Desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    Desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    Desc.MiscFlags = 0;
-
-    Desc.ByteWidth = sizeof( CB_PER_FRAME_CONSTANTS );
-    V_RETURN( pd3dDevice->CreateBuffer( &Desc, NULL, &m_pcbPerFrame ) );
-    DXUT_SetDebugName( m_pcbPerFrame, "CB_PER_FRAME_CONSTANTS" );
 
 	return S_OK;
 
 }
 
-void Surface::Render(ID3D11DeviceContext* pd3dImmediateContext, D3DXMATRIX mViewProjection)
+void Surface::Render(D3DXMATRIX mViewProjection)
 {
 	D3DXMATRIX mModelViewProjection = m_mModel * mViewProjection;
 	
-	// Update per-frame variables
-    D3D11_MAPPED_SUBRESOURCE MappedResource;
-    pd3dImmediateContext->Map( m_pcbPerFrame, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource );
-    CB_PER_FRAME_CONSTANTS* pData = ( CB_PER_FRAME_CONSTANTS* )MappedResource.pData;
-
-    D3DXMatrixTranspose( &pData->mModelViewProjection, &mModelViewProjection );
-
-    pd3dImmediateContext->Unmap( m_pcbPerFrame, 0 );
-
-	pd3dImmediateContext->VSSetConstantBuffers(m_iBindPerFrame, 1, &m_pcbPerFrame);
+	m_pMVPVariable->SetMatrix(mModelViewProjection);
 
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
-	pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
-	pd3dImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+	m_pd3dImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	pd3dImmediateContext->DrawIndexed(m_iNum, 0, 0);
+	
+	D3DX11_TECHNIQUE_DESC techDesc;
+	m_pMainTechnique->GetDesc(&techDesc);
+
+	for( UINT p = 0; p < techDesc.Passes; ++p )
+	{
+		//apply technique
+		m_pMainTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
+				
+		//draw
+		m_pd3dImmediateContext->DrawIndexed( 36, 0, 0 );
+	}
 }
 
 bool stringStartsWith(const char *s, const char *val)

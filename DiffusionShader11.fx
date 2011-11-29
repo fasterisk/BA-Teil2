@@ -1,10 +1,7 @@
 //--------------------------------------------------------------------------------------
 // Constant Buffers
 //--------------------------------------------------------------------------------------
-cbuffer cbPerFrame : register( b0 )
-{
-    matrix g_mModelViewProjection;
-};
+matrix g_mModelViewProjection;
 
 
 //--------------------------------------------------------------------------------------
@@ -37,4 +34,29 @@ VS_OUTPUT VSMain(float3 position : POSITION, float4 color : COLOR)
 float4 PSMain(VS_OUTPUT vsOutput) : SV_TARGET
 {
 	return vsOutput.color;
+}
+
+
+//--------------------------------------------------------------------------------------
+// Techniques/states
+//--------------------------------------------------------------------------------------
+
+DepthStencilState EnableDepth
+{
+    DepthEnable = TRUE;
+    DepthWriteMask = ALL;
+    DepthFunc = LESS_EQUAL;
+};
+
+
+technique11 Main
+{
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, VSMain()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_5_0, PSMain()));
+
+		SetDepthStencilState( EnableDepth, 0);
+	}
 }
