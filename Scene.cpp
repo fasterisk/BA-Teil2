@@ -10,8 +10,6 @@
 #include <d3d11.h>
 #include <d3dx11.h>
 
-
-
 #include "DXUT.h"
 #include "DXUTgui.h"
 #include "DXUTsettingsDlg.h"
@@ -21,7 +19,6 @@
 #include "Surface.h"
 #include "BoundingBox.h"
 #include "Scene.h"
-
 
 #include <string>
 #include <stdlib.h>
@@ -92,6 +89,10 @@ HRESULT Scene::InitShaders()
 	return S_OK;
 }
 
+HRESULT Scene::SetupTextures(int iSizeX, int iSizeY, int iSizeZ)
+{
+	return S_OK;
+}
 
 HRESULT Scene::InitRasterizerStates()
 {
