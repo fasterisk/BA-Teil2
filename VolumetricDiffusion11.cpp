@@ -52,6 +52,11 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_ROTATE					6
 #define IDC_MOVE					7
 #define IDC_CAMERA					8
+#define IDC_TEXTRES					9
+#define IDC_TEXTRES_SLIDER_X		10
+#define IDC_TEXTRES_SLIDER_Y		11
+#define IDC_TEXTRES_SLIDER_Z		12
+
 //--------------------------------------------------------------------------------------
 // Forward declarations 
 //--------------------------------------------------------------------------------------
@@ -122,11 +127,13 @@ void InitApp()
     g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 0, iY, 170, 23 );
     g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 0, iY += 26, 170, 23, VK_F3 );
     g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 0, iY += 26, 170, 23, VK_F2 );
-	g_HUD.AddButton( IDC_CHANGE_CONTROL, L"Change contr. surface", 0, iY += 52, 170, 30);
-	g_HUD.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 26, 170, 30);
-	g_HUD.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 26, 170, 30);
-	g_HUD.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 26, 170, 30);
-	g_HUD.GetRadioButton( IDC_ROTATE )->SetChecked(true);
+	iY = 0;
+	g_SampleUI.AddButton( IDC_CHANGE_CONTROL, L"Change contr. surface", 0, iY, 170, 30);
+	g_SampleUI.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 26, 170, 30);
+	g_SampleUI.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 26, 170, 30);
+	g_SampleUI.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 26, 170, 30);
+	g_SampleUI.GetRadioButton( IDC_ROTATE )->SetChecked(true);
+	
 
     g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
 
@@ -377,7 +384,7 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 
     g_HUD.SetLocation( pBackBufferSurfaceDesc->Width - 170, 0 );
     g_HUD.SetSize( 170, 170 );
-    g_SampleUI.SetLocation( pBackBufferSurfaceDesc->Width - 170, pBackBufferSurfaceDesc->Height - 300 );
+    g_SampleUI.SetLocation( pBackBufferSurfaceDesc->Width - 170, 100 );
     g_SampleUI.SetSize( 170, 300 );
 
     return S_OK;
