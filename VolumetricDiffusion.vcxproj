@@ -396,6 +396,7 @@
     <ClInclude Include="DXUT11\Optional\DXUTsettingsdlg.h" />
     <ClInclude Include="DXUT11\Optional\SDKmesh.h" />
     <ClInclude Include="DXUT11\Optional\SDKmisc.h" />
+    <ClInclude Include="Globals.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Surface.h" />

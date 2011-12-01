@@ -12,7 +12,7 @@ public:
 	~Scene();
 
 	HRESULT InitShaders();
-	HRESULT SetupTextures(int iSizeX, int iSizeY, int iSizeZ);
+	HRESULT SetupTextures(int iWidth, int iHeight, int iDepth);
 	HRESULT InitRasterizerStates();
 	HRESULT InitSurfaces();
 

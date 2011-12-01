@@ -50,6 +50,7 @@
     </ClInclude>
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Globals.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Surface.cpp" />

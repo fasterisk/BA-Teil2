@@ -6,6 +6,9 @@
 //
 // Copyright (c) Microsoft Corporation. All rights reserved.
 //--------------------------------------------------------------------------------------
+#include "Globals.h"
+#include <d3d11.h>
+#include <d3dx11.h>
 #include "DXUT.h"
 #include "DXUTcamera.h"
 #include "DXUTgui.h"
@@ -14,6 +17,7 @@
 #include "SDKMesh.h"
 #include "Scene.h"
 #include "resource.h"
+#include <string>
 
 //--------------------------------------------------------------------------------------
 // Global variables
@@ -36,9 +40,13 @@ bool						g_bCameraActive = false;
 
 float						g_fElapsedTime = 0;
 
+int							g_iTextureWidth = 80;
+int							g_iTextureHeight = 80;
+int							g_iTextureDepth = 80;
+bool						g_bBlockMouseDragging = false;
+
 // Texthelper
 CDXUTTextHelper*            g_pTxtHelper = NULL;
-
 
 //--------------------------------------------------------------------------------------
 // UI control IDs
@@ -52,10 +60,13 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_ROTATE					6
 #define IDC_MOVE					7
 #define IDC_CAMERA					8
-#define IDC_TEXTRES					9
-#define IDC_TEXTRES_SLIDER_X		10
-#define IDC_TEXTRES_SLIDER_Y		11
-#define IDC_TEXTRES_SLIDER_Z		12
+#define IDC_CHANGE_TEXTRES			9
+#define IDC_TEXTRES_WIDTH_STATIC	10
+#define IDC_TEXTRES_WIDTH_SLIDER	11
+#define IDC_TEXTRES_HEIGHT_STATIC	12
+#define IDC_TEXTRES_HEIGHT_SLIDER	13
+#define IDC_TEXTRES_DEPTH_STATIC	14
+#define IDC_TEXTRES_DEPTH_SLIDER	15
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -127,15 +138,27 @@ void InitApp()
     g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 0, iY, 170, 23 );
     g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 0, iY += 26, 170, 23, VK_F3 );
     g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 0, iY += 26, 170, 23, VK_F2 );
-	iY = 0;
+	
+	WCHAR sz[100];
+
+    g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
 	g_SampleUI.AddButton( IDC_CHANGE_CONTROL, L"Change contr. surface", 0, iY, 170, 30);
-	g_SampleUI.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 26, 170, 30);
+	g_SampleUI.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 40, 170, 30);
 	g_SampleUI.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 26, 170, 30);
 	g_SampleUI.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 26, 170, 30);
 	g_SampleUI.GetRadioButton( IDC_ROTATE )->SetChecked(true);
-	
+	g_SampleUI.AddButton( IDC_CHANGE_TEXTRES, L"Change texture res.", 0, iY+=52, 170, 30);
+	StringCchPrintf( sz, 100, L"Texture Width: %d", g_iTextureWidth ); 
+	g_SampleUI.AddStatic( IDC_TEXTRES_WIDTH_STATIC, sz, 15, iY += 35, 125, 22 );
+	g_SampleUI.AddSlider( IDC_TEXTRES_WIDTH_SLIDER, 15, iY += 20, 130, 22, 32, 128, 80 );
 
-    g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
+    StringCchPrintf( sz, 100, L"Texture Height: %d", g_iTextureHeight ); 
+    g_SampleUI.AddStatic( IDC_TEXTRES_HEIGHT_STATIC, sz, 15, iY += 24, 125, 22 );
+    g_SampleUI.AddSlider( IDC_TEXTRES_HEIGHT_SLIDER, 15, iY += 20, 130, 22, 32, 128, 80);
+
+    StringCchPrintf( sz, 100, L"Texture Depth: %d", g_iTextureDepth ); 
+    g_SampleUI.AddStatic( IDC_TEXTRES_DEPTH_STATIC, sz, 15, iY += 24, 125, 22 );
+    g_SampleUI.AddSlider( IDC_TEXTRES_DEPTH_SLIDER, 15, iY += 20, 130, 22, 32, 128, 80);
 
 	// Setup the camera's view parameters
     D3DXVECTOR3 vecEye( 0.0f, 0.0f, -4.0f );
@@ -250,7 +273,12 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	if(g_bCameraActive)
 		return;
 
+	if(!bLeftDown)
+		g_bBlockMouseDragging = false;
 
+	if(g_bBlockMouseDragging)
+		return;
+	
 	if(g_mouseX == 0 && g_mouseY == 0)
 	{
 		g_mouseX = iX;
@@ -326,6 +354,25 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 		case IDC_CAMERA:
 			g_bCameraActive = true;
 			break;
+		case IDC_TEXTRES_WIDTH_SLIDER:
+			g_iTextureWidth = g_SampleUI.GetSlider(IDC_TEXTRES_WIDTH_SLIDER)->GetValue();
+			WCHAR sz[100];
+			StringCchPrintf( sz, 100, L"Texture Width: %d", g_iTextureWidth ); 
+            g_SampleUI.GetStatic( IDC_TEXTRES_WIDTH_STATIC )->SetText( sz );
+			g_bBlockMouseDragging = true;
+			break;
+		case IDC_TEXTRES_HEIGHT_SLIDER:
+			g_iTextureHeight = g_SampleUI.GetSlider(IDC_TEXTRES_HEIGHT_SLIDER)->GetValue();
+			StringCchPrintf( sz, 100, L"Texture Height: %d", g_iTextureHeight ); 
+            g_SampleUI.GetStatic( IDC_TEXTRES_HEIGHT_STATIC )->SetText( sz );
+			g_bBlockMouseDragging = true;
+			break;
+		case IDC_TEXTRES_DEPTH_SLIDER:
+			g_iTextureDepth = g_SampleUI.GetSlider(IDC_TEXTRES_DEPTH_SLIDER)->GetValue();
+			StringCchPrintf( sz, 100, L"Texture Depth: %d", g_iTextureDepth ); 
+            g_SampleUI.GetStatic( IDC_TEXTRES_DEPTH_STATIC )->SetText( sz );
+			g_bBlockMouseDragging = true;
+			break;
     }
 
 }
@@ -354,7 +401,8 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     ID3D11DeviceContext* pd3dImmediateContext = DXUTGetD3D11DeviceContext();
     V_RETURN( g_DialogResourceManager.OnD3D11CreateDevice( pd3dDevice, pd3dImmediateContext ) );
     V_RETURN( g_D3DSettingsDlg.OnD3D11CreateDevice( pd3dDevice ) );
-    g_pTxtHelper = new CDXUTTextHelper( pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15 );
+	//g_DialogResourceManager.AddFont(L"Arial", 15, 0);
+	g_pTxtHelper = new CDXUTTextHelper( pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15 );
 
     g_pScene = new Scene(pd3dDevice, pd3dImmediateContext);
 	V_RETURN(g_pScene->InitShaders());
