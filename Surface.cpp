@@ -37,10 +37,6 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 	D3DXMatrixIdentity(&m_mTransInv);
 
 	m_translation = D3DXVECTOR3(0.0, 0.0, 0.0);
-
-	m_xAxis = new D3DXVECTOR3(1.0, 0.0, 0.0);
-	m_yAxis = new D3DXVECTOR3(0.0, 1.0, 0.0);
-	m_zAxis = new D3DXVECTOR3(0.0, 0.0, 1.0);
 }
 
 
@@ -70,21 +66,24 @@ void Surface::Translate(float fX, float fY, float fZ)
 void Surface::RotateX(float fFactor)
 {
 	D3DXMATRIX mRot;
-	D3DXMatrixRotationAxis(&mRot, m_xAxis, fFactor);
+	const D3DXVECTOR3 axis(1.0, 0.0, 0.0);
+	D3DXMatrixRotationAxis(&mRot, &axis, fFactor);
 
 	m_mModel *= m_mTransInv * mRot * m_mTrans;
 }
 void Surface::RotateY(float fFactor)
 {
 	D3DXMATRIX mRot;
-	D3DXMatrixRotationAxis(&mRot, m_yAxis, fFactor);
+	const D3DXVECTOR3 axis(0.0, 1.0, 0.0);
+	D3DXMatrixRotationAxis(&mRot, &axis, fFactor);
 
 	m_mModel *= m_mTransInv * mRot * m_mTrans;
 }
 void Surface::RotateZ(float fFactor)
 {
 	D3DXMATRIX mRot;
-	D3DXMatrixRotationAxis(&mRot, m_zAxis, fFactor);
+	const D3DXVECTOR3 axis(0.0, 0.0, 1.0);
+	D3DXMatrixRotationAxis(&mRot, &axis, fFactor);
 
 	m_mModel *= m_mTransInv * mRot * m_mTrans;
 }

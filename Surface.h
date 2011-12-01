@@ -44,10 +44,6 @@ public:
 
 	D3DXVECTOR3 m_translation;
 
-	const D3DXVECTOR3* m_xAxis;
-	const D3DXVECTOR3* m_yAxis;
-	const D3DXVECTOR3* m_zAxis;
-
 	void Translate(float fX, float fY, float fZ);
 	
 	void RotateX(float fFactor);
