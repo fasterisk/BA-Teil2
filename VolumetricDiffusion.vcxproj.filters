@@ -12,12 +12,17 @@
     <Filter Include="DXUT">
       <UniqueIdentifier>{3a438cfd-2e43-40c8-b5f1-0cf49a53edca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{a6b3bf19-90ef-4f21-8446-56c52b05c4ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{0077586c-ddf2-41d7-868f-32feeedb77f0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="Surface.h" />
     <ClInclude Include="DXUT11\Core\DXUT.h">
       <Filter>DXUT</Filter>
     </ClInclude>
@@ -48,12 +53,23 @@
     <ClInclude Include="DXUT11\Optional\SDKmisc.h">
       <Filter>DXUT</Filter>
     </ClInclude>
-    <ClInclude Include="BoundingBox.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="Globals.h" />
+    <ClInclude Include="BoundingBox.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Surface.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeRenderer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Surface.cpp" />
     <ClCompile Include="DXUT11\Core\DXUT.cpp">
       <Filter>DXUT</Filter>
     </ClCompile>
@@ -84,9 +100,21 @@
     <ClCompile Include="DXUT11\Optional\SDKmisc.cpp">
       <Filter>DXUT</Filter>
     </ClCompile>
-    <ClCompile Include="VolumetricDiffusion11.cpp" />
-    <ClCompile Include="BoundingBox.cpp" />
-    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="BoundingBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Surface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumeRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumetricDiffusion11.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VolumetricDiffusion.rc">

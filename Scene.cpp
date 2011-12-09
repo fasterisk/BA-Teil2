@@ -91,6 +91,7 @@ HRESULT Scene::InitShaders()
 
 HRESULT Scene::SetupTextures(int iWidth, int iHeight, int iDepth)
 {
+
 	return S_OK;
 }
 

@@ -400,6 +400,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Surface.h" />
+    <ClInclude Include="VolumeRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BoundingBox.cpp" />
@@ -415,6 +416,7 @@
     <ClCompile Include="DXUT11\Optional\SDKmisc.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="VolumeRenderer.cpp" />
     <ClCompile Include="VolumetricDiffusion11.cpp" />
   </ItemGroup>
   <ItemGroup>

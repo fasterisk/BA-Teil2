@@ -32,7 +32,15 @@ protected:
 	ID3D11DeviceContext*			m_pd3dImmediateContext;
 
 	// Render targets (3d textures)
-	ID3D11Texture3D					*m_pRenderTarget3D;
+	/*	Textures from part 1
+	ID3D10Texture2D *m_diffuseTexture[2];     // two textures used interleavedly for diffusion
+	ID3D10Texture2D *m_distDirTexture;    // two textures used interleavedly for diffusion (blurr texture)
+	ID3D10Texture2D *m_pDepthStencil;         // for z culling
+	ID3D10Texture2D *m_otherTexture;		// texture that keeps the color on the other side of a curve
+	*/
+	ID3D11Texture3D*				m_pDiffuseTexture[2]; 
+	ID3D11ShaderResourceView*		m_pDiffuseTextureSRV[2];
+	ID3D11RenderTargetView*			m_pDiffuseTextureRTV[2];
 
 	// Effects and techniques
 	ID3DX11Effect*					m_pEffect;
