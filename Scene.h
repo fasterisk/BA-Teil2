@@ -8,11 +8,18 @@ class BoundingBox;
 
 class Scene {
 public:
+	 enum RENDER_TARGET
+    {
+        RENDER_TARGET_DIFFUSE0,
+        RENDER_TARGET_DIFFUSE1,
+        NUM_RENDER_TARGETS
+    };
+
 	Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext);
 	~Scene();
 
 	HRESULT InitShaders();
-	HRESULT SetupTextures(int iWidth, int iHeight, int iDepth);
+	HRESULT InitRenderTargets(int iWidth, int iHeight, int iDepth);
 	HRESULT InitRasterizerStates();
 	HRESULT InitSurfaces();
 
@@ -24,7 +31,7 @@ public:
 	void RotateY(float fFactor);
 	void Scale(float fFactor);
 
-	HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut );
+	
 
 protected:
 	// Device
@@ -38,9 +45,9 @@ protected:
 	ID3D10Texture2D *m_pDepthStencil;         // for z culling
 	ID3D10Texture2D *m_otherTexture;		// texture that keeps the color on the other side of a curve
 	*/
-	ID3D11Texture3D*				m_pDiffuseTexture[2]; 
-	ID3D11ShaderResourceView*		m_pDiffuseTextureSRV[2];
-	ID3D11RenderTargetView*			m_pDiffuseTextureRTV[2];
+	ID3D11Texture3D*				m_pRenderTargets3D[NUM_RENDER_TARGETS]; 
+	ID3D11ShaderResourceView*		m_pRenderTargetShaderViews[NUM_RENDER_TARGETS];
+	ID3D11RenderTargetView*			m_pRenderTargetViews[NUM_RENDER_TARGETS];
 
 	// Effects and techniques
 	ID3DX11Effect*					m_pEffect;
@@ -67,9 +74,11 @@ protected:
 	// Bounding Box
 	BoundingBox*					m_pBoundingBox;
 	
-	
-	
 
-	
 
+	// Helper Functions
+	HRESULT CreateRenderTarget(int iIndex, D3D11_TEXTURE3D_DESC desc);
+
+	HRESULT CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect);
+	HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut );
 };

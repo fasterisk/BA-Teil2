@@ -48,19 +48,9 @@ HRESULT Scene::InitShaders()
 	HRESULT hr;
 	// Read the D3DX effect file
     WCHAR str[MAX_PATH];
-	ID3D10Blob *effectBlob = 0, *errorsBlob = 0;
+	
     V_RETURN( DXUTFindDXSDKMediaFileCch( str, MAX_PATH, L"DiffusionShader11.fx" ) );
-    hr = D3DX11CompileFromFile( str, NULL, NULL, NULL, "fx_5_0", NULL, NULL, NULL, &effectBlob, &errorsBlob, NULL );
-	if(FAILED ( hr ))
-	{
-		std::string errStr((LPCSTR)errorsBlob->GetBufferPointer(), errorsBlob->GetBufferSize());
-		WCHAR err[256];
-		MultiByteToWideChar(CP_ACP, 0, errStr.c_str(), (int)errStr.size(), err, errStr.size());
-		MessageBox( NULL, (LPCWSTR)err, L"Error", MB_OK );
-		return hr;
-	}
-
-	V_RETURN(D3DX11CreateEffectFromMemory(effectBlob->GetBufferPointer(), effectBlob->GetBufferSize(), 0, m_pd3dDevice, &m_pEffect));
+    V_RETURN(CreateEffect(str, &m_pEffect));
 
 
 	m_pMainTechnique = m_pEffect->GetTechniqueByName("Main");
@@ -89,8 +79,25 @@ HRESULT Scene::InitShaders()
 	return S_OK;
 }
 
-HRESULT Scene::SetupTextures(int iWidth, int iHeight, int iDepth)
+HRESULT Scene::InitRenderTargets(int iWidth, int iHeight, int iDepth)
 {
+	HRESULT hr;
+
+	D3D11_TEXTURE3D_DESC desc;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc.CPUAccessFlags = 0;
+	desc.MipLevels = 1;
+	desc.MiscFlags = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.Width = iWidth;
+	desc.Height = iHeight;
+	desc.Depth = iDepth;
+	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+	for(int i = 0; i < NUM_RENDER_TARGETS; i++)
+	{
+		V_RETURN(CreateRenderTarget(i, desc));
+	}
 
 	return S_OK;
 }
@@ -180,6 +187,47 @@ void Scene::RotateY(float fFactor)
 void Scene::Scale(float fFactor)
 {
 	m_pControlledSurface->Scale(fFactor);
+}
+
+HRESULT Scene::CreateRenderTarget(int iIndex, D3D11_TEXTURE3D_DESC desc)
+{
+	 HRESULT hr;
+
+    // Release resources in case they exist
+    SAFE_RELEASE( m_pRenderTargets3D[iIndex] );
+    SAFE_RELEASE( m_pRenderTargetViews[iIndex] );
+
+    // Create the texture
+    V_RETURN( m_pd3dDevice->CreateTexture3D(&desc,NULL,&m_pRenderTargets3D[iIndex]));
+    // Create the render target view
+    D3D11_RENDER_TARGET_VIEW_DESC DescRT;
+    DescRT.Format = desc.Format;
+    DescRT.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE3D;
+    DescRT.Texture3D.FirstWSlice = 0;
+    DescRT.Texture3D.MipSlice = 0;
+    DescRT.Texture3D.WSize = desc.Depth;
+
+    V_RETURN( m_pd3dDevice->CreateRenderTargetView( m_pRenderTargets3D[iIndex], &DescRT, &m_pRenderTargetViews[iIndex]) );
+
+    return S_OK;
+}
+
+HRESULT Scene::CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect)
+{
+	HRESULT hr;
+	ID3D10Blob *effectBlob = 0, *errorsBlob = 0;
+	hr = D3DX11CompileFromFile( name, NULL, NULL, NULL, "fx_5_0", NULL, NULL, NULL, &effectBlob, &errorsBlob, NULL );
+	if(FAILED ( hr ))
+	{
+		std::string errStr((LPCSTR)errorsBlob->GetBufferPointer(), errorsBlob->GetBufferSize());
+		WCHAR err[256];
+		MultiByteToWideChar(CP_ACP, 0, errStr.c_str(), (int)errStr.size(), err, errStr.size());
+		MessageBox( NULL, (LPCWSTR)err, L"Error", MB_OK );
+		return hr;
+	}
+	
+	V_RETURN(D3DX11CreateEffectFromMemory(effectBlob->GetBufferPointer(), effectBlob->GetBufferSize(), 0, m_pd3dDevice, ppEffect));
+	return S_OK;
 }
 
 //--------------------------------------------------------------------------------------
