@@ -25,23 +25,35 @@
 #include "BoundingBox.h"
 
 
-BoundingBox::BoundingBox(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11EffectTechnique* pTechnique, ID3DX11EffectMatrixVariable* pMVPMatrixShaderVariable, Surface* pSurface1, Surface* pSurface2)
+BoundingBox::BoundingBox(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect, Surface* pSurface1, Surface* pSurface2)
 {
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dImmediateContext = pd3dImmediateContext;
-	Technique = pTechnique;
-	MVPMatrixShaderVariable = pMVPMatrixShaderVariable;
+	m_pEffect = pEffect;
 
 	m_pSurface1 = pSurface1;
 	m_pSurface2 = pSurface2;
+
+	memset(m_pRenderTargets3D, 0, sizeof(m_pRenderTargets3D));
+    memset(m_pShaderResourceVariables, 0, sizeof(m_pShaderResourceVariables));
+    memset(m_pRenderTargetShaderViews, 0, sizeof(m_pRenderTargetShaderViews));
+    memset(m_pRenderTargetViews, 0, sizeof(m_pRenderTargetViews));
 }
 
 BoundingBox::~BoundingBox()
 {
+	SAFE_RELEASE(m_pInputLayout);
 	SAFE_RELEASE(m_pVertexBuffer);
 	SAFE_RELEASE(m_pIndexBuffer);
 
 	SAFE_DELETE(m_pVertices);
+
+	for(int i=0;i<NUM_RENDER_TARGETS;i++)
+    {
+        SAFE_RELEASE(m_pRenderTargets3D[i]);
+        SAFE_RELEASE(m_pRenderTargetShaderViews[i]);
+        SAFE_RELEASE(m_pRenderTargetViews[i]);
+    }
 }
 
 HRESULT BoundingBox::InitBuffers()
@@ -296,4 +308,114 @@ void BoundingBox::Render(D3DXMATRIX mViewProjection)
 		//draw
 		m_pd3dImmediateContext->DrawIndexed( 36, 0, 0 );
 	}
+}
+
+
+HRESULT BoundingBox::InitRenderTargets(int iWidth, int iHeight, int iDepth)
+{
+	HRESULT hr;
+
+	D3D11_TEXTURE3D_DESC desc;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc.CPUAccessFlags = 0;
+	desc.MipLevels = 1;
+	desc.MiscFlags = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.Width = iWidth;
+	desc.Height = iHeight;
+	desc.Depth = iDepth;
+	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+	for(int i = 0; i < NUM_RENDER_TARGETS; i++)
+	{
+		V_RETURN(CreateRenderTarget(i, desc));
+	}
+
+	V_RETURN(TextureWidthShaderVariable->SetFloat(float(iWidth)));
+    V_RETURN(TextureHeightShaderVariable->SetFloat(float(iHeight)));
+    V_RETURN(TextureDepthShaderVariable->SetFloat(float(iDepth)));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
+    ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
+    SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
+    SRVDesc.Texture3D.MipLevels = 1;
+    SRVDesc.Texture3D.MostDetailedMip = 0;
+	SRVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+	V_RETURN(CreateRTTextureAsShaderResource(RENDER_TARGET_DIFFUSE0,"Texture_diffuse0",m_pEffect,&SRVDesc));
+	V_RETURN(CreateRTTextureAsShaderResource(RENDER_TARGET_DIFFUSE1,"Texture_diffuse1",m_pEffect,&SRVDesc));
+
+	return S_OK;
+}
+
+HRESULT BoundingBox::InitTechniques()
+{
+	HRESULT hr;
+	
+	Technique = m_pEffect->GetTechniqueByName("Main");
+
+	D3DX11_PASS_SHADER_DESC effectVsDesc;
+	Technique->GetPassByIndex(0)->GetVertexShaderDesc(&effectVsDesc);
+	D3DX11_EFFECT_SHADER_DESC effectVsDesc2;
+	effectVsDesc.pShaderVariable->GetShaderDesc(effectVsDesc.ShaderIndex, &effectVsDesc2);
+	const void *vsCodePtr = effectVsDesc2.pBytecode;
+	unsigned vsCodeLen = effectVsDesc2.BytecodeLength;
+
+	// Create our vertex input layout
+    D3D11_INPUT_ELEMENT_DESC layout[] =
+    {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+    };
+	UINT numElements = 2;
+
+	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pInputLayout));
+	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
+
+	MVPMatrixShaderVariable = m_pEffect->GetVariableByName("g_mModelViewProjection")->AsMatrix();
+	TextureWidthShaderVariable = m_pEffect->GetVariableByName( "textureWidth")->AsScalar();
+    TextureHeightShaderVariable = m_pEffect->GetVariableByName( "textureHeight")->AsScalar();
+    TextureDepthShaderVariable = m_pEffect->GetVariableByName( "textureDepth")->AsScalar();
+
+	return S_OK;
+}
+
+HRESULT BoundingBox::CreateRenderTarget(int rtIndex, D3D11_TEXTURE3D_DESC desc)
+{
+	 HRESULT hr;
+
+    // Release resources in case they exist
+	SAFE_RELEASE( m_pRenderTargets3D[rtIndex] ); //  exception raises; dunno why
+    SAFE_RELEASE( m_pRenderTargetViews[rtIndex] );
+
+    // Create the texture
+    V_RETURN( m_pd3dDevice->CreateTexture3D(&desc,NULL,&m_pRenderTargets3D[rtIndex]));
+    // Create the render target view
+    D3D11_RENDER_TARGET_VIEW_DESC DescRT;
+    DescRT.Format = desc.Format;
+    DescRT.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE3D;
+    DescRT.Texture3D.FirstWSlice = 0;
+    DescRT.Texture3D.MipSlice = 0;
+    DescRT.Texture3D.WSize = desc.Depth;
+
+    V_RETURN( m_pd3dDevice->CreateRenderTargetView( m_pRenderTargets3D[rtIndex], &DescRT, &m_pRenderTargetViews[rtIndex]) );
+
+    return S_OK;
+}
+
+HRESULT BoundingBox::CreateRTTextureAsShaderResource(RENDER_TARGET rtIndex, LPCSTR shaderTextureName,
+                                            ID3DX11Effect* pEffect, D3D11_SHADER_RESOURCE_VIEW_DESC *SRVDesc )
+{
+    HRESULT hr;
+
+    // Create the "shader resource view" and "shader resource variable" for the given texture 
+    SAFE_RELEASE(m_pRenderTargetShaderViews[rtIndex]);
+    V_RETURN(m_pd3dDevice->CreateShaderResourceView( m_pRenderTargets3D[rtIndex], 
+        SRVDesc, &m_pRenderTargetShaderViews[rtIndex]));
+    m_pShaderResourceVariables[rtIndex] = m_pEffect->GetVariableByName(shaderTextureName)->AsShaderResource();
+
+    // Then we bind the texture SRView to the SRVar
+    V_RETURN(m_pShaderResourceVariables[rtIndex]->SetResource(m_pRenderTargetShaderViews[rtIndex] ));
+    
+    return S_OK;
 }

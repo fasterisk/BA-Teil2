@@ -24,12 +24,12 @@
 #include "Surface.h"
 
 
-Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11EffectTechnique* pTechnique, ID3DX11EffectMatrixVariable* pMVPMatrixShaderVariable)
+Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect)
 {
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dImmediateContext = pd3dImmediateContext;
-	Technique = pTechnique;
-	MVPMatrixShaderVariable = pMVPMatrixShaderVariable;
+	m_pEffect = pEffect;
+	
 
 	D3DXMatrixIdentity(&m_mModel);
 	D3DXMatrixIdentity(&m_mRot);
@@ -42,6 +42,8 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 
 Surface::~Surface()
 {
+	SAFE_RELEASE(m_pInputLayout);
+
 	SAFE_RELEASE(m_pVertexBuffer);
 	SAFE_RELEASE(m_pIndexBuffer);
 
@@ -137,7 +139,34 @@ HRESULT Surface::InitBuffers()
 
 
 	return S_OK;
+}
 
+HRESULT Surface::InitTechniques()
+{
+	HRESULT hr;
+	
+	Technique = m_pEffect->GetTechniqueByName("Main");
+
+	D3DX11_PASS_SHADER_DESC effectVsDesc;
+	Technique->GetPassByIndex(0)->GetVertexShaderDesc(&effectVsDesc);
+	D3DX11_EFFECT_SHADER_DESC effectVsDesc2;
+	effectVsDesc.pShaderVariable->GetShaderDesc(effectVsDesc.ShaderIndex, &effectVsDesc2);
+	const void *vsCodePtr = effectVsDesc2.pBytecode;
+	unsigned vsCodeLen = effectVsDesc2.BytecodeLength;
+
+	// Create our vertex input layout
+    D3D11_INPUT_ELEMENT_DESC layout[] =
+    {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+    };
+	UINT numElements = 2;
+
+	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pInputLayout));
+	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
+
+	MVPMatrixShaderVariable = m_pEffect->GetVariableByName("g_mModelViewProjection")->AsMatrix();
+	return S_OK;
 }
 
 void Surface::Render(D3DXMATRIX mViewProjection)

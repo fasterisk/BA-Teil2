@@ -32,15 +32,18 @@ public:
 	D3DXMATRIX m_mTransInv;
 	
 
-	Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11EffectTechnique* pTechnique, ID3DX11EffectMatrixVariable* pMVPMatrixShaderVariable);
+	Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect);
 	~Surface();
 
 
 	ID3D11Device*					m_pd3dDevice;
 	ID3D11DeviceContext*			m_pd3dImmediateContext;
-	ID3DX11EffectTechnique*			Technique;
-	ID3DX11EffectMatrixVariable*	MVPMatrixShaderVariable;
 
+	ID3DX11Effect*					m_pEffect;
+	ID3DX11EffectTechnique*			Technique;
+	ID3D11InputLayout*				m_pInputLayout;
+
+	ID3DX11EffectMatrixVariable*	MVPMatrixShaderVariable;
 
 	D3DXVECTOR3 m_translation;
 
@@ -55,6 +58,7 @@ public:
 	void SetColor(float fR, float fG, float fB);//has to be called before initbuffers or you have to repeat initbuffers
 
 	HRESULT InitBuffers();
+	HRESULT InitTechniques();
 	void Render(D3DXMATRIX mViewProjection);
 
 	void ReadVectorFile(char *s);
