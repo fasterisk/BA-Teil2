@@ -28,6 +28,10 @@
 Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext)
 	: m_pd3dDevice(pd3dDevice), m_pd3dImmediateContext(pd3dImmediateContext)
 {
+	memset(m_pRenderTargets3D, 0, sizeof(m_pRenderTargets3D));
+    memset(m_pShaderResourceVariables, 0, sizeof(m_pShaderResourceVariables));
+    memset(m_pRenderTargetShaderViews, 0, sizeof(m_pRenderTargetShaderViews));
+    memset(m_pRenderTargetViews, 0, sizeof(m_pRenderTargetViews));
 }
 
 Scene::~Scene()
@@ -40,6 +44,13 @@ Scene::~Scene()
 	SAFE_DELETE(m_pSurface1);
 	SAFE_DELETE(m_pSurface2);
 	SAFE_DELETE(m_pBoundingBox);
+
+	for(int i=0;i<NUM_RENDER_TARGETS;i++)
+    {
+        SAFE_RELEASE(m_pRenderTargets3D[i]);
+        SAFE_RELEASE(m_pRenderTargetShaderViews[i]);
+        SAFE_RELEASE(m_pRenderTargetViews[i]);
+    }
 }
 
 
@@ -210,7 +221,7 @@ HRESULT Scene::CreateRenderTarget(int rtIndex, D3D11_TEXTURE3D_DESC desc)
 	 HRESULT hr;
 
     // Release resources in case they exist
-    SAFE_RELEASE( m_pRenderTargets3D[rtIndex] );
+	SAFE_RELEASE( m_pRenderTargets3D[rtIndex] ); //  exception raises; dunno why
     SAFE_RELEASE( m_pRenderTargetViews[rtIndex] );
 
     // Create the texture
