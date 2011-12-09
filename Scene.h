@@ -45,16 +45,20 @@ protected:
 	ID3D10Texture2D *m_pDepthStencil;         // for z culling
 	ID3D10Texture2D *m_otherTexture;		// texture that keeps the color on the other side of a curve
 	*/
-	ID3D11Texture3D*				m_pRenderTargets3D[NUM_RENDER_TARGETS]; 
-	ID3D11ShaderResourceView*		m_pRenderTargetShaderViews[NUM_RENDER_TARGETS];
-	ID3D11RenderTargetView*			m_pRenderTargetViews[NUM_RENDER_TARGETS];
+	ID3D11Texture3D*						m_pRenderTargets3D[NUM_RENDER_TARGETS]; 
+	ID3D11ShaderResourceView*				m_pRenderTargetShaderViews[NUM_RENDER_TARGETS];
+	ID3D11RenderTargetView*					m_pRenderTargetViews[NUM_RENDER_TARGETS];
+	ID3DX11EffectShaderResourceVariable*	m_pShaderResourceVariables[NUM_RENDER_TARGETS];
 
 	// Effects and techniques
 	ID3DX11Effect*					m_pEffect;
-	ID3DX11EffectTechnique*			m_pMainTechnique;
+	ID3DX11EffectTechnique*			Technique1;
 
 	// Effect variables
-	ID3DX11EffectMatrixVariable*	m_pMVPVariable;
+	ID3DX11EffectMatrixVariable*	MVPMatrixShaderVariable;
+	ID3DX11EffectScalarVariable*	TextureWidthShaderVariable;
+    ID3DX11EffectScalarVariable*	TextureHeightShaderVariable;
+    ID3DX11EffectScalarVariable*	TextureDepthShaderVariable;
 
 	// Rasterizer states
 	ID3D11RasterizerState*			m_pRasterizerStateSolid;
@@ -77,8 +81,8 @@ protected:
 
 
 	// Helper Functions
-	HRESULT CreateRenderTarget(int iIndex, D3D11_TEXTURE3D_DESC desc);
-
+	HRESULT CreateRenderTarget(int rtIndex, D3D11_TEXTURE3D_DESC desc);
+	HRESULT CreateRTTextureAsShaderResource(RENDER_TARGET rtIndex, LPCSTR shaderTextureName, ID3DX11Effect* pEffect, D3D11_SHADER_RESOURCE_VIEW_DESC *SRVDesc );
 	HRESULT CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect);
 	HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut );
 };

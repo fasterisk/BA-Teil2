@@ -46,20 +46,22 @@ Scene::~Scene()
 HRESULT Scene::InitShaders()
 {
 	HRESULT hr;
-	// Read the D3DX effect file
     WCHAR str[MAX_PATH];
-	
-    V_RETURN( DXUTFindDXSDKMediaFileCch( str, MAX_PATH, L"DiffusionShader11.fx" ) );
+	V_RETURN( DXUTFindDXSDKMediaFileCch( str, MAX_PATH, L"DiffusionShader11.fx" ) );
     V_RETURN(CreateEffect(str, &m_pEffect));
 
-
-	m_pMainTechnique = m_pEffect->GetTechniqueByName("Main");
-	assert(m_pMainTechnique && m_pMainTechnique->IsValid());
+	// Initialize techniques
+	Technique1 = m_pEffect->GetTechniqueByName("Main");
 	
-	m_pMVPVariable = m_pEffect->GetVariableByName("g_mModelViewProjection")->AsMatrix();
+	// Initialize shader variables
+	MVPMatrixShaderVariable = m_pEffect->GetVariableByName("g_mModelViewProjection")->AsMatrix();
+	TextureWidthShaderVariable = m_pEffect->GetVariableByName( "textureWidth")->AsScalar();
+    TextureHeightShaderVariable = m_pEffect->GetVariableByName( "textureHeight")->AsScalar();
+    TextureDepthShaderVariable = m_pEffect->GetVariableByName( "textureDepth")->AsScalar();
+
 
 	D3DX11_PASS_SHADER_DESC effectVsDesc;
-	m_pMainTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&effectVsDesc);
+	Technique1->GetPassByIndex(0)->GetVertexShaderDesc(&effectVsDesc);
 	D3DX11_EFFECT_SHADER_DESC effectVsDesc2;
 	effectVsDesc.pShaderVariable->GetShaderDesc(effectVsDesc.ShaderIndex, &effectVsDesc2);
 	const void *vsCodePtr = effectVsDesc2.pBytecode;
@@ -99,6 +101,20 @@ HRESULT Scene::InitRenderTargets(int iWidth, int iHeight, int iDepth)
 		V_RETURN(CreateRenderTarget(i, desc));
 	}
 
+	V_RETURN(TextureWidthShaderVariable->SetFloat(float(iWidth)));
+    V_RETURN(TextureHeightShaderVariable->SetFloat(float(iHeight)));
+    V_RETURN(TextureDepthShaderVariable->SetFloat(float(iDepth)));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
+    ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
+    SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
+    SRVDesc.Texture3D.MipLevels = 1;
+    SRVDesc.Texture3D.MostDetailedMip = 0;
+	SRVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+	V_RETURN(CreateRTTextureAsShaderResource(RENDER_TARGET_DIFFUSE0,"Texture_diffuse0",m_pEffect,&SRVDesc));
+	V_RETURN(CreateRTTextureAsShaderResource(RENDER_TARGET_DIFFUSE1,"Texture_diffuse1",m_pEffect,&SRVDesc));
+
 	return S_OK;
 }
 
@@ -127,19 +143,19 @@ HRESULT Scene::InitSurfaces()
 	HRESULT hr;
 
 	// Create surface1 and its buffers
-	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pMainTechnique, m_pMVPVariable);
+	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, Technique1, MVPMatrixShaderVariable);
 	m_pSurface1->ReadVectorFile("Media\\surface1.xml");
 	V_RETURN(m_pSurface1->InitBuffers());
     
 	// Create surface2 and its buffers
-	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pMainTechnique, m_pMVPVariable);
+	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, Technique1, MVPMatrixShaderVariable);
 	m_pSurface2->ReadVectorFile("Media\\surface1.xml");
 	m_pSurface2->SetColor(1.0, 1.0, 1.0);
 	V_RETURN(m_pSurface2->InitBuffers());
 	m_pSurface2->Scale(0.5);
 
 	// Create bounding box
-	m_pBoundingBox = new BoundingBox(m_pd3dDevice, m_pd3dImmediateContext, m_pMainTechnique, m_pMVPVariable, m_pSurface1, m_pSurface2);
+	m_pBoundingBox = new BoundingBox(m_pd3dDevice, m_pd3dImmediateContext, Technique1, MVPMatrixShaderVariable, m_pSurface1, m_pSurface2);
 	V_RETURN(m_pBoundingBox->InitBuffers());
 
 	m_pControlledSurface = m_pSurface1;
@@ -189,16 +205,16 @@ void Scene::Scale(float fFactor)
 	m_pControlledSurface->Scale(fFactor);
 }
 
-HRESULT Scene::CreateRenderTarget(int iIndex, D3D11_TEXTURE3D_DESC desc)
+HRESULT Scene::CreateRenderTarget(int rtIndex, D3D11_TEXTURE3D_DESC desc)
 {
 	 HRESULT hr;
 
     // Release resources in case they exist
-    SAFE_RELEASE( m_pRenderTargets3D[iIndex] );
-    SAFE_RELEASE( m_pRenderTargetViews[iIndex] );
+    SAFE_RELEASE( m_pRenderTargets3D[rtIndex] );
+    SAFE_RELEASE( m_pRenderTargetViews[rtIndex] );
 
     // Create the texture
-    V_RETURN( m_pd3dDevice->CreateTexture3D(&desc,NULL,&m_pRenderTargets3D[iIndex]));
+    V_RETURN( m_pd3dDevice->CreateTexture3D(&desc,NULL,&m_pRenderTargets3D[rtIndex]));
     // Create the render target view
     D3D11_RENDER_TARGET_VIEW_DESC DescRT;
     DescRT.Format = desc.Format;
@@ -207,8 +223,25 @@ HRESULT Scene::CreateRenderTarget(int iIndex, D3D11_TEXTURE3D_DESC desc)
     DescRT.Texture3D.MipSlice = 0;
     DescRT.Texture3D.WSize = desc.Depth;
 
-    V_RETURN( m_pd3dDevice->CreateRenderTargetView( m_pRenderTargets3D[iIndex], &DescRT, &m_pRenderTargetViews[iIndex]) );
+    V_RETURN( m_pd3dDevice->CreateRenderTargetView( m_pRenderTargets3D[rtIndex], &DescRT, &m_pRenderTargetViews[rtIndex]) );
 
+    return S_OK;
+}
+
+HRESULT Scene::CreateRTTextureAsShaderResource(RENDER_TARGET rtIndex, LPCSTR shaderTextureName,
+                                            ID3DX11Effect* pEffect, D3D11_SHADER_RESOURCE_VIEW_DESC *SRVDesc )
+{
+    HRESULT hr;
+
+    // Create the "shader resource view" and "shader resource variable" for the given texture 
+    SAFE_RELEASE(m_pRenderTargetShaderViews[rtIndex]);
+    V_RETURN(m_pd3dDevice->CreateShaderResourceView( m_pRenderTargets3D[rtIndex], 
+        SRVDesc, &m_pRenderTargetShaderViews[rtIndex]));
+    m_pShaderResourceVariables[rtIndex] = m_pEffect->GetVariableByName(shaderTextureName)->AsShaderResource();
+
+    // Then we bind the texture SRView to the SRVar
+    V_RETURN(m_pShaderResourceVariables[rtIndex]->SetResource(m_pRenderTargetShaderViews[rtIndex] ));
+    
     return S_OK;
 }
 

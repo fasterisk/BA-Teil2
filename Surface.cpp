@@ -24,12 +24,12 @@
 #include "Surface.h"
 
 
-Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11EffectTechnique* pMainTechnique, ID3DX11EffectMatrixVariable* pMVPVariable)
+Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11EffectTechnique* pTechnique, ID3DX11EffectMatrixVariable* pMVPMatrixShaderVariable)
 {
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dImmediateContext = pd3dImmediateContext;
-	m_pMainTechnique = pMainTechnique;
-	m_pMVPVariable = pMVPVariable;
+	Technique = pTechnique;
+	MVPMatrixShaderVariable = pMVPMatrixShaderVariable;
 
 	D3DXMatrixIdentity(&m_mModel);
 	D3DXMatrixIdentity(&m_mRot);
@@ -144,7 +144,7 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 {
 	D3DXMATRIX mModelViewProjection = m_mModel * mViewProjection;
 	
-	m_pMVPVariable->SetMatrix(mModelViewProjection);
+	MVPMatrixShaderVariable->SetMatrix(mModelViewProjection);
 
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
@@ -154,12 +154,12 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 
 	
 	D3DX11_TECHNIQUE_DESC techDesc;
-	m_pMainTechnique->GetDesc(&techDesc);
+	Technique->GetDesc(&techDesc);
 
 	for( UINT p = 0; p < techDesc.Passes; ++p )
 	{
 		//apply technique
-		m_pMainTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
+		Technique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 				
 		//draw
 		m_pd3dImmediateContext->DrawIndexed( 36, 0, 0 );

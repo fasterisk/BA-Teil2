@@ -32,14 +32,14 @@ public:
 	D3DXMATRIX m_mTransInv;
 	
 
-	Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11EffectTechnique* pMainTechnique, ID3DX11EffectMatrixVariable* pMVPVariable);
+	Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11EffectTechnique* pTechnique, ID3DX11EffectMatrixVariable* pMVPMatrixShaderVariable);
 	~Surface();
 
 
 	ID3D11Device*					m_pd3dDevice;
 	ID3D11DeviceContext*			m_pd3dImmediateContext;
-	ID3DX11EffectTechnique*			m_pMainTechnique;
-	ID3DX11EffectMatrixVariable*	m_pMVPVariable;
+	ID3DX11EffectTechnique*			Technique;
+	ID3DX11EffectMatrixVariable*	MVPMatrixShaderVariable;
 
 
 	D3DXVECTOR3 m_translation;

@@ -25,12 +25,12 @@
 #include "BoundingBox.h"
 
 
-BoundingBox::BoundingBox(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11EffectTechnique* pMainTechnique, ID3DX11EffectMatrixVariable* pMVPVariable, Surface* pSurface1, Surface* pSurface2)
+BoundingBox::BoundingBox(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11EffectTechnique* pTechnique, ID3DX11EffectMatrixVariable* pMVPMatrixShaderVariable, Surface* pSurface1, Surface* pSurface2)
 {
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dImmediateContext = pd3dImmediateContext;
-	m_pMainTechnique = pMainTechnique;
-	m_pMVPVariable = pMVPVariable;
+	Technique = pTechnique;
+	MVPMatrixShaderVariable = pMVPMatrixShaderVariable;
 
 	m_pSurface1 = pSurface1;
 	m_pSurface2 = pSurface2;
@@ -277,7 +277,7 @@ HRESULT BoundingBox::UpdateVertexBuffer()
 
 void BoundingBox::Render(D3DXMATRIX mViewProjection)
 {
-	m_pMVPVariable->SetMatrix(mViewProjection);
+	MVPMatrixShaderVariable->SetMatrix(mViewProjection);
 
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
@@ -286,12 +286,12 @@ void BoundingBox::Render(D3DXMATRIX mViewProjection)
 	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	D3DX11_TECHNIQUE_DESC techDesc;
-	m_pMainTechnique->GetDesc(&techDesc);
+	Technique->GetDesc(&techDesc);
 
 	for( UINT p = 0; p < techDesc.Passes; ++p )
 	{
 		//apply technique
-		m_pMainTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext );
+		Technique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext );
 				
 		//draw
 		m_pd3dImmediateContext->DrawIndexed( 36, 0, 0 );
