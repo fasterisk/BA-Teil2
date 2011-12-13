@@ -391,12 +391,14 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Surface.h" />
+    <ClInclude Include="TextureGrid.h" />
     <ClInclude Include="VolumeRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="TextureGrid.cpp" />
     <ClCompile Include="VolumeRenderer.cpp" />
     <ClCompile Include="VolumetricDiffusion11.cpp" />
   </ItemGroup>
