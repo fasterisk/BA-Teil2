@@ -9,9 +9,6 @@
       <UniqueIdentifier>{6e38d95b-2eaa-450d-81fd-fe8f6173de3b}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
-    <Filter Include="DXUT">
-      <UniqueIdentifier>{3a438cfd-2e43-40c8-b5f1-0cf49a53edca}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Headers">
       <UniqueIdentifier>{a6b3bf19-90ef-4f21-8446-56c52b05c4ab}</UniqueIdentifier>
     </Filter>
@@ -22,36 +19,6 @@
   <ItemGroup>
     <ClInclude Include="resource.h">
       <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DXUT11\Core\DXUT.h">
-      <Filter>DXUT</Filter>
-    </ClInclude>
-    <ClInclude Include="DXUT11\Core\DXUTDevice11.h">
-      <Filter>DXUT</Filter>
-    </ClInclude>
-    <ClInclude Include="DXUT11\Core\DXUTDevice9.h">
-      <Filter>DXUT</Filter>
-    </ClInclude>
-    <ClInclude Include="DXUT11\Core\DXUTmisc.h">
-      <Filter>DXUT</Filter>
-    </ClInclude>
-    <ClInclude Include="DXUT11\Optional\DXUTcamera.h">
-      <Filter>DXUT</Filter>
-    </ClInclude>
-    <ClInclude Include="DXUT11\Optional\DXUTgui.h">
-      <Filter>DXUT</Filter>
-    </ClInclude>
-    <ClInclude Include="DXUT11\Optional\DXUTres.h">
-      <Filter>DXUT</Filter>
-    </ClInclude>
-    <ClInclude Include="DXUT11\Optional\DXUTsettingsdlg.h">
-      <Filter>DXUT</Filter>
-    </ClInclude>
-    <ClInclude Include="DXUT11\Optional\SDKmesh.h">
-      <Filter>DXUT</Filter>
-    </ClInclude>
-    <ClInclude Include="DXUT11\Optional\SDKmisc.h">
-      <Filter>DXUT</Filter>
     </ClInclude>
     <ClInclude Include="BoundingBox.h">
       <Filter>Headers</Filter>
@@ -70,36 +37,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DXUT11\Core\DXUT.cpp">
-      <Filter>DXUT</Filter>
-    </ClCompile>
-    <ClCompile Include="DXUT11\Core\DXUTDevice11.cpp">
-      <Filter>DXUT</Filter>
-    </ClCompile>
-    <ClCompile Include="DXUT11\Core\DXUTDevice9.cpp">
-      <Filter>DXUT</Filter>
-    </ClCompile>
-    <ClCompile Include="DXUT11\Core\DXUTmisc.cpp">
-      <Filter>DXUT</Filter>
-    </ClCompile>
-    <ClCompile Include="DXUT11\Optional\DXUTcamera.cpp">
-      <Filter>DXUT</Filter>
-    </ClCompile>
-    <ClCompile Include="DXUT11\Optional\DXUTgui.cpp">
-      <Filter>DXUT</Filter>
-    </ClCompile>
-    <ClCompile Include="DXUT11\Optional\DXUTres.cpp">
-      <Filter>DXUT</Filter>
-    </ClCompile>
-    <ClCompile Include="DXUT11\Optional\DXUTsettingsdlg.cpp">
-      <Filter>DXUT</Filter>
-    </ClCompile>
-    <ClCompile Include="DXUT11\Optional\SDKmesh.cpp">
-      <Filter>DXUT</Filter>
-    </ClCompile>
-    <ClCompile Include="DXUT11\Optional\SDKmisc.cpp">
-      <Filter>DXUT</Filter>
-    </ClCompile>
     <ClCompile Include="BoundingBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

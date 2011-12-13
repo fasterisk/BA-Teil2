@@ -1,29 +1,10 @@
-// Include the OS headers
-//-----------------------
-#include <windows.h>
-#include <atlbase.h>
-#pragma warning( disable: 4996 )
-#include <strsafe.h>
-#pragma warning( default: 4996 )
-// Include the D3D11 headers
-//--------------------------
-#include <d3d11.h>
-#include <d3dx11.h>
-
-#include "DXUT.h"
-#include "DXUTgui.h"
-#include "DXUTsettingsDlg.h"
-#include "SDKmisc.h"
-#include "SDKMesh.h"
+#include "Globals.h"
 
 #include "Surface.h"
 #include "BoundingBox.h"
 #include "Scene.h"
 
-#include <string>
-#include <stdlib.h>
-#include <stdio.h>
-#include <iostream>
+
 
 Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext)
 	: m_pd3dDevice(pd3dDevice), m_pd3dImmediateContext(pd3dImmediateContext)

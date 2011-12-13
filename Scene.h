@@ -1,6 +1,3 @@
-#pragma once
-
-#include "d3dx11effect.h"
 
 class Surface;
 class BoundingBox;

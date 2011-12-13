@@ -1,20 +1,4 @@
-//--------------------------------------------------------------------------------------
-// File: BasicHLSL11.cpp
-//
-// This sample shows a simple example of the Microsoft Direct3D's High-Level 
-// Shader Language (HLSL) using the Effect interface. 
-//
-// Copyright (c) Microsoft Corporation. All rights reserved.
-//--------------------------------------------------------------------------------------
 #include "Globals.h"
-#include <d3d11.h>
-#include <d3dx11.h>
-#include "DXUT.h"
-#include "DXUTcamera.h"
-#include "DXUTgui.h"
-#include "DXUTsettingsDlg.h"
-#include "SDKmisc.h"
-#include "SDKMesh.h"
 #include "Scene.h"
 #include "resource.h"
 #include <string>

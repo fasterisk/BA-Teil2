@@ -10,6 +10,25 @@
 #include <strsafe.h>
 #pragma warning( default: 4996 )
 
+// Include the D3D11 and effects headers
+//--------------------------
+#include <d3d11.h>
+#include <d3dx11.h>
+#include "d3dx11effect.h"
+
+// Include the DXUT headers
+#include "DXUT.h"
+#include "DXUTcamera.h"
+#include "DXUTgui.h"
+#include "DXUTsettingsDlg.h"
+#include "SDKmisc.h"
+#include "SDKMesh.h"
+
+#include <string>
+#include <stdlib.h>
+#include <stdio.h>
+#include <iostream>
+
 
 #define WIDEN( w ) WIDEN2( w )
 #define WIDEN2( w )	L ##w
