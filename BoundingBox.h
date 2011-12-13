@@ -11,22 +11,36 @@ public:
         NUM_RENDER_TARGETS
     };
 	
-	BoundingBox(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect, Surface* pSurface1, Surface* pSurface2);
+	BoundingBox(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect);
 	~BoundingBox();
 	
+	HRESULT InitSurfaces();
 	HRESULT InitBuffers();
-	HRESULT UpdateVertexBuffer();
-	
-	HRESULT InitRenderTargets(int iWidth, int iHeight, int iDepth);
+	HRESULT InitRasterizerStates();
 	HRESULT InitTechniques();
+	HRESULT InitRenderTargets(int iWidth, int iHeight, int iDepth);
+	
+	HRESULT UpdateVertexBuffer();
 	
 	void Render(D3DXMATRIX mViewProjection);
 
+	void ChangeControlledSurface();
+	void CSTranslate(float fX, float fY, float fZ);
+	void CSRotateX(float fFactor);
+	void CSRotateY(float fFactor);
+	void CSScale(float fFactor);
+
 protected:
-	Surface* m_pSurface1;
-	Surface* m_pSurface2;
+	Surface*	m_pSurface1;
+	Surface*	m_pSurface2;
+	Surface*	m_pControlledSurface;
+	bool		m_bSurface1IsControlled;
 
 	VERTEX *m_pVertices;
+
+	// Rasterizer states
+	ID3D11RasterizerState*			m_pRasterizerStateSolid;
+	ID3D11RasterizerState*			m_pRasterizerStateWireframe;
 
 	ID3D11Buffer *m_pVertexBuffer;
 	ID3D11Buffer *m_pIndexBuffer;

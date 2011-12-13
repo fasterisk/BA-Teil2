@@ -14,8 +14,7 @@ public:
 
 	HRESULT InitShaders();
 
-	HRESULT InitRasterizerStates();
-	HRESULT InitSurfaces(int iTexWidth, int iTexHeight, int iTexDepth);
+	HRESULT InitBoundingBox(int iTexWidth, int iTexHeight, int iTexDepth);
 
 	void Render(D3DXMATRIX mViewProjection);
 
@@ -33,18 +32,8 @@ protected:
 
 	// Effects and techniques
 	ID3DX11Effect*					m_pEffect;
-
-	// Rasterizer states
-	ID3D11RasterizerState*			m_pRasterizerStateSolid;
-	ID3D11RasterizerState*			m_pRasterizerStateWireframe;
 	
-	// Surfaces
-	Surface*						m_pSurface1;
-	Surface*						m_pSurface2;
-	Surface*						m_pControlledSurface;
-	bool							m_bSurface1IsControlled;
-	
-	// Bounding Box
+	// Bounding Box (contains surfaces)
 	BoundingBox*					m_pBoundingBox;
 
 	HRESULT CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect);

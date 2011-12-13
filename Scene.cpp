@@ -33,11 +33,7 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 Scene::~Scene()
 {
 	SAFE_RELEASE(m_pEffect);
-	SAFE_RELEASE(m_pRasterizerStateSolid);
-	SAFE_RELEASE(m_pRasterizerStateWireframe);
-	
-	SAFE_DELETE(m_pSurface1);
-	SAFE_DELETE(m_pSurface2);
+
 	SAFE_DELETE(m_pBoundingBox);
 }
 
@@ -52,51 +48,19 @@ HRESULT Scene::InitShaders()
 	return S_OK;
 }
 
-HRESULT Scene::InitRasterizerStates()
+
+
+HRESULT Scene::InitBoundingBox(int iTexWidth, int iTexHeight, int iTexDepth)
 {
 	HRESULT hr;
-
-	// Create solid and wireframe rasterizer state objects
-    D3D11_RASTERIZER_DESC RasterDesc;
-    ZeroMemory( &RasterDesc, sizeof(D3D11_RASTERIZER_DESC) );
-    RasterDesc.FillMode = D3D11_FILL_SOLID;
-    RasterDesc.CullMode = D3D11_CULL_NONE;
-    RasterDesc.DepthClipEnable = TRUE;
-    V_RETURN( m_pd3dDevice->CreateRasterizerState( &RasterDesc, &m_pRasterizerStateSolid ) );
-    DXUT_SetDebugName( m_pRasterizerStateSolid, "Solid" );
-
-    RasterDesc.FillMode = D3D11_FILL_WIREFRAME;
-    V_RETURN( m_pd3dDevice->CreateRasterizerState( &RasterDesc, &m_pRasterizerStateWireframe ) );
-    DXUT_SetDebugName( m_pRasterizerStateWireframe, "Wireframe" );
-
-	return S_OK;
-}
-
-HRESULT Scene::InitSurfaces(int iTexWidth, int iTexHeight, int iTexDepth)
-{
-	HRESULT hr;
-
-	// Create surface1 and its buffers
-	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pEffect);
-	m_pSurface1->ReadVectorFile("Media\\surface1.xml");
-	V_RETURN(m_pSurface1->InitBuffers());
-	V_RETURN(m_pSurface1->InitTechniques());
-    
-	// Create surface2 and its buffers
-	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pEffect);
-	m_pSurface2->ReadVectorFile("Media\\surface1.xml");
-	m_pSurface2->SetColor(1.0, 1.0, 1.0);
-	V_RETURN(m_pSurface2->InitBuffers());
-	V_RETURN(m_pSurface2->InitTechniques());
-	m_pSurface2->Scale(0.5);
 
 	// Create bounding box
-	m_pBoundingBox = new BoundingBox(m_pd3dDevice, m_pd3dImmediateContext, m_pEffect, m_pSurface1, m_pSurface2);
+	m_pBoundingBox = new BoundingBox(m_pd3dDevice, m_pd3dImmediateContext, m_pEffect);
+	V_RETURN(m_pBoundingBox->InitSurfaces());
 	V_RETURN(m_pBoundingBox->InitBuffers());
+	V_RETURN(m_pBoundingBox->InitRasterizerStates());
 	V_RETURN(m_pBoundingBox->InitTechniques());
 	V_RETURN(m_pBoundingBox->InitRenderTargets(iTexWidth, iTexHeight, iTexDepth));
-
-	m_pControlledSurface = m_pSurface1;
 
 	return S_OK;
 }
@@ -105,42 +69,33 @@ void Scene::Render(D3DXMATRIX mViewProjection)
 {
 	m_pBoundingBox->UpdateVertexBuffer();
 		
-	m_pSurface1->Render(mViewProjection);
-	m_pSurface2->Render(mViewProjection);
-
-	m_pd3dImmediateContext->RSSetState(m_pRasterizerStateWireframe);
+	
 	m_pBoundingBox->Render(mViewProjection);
-	m_pd3dImmediateContext->RSSetState(m_pRasterizerStateSolid); 
 }
 
 void Scene::ChangeControlledSurface()
 {
-	if(m_bSurface1IsControlled)
-		m_pControlledSurface = m_pSurface2;
-	else
-		m_pControlledSurface = m_pSurface1;
-
-	m_bSurface1IsControlled = !m_bSurface1IsControlled;
+	m_pBoundingBox->ChangeControlledSurface();
 }
 
 void Scene::Translate(float fX, float fY, float fZ)
 {
-	m_pControlledSurface->Translate(fX, fY, fZ);
+	m_pBoundingBox->CSTranslate(fX, fY, fZ);
 }
 
 void Scene::RotateX(float fFactor)
 {
-	m_pControlledSurface->RotateX(fFactor);
+	m_pBoundingBox->CSRotateX(fFactor);
 }
 
 void Scene::RotateY(float fFactor)
 {
-	m_pControlledSurface->RotateY(fFactor);
+	m_pBoundingBox->CSRotateY(fFactor);
 }
 
 void Scene::Scale(float fFactor)
 {
-	m_pControlledSurface->Scale(fFactor);
+	m_pBoundingBox->CSScale(fFactor);
 }
 
 

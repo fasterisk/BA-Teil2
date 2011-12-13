@@ -406,8 +406,7 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 
     g_pScene = new Scene(pd3dDevice, pd3dImmediateContext);
 	V_RETURN(g_pScene->InitShaders());
-	V_RETURN(g_pScene->InitRasterizerStates());
-	V_RETURN(g_pScene->InitSurfaces(g_iTextureWidth, g_iTextureHeight, g_iTextureDepth));
+	V_RETURN(g_pScene->InitBoundingBox(g_iTextureWidth, g_iTextureHeight, g_iTextureDepth));
 
     return S_OK;
 }

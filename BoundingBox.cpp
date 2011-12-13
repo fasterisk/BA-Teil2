@@ -25,14 +25,11 @@
 #include "BoundingBox.h"
 
 
-BoundingBox::BoundingBox(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect, Surface* pSurface1, Surface* pSurface2)
+BoundingBox::BoundingBox(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect)
 {
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dImmediateContext = pd3dImmediateContext;
 	m_pEffect = pEffect;
-
-	m_pSurface1 = pSurface1;
-	m_pSurface2 = pSurface2;
 
 	memset(m_pRenderTargets3D, 0, sizeof(m_pRenderTargets3D));
     memset(m_pShaderResourceVariables, 0, sizeof(m_pShaderResourceVariables));
@@ -47,6 +44,12 @@ BoundingBox::~BoundingBox()
 	SAFE_RELEASE(m_pIndexBuffer);
 
 	SAFE_DELETE(m_pVertices);
+	
+	SAFE_RELEASE(m_pRasterizerStateSolid);
+	SAFE_RELEASE(m_pRasterizerStateWireframe);
+	
+	SAFE_DELETE(m_pSurface1);
+	SAFE_DELETE(m_pSurface2);
 
 	for(int i=0;i<NUM_RENDER_TARGETS;i++)
     {
@@ -54,6 +57,49 @@ BoundingBox::~BoundingBox()
         SAFE_RELEASE(m_pRenderTargetShaderViews[i]);
         SAFE_RELEASE(m_pRenderTargetViews[i]);
     }
+}
+
+HRESULT BoundingBox::InitSurfaces()
+{
+	HRESULT hr;
+
+	// Create surface1 and its buffers
+	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pEffect);
+	m_pSurface1->ReadVectorFile("Media\\surface1.xml");
+	V_RETURN(m_pSurface1->InitBuffers());
+	V_RETURN(m_pSurface1->InitTechniques());
+    
+	// Create surface2 and its buffers
+	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pEffect);
+	m_pSurface2->ReadVectorFile("Media\\surface1.xml");
+	m_pSurface2->SetColor(1.0, 1.0, 1.0);
+	V_RETURN(m_pSurface2->InitBuffers());
+	V_RETURN(m_pSurface2->InitTechniques());
+	m_pSurface2->Scale(0.5);
+
+	m_pControlledSurface = m_pSurface1;
+
+	return S_OK;
+}
+
+HRESULT BoundingBox::InitRasterizerStates()
+{
+	HRESULT hr;
+
+	// Create solid and wireframe rasterizer state objects
+    D3D11_RASTERIZER_DESC RasterDesc;
+    ZeroMemory( &RasterDesc, sizeof(D3D11_RASTERIZER_DESC) );
+    RasterDesc.FillMode = D3D11_FILL_SOLID;
+    RasterDesc.CullMode = D3D11_CULL_NONE;
+    RasterDesc.DepthClipEnable = TRUE;
+    V_RETURN( m_pd3dDevice->CreateRasterizerState( &RasterDesc, &m_pRasterizerStateSolid ) );
+    DXUT_SetDebugName( m_pRasterizerStateSolid, "Solid" );
+
+    RasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+    V_RETURN( m_pd3dDevice->CreateRasterizerState( &RasterDesc, &m_pRasterizerStateWireframe ) );
+    DXUT_SetDebugName( m_pRasterizerStateWireframe, "Wireframe" );
+
+	return S_OK;
 }
 
 HRESULT BoundingBox::InitBuffers()
@@ -289,6 +335,11 @@ HRESULT BoundingBox::UpdateVertexBuffer()
 
 void BoundingBox::Render(D3DXMATRIX mViewProjection)
 {
+	m_pSurface1->Render(mViewProjection);
+	m_pSurface2->Render(mViewProjection);
+
+	m_pd3dImmediateContext->RSSetState(m_pRasterizerStateWireframe);
+
 	MVPMatrixShaderVariable->SetMatrix(mViewProjection);
 
 	UINT stride = sizeof(VERTEX);
@@ -308,6 +359,9 @@ void BoundingBox::Render(D3DXMATRIX mViewProjection)
 		//draw
 		m_pd3dImmediateContext->DrawIndexed( 36, 0, 0 );
 	}
+
+	m_pd3dImmediateContext->RSSetState(m_pRasterizerStateSolid); 
+
 }
 
 
@@ -379,6 +433,37 @@ HRESULT BoundingBox::InitTechniques()
 
 	return S_OK;
 }
+
+void BoundingBox::ChangeControlledSurface()
+{
+	if(m_bSurface1IsControlled)
+		m_pControlledSurface = m_pSurface2;
+	else
+		m_pControlledSurface = m_pSurface1;
+
+	m_bSurface1IsControlled = !m_bSurface1IsControlled;
+}
+
+void BoundingBox::CSTranslate(float fX, float fY, float fZ)
+{
+	m_pControlledSurface->Translate(fX, fY, fZ);
+}
+
+void BoundingBox::CSRotateX(float fFactor)
+{
+	m_pControlledSurface->RotateX(fFactor);
+}
+
+void BoundingBox::CSRotateY(float fFactor)
+{
+	m_pControlledSurface->RotateY(fFactor);
+}
+
+void BoundingBox::CSScale(float fFactor)
+{
+	m_pControlledSurface->Scale(fFactor);
+}
+
 
 HRESULT BoundingBox::CreateRenderTarget(int rtIndex, D3D11_TEXTURE3D_DESC desc)
 {
