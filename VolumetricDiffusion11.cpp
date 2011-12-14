@@ -385,10 +385,9 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     ID3D11DeviceContext* pd3dImmediateContext = DXUTGetD3D11DeviceContext();
     V_RETURN( g_DialogResourceManager.OnD3D11CreateDevice( pd3dDevice, pd3dImmediateContext ) );
     V_RETURN( g_D3DSettingsDlg.OnD3D11CreateDevice( pd3dDevice ) );
-	//g_DialogResourceManager.AddFont(L"Arial", 15, 0);
 	g_pTxtHelper = new CDXUTTextHelper( pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15 );
-
-    g_pScene = new Scene(pd3dDevice, pd3dImmediateContext);
+    
+	g_pScene = new Scene(pd3dDevice, pd3dImmediateContext);
 	V_RETURN(g_pScene->InitShaders());
 	V_RETURN(g_pScene->InitBoundingBox(g_iTextureWidth, g_iTextureHeight, g_iTextureDepth));
 
