@@ -68,5 +68,8 @@
     <None Include="DiffusionShader11.fx">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="VolumeRenderer.fx">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -387,12 +387,12 @@ HRESULT BoundingBox::InitTechniques()
 	
 	Technique = m_pEffect->GetTechniqueByName("Main");
 
-	D3DX11_PASS_SHADER_DESC effectVsDesc;
-	Technique->GetPassByIndex(0)->GetVertexShaderDesc(&effectVsDesc);
-	D3DX11_EFFECT_SHADER_DESC effectVsDesc2;
-	effectVsDesc.pShaderVariable->GetShaderDesc(effectVsDesc.ShaderIndex, &effectVsDesc2);
-	const void *vsCodePtr = effectVsDesc2.pBytecode;
-	unsigned vsCodeLen = effectVsDesc2.BytecodeLength;
+	D3DX11_PASS_SHADER_DESC passVsDesc;
+	Technique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
+	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
+	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
+	const void *vsCodePtr = effectVsDesc.pBytecode;
+	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
 
 	// Create our vertex input layout
     D3D11_INPUT_ELEMENT_DESC layout[] =
@@ -400,10 +400,8 @@ HRESULT BoundingBox::InitTechniques()
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
-	UINT numElements = 2;
 
 	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pInputLayout));
-	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
 
 	MVPMatrixShaderVariable = m_pEffect->GetVariableByName("g_mModelViewProjection")->AsMatrix();
 	TextureWidthShaderVariable = m_pEffect->GetVariableByName( "textureWidth")->AsScalar();

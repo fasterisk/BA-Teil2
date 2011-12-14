@@ -407,6 +407,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DiffusionShader11.fx" />
+    <None Include="VolumeRenderer.fx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
