@@ -1,6 +1,7 @@
-
 class Surface;
 class BoundingBox;
+class VolumeRenderer;
+class TextureGrid;
 
 
 class Scene {
@@ -9,9 +10,8 @@ public:
 	Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext);
 	~Scene();
 
-	HRESULT InitShaders();
-
-	HRESULT InitBoundingBox(int iTexWidth, int iTexHeight, int iTexDepth);
+	HRESULT Initialize(int iTexWidth, int iTexHeight, int iTexDepth);
+	HRESULT SetScreenSize(int iWidth, int iHeight);
 
 	void Render(D3DXMATRIX mViewProjection);
 
@@ -24,14 +24,17 @@ public:
 
 protected:
 	// Device
-	ID3D11Device*					m_pd3dDevice;
-	ID3D11DeviceContext*			m_pd3dImmediateContext;
+	ID3D11Device*			m_pd3dDevice;
+	ID3D11DeviceContext*	m_pd3dImmediateContext;
 
-	// Effects and techniques
-	ID3DX11Effect*					m_pEffect;
+	// TextureGrid
+	TextureGrid*			m_pTextureGrid;
+
+	// VolumeRenderer
+	VolumeRenderer*			m_pVolumeRenderer;
 	
 	// Bounding Box (contains surfaces)
-	BoundingBox*					m_pBoundingBox;
+	BoundingBox*			m_pBoundingBox;
 
 	HRESULT CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect);
 	HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut );

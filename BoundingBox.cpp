@@ -22,6 +22,8 @@ BoundingBox::~BoundingBox()
 	SAFE_RELEASE(m_pVertexBuffer);
 	SAFE_RELEASE(m_pIndexBuffer);
 
+	SAFE_RELEASE(m_pEffect);
+
 	SAFE_DELETE(m_pVertices);
 	
 	SAFE_RELEASE(m_pRasterizerStateSolid);

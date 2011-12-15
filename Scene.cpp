@@ -1,8 +1,11 @@
 #include "Globals.h"
 
+#include "Scene.h"
+
 #include "Surface.h"
 #include "BoundingBox.h"
-#include "Scene.h"
+#include "VolumeRenderer.h"
+#include "TextureGrid.h"
 
 
 
@@ -13,37 +16,50 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 
 Scene::~Scene()
 {
-	SAFE_RELEASE(m_pEffect);
-
 	SAFE_DELETE(m_pBoundingBox);
+	SAFE_DELETE(m_pTextureGrid);
+	SAFE_DELETE(m_pVolumeRenderer);
 }
 
 
-HRESULT Scene::InitShaders()
+HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 {
 	HRESULT hr;
+
+	// Initialize Shaders
     WCHAR str[MAX_PATH];
-	V_RETURN( DXUTFindDXSDKMediaFileCch( str, MAX_PATH, L"DiffusionShader11.fx" ) );
-    V_RETURN(CreateEffect(str, &m_pEffect));
 
-	return S_OK;
-}
+	ID3DX11Effect*	pDiffusionEffect;
+	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"DiffusionShader11.fx"));
+    V_RETURN(CreateEffect(str, &pDiffusionEffect));
 
+	ID3DX11Effect*	pVolumeRenderEffect;
+	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"VolumeRenderer.fx"));
+	V_RETURN(CreateEffect(str, &pVolumeRenderEffect));
 
-
-HRESULT Scene::InitBoundingBox(int iTexWidth, int iTexHeight, int iTexDepth)
-{
-	HRESULT hr;
-
-	// Create bounding box
-	m_pBoundingBox = new BoundingBox(m_pd3dDevice, m_pd3dImmediateContext, m_pEffect);
+	// Initialize BoundingBox
+	m_pBoundingBox = new BoundingBox(m_pd3dDevice, m_pd3dImmediateContext, pDiffusionEffect);
 	V_RETURN(m_pBoundingBox->InitSurfaces());
 	V_RETURN(m_pBoundingBox->InitBuffers());
 	V_RETURN(m_pBoundingBox->InitRasterizerStates());
 	V_RETURN(m_pBoundingBox->InitTechniques());
 	V_RETURN(m_pBoundingBox->InitRenderTargets(iTexWidth, iTexHeight, iTexDepth));
 
+	// Initialize TextureGrid
+	m_pTextureGrid = new TextureGrid(m_pd3dDevice, m_pd3dImmediateContext);
+	V_RETURN(m_pTextureGrid->Initialize(iTexWidth, iTexHeight, iTexDepth, pDiffusionEffect->GetTechniqueByName("Grid")));
+
+	// Initialize VolumeRenderer
+	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, pVolumeRenderEffect);
+	V_RETURN(m_pVolumeRenderer->Initialize(iTexWidth, iTexHeight, iTexDepth));
+
+
 	return S_OK;
+}
+
+HRESULT Scene::SetScreenSize(int iWidth, int iHeight)
+{
+    return m_pVolumeRenderer->SetScreenSize(iWidth, iHeight);
 }
 
 void Scene::Render(D3DXMATRIX mViewProjection)

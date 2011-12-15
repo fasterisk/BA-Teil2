@@ -11,10 +11,60 @@ VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dImmediateContext = pd3dImmediateContext;
 	m_pEffect = pEffect;
+
+	memset(m_vGridDim,0, sizeof(m_vGridDim));
+    memset(pRayDataTex2D, 0, sizeof(pRayDataTex2D));
+    memset(pRayDataRTV, 0, sizeof(pRayDataRTV));
+    memset(pRayDataSRV, 0, sizeof(pRayDataSRV));
+
+	pQuadVertexBuffer = NULL;
+	pQuadLayout = NULL;
+	
+	pRayDataTex2D[0] = NULL;
+    pRayDataTex2D[1] = NULL;
+    pRayDataSRV[0] = NULL;
+    pRayDataSRV[1] = NULL;
+    pRayDataRTV[0] = NULL;
+    pRayDataRTV[1] = NULL;
+    pRayDataSmallTex2D = NULL;
+    pRayDataSmallRTV = NULL;
+    pRayDataSmallSRV = NULL;
+    pRayCastTex2D = NULL;
+    pRayCastSRV = NULL;
+    pRayCastRTV = NULL;
+    pEdgeTex2D = NULL;
+    pEdgeSRV = NULL;
+    pEdgeRTV = NULL;
+
+    D3DXMatrixIdentity(&m_mGridMatrix);
 }
 
 VolumeRenderer::~VolumeRenderer()
 {
+	SAFE_RELEASE(m_pEffect);
+    
+    SAFE_RELEASE(pGridBoxLayout);
+    SAFE_RELEASE(pGridBoxVertexBuffer);
+    SAFE_RELEASE(pGridBoxIndexBuffer);
+    
+    SAFE_RELEASE(pQuadLayout);
+    SAFE_RELEASE(pQuadVertexBuffer);
+  
+    SAFE_RELEASE(pRayDataTex2D[0]);
+    SAFE_RELEASE(pRayDataTex2D[1]);
+    SAFE_RELEASE(pRayDataSRV[0]);
+    SAFE_RELEASE(pRayDataSRV[1]);
+    SAFE_RELEASE(pRayDataRTV[0]);
+    SAFE_RELEASE(pRayDataRTV[1]);
+    SAFE_RELEASE(pRayDataSmallTex2D);
+    SAFE_RELEASE(pRayDataSmallRTV);
+    SAFE_RELEASE(pRayDataSmallSRV);
+    SAFE_RELEASE(pRayCastTex2D);
+    SAFE_RELEASE(pRayCastSRV);
+    SAFE_RELEASE(pRayCastRTV);
+    SAFE_RELEASE(pEdgeTex2D); 
+    SAFE_RELEASE(pEdgeSRV);
+    SAFE_RELEASE(pEdgeRTV);
 }
 
 HRESULT VolumeRenderer::Initialize(int gridWidth, int gridHeight, int gridDepth)
@@ -286,7 +336,7 @@ HRESULT VolumeRenderer::CreateGridBox()
 }
 
 
-HRESULT VolumeRenderer::CreateScreenQuad(void ) 
+HRESULT VolumeRenderer::CreateScreenQuad() 
 {
     HRESULT hr;
     // Create our quad input layout
@@ -350,7 +400,7 @@ HRESULT VolumeRenderer::CreateRayDataResources( int width, int height )
     SAFE_RELEASE(pEdgeTex2D);
     SAFE_RELEASE(pEdgeSRV);
     SAFE_RELEASE(pEdgeRTV);
-
+	
 
     // find a good resolution for raycasting purposes
     CalculateRenderTextureSize(width, height);

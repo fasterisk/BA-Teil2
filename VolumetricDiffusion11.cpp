@@ -15,6 +15,10 @@ CDXUTDialog                 g_SampleUI;             // dialog for sample specifi
 // Scene
 Scene*						g_pScene;
 
+// Window Dimensions
+int							g_Width = 800;
+int							g_Height = 600;
+
 // Control parameters
 int							g_mouseX = 0;
 int							g_mouseY = 0;
@@ -101,7 +105,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
     DXUTInit( true, true, NULL ); // Parse the command line, show msgboxes on error, no extra command line params
     DXUTSetCursorSettings( true, true ); // Show the cursor and clip it when in full screen
     DXUTCreateWindow( L"Volumetric Diffusion" );
-    DXUTCreateDevice (D3D_FEATURE_LEVEL_11_0, true, 800, 600 );
+	DXUTCreateDevice (D3D_FEATURE_LEVEL_11_0, true, g_Width, g_Height);
     DXUTMainLoop(); // Enter into the DXUT render loop
 
     return DXUTGetExitCode();
@@ -388,9 +392,8 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	g_pTxtHelper = new CDXUTTextHelper( pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15 );
     
 	g_pScene = new Scene(pd3dDevice, pd3dImmediateContext);
-	V_RETURN(g_pScene->InitShaders());
-	V_RETURN(g_pScene->InitBoundingBox(g_iTextureWidth, g_iTextureHeight, g_iTextureDepth));
-
+	V_RETURN(g_pScene->Initialize(g_iTextureWidth, g_iTextureHeight, g_iTextureDepth));
+	V_RETURN(g_pScene->SetScreenSize(g_Width, g_Height));
     return S_OK;
 }
 
