@@ -27,9 +27,6 @@ protected:
 	ID3D11Device*			m_pd3dDevice;
 	ID3D11DeviceContext*	m_pd3dImmediateContext;
 
-	// TextureGrid
-	TextureGrid*			m_pTextureGrid;
-
 	// VolumeRenderer
 	VolumeRenderer*			m_pVolumeRenderer;
 	

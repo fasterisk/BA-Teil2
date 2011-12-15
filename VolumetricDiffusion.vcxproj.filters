@@ -38,6 +38,9 @@
     <ClInclude Include="TextureGrid.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Voxelizer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BoundingBox.cpp">
@@ -58,6 +61,9 @@
     <ClCompile Include="TextureGrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Voxelizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VolumetricDiffusion.rc">
@@ -69,6 +75,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="VolumeRenderer.fx">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Voxelizer.fx">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

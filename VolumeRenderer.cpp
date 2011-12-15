@@ -101,7 +101,7 @@ HRESULT VolumeRenderer::Initialize(int gridWidth, int gridHeight, int gridDepth)
     V_RETURN(CreateGridBox());
     V_RETURN(CreateScreenQuad());
 
- //   V_RETURN(createJitterTexture());
+    //V_RETURN(CreateJitterTexture());
  //   V_RETURN(loadTextureFromFile(L"..\\..\\Media\\FireTransferFunction.dds","fireTransferFunction",m_pD3DDevice,pEffect));
 
 

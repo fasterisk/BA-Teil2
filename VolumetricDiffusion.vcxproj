@@ -393,14 +393,18 @@
     <ClInclude Include="Surface.h" />
     <ClInclude Include="TextureGrid.h" />
     <ClInclude Include="VolumeRenderer.h" />
+    <ClInclude Include="Voxelizer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="TextureGrid.cpp" />
-    <ClCompile Include="VolumeRenderer.cpp" />
+    <ClCompile Include="VolumeRenderer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="VolumetricDiffusion11.cpp" />
+    <ClCompile Include="Voxelizer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VolumetricDiffusion.rc" />
@@ -408,6 +412,7 @@
   <ItemGroup>
     <None Include="DiffusionShader11.fx" />
     <None Include="VolumeRenderer.fx" />
+    <None Include="Voxelizer.fx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

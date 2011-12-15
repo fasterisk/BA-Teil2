@@ -1,4 +1,6 @@
 
+class Voxelizer;
+
 class BoundingBox {
 public:
 	enum RENDER_TARGET
@@ -8,15 +10,11 @@ public:
         NUM_RENDER_TARGETS
     };
 	
-	BoundingBox(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect);
+	BoundingBox(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect, VolumeRenderer* pVolumeRenderer);
 	~BoundingBox();
 	
-	HRESULT InitSurfaces();
-	HRESULT InitBuffers();
-	HRESULT InitRasterizerStates();
-	HRESULT InitTechniques();
-	HRESULT InitRenderTargets(int iWidth, int iHeight, int iDepth);
-	
+	HRESULT Initialize(int iWidth, int iHeight, int iDepth);
+
 	HRESULT UpdateVertexBuffer();
 	
 	void Render(D3DXMATRIX mViewProjection);
@@ -28,10 +26,27 @@ public:
 	void CSScale(float fFactor);
 
 protected:
+
+	HRESULT InitSurfaces();
+	HRESULT InitBuffers();
+	HRESULT InitRasterizerStates();
+	HRESULT InitTechniques();
+	HRESULT InitRenderTargets(int iWidth, int iHeight, int iDepth);
+
+
 	Surface*	m_pSurface1;
 	Surface*	m_pSurface2;
 	Surface*	m_pControlledSurface;
 	bool		m_bSurface1IsControlled;
+
+	// TextureGrid
+	TextureGrid*			m_pTextureGrid;
+
+	// Voxelizer
+	Voxelizer*				m_pVoxelizer;
+
+	// Volume Renderer
+	VolumeRenderer*			m_pVolumeRenderer;
 
 	VERTEX *m_pVertices;
 
@@ -54,11 +69,14 @@ protected:
 	ID3D11RenderTargetView*					m_pRenderTargetViews[NUM_RENDER_TARGETS];
 	ID3DX11EffectShaderResourceVariable*	m_pShaderResourceVariables[NUM_RENDER_TARGETS];
 
+	// TEST
+	ID3D11Texture3D*						m_pSurface1Texture3D;
+
 	ID3D11Device*					m_pd3dDevice;
 	ID3D11DeviceContext*			m_pd3dImmediateContext;
 
 	ID3DX11Effect*					m_pEffect;
-	ID3DX11EffectTechnique*			Technique;
+	ID3DX11EffectTechnique*			m_TechniqueRenderSurfacesToTexture;
 	ID3D11InputLayout*				m_pInputLayout;
 
 	// Effect variables

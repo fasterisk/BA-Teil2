@@ -3,11 +3,10 @@
 #include "Surface.h"
 
 
-Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect)
+Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext)
 {
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dImmediateContext = pd3dImmediateContext;
-	m_pEffect = pEffect;
 	
 
 	D3DXMatrixIdentity(&m_mModel);
@@ -21,8 +20,6 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 
 Surface::~Surface()
 {
-	SAFE_RELEASE(m_pInputLayout);
-
 	SAFE_RELEASE(m_pVertexBuffer);
 	SAFE_RELEASE(m_pIndexBuffer);
 
@@ -120,37 +117,11 @@ HRESULT Surface::InitBuffers()
 	return S_OK;
 }
 
-HRESULT Surface::InitTechniques()
-{
-	HRESULT hr;
-	
-	Technique = m_pEffect->GetTechniqueByName("Main");
-
-	D3DX11_PASS_SHADER_DESC passVsDesc;
-	Technique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
-	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
-	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
-	const void *vsCodePtr = effectVsDesc.pBytecode;
-	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
-
-	// Create our vertex input layout
-    D3D11_INPUT_ELEMENT_DESC layoutDesc[] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-    };
-
-	V_RETURN(m_pd3dDevice->CreateInputLayout(layoutDesc, _countof(layoutDesc), vsCodePtr, vsCodeLen, &m_pInputLayout));
-
-	MVPMatrixShaderVariable = m_pEffect->GetVariableByName("g_mModelViewProjection")->AsMatrix();
-	return S_OK;
-}
-
-void Surface::Render(D3DXMATRIX mViewProjection)
+void Surface::Render(ID3DX11EffectTechnique* pTechnique, ID3DX11EffectMatrixVariable* pWorldViewProjectionVar, D3DXMATRIX mViewProjection)
 {
 	D3DXMATRIX mModelViewProjection = m_mModel * mViewProjection;
 	
-	MVPMatrixShaderVariable->SetMatrix(mModelViewProjection);
+	pWorldViewProjectionVar->SetMatrix(mModelViewProjection);
 
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
@@ -160,12 +131,12 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 
 	
 	D3DX11_TECHNIQUE_DESC techDesc;
-	Technique->GetDesc(&techDesc);
+	pTechnique->GetDesc(&techDesc);
 
 	for( UINT p = 0; p < techDesc.Passes; ++p )
 	{
 		//apply technique
-		Technique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
+		pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 				
 		//draw
 		m_pd3dImmediateContext->DrawIndexed( 36, 0, 0 );

@@ -15,9 +15,28 @@ CDXUTDialog                 g_SampleUI;             // dialog for sample specifi
 // Scene
 Scene*						g_pScene;
 
-// Window Dimensions
+// Global variables
+bool						g_useFire;
 int							g_Width = 800;
 int							g_Height = 600;
+float						g_zNear;
+float						g_zFar;
+bool						g_renderGlow;
+float						g_glowContribution;
+float						g_finalIntensityScale; 
+float						g_finalAlphaScale;
+float						g_smokeColorMultiplier;   
+float						g_smokeAlphaMultiplier; 
+int							g_RednessFactor; 
+float						g_xyVelocityScale;
+float						g_zVelocityScale;
+D3DXMATRIX					g_View;
+D3DXMATRIX					g_Projection;
+float						g_Fovy;
+
+ID3D11ShaderResourceView*	g_pSceneDepthSRV;
+
+D3DXMATRIX                  g_gridWorld;
 
 // Control parameters
 int							g_mouseX = 0;

@@ -13,6 +13,11 @@ public:
 	HRESULT Initialize(int iTextureWidth, int iTextureHeight, int iTextureDepth, ID3DX11EffectTechnique* pTechnique);
 
 	void DrawSlices();
+
+	int m_iTextureWidth;
+	int m_iTextureHeight;
+	int m_iTextureDepth;
+	int m_iMaxDim;
     
     /*int  GetCols(){return m_iCols;};
     int  GetRows(){return m_iRows;};*/
@@ -24,10 +29,7 @@ protected:
 	ID3D11InputLayout*      m_pLayout;
     ID3D11Buffer*           m_pSlicesBuffer;
 
-	int m_iTextureWidth;
-	int m_iTextureHeight;
-	int m_iTextureDepth;
-	int m_iMaxDim;
+
 
     int m_iNumVerticesSlices;
 	int m_iCols;

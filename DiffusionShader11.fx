@@ -14,7 +14,7 @@ float textureWidth;
 float textureDepth;
 
 //--------------------------------------------------------------------------------------
-// Pipeline State definitions
+// States
 //--------------------------------------------------------------------------------------
 SamplerState samLinear
 {
@@ -49,20 +49,28 @@ RasterizerState CullNone
     CullMode=None;
 };
 
+DepthStencilState EnableDepth
+{
+    DepthEnable = TRUE;
+    DepthWriteMask = ALL;
+    DepthFunc = LESS_EQUAL;
+};
+
+
 //--------------------------------------------------------------------------------------
 // Input / Output structures
 //--------------------------------------------------------------------------------------
-
-struct VS_OUTPUT
-{
-	float4 position	: SV_POSITION;
-	float4 color : COLOR;
-};
 
 struct VS_INPUT_DIFFUSE
 {
     float3 position          : POSITION;    // 2D slice vertex coordinates in clip space
     float3 textureCoords0    : TEXCOORD;    // 3D cell coordinates (x,y,z in 0-dimension range)
+};
+
+struct VS_OUTPUT
+{
+	float4 position	: SV_POSITION;
+	float4 color : COLOR;
 };
 
 struct VS_OUTPUT_DIFFUSE
@@ -184,18 +192,12 @@ float4 PS_GRID( GS_OUTPUT_DIFFUSE input ) : SV_Target
 
 
 //--------------------------------------------------------------------------------------
-// Techniques/states
+// Techniques
 //--------------------------------------------------------------------------------------
 
-DepthStencilState EnableDepth
-{
-    DepthEnable = TRUE;
-    DepthWriteMask = ALL;
-    DepthFunc = LESS_EQUAL;
-};
 
 
-technique11 Main
+technique11 RenderSurfacesToTexture
 {
 	pass P0
 	{
