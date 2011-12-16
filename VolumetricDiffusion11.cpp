@@ -465,6 +465,37 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
     pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 	
+	// Create a viewport to match the screen size
+    D3D11_VIEWPORT rtViewport;
+    rtViewport.TopLeftX = 0;
+    rtViewport.TopLeftY = 0;
+    rtViewport.MinDepth = 0;
+    rtViewport.MaxDepth = 1;
+    rtViewport.Width = g_Width;
+    rtViewport.Height = g_Height;
+
+    // If the settings dialog is being shown, then
+    //  render it instead of rendering the app's scene
+    if( g_D3DSettingsDlg.IsActive() )
+    {
+        // Set the viewport
+        pd3dImmediateContext->RSSetViewports(1,&rtViewport);
+        // Render the scene to the screen
+        pd3dImmediateContext->OMSetRenderTargets( 1, &pRTV , pDSV ); 
+        g_D3DSettingsDlg.OnRender( fElapsedTime );
+        pd3dImmediateContext->OMSetRenderTargets( 0, NULL, NULL );
+        return;
+    }
+
+	// Initialize the world matrices for the simulation Grid and the obstacle Mesh
+    //   Grid
+    D3DXMATRIX gridScale, gridRotate;
+    D3DXMatrixScaling(&gridScale, 20.0f, 20.0f, 20.0f );
+    D3DXMatrixRotationX(&gridRotate, 3.0f*3.1416f/2.0f);
+    g_gridWorld = gridScale * gridRotate;
+
+
+
 	D3DXMATRIX mViewProjection;
     D3DXMATRIX mProj = *g_Camera.GetProjMatrix();
     D3DXMATRIX mView = *g_Camera.GetViewMatrix();

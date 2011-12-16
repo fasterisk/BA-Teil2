@@ -71,6 +71,8 @@ protected:
 
 	// TEST
 	ID3D11Texture3D*						m_pSurface1Texture3D;
+	ID3D11ShaderResourceView*				m_pSurface1SRV;
+	D3D11_SHADER_RESOURCE_VIEW_DESC			SRVDesc;
 
 	ID3D11Device*					m_pd3dDevice;
 	ID3D11DeviceContext*			m_pd3dImmediateContext;

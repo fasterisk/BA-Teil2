@@ -84,6 +84,12 @@ HRESULT BoundingBox::InitSurfaces()
 
 	m_pControlledSurface = m_pSurface1;
 
+	ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
+    SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
+    SRVDesc.Texture3D.MipLevels = 1;
+    SRVDesc.Texture3D.MostDetailedMip = 0;
+	SRVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
 	return S_OK;
 }
 
@@ -242,11 +248,24 @@ HRESULT BoundingBox::InitBuffers()
 
 void BoundingBox::Render(D3DXMATRIX mViewProjection)
 {
-	D3DXMATRIX temp;
-	D3DXMatrixIdentity(&temp);
-	m_pVoxelizer->Voxelize(temp, m_pSurface1);
 
+	// Compute mesh-to-grid xform
+    D3DXMATRIX gridWorldInv;
+    D3DXMatrixInverse(&gridWorldInv, NULL, &g_gridWorld);
+        
+	m_pVoxelizer->Voxelize(gridWorldInv, m_pSurface1);
 	
+	
+	D3D11_TEXTURE3D_DESC desc;
+	m_pSurface1Texture3D->GetDesc(&desc);
+
+
+	m_pd3dDevice->CreateShaderResourceView( m_pSurface1Texture3D, &SRVDesc, &m_pSurface1SRV);
+
+	m_pVolumeRenderer->Draw(m_pSurface1SRV);
+
+	SAFE_RELEASE(m_pSurface1SRV);
+
 
 	/*m_pd3dImmediateContext->RSSetState(m_pRasterizerStateWireframe);
 

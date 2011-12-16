@@ -121,7 +121,7 @@ void Surface::Render(ID3DX11EffectTechnique* pTechnique, ID3DX11EffectMatrixVari
 {
 	D3DXMATRIX mModelViewProjection = m_mModel * mViewProjection;
 	
-	pWorldViewProjectionVar->SetMatrix(mModelViewProjection);
+	pWorldViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&mModelViewProjection));
 
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
