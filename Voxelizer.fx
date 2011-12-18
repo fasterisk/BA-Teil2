@@ -179,11 +179,11 @@ float4 PS_RESOLVE( GsResOutput input ) : SV_Target
 
 //--------------------------------------------------------------------------------------
 
-technique10 VoxelizeNZ
+technique11 VoxelizeNZ
 {
     pass NonZeroRule
     {
-        SetVertexShader( CompileShader(vs_4_0, VS_VOXELIZE()) );
+        SetVertexShader( CompileShader(vs_5_0, VS_VOXELIZE()) );
         SetGeometryShader( NULL );
         SetPixelShader( NULL );
         SetRasterizerState( RS_CullDisabled );
@@ -192,13 +192,13 @@ technique10 VoxelizeNZ
     }
 }
 
-technique10 VoxelizeResolveWithPS
+technique11 VoxelizeResolveWithPS
 {
     pass ResolveWithPS
     {
-        SetVertexShader( CompileShader( vs_4_0, VS_RESOLVE()) );
-        SetGeometryShader ( CompileShader(gs_4_0, GS_RESOLVE()) );
-        SetPixelShader(CompileShader( ps_4_0, PS_RESOLVE()) );
+        SetVertexShader( CompileShader( vs_5_0, VS_RESOLVE()) );
+        SetGeometryShader ( CompileShader(gs_5_0, GS_RESOLVE()) );
+        SetPixelShader(CompileShader( ps_5_0, PS_RESOLVE()) );
         SetRasterizerState( RS_CullDisabled );
         SetBlendState( BS_NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetDepthStencilState( DSS_Disabled, 0 );

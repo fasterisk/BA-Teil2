@@ -26,10 +26,6 @@ Texture2D   rayDataTex;
 Texture2D   rayDataTexSmall;
 Texture2D   rayCastTex;
 Texture2D   sceneDepthTex;
-Texture2D   edgeTex;
-Texture2D   jitterTex;
-Texture2D   fireTransferFunction;
-Texture2D   glowTex;
 
 //--------------------------------------------------------------------------------------
 // Variables
@@ -197,34 +193,6 @@ struct PS_INPUT_RAYCAST
 };
 
 
-struct VS_OUTPUT_EDGE
-{
-    // There's no textureUV11 because its weight is zero.
-    float4 position      : SV_Position;   // vertex position
-    float2 textureUV00   : TEXCOORD0;  // kernel tap texture coords 
-    float2 textureUV01   : TEXCOORD1;  // kernel tap texture coords 
-    float2 textureUV02   : TEXCOORD2;  // kernel tap texture coords 
-    float2 textureUV10   : TEXCOORD3;  // kernel tap texture coords 
-    float2 textureUV12   : TEXCOORD4;  // kernel tap texture coords 
-    float2 textureUV20   : TEXCOORD5;  // kernel tap texture coords 
-    float2 textureUV21   : TEXCOORD6;  // kernel tap texture coords 
-    float2 textureUV22   : TEXCOORD7;  // kernel tap texture coords 
-};
-
-struct VS_OUTPUT_GLOW_9
-{
-    float4 position    : SV_Position;   // vertex position
-    float2 textureM4   : TEXCOORD0;  // kernel tap texture coords 
-    float2 textureM3   : TEXCOORD1;  // kernel tap texture coords 
-    float2 textureM2   : TEXCOORD2;  // kernel tap texture coords 
-    float2 textureM1   : TEXCOORD3;  // kernel tap texture coords 
-    float2 texture0    : TEXCOORD4;  // kernel tap texture coords 
-    float2 textureP1   : TEXCOORD5;  // kernel tap texture coords 
-    float2 textureP2   : TEXCOORD6;  // kernel tap texture coords 
-    float2 textureP3   : TEXCOORD7;  // kernel tap texture coords
-    float2 textureP4   : TEXCOORD8;  // kernel tap texture coords  
-};
-
 //--------------------------------------------------------------------------------------
 // Vertex Shaders
 //--------------------------------------------------------------------------------------
@@ -250,79 +218,6 @@ PS_INPUT_RAYCAST VS_RAYCAST_QUAD (VS_INPUT input)
     PS_INPUT_RAYCAST output = (PS_INPUT_RAYCAST)0;
     output.pos = float4(input.pos,1);
     output.posInGrid = mul( float4( input.pos.xy*ZNear, 0, ZNear ), InvWorldViewProjection );
-    return output;
-}
-
-
-// A full-screen edge detection pass to locate artifacts
-VS_OUTPUT_EDGE VS_EDGE_DETECT( VS_INPUT input )
-{
-    VS_OUTPUT_EDGE output = (VS_OUTPUT_EDGE)0;
-    output.position = float4(input.pos,1);
-
-    float2 texelSize = 1.0 / float2(RTWidth,RTHeight);
-    float2 center = float2( (input.pos.x+1)/2.0 , 1.0 - (input.pos.y+1)/2.0 );
-
-    // Eight nearest neighbours needed for Sobel.
-    output.textureUV00 = center + float2(-texelSize.x, -texelSize.y);
-    output.textureUV01 = center + float2(-texelSize.x,  0);
-    output.textureUV02 = center + float2(-texelSize.x,  texelSize.y);
-
-    output.textureUV10 = center + float2(0, -texelSize.y);
-    output.textureUV12 = center + float2(0,  texelSize.y);
-
-    output.textureUV20 = center + float2(texelSize.x, -texelSize.y);
-    output.textureUV21 = center + float2(texelSize.x,  0);
-    output.textureUV22 = center + float2(texelSize.x,  texelSize.y);
-
-    return output;
-}
-
-
-// A full-screen glow pass in the horizontal direction
-VS_OUTPUT_GLOW_9 VS_GLOW_H_9( VS_INPUT input )
-{
-    VS_OUTPUT_GLOW_9 output;
-    output.position = float4(input.pos,1);
-
-    float texelSize = 1.0 / RTWidth;
-    float2 center = float2( (input.pos.x+1)/2.0 , 1.0 - (input.pos.y+1)/2.0 );
-
-    // 9 taps for a guassian filter with sigma of 3
-    output.textureM4 = center + float2(-texelSize*4.0f, 0);
-    output.textureM3 = center + float2(-texelSize*3.0f, 0);
-    output.textureM2 = center + float2(-texelSize*2.0f, 0);
-    output.textureM1 = center + float2(-texelSize, 0);
-    output.texture0  = center;
-    output.textureP1 = center + float2(texelSize, 0);
-    output.textureP2 = center + float2(texelSize*2.0f, 0);
-    output.textureP3 = center + float2(texelSize*3.0f, 0);
-    output.textureP4 = center + float2(texelSize*4.0f, 0);
-
-    
-    return output;
-}
-
-// A full-screen glow pass in the vertical direction
-VS_OUTPUT_GLOW_9 VS_GLOW_V_9( VS_INPUT input )
-{
-    VS_OUTPUT_GLOW_9 output;
-    output.position = float4(input.pos,1);
-
-    float texelSize = 1.0 / RTHeight;
-    float2 center = float2( (input.pos.x+1)/2.0 , 1.0 - (input.pos.y+1)/2.0 );
-
-    // 9 taps for a guassian filter with sigma of 3
-    output.textureM4 = center + float2(0,-texelSize*4.0f);
-    output.textureM3 = center + float2(0,-texelSize*3.0f);
-    output.textureM2 = center + float2(0,-texelSize*2.0f);
-    output.textureM1 = center + float2(0,-texelSize);
-    output.texture0  = center;
-    output.textureP1 = center + float2(0,texelSize);
-    output.textureP2 = center + float2(0,texelSize*2.0f);
-    output.textureP3 = center + float2(0,texelSize*3.0f);
-    output.textureP4 = center + float2(0,texelSize*4.0f);
-    
     return output;
 }
 
@@ -412,51 +307,12 @@ void DoSample(float weight, float3 O, inout float4 color, uniform bool renderFir
     float3 texcoords;
     texcoords = float3( O.x, 1 - O.y, O.z) ;
     
-    if(!renderFire)
-    {    
-        //render smoke with front to back blending
-        float t;
-        float4 sample = weight * colorTex.SampleLevel(samLinearClamp, texcoords, 0);
-        sample.a = (sample.r) * 0.1;
-        t = sample.a * (1.0-color.a);
-        color.rgb += t * sample.r;
-        color.a += t;
-    }
-    else
-    {
-        //render fire and smoke with back to front blending 
-        
-        //dont render the area below where the fire originates
-        if(O.z < OBSTACLE_MAX_HEIGHT/gridDim.z)
-            return;
-        
-        //this is the threshold at which we decide whether to render fire or smoke
-        float threshold = 1.4;
-        float maxValue = 3;
-        
-        float s = colorTex.SampleLevel(samLinearClamp, texcoords, 0).x;
-        s = clamp(s,0,maxValue);
-          
-        if(s>threshold)   
-        {   
-            //render fire
-            float lookUpVal = ( (s-threshold)/(maxValue-threshold) );
-            lookUpVal = 1.0 - pow(lookUpVal,RednessFactor);
-            lookUpVal = clamp(lookUpVal,0,1);
-            float3 interpColor = fireTransferFunction.SampleLevel(samLinearClamp,float2(lookUpVal,0),0); 
-            float mult = (s-threshold);
-            color += float4(weight*interpColor.rgb,weight*mult*mult*fireAlphaMultiplier); 
-        }
-        else    
-        {    
-             //render smoke
-             float4 sample = weight*s;
-             sample.a = sample.r*0.1*smokeAlphaMultiplier;
-             float3 smokeColor = float3(0.9,0.35,0.055);
-             color.rgb = (1 - sample.a) * color.rgb + sample.a * sample.rrr * smokeColor * smokeColorMultiplier * 5.0; 
-             color.a = (1 - sample.a) * color.a + sample.a;
-        }        
-    }
+    float t;
+    float4 sample = weight * colorTex.SampleLevel(samLinearClamp, texcoords, 0);
+    sample.a = (sample.r) * 0.1;
+    t = sample.a * (1.0-color.a);
+    color.rgb += t * sample.r;
+    color.a += t;
 }
 
 
@@ -483,7 +339,6 @@ float4 Raycast( PS_INPUT_RAYCAST input,uniform bool renderFire )
     }
 
     float3 rayOrigin = rayData.xyz;
-    float Offset = jitterTex.Sample( samRepeat, input.pos.xy / 256.0 ).r;
     float rayLength = rayData.w;
 
     // Sample twice per voxel
@@ -491,7 +346,7 @@ float4 Raycast( PS_INPUT_RAYCAST input,uniform bool renderFire )
     int nSamples = floor(fSamples);
     float3 stepVec = normalize( (rayOrigin - eyeOnGrid) * gridDim ) * recGridDim * 0.5;
    
-    float3 O = rayOrigin + stepVec*Offset;
+    float3 O = rayOrigin + stepVec;
     
     if(renderFire)
     {
@@ -506,12 +361,6 @@ float4 Raycast( PS_INPUT_RAYCAST input,uniform bool renderFire )
         DoSample(1, O, color, renderFire);
         O += stepVec;
 
-        if(!renderFire)
-        {
-            // If doing front-to-back blending we can do early exit when opacity saturates
-            if( color.a > 0.99 )
-                break;
-        }
     }
 
     // The last sample is weighted by the fractional part of the ray length in voxel 
@@ -536,135 +385,12 @@ float4 PS_RAYCAST_QUAD(PS_INPUT_RAYCAST input, uniform bool renderFire) : SV_Tar
     return Raycast(input,renderFire);
 }
 
-float EdgeDetectScalar(float sx, float sy, float threshold)
-{
-    float dist = (sx*sx+sy*sy);
-    float e = (dist > threshold*ZFar)? 1: 0;
-    return e;
-}
-
-//
-// A full-screen edge detection pass to locate artifacts
-//  these artifacts are located on a downsized version of the rayDataTexture
-// We use a smaller texture both to accurately find all the depth artifacts 
-//  when raycasting to this smaller size and to save on the cost of this pass
-// Use col.a to find depth edges of objects occluding the smoke
-// Use col.g to find the edges where the camera near plane cuts the smoke volume
-//
-float4 PS_EDGE_DETECT(VS_OUTPUT_EDGE vIn) : SV_Target
-{
-
-    // We need eight samples (the centre has zero weight in both kernels).
-    float4 col;
-    col = rayDataTexSmall.Sample(samPointClamp, vIn.textureUV00); 
-    float g00 = col.a;
-    if(col.g < 0)
-        g00 *= -1;
-    col = rayDataTexSmall.Sample(samPointClamp, vIn.textureUV01); 
-    float g01 = col.a;
-    if(col.g < 0)
-        g01 *= -1;
-    col = rayDataTexSmall.Sample(samPointClamp, vIn.textureUV02); 
-    float g02 = col.a;
-    if(col.g < 0)
-        g02 *= -1;
-    col = rayDataTexSmall.Sample(samPointClamp, vIn.textureUV10); 
-    float g10 = col.a;
-    if(col.g < 0)
-        g10 *= -1;
-    col = rayDataTexSmall.Sample(samPointClamp, vIn.textureUV12); 
-    float g12 = col.a;
-    if(col.g < 0)
-        g12 *= -1;
-    col = rayDataTexSmall.Sample(samPointClamp, vIn.textureUV20); 
-    float g20 = col.a;
-    if(col.g < 0)
-        g20 *= -1;
-    col = rayDataTexSmall.Sample(samPointClamp, vIn.textureUV21); 
-    float g21 = col.a;
-    if(col.g < 0)
-        g21 *= -1;
-    col = rayDataTexSmall.Sample(samPointClamp, vIn.textureUV22); 
-    float g22 = col.a;
-    if(col.g < 0)
-        g22 *= -1;
-    	
-    // Sobel in horizontal dir.
-    float sx = 0;
-    sx -= g00;
-    sx -= g01 * 2;
-    sx -= g02;
-    sx += g20;
-    sx += g21 * 2;
-    sx += g22;
-    // Sobel in vertical dir - weights are just rotated 90 degrees.
-    float sy = 0;
-    sy -= g00;
-    sy += g02;
-    sy -= g10 * 2;
-    sy += g12 * 2;
-    sy -= g20;
-    sy += g22;
-
-    float e = EdgeDetectScalar(sx, sy, edgeThreshold);
-    return float4(e,e,e,1);
-
-}
-
-
-float4 PS_GLOW_9(VS_OUTPUT_GLOW_9 vIn) : SV_Target
-{
-    float4 col = float4(0,0,0,0);
-    float4 tex;
-    float threshold = 1.4;
-
-    tex = glowTex.Sample(samPointClamp, vIn.textureM4); 
-    if(tex.r > threshold)
-        col += tex*gaussian_3[4];
-    
-    tex = glowTex.Sample(samPointClamp, vIn.textureM3); 
-    if(tex.r > threshold)
-        col += tex*gaussian_3[3];
-        
-    tex = glowTex.Sample(samPointClamp, vIn.textureM2); 
-    if(tex.r > threshold)
-        col += tex*gaussian_3[2]; 
-        
-    tex = glowTex.Sample(samPointClamp, vIn.textureM1); 
-    if(tex.r > threshold)
-        col += tex*gaussian_3[1]; 
-        
-    tex = glowTex.Sample(samPointClamp, vIn.texture0); 
-    if(tex.r > threshold)
-        col += tex*gaussian_3[0];
-        
-    tex = glowTex.Sample(samPointClamp, vIn.textureP1); 
-    if(tex.r > threshold)
-        col += tex*gaussian_3[1]; 
-      
-    tex = glowTex.Sample(samPointClamp, vIn.textureP2); 
-    if(tex.r > threshold)
-        col += tex*gaussian_3[2]; 
-
-    tex = glowTex.Sample(samPointClamp, vIn.textureP3); 
-    if(tex.r > threshold)
-        col += tex*gaussian_3[3];
-       
-    tex = glowTex.Sample(samPointClamp, vIn.textureP4); 
-    if(tex.r > threshold)
-        col += tex*gaussian_3[4];
-       
-    return col;
-}
-
-
 
 float4 PS_RAYCASTCOPY_QUAD_SMOKE(PS_INPUT_RAYCAST input) : SV_Target
 {
-    float edge = edgeTex.Sample(samLinearClamp, float2(input.pos.x/RTWidth,input.pos.y/RTHeight)).r;
     float4 tex = rayCastTex.Sample(samLinearClamp, float2(input.pos.x/RTWidth,input.pos.y/RTHeight));
     
-    if(edge > 0 && tex.a > 0)
+    if(tex.a > 0)
         return Raycast(input,false);
     else
         return tex;
@@ -673,28 +399,15 @@ float4 PS_RAYCASTCOPY_QUAD_SMOKE(PS_INPUT_RAYCAST input) : SV_Target
 
 float4 PS_RAYCASTCOPY_QUAD_FIRE(PS_INPUT_RAYCAST input) : SV_Target
 {
-    float edge = edgeTex.Sample(samLinearClamp, float2(input.pos.x/RTWidth,input.pos.y/RTHeight)).r;
     float4 tex = rayCastTex.Sample(samLinearClamp, float2(input.pos.x/RTWidth,input.pos.y/RTHeight));
          
     float4 color;
     
-    if(edge > 0 && tex.a > 0)
+    if(tex.a > 0)
         color = Raycast(input,true);
     else
         color = tex;
 
-    if(useGlow)    
-    {
-        float4 glow = glowTex.Sample(samLinearClamp, float2(input.pos.x/RTWidth,input.pos.y/RTHeight));
-        color.rgba += glowContribution*glow.rgba;
-    }
-
-    //tone map
-    color.rgb /= finalIntensityScale;
-
-    color.a = clamp(color.a,0,1);
-    color.rgb *= color.a; 
-    color.a = color.a*finalAlphaScale;
     return color;
 }
 
@@ -702,13 +415,13 @@ float4 PS_RAYCASTCOPY_QUAD_FIRE(PS_INPUT_RAYCAST input) : SV_Target
 //techniques
 //------------------------------------------------------------------------------------------------------
  
-technique10 VolumeRenderer
+technique11 VolumeRenderer
 {
     pass CompRayData_Back
     {
-        SetVertexShader(CompileShader( vs_4_0, VS_RAYDATA_BACK() ));
+        SetVertexShader(CompileShader( vs_5_0, VS_RAYDATA_BACK() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_RAYDATA_BACK() ));
+        SetPixelShader( CompileShader( ps_5_0, PS_RAYDATA_BACK() ));
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullFront);
         SetDepthStencilState( DisableDepth, 0 );
@@ -716,9 +429,9 @@ technique10 VolumeRenderer
 
     pass CompRayData_Front
     {
-        SetVertexShader(CompileShader( vs_4_0, VS_RAYDATA_FRONT() ));
+        SetVertexShader(CompileShader( vs_5_0, VS_RAYDATA_FRONT() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_RAYDATA_FRONT() ));
+        SetPixelShader( CompileShader( ps_5_0, PS_RAYDATA_FRONT() ));
         SetBlendState (SubtractiveBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF);
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
@@ -726,9 +439,9 @@ technique10 VolumeRenderer
 
     pass CompRayData_FrontNOBLEND
     {
-        SetVertexShader(CompileShader( vs_4_0, VS_RAYDATA_FRONT() ));
+        SetVertexShader(CompileShader( vs_5_0, VS_RAYDATA_FRONT() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_RAYDATA_FRONT_NOBLEND() ));
+        SetPixelShader( CompileShader( ps_5_0, PS_RAYDATA_FRONT_NOBLEND() ));
         SetBlendState (NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF);
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
@@ -736,9 +449,9 @@ technique10 VolumeRenderer
         
     pass QuadDownSampleRayDataTexture
     {
-        SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
+        SetVertexShader(CompileShader( vs_5_0, VS_RAYCAST_QUAD() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_RAYDATACOPY_QUAD() ));
+        SetPixelShader( CompileShader( ps_5_0, PS_RAYDATACOPY_QUAD() ));
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
@@ -746,9 +459,9 @@ technique10 VolumeRenderer
 
     pass QuadRaycastSmoke
     {
-        SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
+        SetVertexShader(CompileShader( vs_5_0, VS_RAYCAST_QUAD() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_RAYCAST_QUAD(false) ));
+        SetPixelShader( CompileShader( ps_5_0, PS_RAYCAST_QUAD(false) ));
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
@@ -756,50 +469,19 @@ technique10 VolumeRenderer
     
     pass QuadRaycastFire
     {
-        SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
+        SetVertexShader(CompileShader( vs_5_0, VS_RAYCAST_QUAD() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_RAYCAST_QUAD(true) ));
+        SetPixelShader( CompileShader( ps_5_0, PS_RAYCAST_QUAD(true) ));
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
     }  
          
-    pass QuadEdgeDetect
-    {              
-        SetVertexShader(CompileShader( vs_4_0, VS_EDGE_DETECT() ));
-        SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_EDGE_DETECT() ));
-        SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
-        SetRasterizerState(CullNone);
-        SetDepthStencilState( DisableDepth, 0 );
-
-    }
-    
-     pass GlowHorizontal
-    {
-        SetVertexShader(CompileShader( vs_4_0, VS_GLOW_H_9() ));
-        SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_GLOW_9() ));
-        SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
-        SetRasterizerState(CullBack);
-        SetDepthStencilState( DisableDepth, 0 );
-    } 
-    
-     pass GlowVertical
-    {
-        SetVertexShader(CompileShader( vs_4_0, VS_GLOW_V_9() ));
-        SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_GLOW_9() ));
-        SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
-        SetRasterizerState(CullBack);
-        SetDepthStencilState( DisableDepth, 0 );
-    } 
-    
     pass QuadRaycastCopySmoke
     {
-        SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
+        SetVertexShader(CompileShader( vs_5_0, VS_RAYCAST_QUAD() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_RAYCASTCOPY_QUAD_SMOKE() ));
+        SetPixelShader( CompileShader( ps_5_0, PS_RAYCASTCOPY_QUAD_SMOKE() ));
         SetBlendState( AlphaBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
@@ -807,9 +489,9 @@ technique10 VolumeRenderer
  
     pass QuadRaycastCopyFire
     {
-        SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
+        SetVertexShader(CompileShader( vs_5_0, VS_RAYCAST_QUAD() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_RAYCASTCOPY_QUAD_FIRE() ));
+        SetPixelShader( CompileShader( ps_5_0, PS_RAYCASTCOPY_QUAD_FIRE() ));
         SetBlendState( FireBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );

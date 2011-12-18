@@ -28,6 +28,7 @@ BoundingBox::~BoundingBox()
 
 	SAFE_RELEASE(m_pEffect);
 	SAFE_DELETE(m_pTextureGrid);
+	SAFE_DELETE(m_pVoxelizer);
 
 	SAFE_DELETE(m_pVertices);
 	
@@ -259,12 +260,15 @@ void BoundingBox::Render(D3DXMATRIX mViewProjection)
 	D3D11_TEXTURE3D_DESC desc;
 	m_pSurface1Texture3D->GetDesc(&desc);
 
-
 	m_pd3dDevice->CreateShaderResourceView( m_pSurface1Texture3D, &SRVDesc, &m_pSurface1SRV);
+
+
 
 	m_pVolumeRenderer->Draw(m_pSurface1SRV);
 
 	SAFE_RELEASE(m_pSurface1SRV);
+
+
 
 
 	/*m_pd3dImmediateContext->RSSetState(m_pRasterizerStateWireframe);

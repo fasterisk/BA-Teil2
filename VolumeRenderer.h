@@ -43,6 +43,8 @@ protected:
 
     bool m_bUseFP32Blending;
 
+	CHAR sz[100];
+
 	ID3D11InputLayout           *pGridBoxLayout;
     ID3D11Buffer                *pGridBoxVertexBuffer;
     ID3D11Buffer                *pGridBoxIndexBuffer;

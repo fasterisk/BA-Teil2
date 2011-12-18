@@ -15,26 +15,33 @@ CDXUTDialog                 g_SampleUI;             // dialog for sample specifi
 // Scene
 Scene*						g_pScene;
 
+D3DXVECTOR3                 g_Eye = D3DXVECTOR3( 0.0f, 0.0f, -20.0f );
+D3DXVECTOR3                 g_At = D3DXVECTOR3( 0.0f, 0.0f, 0.0f );
+D3DXVECTOR3                 g_Up = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
+
 // Global variables
-bool						g_useFire;
+bool						g_useFire = false;;
 int							g_Width = 800;
 int							g_Height = 600;
-float						g_zNear;
-float						g_zFar;
-bool						g_renderGlow;
-float						g_glowContribution;
-float						g_finalIntensityScale; 
-float						g_finalAlphaScale;
-float						g_smokeColorMultiplier;   
-float						g_smokeAlphaMultiplier; 
-int							g_RednessFactor; 
-float						g_xyVelocityScale;
-float						g_zVelocityScale;
+float						g_zNear = 0.05f;
+float						g_zFar = 1000.0f;
+bool						g_renderGlow = false;
+float						g_glowContribution = 0.81f;
+float						g_finalIntensityScale = 28.0f; 
+float						g_finalAlphaScale = 0.95f;
+float						g_smokeColorMultiplier = 2.0f;   
+float						g_smokeAlphaMultiplier = 0.05f; 
+int							g_RednessFactor = 5; 
+float						g_xyVelocityScale = 4.8f;
+float						g_zVelocityScale = 4.0f;
 D3DXMATRIX					g_View;
 D3DXMATRIX					g_Projection;
-float						g_Fovy;
+float						g_Fovy = D3DX_PI * 0.25f;
 
-ID3D11ShaderResourceView*	g_pSceneDepthSRV;
+ID3D11Texture2D*            g_pSceneDepthTex2D      = NULL;
+ID3D11Texture2D*            g_pSceneDepthTex2DNonMS = NULL;
+ID3D11ShaderResourceView*   g_pSceneDepthSRV        = NULL;
+ID3D11RenderTargetView*     g_pSceneDepthRTV        = NULL;
 
 D3DXMATRIX                  g_gridWorld;
 
@@ -47,9 +54,9 @@ bool						g_bCameraActive = false;
 
 float						g_fElapsedTime = 0;
 
-int							g_iTextureWidth = 80;
-int							g_iTextureHeight = 80;
-int							g_iTextureDepth = 80;
+int							g_iTextureWidth = 200;
+int							g_iTextureHeight = 200;
+int							g_iTextureDepth = 200;
 bool						g_bBlockMouseDragging = false;
 
 // Texthelper
@@ -90,6 +97,9 @@ void CALLBACK OnD3D11ReleasingSwapChain( void* pUserContext );
 void CALLBACK OnD3D11DestroyDevice( void* pUserContext );
 void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime, float fElapsedTime, void* pUserContext );
 void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, bool bSide1Down, bool bSide2Down, int iWheelDelta, int iX, int iY, void* pUserContext);
+
+HRESULT ReinitWindowSizeDependentRenderTargets(ID3D11Device* pd3dDevice);
+
 
 void InitApp();
 void RenderText();
@@ -157,15 +167,15 @@ void InitApp()
 	g_SampleUI.AddButton( IDC_CHANGE_TEXTRES, L"Change texture res.", 0, iY+=52, 170, 30);
 	StringCchPrintf( sz, 100, L"Texture Width: %d", g_iTextureWidth ); 
 	g_SampleUI.AddStatic( IDC_TEXTRES_WIDTH_STATIC, sz, 15, iY += 35, 125, 22 );
-	g_SampleUI.AddSlider( IDC_TEXTRES_WIDTH_SLIDER, 15, iY += 20, 130, 22, 32, 128, 80 );
+	g_SampleUI.AddSlider( IDC_TEXTRES_WIDTH_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200 );
 
     StringCchPrintf( sz, 100, L"Texture Height: %d", g_iTextureHeight ); 
     g_SampleUI.AddStatic( IDC_TEXTRES_HEIGHT_STATIC, sz, 15, iY += 24, 125, 22 );
-    g_SampleUI.AddSlider( IDC_TEXTRES_HEIGHT_SLIDER, 15, iY += 20, 130, 22, 32, 128, 80);
+    g_SampleUI.AddSlider( IDC_TEXTRES_HEIGHT_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200);
 
     StringCchPrintf( sz, 100, L"Texture Depth: %d", g_iTextureDepth ); 
     g_SampleUI.AddStatic( IDC_TEXTRES_DEPTH_STATIC, sz, 15, iY += 24, 125, 22 );
-    g_SampleUI.AddSlider( IDC_TEXTRES_DEPTH_SLIDER, 15, iY += 20, 130, 22, 32, 128, 80);
+    g_SampleUI.AddSlider( IDC_TEXTRES_DEPTH_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200);
 
 	// Setup the camera's view parameters
     D3DXVECTOR3 vecEye( 0.0f, 0.0f, -4.0f );
@@ -413,6 +423,14 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 	g_pScene = new Scene(pd3dDevice, pd3dImmediateContext);
 	V_RETURN(g_pScene->Initialize(g_iTextureWidth, g_iTextureHeight, g_iTextureDepth));
 	V_RETURN(g_pScene->SetScreenSize(g_Width, g_Height));
+
+	// Initialize the view matrix
+    g_Camera.SetViewParams( &g_Eye, &g_At );
+    g_Camera.SetEnablePositionMovement(true);
+    g_Camera.SetScalers(0.004f, 20.0f);
+    g_View = *g_Camera.GetViewMatrix();
+    g_Projection = *g_Camera.GetProjMatrix();
+
     return S_OK;
 }
 
@@ -439,7 +457,85 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
     g_SampleUI.SetLocation( pBackBufferSurfaceDesc->Width - 170, 100 );
     g_SampleUI.SetSize( 170, 300 );
 
+	V_RETURN(ReinitWindowSizeDependentRenderTargets(pd3dDevice));
+
     return S_OK;
+}
+
+//--------------------------------------------------------------------------------------
+// Initialize any textures that must match the window size
+//--------------------------------------------------------------------------------------
+HRESULT ReinitWindowSizeDependentRenderTargets(ID3D11Device* pd3dDevice)
+{
+    HRESULT hr;
+
+    // Create resources to enable writing the scene depth using MRT, as well as to 
+    //  enable reading as a shader resource
+    ID3D11RenderTargetView *pRTV = DXUTGetD3D11RenderTargetView();
+    ID3D11Resource *pRTVResource;
+    pRTV->GetResource(&pRTVResource);
+    ID3D11Texture2D *pRTVTex2D = static_cast<ID3D11Texture2D*>(pRTVResource);
+    assert(pRTVTex2D);
+    D3D11_TEXTURE2D_DESC pRTVTex2DDesc;
+    pRTVTex2D->GetDesc(&pRTVTex2DDesc);
+    pRTVResource->Release();    
+
+    SAFE_RELEASE(g_pSceneDepthTex2DNonMS);
+    SAFE_RELEASE(g_pSceneDepthTex2D);
+    SAFE_RELEASE(g_pSceneDepthRTV);
+    SAFE_RELEASE(g_pSceneDepthSRV);
+
+    D3D11_TEXTURE2D_DESC desc;
+    desc.ArraySize = 1;
+    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+    desc.CPUAccessFlags = 0;
+    desc.MipLevels = 1;
+    desc.MiscFlags = 0;
+    desc.SampleDesc = pRTVTex2DDesc.SampleDesc;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.Width = g_Width;
+    desc.Height = g_Height;
+    desc.Format = DXGI_FORMAT_R32_FLOAT;
+    V_RETURN(pd3dDevice->CreateTexture2D(&desc,NULL,&g_pSceneDepthTex2D));
+
+    // We need a Non-Multisampled texture2D resource of the same dimensions to read from in shaders
+    if(pRTVTex2DDesc.SampleDesc.Count > 1)
+    {
+        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+        desc.SampleDesc.Count = 1;
+        desc.SampleDesc.Quality = 0;
+        V_RETURN(pd3dDevice->CreateTexture2D(&desc,NULL,&g_pSceneDepthTex2DNonMS));
+    }
+    else
+    {
+        g_pSceneDepthTex2DNonMS = g_pSceneDepthTex2D;
+        g_pSceneDepthTex2DNonMS->AddRef();
+    }
+
+    // Create the render target view for the potentially Multisampled texture2D resource
+    D3D11_RENDER_TARGET_VIEW_DESC descRTV;
+    descRTV.Format = DXGI_FORMAT_R32_FLOAT;
+    if( pRTVTex2DDesc.SampleDesc.Count <= 1 )
+    {
+        descRTV.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+        descRTV.Texture2D.MipSlice = 0;
+    }
+    else
+    {
+        descRTV.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
+    }
+    V_RETURN( pd3dDevice->CreateRenderTargetView( g_pSceneDepthTex2D, &descRTV, &g_pSceneDepthRTV ) );
+
+    // Create a shader resource view for a Non-MS texture
+    D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
+    descSRV.Format = DXGI_FORMAT_R32_FLOAT;
+    descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    descSRV.Texture2D.MipLevels = 1;
+    descSRV.Texture2D.MostDetailedMip = 0;
+    V_RETURN( pd3dDevice->CreateShaderResourceView(g_pSceneDepthTex2DNonMS, &descSRV, &g_pSceneDepthSRV) );
+
+    return S_OK;
+
 }
 
 
@@ -464,6 +560,10 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     pd3dImmediateContext->ClearRenderTargetView( pRTV, ClearColor );
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
     pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
+
+	//extreme performance loss:
+	//float colorZ[4] = { g_zFar,0,0,0};
+	//pd3dImmediateContext->ClearRenderTargetView( g_pSceneDepthRTV, colorZ );
 	
 	// Create a viewport to match the screen size
     D3D11_VIEWPORT rtViewport;
@@ -494,8 +594,10 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     D3DXMatrixRotationX(&gridRotate, 3.0f*3.1416f/2.0f);
     g_gridWorld = gridScale * gridRotate;
 
-
-
+	// UPDATE GLOBAL VARIABLES FOR VOLUME RENDERING
+	g_View = *g_Camera.GetViewMatrix();
+	g_Projection = *g_Camera.GetProjMatrix();
+	
 	D3DXMATRIX mViewProjection;
     D3DXMATRIX mProj = *g_Camera.GetProjMatrix();
     D3DXMATRIX mView = *g_Camera.GetViewMatrix();

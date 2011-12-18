@@ -133,6 +133,13 @@ void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV)
     pZNearVar->SetFloat(g_zNear);
     pZFarVar->SetFloat(g_zFar);
 
+	
+	//StringCchPrintfA( sz, 100, "g_zNear: %f \n", g_zNear ); 
+	//DXUTOutputDebugStringA(sz);
+
+	//StringCchPrintfA( sz, 100, "g_zFar: %f \n", g_zFar ); 
+	//DXUTOutputDebugStringA(sz);
+
     D3DXMATRIX worldView = g_gridWorld * g_View;
 
     // The length of one of the axis of the worldView matrix is the length of longest side of the box
@@ -145,8 +152,8 @@ void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV)
     //  and scale factors to account for unequal number of voxels on different sides of the volume box. 
     // This is because we want to preserve the aspect ratio of the original simulation grid when 
     //  raytracing through it.
-    worldView = m_mGridMatrix * worldView;
-    (m_pEffect->GetVariableByName("WorldView")->AsMatrix())->SetMatrix( (float*)&worldView ); 
+    //worldView = m_mGridMatrix * worldView;
+    (m_pEffect->GetVariableByName("WorldView")->AsMatrix())->SetMatrix((float*)&worldView); 
    
     (m_pEffect->GetVariableByName("tan_FovYhalf")->AsScalar())->SetFloat( tan(g_Fovy/2.0) );
     (m_pEffect->GetVariableByName("tan_FovXhalf")->AsScalar())->SetFloat( 
@@ -191,12 +198,7 @@ void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV)
     //  w is the length of the ray in view space
     ComputeRayData();
 
-
-    // Do edge detection on this image to find any 
-    //  problematic areas where we need to raycast at higher resolution
-    ComputeEdgeTexture();
-    
-
+	
     // Raycast into the temporary render target: 
     //  raycasting is done at the smaller resolution, using a fullscreen quad
     m_pd3dImmediateContext->ClearRenderTargetView( pRayCastRTV, color );
@@ -545,7 +547,6 @@ void VolumeRenderer::ComputeRayData( void )
         m_pTechnique->GetPassByName("CompRayData_FrontNOBLEND")->Apply(0, m_pd3dImmediateContext);
     }
     DrawBox();
-
 }
 
 void VolumeRenderer::ComputeEdgeTexture(void)
