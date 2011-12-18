@@ -197,25 +197,25 @@ float4 PS_GRID( GS_OUTPUT_DIFFUSE input ) : SV_Target
 
 
 
-technique11 RenderSurfacesToTexture
+technique10 RenderSurfacesToTexture
 {
 	pass P0
 	{
-		SetVertexShader(CompileShader(vs_5_0, VSMain()));
+		SetVertexShader(CompileShader(vs_4_0, VSMain()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PSMain()));
+		SetPixelShader(CompileShader(ps_4_0, PSMain()));
 
 		SetDepthStencilState( EnableDepth, 0);
 	}
 }
 
-technique11 Grid
+technique10 Grid
 {
 	pass
 	{
-		SetVertexShader(CompileShader(vs_5_0, VS_GRID()));
-		SetGeometryShader(CompileShader(gs_5_0, GS_ARRAY()));
-		SetPixelShader(CompileShader(ps_5_0, PS_GRID()));
+		SetVertexShader(CompileShader(vs_4_0, VS_GRID()));
+		SetGeometryShader(CompileShader(gs_4_0, GS_ARRAY()));
+		SetPixelShader(CompileShader(ps_4_0, PS_GRID()));
 
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetDepthStencilState(DisableDepth, 0);
