@@ -415,13 +415,13 @@ float4 PS_RAYCASTCOPY_QUAD_FIRE(PS_INPUT_RAYCAST input) : SV_Target
 //techniques
 //------------------------------------------------------------------------------------------------------
  
-technique11 VolumeRenderer
+technique10 VolumeRenderer
 {
     pass CompRayData_Back
     {
-        SetVertexShader(CompileShader( vs_5_0, VS_RAYDATA_BACK() ));
+        SetVertexShader(CompileShader( vs_4_0, VS_RAYDATA_BACK() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_RAYDATA_BACK() ));
+        SetPixelShader( CompileShader( ps_4_0, PS_RAYDATA_BACK() ));
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullFront);
         SetDepthStencilState( DisableDepth, 0 );
@@ -429,9 +429,9 @@ technique11 VolumeRenderer
 
     pass CompRayData_Front
     {
-        SetVertexShader(CompileShader( vs_5_0, VS_RAYDATA_FRONT() ));
+        SetVertexShader(CompileShader( vs_4_0, VS_RAYDATA_FRONT() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_RAYDATA_FRONT() ));
+        SetPixelShader( CompileShader( ps_4_0, PS_RAYDATA_FRONT() ));
         SetBlendState (SubtractiveBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF);
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
@@ -439,9 +439,9 @@ technique11 VolumeRenderer
 
     pass CompRayData_FrontNOBLEND
     {
-        SetVertexShader(CompileShader( vs_5_0, VS_RAYDATA_FRONT() ));
+        SetVertexShader(CompileShader( vs_4_0, VS_RAYDATA_FRONT() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_RAYDATA_FRONT_NOBLEND() ));
+        SetPixelShader( CompileShader( ps_4_0, PS_RAYDATA_FRONT_NOBLEND() ));
         SetBlendState (NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF);
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
@@ -449,9 +449,9 @@ technique11 VolumeRenderer
         
     pass QuadDownSampleRayDataTexture
     {
-        SetVertexShader(CompileShader( vs_5_0, VS_RAYCAST_QUAD() ));
+        SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_RAYDATACOPY_QUAD() ));
+        SetPixelShader( CompileShader( ps_4_0, PS_RAYDATACOPY_QUAD() ));
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
@@ -459,9 +459,9 @@ technique11 VolumeRenderer
 
     pass QuadRaycastSmoke
     {
-        SetVertexShader(CompileShader( vs_5_0, VS_RAYCAST_QUAD() ));
+        SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_RAYCAST_QUAD(false) ));
+        SetPixelShader( CompileShader( ps_4_0, PS_RAYCAST_QUAD(false) ));
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
@@ -469,9 +469,9 @@ technique11 VolumeRenderer
     
     pass QuadRaycastFire
     {
-        SetVertexShader(CompileShader( vs_5_0, VS_RAYCAST_QUAD() ));
+        SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_RAYCAST_QUAD(true) ));
+        SetPixelShader( CompileShader( ps_4_0, PS_RAYCAST_QUAD(true) ));
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
@@ -479,9 +479,9 @@ technique11 VolumeRenderer
          
     pass QuadRaycastCopySmoke
     {
-        SetVertexShader(CompileShader( vs_5_0, VS_RAYCAST_QUAD() ));
+        SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_RAYCASTCOPY_QUAD_SMOKE() ));
+        SetPixelShader( CompileShader( ps_4_0, PS_RAYCASTCOPY_QUAD_SMOKE() ));
         SetBlendState( AlphaBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
@@ -489,9 +489,9 @@ technique11 VolumeRenderer
  
     pass QuadRaycastCopyFire
     {
-        SetVertexShader(CompileShader( vs_5_0, VS_RAYCAST_QUAD() ));
+        SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_RAYCASTCOPY_QUAD_FIRE() ));
+        SetPixelShader( CompileShader( ps_4_0, PS_RAYCASTCOPY_QUAD_FIRE() ));
         SetBlendState( FireBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
