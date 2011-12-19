@@ -1,45 +1,40 @@
-//----------------------------------------------------------------------------------
-// File:   Voxelizer.cpp
-// Author: Ignacio Llamas
-// Email:  sdkfeedback@nvidia.com
-// 
-// Copyright (c) 2007 NVIDIA Corporation. All rights reserved.
-//
-// TO  THE MAXIMUM  EXTENT PERMITTED  BY APPLICABLE  LAW, THIS SOFTWARE  IS PROVIDED
-// *AS IS*  AND NVIDIA AND  ITS SUPPLIERS DISCLAIM  ALL WARRANTIES,  EITHER  EXPRESS
-// OR IMPLIED, INCLUDING, BUT NOT LIMITED  TO, IMPLIED WARRANTIES OF MERCHANTABILITY
-// AND FITNESS FOR A PARTICULAR PURPOSE.  IN NO EVENT SHALL  NVIDIA OR ITS SUPPLIERS
-// BE  LIABLE  FOR  ANY  SPECIAL,  INCIDENTAL,  INDIRECT,  OR  CONSEQUENTIAL DAMAGES
-// WHATSOEVER (INCLUDING, WITHOUT LIMITATION,  DAMAGES FOR LOSS OF BUSINESS PROFITS,
-// BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS)
-// ARISING OUT OF THE  USE OF OR INABILITY  TO USE THIS SOFTWARE, EVEN IF NVIDIA HAS
-// BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
-//
-//
-//----------------------------------------------------------------------------------
-
 #include "Globals.h"
 #include "SDKmisc.h"
 #include "Voxelizer.h"
 #include <stddef.h>
 
 
-Voxelizer::Voxelizer(void) : m_pd3dDevice(NULL), m_pd3dImmediateContext(NULL), m_pDstInOutTexture3D(NULL), m_pDstInOutTexRTView(NULL),
-    m_width(0), m_height(0), m_depth(0), m_cols(0), m_rows(0), m_initialized(false), 
-    m_pDSTex2D(NULL), m_pDSTex2DDSView(NULL), m_pDSTex2DSRView(NULL), 
-    m_pVoxEffect(NULL), m_pNZTech(NULL), m_pResolveWithPSTech(NULL),
-    m_pWorldViewProjectionVar(NULL), m_pDSTex2DSRVar(NULL),
-    m_pSlicesLayout(NULL), m_pSlicesVB(NULL)
+Voxelizer::Voxelizer(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateContext, ID3DX11Effect *pVoxelizerEffect)
 {
+	m_pd3dDevice = pd3dDevice;
+	m_pd3dImmediateContext = pd3dImmediateContext;
+	m_pVoxelizerEffect = pVoxelizerEffect;
+	m_pDstInOutTexture3D = NULL;
+	m_pDstInOutTexRTView = NULL;
+	m_width = 0;
+	m_height = 0;
+	m_depth = 0;
+	m_cols = 0;
+	m_rows = 0;
+	m_initialized = false;
+	m_pDSTex2D = NULL;
+	m_pDSTex2DDSView = NULL;
+	m_pDSTex2DSRView = NULL;
+	m_pNZTech = NULL;
+	m_pResolveWithPSTech = NULL;
+	m_pWorldViewProjectionVar = NULL;
+	m_pDSTex2DSRVar = NULL;
+	m_pSlicesLayout = NULL;
+	m_pSlicesVB = NULL;
     D3DXMatrixIdentity(&m_objToVolumeXForm);
 }
 
-Voxelizer::~Voxelizer(void)
+Voxelizer::~Voxelizer()
 {
     Cleanup();
 }
 
-void Voxelizer::Cleanup(void)
+void Voxelizer::Cleanup()
 {
     SAFE_RELEASE(m_pd3dDevice);
 
@@ -52,7 +47,7 @@ void Voxelizer::Cleanup(void)
     SAFE_RELEASE(m_pDSTex2DDSView);
     SAFE_RELEASE(m_pDSTex2DSRView);
 
-    SAFE_RELEASE(m_pVoxEffect);
+    SAFE_RELEASE(m_pVoxelizerEffect);
 
     m_pNZTech = NULL;
     m_pResolveWithPSTech = NULL;
@@ -65,19 +60,14 @@ void Voxelizer::Cleanup(void)
     SAFE_RELEASE(m_pInputLayout);
 }
 
-HRESULT Voxelizer::SetDestination(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateContext, ID3D11Texture3D *pDstInOutTexture3D)
+HRESULT Voxelizer::SetDestination(ID3D11Texture3D *pDstInOutTexture3D)
 {
-    //SAFE_ACQUIRE(m_pd3dDevice, pd3dDevice);
-	//SAFE_ACQUIRE(m_pd3dImmediateContext, pd3dImmediateContext);
-    //SAFE_ACQUIRE(m_pDstInOutTexture3D, pDstInOutTexture3D);
-	m_pd3dDevice = pd3dDevice;
-	m_pd3dImmediateContext = pd3dImmediateContext;
 	m_pDstInOutTexture3D = pDstInOutTexture3D;
 
     return Initialize();
 }
 
-HRESULT Voxelizer::Initialize(void)
+HRESULT Voxelizer::Initialize()
 {
     HRESULT hr(S_OK);
 
@@ -140,7 +130,7 @@ HRESULT Voxelizer::Initialize(void)
     return hr;
 }
 
-HRESULT Voxelizer::InitTextures(void)
+HRESULT Voxelizer::InitTextures()
 {
     HRESULT hr(S_OK);
 
@@ -184,35 +174,15 @@ HRESULT Voxelizer::InitTextures(void)
     return hr;
 }
 
-HRESULT Voxelizer::InitShaders(void)
+HRESULT Voxelizer::InitShaders()
 {
     HRESULT hr(S_OK);
-    WCHAR fullPath[MAX_PATH];
 
-    if(m_pVoxEffect != NULL)
-        return hr;
+    m_pNZTech = m_pVoxelizerEffect->GetTechniqueByName( "VoxelizeNZ" );
+    m_pResolveWithPSTech = m_pVoxelizerEffect->GetTechniqueByName( "VoxelizeResolveWithPS" );
 
-	V_RETURN(DXUTFindDXSDKMediaFileCch( fullPath, MAX_PATH, L"Voxelizer.fx" ));
-
-	ID3D10Blob *effectBlob = 0, *errorsBlob = 0;
-	hr = D3DX11CompileFromFile( fullPath, NULL, NULL, NULL, "fx_5_0", NULL, NULL, NULL, &effectBlob, &errorsBlob, NULL );
-	if(FAILED ( hr ))
-	{
-		std::string errStr((LPCSTR)errorsBlob->GetBufferPointer(), errorsBlob->GetBufferSize());
-		WCHAR err[256];
-		MultiByteToWideChar(CP_ACP, 0, errStr.c_str(), (int)errStr.size(), err, errStr.size());
-		MessageBox( NULL, (LPCWSTR)err, L"Error", MB_OK );
-		return hr;
-	}
-	
-	V_RETURN(D3DX11CreateEffectFromMemory(effectBlob->GetBufferPointer(), effectBlob->GetBufferSize(), 0, m_pd3dDevice, &m_pVoxEffect));
-
-
-    m_pNZTech = m_pVoxEffect->GetTechniqueByName( "VoxelizeNZ" );
-    m_pResolveWithPSTech = m_pVoxEffect->GetTechniqueByName( "VoxelizeResolveWithPS" );
-
-    m_pWorldViewProjectionVar = m_pVoxEffect->GetVariableByName("WorldViewProjection")->AsMatrix();
-    m_pDSTex2DSRVar = m_pVoxEffect->GetVariableByName("stencilbufferTex2D")->AsShaderResource();
+    m_pWorldViewProjectionVar = m_pVoxelizerEffect->GetVariableByName("WorldViewProjection")->AsMatrix();
+    m_pDSTex2DSRVar = m_pVoxelizerEffect->GetVariableByName("stencilbufferTex2D")->AsShaderResource();
 
 	assert(m_pNZTech && m_pResolveWithPSTech && m_pWorldViewProjectionVar && m_pDSTex2DSRVar);
     

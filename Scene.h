@@ -60,6 +60,8 @@ protected:
 	// Effects and Techniques
 	ID3DX11Effect*					m_pDiffusionEffect;
 	ID3DX11Effect*					m_pVolumeRenderEffect;
+	ID3DX11Effect*					m_pVoxelizerEffect;
+
 	ID3DX11EffectTechnique*			m_TechniqueRenderSurfacesToTexture;
 	ID3D11InputLayout*				m_pInputLayout;
 

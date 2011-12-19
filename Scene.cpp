@@ -58,6 +58,9 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"VolumeRenderer.fx"));
 	V_RETURN(CreateEffect(str, &m_pVolumeRenderEffect));
 
+	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Voxelizer.fx"));
+	V_RETURN(CreateEffect(str, &m_pVoxelizerEffect));
+
 	V_RETURN(InitSurfaces());
 	V_RETURN(InitBuffers());
 	V_RETURN(InitTechniques());
@@ -65,8 +68,8 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	
 
 	// Initialize Voxelizer
-	m_pVoxelizer = new Voxelizer();
-	V_RETURN(m_pVoxelizer->SetDestination(m_pd3dDevice, m_pd3dImmediateContext, m_pSurface1Texture3D));
+	m_pVoxelizer = new Voxelizer(m_pd3dDevice, m_pd3dImmediateContext, m_pVoxelizerEffect);
+	V_RETURN(m_pVoxelizer->SetDestination(m_pSurface1Texture3D));
 
 	// Initialize VolumeRenderer
 	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
