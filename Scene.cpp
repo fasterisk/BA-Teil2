@@ -339,7 +339,7 @@ HRESULT Scene::InitRenderTargets(int iWidth, int iHeight, int iDepth)
 
 HRESULT Scene::InitTechniques()
 {
-	HRESULT hr;
+	//HRESULT hr;
 	
 	/*m_TechniqueRenderSurfacesToTexture = m_pDiffusionEffect->GetTechniqueByName("RenderSurfacesToTexture");
 

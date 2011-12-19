@@ -6,9 +6,11 @@
 //-----------------------
 #include <windows.h>
 #include <atlbase.h>
-#pragma warning( disable: 4996 )
 #include <strsafe.h>
-#pragma warning( default: 4996 )
+
+#pragma warning(disable: 4995)
+#pragma warning(disable: 4996)
+#pragma warning(disable: 4238)
 
 // Include the D3D11 and effects headers
 //--------------------------
@@ -26,6 +28,7 @@
 
 #include <string>
 #include <stdlib.h>
+
 #include <stdio.h>
 #include <iostream>
 

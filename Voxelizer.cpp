@@ -100,7 +100,7 @@ HRESULT Voxelizer::Initialize()
 
     assert((m_width > 0) && (m_height > 0) && (m_depth > 0));
     assert((m_cols > 0) && (m_rows > 0));
-    assert((m_cols * m_rows) >= m_depth);
+    assert(UINT(m_cols * m_rows) >= m_depth);
 
     // Initialize internal texture resources
     hr = InitTextures();
@@ -382,7 +382,7 @@ HRESULT Voxelizer::StencilClipVolume(void)
         y = (z / m_cols) * m_height;
 
         // set viewport and scissor to match the size of single slice
-        D3D11_VIEWPORT viewport = { x, y, m_width, m_height, 0.0f, 1.0f };
+        D3D11_VIEWPORT viewport = { float(x), float(y), float(m_width), float(m_height), 0.0f, 1.0f };
         m_pd3dImmediateContext->RSSetViewports(1, &viewport);
         D3D11_RECT scissorRect = { x, y, x+m_width, y+m_height };
         m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect);
@@ -398,7 +398,7 @@ HRESULT Voxelizer::StencilClipVolume(void)
     V_RETURN(m_pResolveWithPSTech->GetPassByIndex(0)->Apply(0, m_pd3dImmediateContext));
 
     // Set viewport and scissor to match the size of a single slice 
-    D3D11_VIEWPORT viewport = { 0, 0, m_width, m_height, 0.0f, 1.0f };
+    D3D11_VIEWPORT viewport = { 0, 0, float(m_width), float(m_height), 0.0f, 1.0f };
     m_pd3dImmediateContext->RSSetViewports(1, &viewport);
     D3D11_RECT scissorRect = { 0, 0, m_width, m_height };
     m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect);

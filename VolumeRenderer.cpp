@@ -75,7 +75,7 @@ HRESULT VolumeRenderer::Initialize(int gridWidth, int gridHeight, int gridDepth)
     m_vGridDim[1] = float(gridHeight);
     m_vGridDim[2] = float(gridDepth);
 
-    m_iMaxDim = max( max( m_vGridDim[0], m_vGridDim[1] ), m_vGridDim[2] );
+    m_iMaxDim = max( max( gridWidth, gridHeight ), gridDepth );
 
     // Initialize the grid offset matrix
     {
@@ -155,9 +155,8 @@ void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV)
     //worldView = m_mGridMatrix * worldView;
     (m_pEffect->GetVariableByName("WorldView")->AsMatrix())->SetMatrix((float*)&worldView); 
    
-    (m_pEffect->GetVariableByName("tan_FovYhalf")->AsScalar())->SetFloat( tan(g_Fovy/2.0) );
-    (m_pEffect->GetVariableByName("tan_FovXhalf")->AsScalar())->SetFloat( 
-        tan(g_Fovy/2.0)*m_iRenderTextureWidth/m_iRenderTextureHeight );
+    (m_pEffect->GetVariableByName("tan_FovYhalf")->AsScalar())->SetFloat( float(tan(g_Fovy/2.0)) );
+    (m_pEffect->GetVariableByName("tan_FovXhalf")->AsScalar())->SetFloat( float(tan(g_Fovy/2.0))*m_iRenderTextureWidth/m_iRenderTextureHeight );
 
 	// worldViewProjection is used to transform the volume box to screen space
     D3DXMATRIX worldViewProjection;
@@ -204,8 +203,8 @@ void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV)
     m_pd3dImmediateContext->ClearRenderTargetView( pRayCastRTV, color );
     m_pd3dImmediateContext->OMSetRenderTargets( 1, &pRayCastRTV , NULL ); 
 
-    rtViewport.Width = m_iRenderTextureWidth;
-    rtViewport.Height = m_iRenderTextureHeight;
+    rtViewport.Width = float(m_iRenderTextureWidth);
+    rtViewport.Height = float(m_iRenderTextureHeight);
     m_pd3dImmediateContext->RSSetViewports(1,&rtViewport);
 
     pRTWidthVar->SetFloat((float)m_iRenderTextureWidth);
@@ -227,8 +226,8 @@ void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV)
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
     m_pd3dImmediateContext->OMSetRenderTargets( 1, &pRTV , pDSV ); 
 
-    rtViewport.Width = g_Width;
-    rtViewport.Height = g_Height;
+    rtViewport.Width = float(g_Width);
+    rtViewport.Height = float(g_Height);
     m_pd3dImmediateContext->RSSetViewports(1,&rtViewport);
 
     pRTWidthVar->SetFloat((float)g_Width);
@@ -264,9 +263,9 @@ HRESULT VolumeRenderer::InitShaders()
     //pRenderGlowVar = pEffect->GetVariableByName("useGlow")->AsScalar();
 
 	D3DXVECTOR3 recGridDim(1.0f/m_vGridDim[0], 1.0f/m_vGridDim[1], 1.0f/m_vGridDim[2]);
-    m_pEffect->GetVariableByName("gridDim")->AsVector()->SetFloatVector(m_vGridDim);
-    m_pEffect->GetVariableByName("recGridDim")->AsVector()->SetFloatVector(recGridDim);
-    m_pEffect->GetVariableByName("maxGridDim")->AsScalar()->SetFloat(m_iMaxDim);
+    V_RETURN(m_pEffect->GetVariableByName("gridDim")->AsVector()->SetFloatVector(m_vGridDim));
+    V_RETURN(m_pEffect->GetVariableByName("recGridDim")->AsVector()->SetFloatVector(recGridDim));
+    V_RETURN(m_pEffect->GetVariableByName("maxGridDim")->AsScalar()->SetFloat(float(m_iMaxDim)));
 
 
     return S_OK;
@@ -513,8 +512,8 @@ void VolumeRenderer::ComputeRayData()
     rtViewport.TopLeftY = 0;
     rtViewport.MinDepth = 0;
     rtViewport.MaxDepth = 1;
-    rtViewport.Width = g_Width;
-    rtViewport.Height = g_Height;
+    rtViewport.Width = float(g_Width);
+    rtViewport.Height = float(g_Height);
     m_pd3dImmediateContext->RSSetViewports(1,&rtViewport);
     pRTWidthVar->SetFloat((float)g_Width);
     pRTHeightVar->SetFloat((float)g_Height);
@@ -557,8 +556,8 @@ void VolumeRenderer::ComputeEdgeTexture(void)
     rtViewport.TopLeftY = 0;
     rtViewport.MinDepth = 0;
     rtViewport.MaxDepth = 1;
-    rtViewport.Width = m_iRenderTextureWidth;
-    rtViewport.Height = m_iRenderTextureHeight;
+    rtViewport.Width = float(m_iRenderTextureWidth);
+    rtViewport.Height = float(m_iRenderTextureHeight);
     m_pd3dImmediateContext->RSSetViewports(1,&rtViewport);
     pRTWidthVar->SetFloat((float)m_iRenderTextureWidth);
     pRTHeightVar->SetFloat((float)m_iRenderTextureHeight);

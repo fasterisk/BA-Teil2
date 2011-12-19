@@ -221,13 +221,13 @@ void Surface::ReadVectorFile(char *s)
 	while (!stringStartsWith(token, "nb_vertices="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
-	m_vNum = atof(token);
+	m_vNum = int(atof(token));
 	sprintf(c, "m_vNum: %d \n", m_vNum);//test
 	fputs(c, F_out);//test
 	while (!stringStartsWith(token, "nb_indices="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
-	m_iNum = atof(token);
+	m_iNum = int(atof(token));
 	sprintf(c, "m_iNum: %d \n", m_iNum);//test
 	fputs(c, F_out);//test
 	
@@ -240,15 +240,15 @@ void Surface::ReadVectorFile(char *s)
 		while (!stringStartsWith(token, "x="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].x = atof(token);
+		m_pVertices[i].x = float(atof(token));
 		while (!stringStartsWith(token, "y="))
 			token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].y = atof(token);
+		m_pVertices[i].y = float(atof(token));
 		while (!stringStartsWith(token, "z="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].z = atof(token);
+		m_pVertices[i].z = float(atof(token));
 		fgets(buff, 255, F);
 		
 		
@@ -263,7 +263,7 @@ void Surface::ReadVectorFile(char *s)
 		while (!stringStartsWith(token, "value="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pIndices[i] = atof(token);
+		m_pIndices[i] = unsigned int(atof(token));
 		
 		sprintf(c, "index[%d]=%d \n", i, m_pIndices[i]);
 		fputs(c, F_out);
@@ -276,15 +276,15 @@ void Surface::ReadVectorFile(char *s)
 	while (!stringStartsWith(token, "r="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
-	color.r = atof(token);
+	color.r = float(atof(token));
 	while (!stringStartsWith(token, "g="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
-	color.g = atof(token);
+	color.g = float(atof(token));
 	while (!stringStartsWith(token, "b="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
-	color.b = atof(token);
+	color.b = float(atof(token));
 	fgets(buff, 255, F);
 	
 	sprintf(c, "color=(%g,%g,%g) \n", color.r, color.g, color.b);

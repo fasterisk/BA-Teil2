@@ -274,12 +274,6 @@ LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bo
 //--------------------------------------------------------------------------------------
 void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext )
 {
-    if( bKeyDown )
-    {
-        switch( nChar )
-        {
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------
@@ -312,9 +306,9 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 		}
 		
 		if(iWheelDelta>0)
-			g_pScene->Scale(1.0+g_fElapsedTime*100);
+			g_pScene->Scale(1.0f+g_fElapsedTime*100.0f);
 		else if(iWheelDelta<0)
-			g_pScene->Scale(1.0-g_fElapsedTime*100);
+			g_pScene->Scale(1.0f-g_fElapsedTime*100.0f);
 	}
 	else//Move object
 	{
@@ -545,8 +539,6 @@ HRESULT ReinitWindowSizeDependentRenderTargets(ID3D11Device* pd3dDevice)
 void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime,
                                   float fElapsedTime, void* pUserContext )
 {
-    HRESULT hr;
-
 	// If the settings dialog is being shown, then render it instead of rendering the app's scene
     if( g_D3DSettingsDlg.IsActive() )
     {
@@ -571,8 +563,8 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     rtViewport.TopLeftY = 0;
     rtViewport.MinDepth = 0;
     rtViewport.MaxDepth = 1;
-    rtViewport.Width = g_Width;
-    rtViewport.Height = g_Height;
+    rtViewport.Width = float(g_Width);
+    rtViewport.Height = float(g_Height);
 
     // If the settings dialog is being shown, then
     //  render it instead of rendering the app's scene
