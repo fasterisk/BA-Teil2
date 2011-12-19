@@ -40,16 +40,11 @@ protected:
 	ID3D11Device*			m_pd3dDevice;
 	ID3D11DeviceContext*	m_pd3dImmediateContext;
 
-
-
 	// Surfaces
 	Surface*	m_pSurface1;
 	Surface*	m_pSurface2;
 	Surface*	m_pControlledSurface;
 	bool		m_bSurface1IsControlled;
-
-	// TextureGrid
-	TextureGrid*			m_pTextureGrid;
 
 	// Voxelizer
 	Voxelizer*				m_pVoxelizer;
@@ -62,9 +57,6 @@ protected:
 	ID3DX11Effect*					m_pSurfaceEffect;
 	ID3DX11Effect*					m_pVolumeRenderEffect;
 	ID3DX11Effect*					m_pVoxelizerEffect;
-
-	ID3DX11EffectTechnique*			m_TechniqueRenderSurfacesToTexture;
-	ID3D11InputLayout*				m_pInputLayout;
 
 	// Effect variables
 	ID3DX11EffectMatrixVariable*	MVPMatrixShaderVariable;

@@ -47,8 +47,6 @@ void Voxelizer::Cleanup()
     SAFE_RELEASE(m_pDSTex2DDSView);
     SAFE_RELEASE(m_pDSTex2DSRView);
 
-    SAFE_RELEASE(m_pVoxelizerEffect);
-
     m_pNZTech = NULL;
     m_pResolveWithPSTech = NULL;
     m_pWorldViewProjectionVar = NULL;

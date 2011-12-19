@@ -624,4 +624,9 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
     SAFE_DELETE(g_pTxtHelper);
 
     SAFE_DELETE(g_pScene);
+
+	SAFE_RELEASE(g_pSceneDepthTex2D);
+	SAFE_RELEASE(g_pSceneDepthTex2DNonMS);
+	SAFE_RELEASE(g_pSceneDepthSRV);
+	//SAFE_RELEASE(g_pSceneDepthRTV);
 }

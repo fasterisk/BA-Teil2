@@ -41,8 +41,6 @@ VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd
 
 VolumeRenderer::~VolumeRenderer()
 {
-	SAFE_RELEASE(m_pEffect);
-    
     SAFE_RELEASE(pGridBoxLayout);
     SAFE_RELEASE(pGridBoxVertexBuffer);
     SAFE_RELEASE(pGridBoxIndexBuffer);

@@ -21,15 +21,15 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 
 Scene::~Scene()
 {
-	//SAFE_RELEASE(m_pInputLayout);
 	SAFE_RELEASE(m_pVertexBuffer);
 	SAFE_RELEASE(m_pIndexBuffer);
 
 	SAFE_RELEASE(m_pDiffusionEffect);
 	SAFE_RELEASE(m_pVolumeRenderEffect);
-	//SAFE_DELETE(m_pTextureGrid);
-	//SAFE_DELETE(m_pVoxelizer);
-	//SAFE_DELETE(m_pVolumeRenderer);
+	SAFE_RELEASE(m_pVoxelizerEffect);
+	SAFE_RELEASE(m_pSurfaceEffect);
+	SAFE_DELETE(m_pVoxelizer);
+	SAFE_DELETE(m_pVolumeRenderer);
 
 	SAFE_DELETE(m_pVertices);
 	
@@ -42,6 +42,9 @@ Scene::~Scene()
         SAFE_RELEASE(m_pRenderTargetShaderViews[i]);
         SAFE_RELEASE(m_pRenderTargetViews[i]);
     }
+
+	SAFE_RELEASE(m_pSurface1Texture3D);
+	SAFE_RELEASE(m_pSurface1SRV);
 }
 
 
@@ -281,33 +284,8 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 	m_pVolumeRenderer->Draw(m_pSurface1SRV);
 
 	SAFE_RELEASE(m_pSurface1SRV);
-	
+}	
 
-	/*m_pd3dImmediateContext->RSSetState(m_pRasterizerStateWireframe);
-
-	MVPMatrixShaderVariable->SetMatrix(mViewProjection);
-
-	UINT stride = sizeof(VERTEX);
-	UINT offset = 0;
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
-	m_pd3dImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	D3DX11_TECHNIQUE_DESC techDesc;
-	Technique->GetDesc(&techDesc);
-
-	for( UINT p = 0; p < techDesc.Passes; ++p )
-	{
-		//apply technique
-		Technique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext );
-				
-		//draw
-		m_pd3dImmediateContext->DrawIndexed( 36, 0, 0 );
-	}
-
-	m_pd3dImmediateContext->RSSetState(m_pRasterizerStateSolid); 
-	*/
-}
 
 HRESULT Scene::InitRenderTargets(int iWidth, int iHeight, int iDepth)
 {
@@ -324,58 +302,13 @@ HRESULT Scene::InitRenderTargets(int iWidth, int iHeight, int iDepth)
 	desc.Depth = iDepth;
 	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-	for(int i = 0; i < NUM_RENDER_TARGETS; i++)
-	{
-		V_RETURN(CreateRenderTarget(i, desc));
-	}
-	
-	//TEST
 	V_RETURN( m_pd3dDevice->CreateTexture3D(&desc,NULL, &m_pSurface1Texture3D));
 
-	/*V_RETURN(TextureWidthShaderVariable->SetFloat(float(iWidth)));
-    V_RETURN(TextureHeightShaderVariable->SetFloat(float(iHeight)));
-    V_RETURN(TextureDepthShaderVariable->SetFloat(float(iDepth)));
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
-    ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
-    SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
-    SRVDesc.Texture3D.MipLevels = 1;
-    SRVDesc.Texture3D.MostDetailedMip = 0;
-	SRVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-
-	V_RETURN(CreateRTTextureAsShaderResource(RENDER_TARGET_DIFFUSE0,"Texture_diffuse0",m_pDiffusionEffect,&SRVDesc));
-	V_RETURN(CreateRTTextureAsShaderResource(RENDER_TARGET_DIFFUSE1,"Texture_diffuse1",m_pDiffusionEffect,&SRVDesc));
-	*/
 	return S_OK;
 }
 
 HRESULT Scene::InitTechniques()
 {
-	//HRESULT hr;
-	
-	/*m_TechniqueRenderSurfacesToTexture = m_pDiffusionEffect->GetTechniqueByName("RenderSurfacesToTexture");
-
-	D3DX11_PASS_SHADER_DESC passVsDesc;
-	m_TechniqueRenderSurfacesToTexture->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
-	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
-	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
-	const void *vsCodePtr = effectVsDesc.pBytecode;
-	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
-
-	// Create our vertex input layout
-    D3D11_INPUT_ELEMENT_DESC layout[] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-    };
-
-	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pInputLayout));
-
-	MVPMatrixShaderVariable = m_pDiffusionEffect->GetVariableByName("g_mModelViewProjection")->AsMatrix();
-	TextureWidthShaderVariable = m_pDiffusionEffect->GetVariableByName( "textureWidth")->AsScalar();
-    TextureHeightShaderVariable = m_pDiffusionEffect->GetVariableByName( "textureHeight")->AsScalar();
-    TextureDepthShaderVariable = m_pDiffusionEffect->GetVariableByName( "textureDepth")->AsScalar();
-	*/
 	return S_OK;
 }
 

@@ -20,11 +20,15 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 
 Surface::~Surface()
 {
+	SAFE_DELETE(m_pVertices);
+	SAFE_DELETE(m_pIndices);
+
+	SAFE_RELEASE(m_pInputLayout);
+
 	SAFE_RELEASE(m_pVertexBuffer);
 	SAFE_RELEASE(m_pIndexBuffer);
 
-	SAFE_DELETE(m_pVertices);
-	SAFE_DELETE(m_pIndices);
+	
 }
 
 void Surface::Translate(float fX, float fY, float fZ)
