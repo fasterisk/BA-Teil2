@@ -496,7 +496,7 @@ void VolumeRenderer::CalculateRenderTextureSize(int screenWidth, int screenHeigh
     }
 }
 
-void VolumeRenderer::ComputeRayData( void )
+void VolumeRenderer::ComputeRayData()
 {
     // Clear the color buffer to 0
     float blackColor[4] = {0, 0, 0, 0 };

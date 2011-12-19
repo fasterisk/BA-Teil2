@@ -386,7 +386,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
@@ -396,7 +395,6 @@
     <ClInclude Include="Voxelizer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="TextureGrid.cpp" />

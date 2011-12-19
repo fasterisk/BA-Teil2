@@ -590,7 +590,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	// Initialize the world matrices for the simulation Grid and the obstacle Mesh
     //   Grid
     D3DXMATRIX gridScale, gridRotate;
-    D3DXMatrixScaling(&gridScale, 20.0f, 20.0f, 20.0f );
+    D3DXMatrixScaling(&gridScale, 5.0f, 5.0f, 5.0f );
     D3DXMatrixRotationX(&gridRotate, 3.0f*3.1416f/2.0f);
     g_gridWorld = gridScale * gridRotate;
 

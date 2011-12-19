@@ -1,18 +1,6 @@
 #ifndef SURFACE_H
 #define SURFACE_H
 
-struct VERTEX
-{
-	float x, y, z;
-	D3DXCOLOR color;
-};
-
-struct CB_PER_FRAME_CONSTANTS
-{
-    D3DXMATRIX mModelViewProjection;
-};
-
-
 class Surface
 {
 public:

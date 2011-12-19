@@ -20,9 +20,6 @@
     <ClInclude Include="resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="BoundingBox.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Globals.h">
       <Filter>Headers</Filter>
     </ClInclude>
@@ -43,9 +40,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BoundingBox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

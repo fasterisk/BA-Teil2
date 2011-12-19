@@ -51,6 +51,17 @@ extern ID3D11ShaderResourceView*	g_pSceneDepthSRV;
 
 extern D3DXMATRIX                   g_gridWorld;
 
+struct VERTEX
+{
+	float x, y, z;
+	D3DXCOLOR color;
+};
+
+struct CB_PER_FRAME_CONSTANTS
+{
+    D3DXMATRIX mModelViewProjection;
+};
+
 
 #define WIDEN( w ) WIDEN2( w )
 #define WIDEN2( w )	L ##w
