@@ -74,5 +74,8 @@
     <None Include="Voxelizer.fx">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Surface.fx">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

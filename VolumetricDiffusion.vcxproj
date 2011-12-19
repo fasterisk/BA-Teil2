@@ -409,6 +409,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DiffusionShader11.fx" />
+    <None Include="Surface.fx" />
     <None Include="VolumeRenderer.fx" />
     <None Include="Voxelizer.fx" />
   </ItemGroup>

@@ -3,11 +3,11 @@
 #include "Surface.h"
 
 
-Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext)
+Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pSurfaceEffect)
 {
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dImmediateContext = pd3dImmediateContext;
-	
+	m_pSurfaceEffect = pSurfaceEffect;
 
 	D3DXMatrixIdentity(&m_mModel);
 	D3DXMatrixIdentity(&m_mRot);
@@ -82,6 +82,89 @@ void Surface::SetColor(float fR, float fG, float fB)
 	}
 }
 
+HRESULT Surface::Initialize(char* s)
+{
+	HRESULT hr;
+
+	ReadVectorFile(s);
+
+	InitBuffers();
+
+	m_pTechnique = m_pSurfaceEffect->GetTechniqueByName("RenderColorAndDepth");
+	m_pModelViewProjectionVar = m_pSurfaceEffect->GetVariableByName("ModelViewProjectionMatrix")->AsMatrix();
+
+	D3DX11_PASS_SHADER_DESC passVsDesc;
+	m_pTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
+	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
+	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
+	const void *vsCodePtr = effectVsDesc.pBytecode;
+	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
+
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+    {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+    };
+
+	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pInputLayout));
+	
+
+	return S_OK;
+}
+
+void Surface::Render(D3DXMATRIX mViewProjection)
+{
+	D3DXMATRIX mModelViewProjection = m_mModel * mViewProjection;
+	
+	m_pModelViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&mModelViewProjection));
+
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+	m_pd3dImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
+	
+	D3DX11_TECHNIQUE_DESC techDesc;
+	m_pTechnique->GetDesc(&techDesc);
+
+	for( UINT p = 0; p < techDesc.Passes; ++p )
+	{
+		//apply technique
+		m_pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
+				
+		//draw
+		m_pd3dImmediateContext->DrawIndexed(36, 0, 0);
+	}
+}
+
+void Surface::Render(ID3DX11EffectTechnique* pTechnique)
+{
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+	m_pd3dImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	D3DX11_TECHNIQUE_DESC techDesc;
+	pTechnique->GetDesc(&techDesc);
+
+	for( UINT p = 0; p < techDesc.Passes; ++p )
+	{
+		//apply technique
+		pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
+
+		//draw
+		m_pd3dImmediateContext->DrawIndexed( 36, 0, 0 );
+	}
+}
+
+bool stringStartsWith(const char *s, const char *val)
+{
+        return !strncmp(s, val, strlen(val));
+}
+
 HRESULT Surface::InitBuffers()
 {
 	HRESULT hr;
@@ -115,37 +198,6 @@ HRESULT Surface::InitBuffers()
 
 
 	return S_OK;
-}
-
-void Surface::Render(ID3DX11EffectTechnique* pTechnique, ID3DX11EffectMatrixVariable* pWorldViewProjectionVar, D3DXMATRIX mViewProjection)
-{
-	D3DXMATRIX mModelViewProjection = m_mModel * mViewProjection;
-	
-	pWorldViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&mModelViewProjection));
-
-	UINT stride = sizeof(VERTEX);
-	UINT offset = 0;
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
-	m_pd3dImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	
-	D3DX11_TECHNIQUE_DESC techDesc;
-	pTechnique->GetDesc(&techDesc);
-
-	for( UINT p = 0; p < techDesc.Passes; ++p )
-	{
-		//apply technique
-		pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
-				
-		//draw
-		m_pd3dImmediateContext->DrawIndexed( 36, 0, 0 );
-	}
-}
-
-bool stringStartsWith(const char *s, const char *val)
-{
-        return !strncmp(s, val, strlen(val));
 }
 
 void Surface::ReadVectorFile(char *s)

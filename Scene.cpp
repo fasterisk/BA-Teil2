@@ -55,6 +55,9 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"DiffusionShader11.fx"));
     V_RETURN(CreateEffect(str, &m_pDiffusionEffect));
 
+	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Surface.fx"));
+    V_RETURN(CreateEffect(str, &m_pSurfaceEffect));
+
 	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"VolumeRenderer.fx"));
 	V_RETURN(CreateEffect(str, &m_pVolumeRenderEffect));
 
@@ -84,15 +87,14 @@ HRESULT Scene::InitSurfaces()
 	HRESULT hr;
 
 	// Create surface1 and its buffers
-	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext);
-	m_pSurface1->ReadVectorFile("Media\\surface1.xml");
-	V_RETURN(m_pSurface1->InitBuffers());
+	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
+	V_RETURN(m_pSurface1->Initialize("Media\\surface1.xml"));
     
 	// Create surface2 and its buffers
-	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext);
-	m_pSurface2->ReadVectorFile("Media\\surface1.xml");
+	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
 	m_pSurface2->SetColor(1.0, 1.0, 1.0);
-	V_RETURN(m_pSurface2->InitBuffers());
+	V_RETURN(m_pSurface2->Initialize("Media\\surface1.xml"));
+	m_pSurface2->SetColor(1.0, 1.0, 1.0);
 	m_pSurface2->Scale(0.5);
 
 	m_pControlledSurface = m_pSurface1;
@@ -254,6 +256,9 @@ void Scene::Render(D3DXMATRIX mViewProjection)
         
 	m_pVoxelizer->Voxelize(gridWorldInv, m_pSurface1);
 	
+
+	// draw color and depth of the surfaces
+	m_pSurface1->Render(mViewProjection);
 	
 	D3D11_TEXTURE3D_DESC desc;
 	m_pSurface1Texture3D->GetDesc(&desc);

@@ -416,15 +416,17 @@ HRESULT Voxelizer::RenderClippedMesh(float zNear, float zFar, ID3DX11EffectTechn
     HRESULT hr(S_OK);
     D3DXMATRIX proj;
     D3DXMATRIX worldViewProj;
+	D3DXMATRIX modelViewProj;
 
     D3DXMatrixOrthoOffCenterLH(&proj, -0.5, 0.5, -0.5, 0.5, zNear, zFar);
     D3DXMatrixMultiply(&worldViewProj, &m_objToVolumeXForm, &proj);
-    //V_RETURN(m_pWorldViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&worldViewProj)));
+	D3DXMatrixMultiply(&modelViewProj, &m_pSurface->m_mModel, &worldViewProj);
+    V_RETURN(m_pWorldViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&modelViewProj)));
     
 	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
-
+	
 	//Render surface
-    m_pSurface->Render(pTechnique, m_pWorldViewProjectionVar, worldViewProj);
+	m_pSurface->Render(pTechnique);
 
     return hr;
 }

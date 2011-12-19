@@ -59,6 +59,7 @@ protected:
 
 	// Effects and Techniques
 	ID3DX11Effect*					m_pDiffusionEffect;
+	ID3DX11Effect*					m_pSurfaceEffect;
 	ID3DX11Effect*					m_pVolumeRenderEffect;
 	ID3DX11Effect*					m_pVoxelizerEffect;
 

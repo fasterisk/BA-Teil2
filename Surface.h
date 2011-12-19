@@ -4,29 +4,17 @@
 class Surface
 {
 public:
+	
+	Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pSurfaceEffect);
+	~Surface();
+	
 	int m_vNum;
 	VERTEX *m_pVertices;
 
 	int m_iNum;
 	unsigned int *m_pIndices;
 
-	ID3D11Buffer* m_pVertexBuffer;
-	ID3D11Buffer* m_pIndexBuffer;
-
 	D3DXMATRIX m_mModel;
-	D3DXMATRIX m_mRot;
-	D3DXMATRIX m_mTrans;
-	D3DXMATRIX m_mTransInv;
-	
-
-	Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext);
-	~Surface();
-
-
-	ID3D11Device*					m_pd3dDevice;
-	ID3D11DeviceContext*			m_pd3dImmediateContext;
-
-	D3DXVECTOR3 m_translation;
 
 	void Translate(float fX, float fY, float fZ);
 	
@@ -36,11 +24,31 @@ public:
 
 	void Scale(float fFactor);
 
-	void SetColor(float fR, float fG, float fB);//has to be called before initbuffers or you have to repeat initbuffers
+	void SetColor(float fR, float fG, float fB);//after that you need to init buffers again
+
+	HRESULT Initialize(char *s);
+	void Render(D3DXMATRIX mViewProjection);
+	void Render(ID3DX11EffectTechnique* pTechnique);
+
+protected:
+
+	ID3D11Device*					m_pd3dDevice;
+	ID3D11DeviceContext*			m_pd3dImmediateContext;
+	ID3DX11Effect*					m_pSurfaceEffect;
+	ID3DX11EffectTechnique*			m_pTechnique;
+	ID3D11InputLayout*				m_pInputLayout;
+
+	ID3DX11EffectMatrixVariable		*m_pModelViewProjectionVar;
+
+	ID3D11Buffer* m_pVertexBuffer;
+	ID3D11Buffer* m_pIndexBuffer;
+
+	D3DXMATRIX m_mRot;
+	D3DXMATRIX m_mTrans;
+	D3DXMATRIX m_mTransInv;
+	D3DXVECTOR3 m_translation;
 
 	HRESULT InitBuffers();
-	void Render(ID3DX11EffectTechnique* pTechnique, ID3DX11EffectMatrixVariable* pWorldViewProjectionVar, D3DXMATRIX mViewProjection);
-
 	void ReadVectorFile(char *s);
 };
 
