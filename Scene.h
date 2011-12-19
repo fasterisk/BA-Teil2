@@ -18,7 +18,7 @@ public:
 	HRESULT Initialize(int iTexWidth, int iTexHeight, int iTexDepth);
 	HRESULT SetScreenSize(int iWidth, int iHeight);
 
-	void Render(D3DXMATRIX mViewProjection);
+	void Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneDepthRT, ID3D11DepthStencilView* pDSV, D3DXMATRIX mViewProjection);
 
 	void ChangeControlledSurface();
 	void Translate(float fX, float fY, float fZ);

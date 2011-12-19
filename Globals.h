@@ -47,7 +47,7 @@ extern int			g_RednessFactor;
 extern float		g_xyVelocityScale;
 extern float		g_zVelocityScale;
 extern D3DXMATRIX	g_View;
-extern D3DXMATRIX	g_Projection;
+extern D3DXMATRIX	g_Proj;
 extern float        g_Fovy;
 
 extern ID3D11ShaderResourceView*	g_pSceneDepthSRV;

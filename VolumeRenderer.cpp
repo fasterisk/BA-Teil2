@@ -160,7 +160,7 @@ void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV)
 
 	// worldViewProjection is used to transform the volume box to screen space
     D3DXMATRIX worldViewProjection;
-    worldViewProjection = worldView * g_Projection;
+    worldViewProjection = worldView * g_Proj;
     pWorldViewProjectionVar->SetMatrix( (float*)&worldViewProjection );
 
     // invWorldViewProjection is used to transform positions in the "near" plane into grid space

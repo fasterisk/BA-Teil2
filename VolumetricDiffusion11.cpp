@@ -35,7 +35,7 @@ int							g_RednessFactor = 5;
 float						g_xyVelocityScale = 4.8f;
 float						g_zVelocityScale = 4.0f;
 D3DXMATRIX					g_View;
-D3DXMATRIX					g_Projection;
+D3DXMATRIX					g_Proj;
 float						g_Fovy = D3DX_PI * 0.25f;
 
 ID3D11Texture2D*            g_pSceneDepthTex2D      = NULL;
@@ -423,7 +423,7 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     g_Camera.SetEnablePositionMovement(true);
     g_Camera.SetScalers(0.004f, 20.0f);
     g_View = *g_Camera.GetViewMatrix();
-    g_Projection = *g_Camera.GetProjMatrix();
+    g_Proj = *g_Camera.GetProjMatrix();
 
     return S_OK;
 }
@@ -549,8 +549,9 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     // Clear the render target and depth stencil
     float ClearColor[4] = { 0.0f, 0.25f, 0.25f, 0.55f };
     ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
-    pd3dImmediateContext->ClearRenderTargetView( pRTV, ClearColor );
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
+
+    pd3dImmediateContext->ClearRenderTargetView( pRTV, ClearColor );
     pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 
 	//extreme performance loss:
@@ -588,15 +589,12 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 
 	// UPDATE GLOBAL VARIABLES FOR VOLUME RENDERING
 	g_View = *g_Camera.GetViewMatrix();
-	g_Projection = *g_Camera.GetProjMatrix();
+	g_Proj = *g_Camera.GetProjMatrix();
 	
 	D3DXMATRIX mViewProjection;
-    D3DXMATRIX mProj = *g_Camera.GetProjMatrix();
-    D3DXMATRIX mView = *g_Camera.GetViewMatrix();
+	D3DXMatrixMultiply(&mViewProjection, &g_View, &g_Proj);
 
-	mViewProjection = mView * mProj;
-
-	g_pScene->Render(mViewProjection);
+	g_pScene->Render(pRTV, g_pSceneDepthRTV, pDSV, mViewProjection);
 
 	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_HUD.OnRender( fElapsedTime );

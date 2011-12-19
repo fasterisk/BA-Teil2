@@ -246,9 +246,9 @@ HRESULT Scene::SetScreenSize(int iWidth, int iHeight)
     return m_pVolumeRenderer->SetScreenSize(iWidth, iHeight);
 }
 
-void Scene::Render(D3DXMATRIX mViewProjection)
+void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneDepthRTV, ID3D11DepthStencilView* pDSV, D3DXMATRIX mViewProjection)
 {
-	UpdateVertexBuffer();
+	//UpdateVertexBuffer();
 	
 	// Compute mesh-to-grid xform
     D3DXMATRIX gridWorldInv;
@@ -256,10 +256,22 @@ void Scene::Render(D3DXMATRIX mViewProjection)
         
 	m_pVoxelizer->Voxelize(gridWorldInv, m_pSurface1);
 	
+	D3D11_VIEWPORT rtViewport;
+    rtViewport.TopLeftX = 0;
+    rtViewport.TopLeftY = 0;
+    rtViewport.MinDepth = 0;
+    rtViewport.MaxDepth = 1;
+    rtViewport.Width = float(g_Width);
+    rtViewport.Height = float(g_Height);
 
+	m_pd3dImmediateContext->RSSetViewports(1,&rtViewport);
+	ID3D11RenderTargetView *pRTVs[2] = { pRTV, pSceneDepthRTV };
+	m_pd3dImmediateContext->OMSetRenderTargets(2, pRTVs, pDSV);
 	// draw color and depth of the surfaces
 	m_pSurface1->Render(mViewProjection);
 	
+	m_pd3dImmediateContext->OMSetRenderTargets( 0, NULL, NULL );
+
 	D3D11_TEXTURE3D_DESC desc;
 	m_pSurface1Texture3D->GetDesc(&desc);
 	m_pd3dDevice->CreateShaderResourceView( m_pSurface1Texture3D, &SRVDesc, &m_pSurface1SRV);
