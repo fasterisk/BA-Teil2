@@ -132,12 +132,6 @@ void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV)
     pZFarVar->SetFloat(g_zFar);
 
 	
-	//StringCchPrintfA( sz, 100, "g_zNear: %f \n", g_zNear ); 
-	//DXUTOutputDebugStringA(sz);
-
-	//StringCchPrintfA( sz, 100, "g_zFar: %f \n", g_zFar ); 
-	//DXUTOutputDebugStringA(sz);
-
     D3DXMATRIX worldView = g_gridWorld * g_View;
 
     // The length of one of the axis of the worldView matrix is the length of longest side of the box
@@ -197,7 +191,7 @@ void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV)
 
 	// Do edge detection on this image to find any
     // problematic areas where we need to raycast at higher resolution
-    //ComputeEdgeTexture();
+    ComputeEdgeTexture();
 	
     // Raycast into the temporary render target: 
     //  raycasting is done at the smaller resolution, using a fullscreen quad
