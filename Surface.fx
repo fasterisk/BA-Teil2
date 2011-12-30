@@ -17,12 +17,6 @@ RasterizerState CullBack
     CullMode = Back;
 };
 
-BlendState NoBlending
-{
-    BlendEnable[0] = false;
-    RenderTargetWriteMask[0] = 0x0F;
-};
-
 
 matrix    ModelViewProjectionMatrix;
 
@@ -58,7 +52,7 @@ VsOutput VS_COLOR_AND_DEPTH(VsInput input)
 
     output.Pos = mul(float4(input.Pos, 1.0f), ModelViewProjectionMatrix);
 	output.Color = input.Color;
-    output.Depth = output.Pos.w;
+    output.Depth = output.Pos.z;
 
     return output;
 }
@@ -91,7 +85,6 @@ technique10 RenderColorAndDepth
 
         SetDepthStencilState( WriteDepthTest, 0 );
         SetRasterizerState( CullBack );
-        SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
     }
 }
 

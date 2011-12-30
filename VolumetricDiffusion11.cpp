@@ -51,12 +51,13 @@ int							g_mouseY = 0;
 int							g_mouseSpeed = 8;
 bool						g_bRotatesWithMouse = true;
 bool						g_bCameraActive = false;
+float						g_fAspectRatio = 0;
 
 float						g_fElapsedTime = 0;
 
-int							g_iTextureWidth = 200;
-int							g_iTextureHeight = 200;
-int							g_iTextureDepth = 200;
+int							g_iTextureWidth = 32;
+int							g_iTextureHeight = 32;
+int							g_iTextureDepth = 32;
 bool						g_bBlockMouseDragging = false;
 
 // Texthelper
@@ -166,16 +167,16 @@ void InitApp()
 	g_SampleUI.GetRadioButton( IDC_ROTATE )->SetChecked(true);
 	g_SampleUI.AddButton( IDC_CHANGE_TEXTRES, L"Change texture res.", 0, iY+=52, 170, 30);
 	StringCchPrintf( sz, 100, L"Texture Width: %d", g_iTextureWidth ); 
-	g_SampleUI.AddStatic( IDC_TEXTRES_WIDTH_STATIC, sz, 15, iY += 35, 125, 22 );
-	g_SampleUI.AddSlider( IDC_TEXTRES_WIDTH_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200 );
+	//g_SampleUI.AddStatic( IDC_TEXTRES_WIDTH_STATIC, sz, 15, iY += 35, 125, 22 );
+	//g_SampleUI.AddSlider( IDC_TEXTRES_WIDTH_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200 );
 
     StringCchPrintf( sz, 100, L"Texture Height: %d", g_iTextureHeight ); 
-    g_SampleUI.AddStatic( IDC_TEXTRES_HEIGHT_STATIC, sz, 15, iY += 24, 125, 22 );
-    g_SampleUI.AddSlider( IDC_TEXTRES_HEIGHT_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200);
+    //g_SampleUI.AddStatic( IDC_TEXTRES_HEIGHT_STATIC, sz, 15, iY += 24, 125, 22 );
+    //g_SampleUI.AddSlider( IDC_TEXTRES_HEIGHT_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200);
 
     StringCchPrintf( sz, 100, L"Texture Depth: %d", g_iTextureDepth ); 
-    g_SampleUI.AddStatic( IDC_TEXTRES_DEPTH_STATIC, sz, 15, iY += 24, 125, 22 );
-    g_SampleUI.AddSlider( IDC_TEXTRES_DEPTH_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200);
+    //g_SampleUI.AddStatic( IDC_TEXTRES_DEPTH_STATIC, sz, 15, iY += 24, 125, 22 );
+    //g_SampleUI.AddSlider( IDC_TEXTRES_DEPTH_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200);
 
 	// Setup the camera's view parameters
     D3DXVECTOR3 vecEye( 0.0f, 0.0f, -4.0f );
@@ -274,6 +275,18 @@ LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bo
 //--------------------------------------------------------------------------------------
 void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext )
 {
+	switch(nChar) {
+        case '+':
+			g_zNear += 1.0f;
+			g_Camera.SetProjParams( D3DX_PI / 4, g_fAspectRatio, g_zNear, g_zFar);
+            break;
+        case '-':
+			if(g_zNear < 2.0)
+				break;
+			g_zNear -= 1.0f;
+			g_Camera.SetProjParams( D3DX_PI / 4, g_fAspectRatio, g_zNear, g_zFar);
+            break;
+    }
 }
 
 //--------------------------------------------------------------------------------------
@@ -306,9 +319,9 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 		}
 		
 		if(iWheelDelta>0)
-			g_pScene->Scale(1.0f+g_fElapsedTime*100.0f);
+			g_pScene->Scale(1.02f);
 		else if(iWheelDelta<0)
-			g_pScene->Scale(1.0f-g_fElapsedTime*100.0f);
+			g_pScene->Scale(0.98f);
 	}
 	else//Move object
 	{
@@ -324,9 +337,9 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 		}
 
 		if(iWheelDelta>0)
-			g_pScene->Translate(100*g_fElapsedTime*lookAt.x, 100*g_fElapsedTime*lookAt.y, 100*g_fElapsedTime*lookAt.z);
+			g_pScene->Translate(100*lookAt.x, 100*lookAt.y, 100*lookAt.z);
 		else if(iWheelDelta<0)
-			g_pScene->Translate(-100*g_fElapsedTime*lookAt.x, -100*g_fElapsedTime*lookAt.y, -100*g_fElapsedTime*lookAt.z);
+			g_pScene->Translate(-100*lookAt.x, -100*lookAt.y, -100*lookAt.z);
 	}
 
 	g_mouseX = iX;
@@ -441,8 +454,8 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
     V_RETURN( g_D3DSettingsDlg.OnD3D11ResizedSwapChain( pd3dDevice, pBackBufferSurfaceDesc ) );
 
     // Setup the camera's projection parameters
-    float fAspectRatio = pBackBufferSurfaceDesc->Width / ( FLOAT )pBackBufferSurfaceDesc->Height;
-    g_Camera.SetProjParams( D3DX_PI / 4, fAspectRatio, 2.0f, 4000.0f );
+    g_fAspectRatio = pBackBufferSurfaceDesc->Width / ( FLOAT )pBackBufferSurfaceDesc->Height;
+    g_Camera.SetProjParams( D3DX_PI / 4, g_fAspectRatio, g_zNear, g_zFar);
     g_Camera.SetWindow( pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height );
     g_Camera.SetButtonMasks( MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_LEFT_BUTTON );
 
@@ -476,7 +489,7 @@ HRESULT ReinitWindowSizeDependentRenderTargets(ID3D11Device* pd3dDevice)
 
     SAFE_RELEASE(g_pSceneDepthTex2DNonMS);
     SAFE_RELEASE(g_pSceneDepthTex2D);
-    SAFE_RELEASE(g_pSceneDepthRTV);
+    //SAFE_RELEASE(g_pSceneDepthRTV);
     SAFE_RELEASE(g_pSceneDepthSRV);
 
     D3D11_TEXTURE2D_DESC desc;
@@ -545,7 +558,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
         g_D3DSettingsDlg.OnRender( fElapsedTime );
         return;
     }
-		
+
     // Clear the render target and depth stencil
     float ClearColor[4] = { 0.0f, 0.25f, 0.25f, 0.55f };
     ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
@@ -555,8 +568,8 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 
 	//extreme performance loss:
-	//float colorZ[4] = { g_zFar,0,0,0};
-	//pd3dImmediateContext->ClearRenderTargetView( g_pSceneDepthRTV, colorZ );
+	float colorZ[4] = { 0,0,0,0};
+	pd3dImmediateContext->ClearRenderTargetView( g_pSceneDepthRTV, colorZ );
 	
 	// Create a viewport to match the screen size
     D3D11_VIEWPORT rtViewport;
@@ -580,8 +593,9 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
         return;
     }
 
-	// Initialize the world matrices for the simulation Grid and the obstacle Mesh
-    //   Grid
+	//g_pScene->InitRenderTargets(g_iTextureWidth, g_iTextureHeight, g_iTextureDepth);
+
+	// Initialize the grid matrices
     D3DXMATRIX gridScale, gridRotate;
     D3DXMatrixScaling(&gridScale, 5.0f, 5.0f, 5.0f );
     D3DXMatrixRotationX(&gridRotate, 3.0f*3.1416f/2.0f);
@@ -593,7 +607,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	
 	D3DXMATRIX mViewProjection;
 	D3DXMatrixMultiply(&mViewProjection, &g_View, &g_Proj);
-
+	
 	g_pScene->Render(pRTV, g_pSceneDepthRTV, pDSV, mViewProjection);
 
 	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );

@@ -115,7 +115,6 @@ HRESULT Scene::InitBuffers()
 {
 	HRESULT hr;
 
-	FILE *F_out = fopen("Media\\test_CreateBoundingBox.txt", "w");
 	char c[256];
 
 	m_pVertices = new VERTEX[8];
@@ -204,12 +203,6 @@ HRESULT Scene::InitBuffers()
 	m_pVertices[7].z = max.z;
 	m_pVertices[7].color = D3DXCOLOR(1.0, 0.0, 0.0, 1.0);
 
-	for(int i = 0; i < 8; i++)
-	{
-		sprintf(c, "vertex[%d]=(%g,%g,%g) color=(%g,%g,%g) \n", i, m_pVertices[i].x, m_pVertices[i].y, m_pVertices[i].z, m_pVertices[i].color.r, m_pVertices[i].color.g, m_pVertices[i].color.b);
-		fputs(c, F_out);
-	}
-
 	//Create Vertex buffer
 	D3D11_BUFFER_DESC vbd;
 	ZeroMemory(&vbd, sizeof(vbd));
@@ -238,8 +231,6 @@ HRESULT Scene::InitBuffers()
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 	V_RETURN(m_pd3dDevice->CreateBuffer(&ibd, &indexData, &m_pIndexBuffer));
-
-	fclose(F_out);
 
 	return S_OK;
 }

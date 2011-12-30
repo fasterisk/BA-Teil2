@@ -195,6 +195,9 @@ void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV)
     //  w is the length of the ray in view space
     ComputeRayData();
 
+	// Do edge detection on this image to find any
+    // problematic areas where we need to raycast at higher resolution
+    //ComputeEdgeTexture();
 	
     // Raycast into the temporary render target: 
     //  raycasting is done at the smaller resolution, using a fullscreen quad

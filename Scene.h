@@ -26,6 +26,8 @@ public:
 	void RotateY(float fFactor);
 	void Scale(float fFactor);
 
+	HRESULT InitRenderTargets(int iWidth, int iHeight, int iDepth);
+
 	// BoundingBox Wireframe Methods
 	HRESULT UpdateVertexBuffer();
 	void RenderWireframe(D3DXMATRIX mViewProjection);
@@ -34,7 +36,6 @@ protected:
 	HRESULT InitSurfaces();
 	HRESULT InitBuffers();
 	HRESULT InitTechniques();
-	HRESULT InitRenderTargets(int iWidth, int iHeight, int iDepth);
 
 	// Device
 	ID3D11Device*			m_pd3dDevice;

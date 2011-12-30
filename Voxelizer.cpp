@@ -316,7 +316,7 @@ void Voxelizer::DrawSlices(void)
 
 HRESULT Voxelizer::Voxelize(D3DXMATRIX& objToVolumeXForm, Surface *pSurface)
 {
-    m_objToVolumeXForm = objToVolumeXForm;
+	D3DXMatrixMultiply(&m_objToVolumeXForm, &pSurface->m_mModel, &objToVolumeXForm);
     m_pSurface = pSurface;
 
     HRESULT hr = DoVoxelization();

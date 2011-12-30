@@ -132,7 +132,7 @@ struct GsResOutput
 VsVoxOutput VS_VOXELIZE( VsVoxInput input )
 {
     VsVoxOutput output;
-    output.Pos = mul( float4(input.Pos,1), WorldViewProjection );
+    output.Pos = mul( float4(input.Pos,1.0f), WorldViewProjection );
     return output;
 }
 
@@ -179,7 +179,7 @@ float4 PS_RESOLVE( GsResOutput input ) : SV_Target
 
 //--------------------------------------------------------------------------------------
 
-technique11 VoxelizeNZ
+technique10 VoxelizeNZ
 {
     pass NonZeroRule
     {
@@ -192,7 +192,7 @@ technique11 VoxelizeNZ
     }
 }
 
-technique11 VoxelizeResolveWithPS
+technique10 VoxelizeResolveWithPS
 {
     pass ResolveWithPS
     {
