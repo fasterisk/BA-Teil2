@@ -234,7 +234,6 @@ HRESULT Scene::InitBoundingBuffers()
 	V_RETURN(m_pd3dDevice->CreateBuffer(&ibd, &indexData, &m_pBIndexBuffer));
 
 	m_pSETechnique = m_pSurfaceEffect->GetTechniqueByName("RenderColorAndDepth");
-	m_pSEWireframeTechnique = m_pSurfaceEffect->GetTechniqueByName("RenderWireframe");
 	m_pSEModelViewProjectionVar = m_pSurfaceEffect->GetVariableByName("ModelViewProjectionMatrix")->AsMatrix();
 
 	D3DX11_PASS_SHADER_DESC passVsDesc;
@@ -283,12 +282,8 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 	m_pd3dImmediateContext->OMSetRenderTargets(2, pRTVs, pDSV);
 	// draw color and depth of the surfaces
 	//m_pSurface1->Render(mViewProjection);
-	RenderBoundingBox(mViewProjection, false);
+	RenderBoundingBox(mViewProjection);
 	
-	// draw wireframe bounding box
-	//m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
-	//RenderBoundingBox(mViewProjection, true);
-
 	m_pd3dImmediateContext->OMSetRenderTargets( 0, NULL, NULL );
 
 	D3D11_TEXTURE3D_DESC desc;
@@ -302,7 +297,7 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 	SAFE_RELEASE(m_pSurface1SRV);
 }	
 
-void Scene::RenderBoundingBox(D3DXMATRIX mViewProjection, bool bWireframe)
+void Scene::RenderBoundingBox(D3DXMATRIX mViewProjection)
 {
 	m_pSEModelViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&mViewProjection));
 
@@ -315,10 +310,7 @@ void Scene::RenderBoundingBox(D3DXMATRIX mViewProjection, bool bWireframe)
 	
 	
 	D3DX11_TECHNIQUE_DESC techDesc;
-	if(bWireframe)
-		m_pSEWireframeTechnique->GetDesc(&techDesc);
-	else
-		m_pSETechnique->GetDesc(&techDesc);
+	m_pSETechnique->GetDesc(&techDesc);
 
 	for( UINT p = 0; p < techDesc.Passes; ++p )
 	{

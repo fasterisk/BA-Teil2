@@ -133,17 +133,3 @@ technique10 RenderColorAndDepth
 		SetRasterizerState(Wireframe);
 	}
 }
-
-technique10 RenderWireframe
-{
-	pass
-	{
-		SetVertexShader(CompileShader(vs_4_0, VS_WIREFRAME()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_4_0, PS_WIREFRAME()));
-
-		SetDepthStencilState( EnableDepth, 0);
-		SetRasterizerState(Wireframe);
-	}
-}
-

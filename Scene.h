@@ -30,7 +30,7 @@ public:
 
 	// BoundingBox Wireframe Methods
 	HRESULT UpdateBoundingBuffer();
-	void RenderBoundingBox(D3DXMATRIX mViewProjection, bool bWireframe);
+	void RenderBoundingBox(D3DXMATRIX mViewProjection);
 
 protected:
 	HRESULT InitSurfaces();
@@ -63,7 +63,6 @@ protected:
 	ID3D11InputLayout*				m_pSEInputLayout;
 	ID3DX11EffectMatrixVariable		*m_pSEModelViewProjectionVar;
 
-	ID3DX11EffectTechnique*			m_pSEWireframeTechnique;
 	
 	// Effect variables
 	ID3DX11EffectMatrixVariable*	MVPMatrixShaderVariable;
