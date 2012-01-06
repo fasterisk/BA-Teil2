@@ -5,12 +5,6 @@ class TextureGrid;
 
 class Scene {
 public:
-	enum RENDER_TARGET
-    {
-        RENDER_TARGET_DIFFUSE0,
-        RENDER_TARGET_DIFFUSE1,
-        NUM_RENDER_TARGETS
-    };
 
 	Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext);
 	~Scene();
@@ -47,6 +41,9 @@ protected:
 	Surface*	m_pControlledSurface;
 	bool		m_bSurface1IsControlled;
 
+	VERTEX m_vMin;
+	VERTEX m_vMax;
+
 	// Voxelizer
 	Voxelizer*				m_pVoxelizer;
 
@@ -54,7 +51,6 @@ protected:
 	VolumeRenderer*			m_pVolumeRenderer;
 
 	// Effects and Techniques
-	ID3DX11Effect*					m_pDiffusionEffect;
 	ID3DX11Effect*					m_pVolumeRenderEffect;
 	ID3DX11Effect*					m_pVoxelizerEffect;
 
@@ -70,13 +66,6 @@ protected:
     ID3DX11EffectScalarVariable*	TextureHeightShaderVariable;
     ID3DX11EffectScalarVariable*	TextureDepthShaderVariable;
 
-	// Render targets (3d textures)
-	/*	Textures from part 1
-	ID3D10Texture2D *m_diffuseTexture[2];     // two textures used interleavedly for diffusion
-	ID3D10Texture2D *m_distDirTexture;    // two textures used interleavedly for diffusion (blurr texture)
-	ID3D10Texture2D *m_pDepthStencil;         // for z culling
-	ID3D10Texture2D *m_otherTexture;		// texture that keeps the color on the other side of a curve
-	*/
 	ID3D11Texture3D*						m_pRenderTargets3D[NUM_RENDER_TARGETS]; 
 	ID3D11ShaderResourceView*				m_pRenderTargetShaderViews[NUM_RENDER_TARGETS];
 	ID3D11RenderTargetView*					m_pRenderTargetViews[NUM_RENDER_TARGETS];
@@ -94,11 +83,9 @@ protected:
 	ID3D11Buffer *m_pBIndexBuffer;
 
 
-
 	// Helper Functions
 
 	HRESULT CreateRenderTarget(int rtIndex, D3D11_TEXTURE3D_DESC desc);
-	HRESULT CreateRTTextureAsShaderResource(RENDER_TARGET rtIndex, LPCSTR shaderTextureName, ID3DX11Effect* pEffect, D3D11_SHADER_RESOURCE_VIEW_DESC *SRVDesc );
 
 	// Shader and effect creation
 	HRESULT CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect);

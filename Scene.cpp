@@ -25,7 +25,6 @@ Scene::~Scene()
 	SAFE_RELEASE(m_pBIndexBuffer);
 	SAFE_RELEASE(m_pSEInputLayout);
 
-	SAFE_RELEASE(m_pDiffusionEffect);
 	SAFE_RELEASE(m_pVolumeRenderEffect);
 	SAFE_RELEASE(m_pVoxelizerEffect);
 	SAFE_RELEASE(m_pSurfaceEffect);
@@ -56,9 +55,6 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	// Initialize Shaders
     WCHAR str[MAX_PATH];
 
-	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"DiffusionShader11.fx"));
-    V_RETURN(CreateEffect(str, &m_pDiffusionEffect));
-
 	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Surface.fx"));
     V_RETURN(CreateEffect(str, &m_pSurfaceEffect));
 
@@ -80,7 +76,7 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 
 	// Initialize VolumeRenderer
 	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
-	V_RETURN(m_pVolumeRenderer->Initialize(iTexWidth, iTexHeight, iTexDepth));
+	V_RETURN(m_pVolumeRenderer->Initialize(iTexWidth, iTexHeight, iTexDepth, m_vMin, m_vMax));
 
 
 	return S_OK;
@@ -170,6 +166,10 @@ HRESULT Scene::InitBoundingBuffers()
 		if(temp.z > max.z)
 			max.z = temp.z;
 	}
+
+	m_vMin = min;
+	m_vMax = max;
+
 
 	m_pBVertices[0].x = min.x;
 	m_pBVertices[0].y = min.y;
@@ -292,7 +292,7 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 
 
 
-	m_pVolumeRenderer->Draw(m_pSurface1SRV);
+	m_pVolumeRenderer->Draw(m_pSurface1SRV, m_vMin, m_vMax);
 
 	SAFE_RELEASE(m_pSurface1SRV);
 }	
@@ -402,23 +402,6 @@ HRESULT Scene::CreateRenderTarget(int rtIndex, D3D11_TEXTURE3D_DESC desc)
     return S_OK;
 }
 
-HRESULT Scene::CreateRTTextureAsShaderResource(RENDER_TARGET rtIndex, LPCSTR shaderTextureName,
-                                            ID3DX11Effect* pEffect, D3D11_SHADER_RESOURCE_VIEW_DESC *SRVDesc )
-{
-    HRESULT hr;
-
-    // Create the "shader resource view" and "shader resource variable" for the given texture 
-    SAFE_RELEASE(m_pRenderTargetShaderViews[rtIndex]);
-    V_RETURN(m_pd3dDevice->CreateShaderResourceView( m_pRenderTargets3D[rtIndex], 
-        SRVDesc, &m_pRenderTargetShaderViews[rtIndex]));
-    m_pShaderResourceVariables[rtIndex] = m_pDiffusionEffect->GetVariableByName(shaderTextureName)->AsShaderResource();
-
-    // Then we bind the texture SRView to the SRVar
-    V_RETURN(m_pShaderResourceVariables[rtIndex]->SetResource(m_pRenderTargetShaderViews[rtIndex] ));
-    
-    return S_OK;
-}
-
 HRESULT Scene::UpdateBoundingBuffer()
 {
 	HRESULT hr;
@@ -475,6 +458,9 @@ HRESULT Scene::UpdateBoundingBuffer()
 		if(temp.z > max.z)
 			max.z = temp.z;
 	}
+
+	m_vMin = min;
+	m_vMax = max;
 
 	m_pBVertices[0].x = min.x;
 	m_pBVertices[0].y = min.y;

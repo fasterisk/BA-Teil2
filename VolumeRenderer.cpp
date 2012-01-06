@@ -19,6 +19,10 @@ VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd
 
 	pQuadVertexBuffer = NULL;
 	pQuadLayout = NULL;
+
+	pGridBoxLayout = NULL;
+    pGridBoxVertexBuffer = NULL;
+    pGridBoxIndexBuffer = NULL;
 	
 	pRayDataTex2D[0] = NULL;
     pRayDataTex2D[1] = NULL;
@@ -65,7 +69,7 @@ VolumeRenderer::~VolumeRenderer()
     SAFE_RELEASE(pEdgeRTV);
 }
 
-HRESULT VolumeRenderer::Initialize(int gridWidth, int gridHeight, int gridDepth)
+HRESULT VolumeRenderer::Initialize(int gridWidth, int gridHeight, int gridDepth, VERTEX vMin, VERTEX vMax)
 {
     HRESULT hr;
 
@@ -96,12 +100,8 @@ HRESULT VolumeRenderer::Initialize(int gridWidth, int gridHeight, int gridDepth)
     m_bUseFP32Blending = false;
 
     V_RETURN(InitShaders());
-    V_RETURN(CreateGridBox());
-    V_RETURN(CreateScreenQuad());
-
-    //V_RETURN(CreateJitterTexture());
- //   V_RETURN(loadTextureFromFile(L"..\\..\\Media\\FireTransferFunction.dds","fireTransferFunction",m_pD3DDevice,pEffect));
-
+    V_RETURN(CreateGridBox(vMin, vMax));
+    V_RETURN(CreateScreenQuad(vMin, vMax));
 
     return S_OK;
 }
@@ -114,19 +114,14 @@ HRESULT VolumeRenderer::SetScreenSize( int width, int height )
     return S_OK;
 }
 
-void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV)
+void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV, VERTEX vMin, VERTEX vMax)
 {
-    pColorTexVar->SetResource(pSourceTexSRV);
-    // Set some variables required by the shaders:
-    //=========================================================================
+	//update box according to boundingbox
+	//CreateGridBox(vMin, vMax);
+	//CreateScreenQuad(vMin, vMax);
 
-    (m_pEffect->GetVariableByName("glowContribution")->AsScalar())->SetFloat(g_glowContribution);
-    (m_pEffect->GetVariableByName("finalIntensityScale")->AsScalar())->SetFloat(g_finalIntensityScale);
-    (m_pEffect->GetVariableByName("finalAlphaScale")->AsScalar())->SetFloat(g_finalAlphaScale);
-    (m_pEffect->GetVariableByName("smokeColorMultiplier")->AsScalar())->SetFloat(g_smokeColorMultiplier);
-    (m_pEffect->GetVariableByName("smokeAlphaMultiplier")->AsScalar())->SetFloat(g_smokeAlphaMultiplier);
-    (m_pEffect->GetVariableByName("RednessFactor")->AsScalar())->SetInt(g_RednessFactor);
-	
+    pColorTexVar->SetResource(pSourceTexSRV);
+
     // The near and far planes are used to unproject the scene's z-buffer values
     pZNearVar->SetFloat(g_zNear);
     pZFarVar->SetFloat(g_zFar);
@@ -207,10 +202,7 @@ void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV)
 
     pRayDataSmallVar->SetResource(pRayDataSmallSRV);
    
-    if(g_useFire)
-        m_pTechnique->GetPassByName("QuadRaycastFire")->Apply(0, m_pd3dImmediateContext);
-    else
-        m_pTechnique->GetPassByName("QuadRaycastSmoke")->Apply(0, m_pd3dImmediateContext);
+       m_pTechnique->GetPassByName("QuadRaycast")->Apply(0, m_pd3dImmediateContext);
     DrawScreenQuad();
 
    
@@ -231,10 +223,7 @@ void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV)
     pRayCastVar->SetResource(pRayCastSRV);
     pEdgeVar->SetResource(pEdgeSRV);
     
-    if(g_useFire)
-        m_pTechnique->GetPassByName("QuadRaycastCopyFire")->Apply(0, m_pd3dImmediateContext);
-    else
-        m_pTechnique->GetPassByName("QuadRaycastCopySmoke")->Apply(0, m_pd3dImmediateContext);
+    m_pTechnique->GetPassByName("QuadRaycastCopy")->Apply(0, m_pd3dImmediateContext);
     DrawScreenQuad();
 	
 }
@@ -255,7 +244,6 @@ HRESULT VolumeRenderer::InitShaders()
     pInvWorldViewProjectionVar = m_pEffect->GetVariableByName("InvWorldViewProjection")->AsMatrix();
     pRTWidthVar = m_pEffect->GetVariableByName("RTWidth")->AsScalar();  
     pRTHeightVar = m_pEffect->GetVariableByName("RTHeight")->AsScalar();
-    //pRenderGlowVar = pEffect->GetVariableByName("useGlow")->AsScalar();
 
 	D3DXVECTOR3 recGridDim(1.0f/m_vGridDim[0], 1.0f/m_vGridDim[1], 1.0f/m_vGridDim[2]);
     V_RETURN(m_pEffect->GetVariableByName("gridDim")->AsVector()->SetFloatVector(m_vGridDim));
@@ -266,21 +254,37 @@ HRESULT VolumeRenderer::InitShaders()
     return S_OK;
 }
 
-HRESULT VolumeRenderer::CreateGridBox() 
+HRESULT VolumeRenderer::CreateGridBox(VERTEX vMin, VERTEX vMax) 
 {
     HRESULT hr;
 
-    VsInput vertices[] =
+    /*VsInput vertices[] =
     {
-        { D3DXVECTOR3( 0, 0, 0 ) },
-        { D3DXVECTOR3( 0, 0, 1 ) },
-        { D3DXVECTOR3( 0, 1, 0 ) },
-        { D3DXVECTOR3( 0, 1, 1 ) },
-        { D3DXVECTOR3( 1, 0, 0 ) },
-        { D3DXVECTOR3( 1, 0, 1 ) },
-        { D3DXVECTOR3( 1, 1, 0 ) },
-        { D3DXVECTOR3( 1, 1, 1 ) },
+        { D3DXVECTOR3( vMin.x, vMin.y, vMin.z ) },
+        { D3DXVECTOR3( vMin.x, vMin.y, vMax.z ) },
+        { D3DXVECTOR3( vMin.x, vMax.y, vMin.z ) },
+        { D3DXVECTOR3( vMin.x, vMax.y, vMax.z ) },
+        { D3DXVECTOR3( vMax.x, vMin.y, vMin.z ) },
+        { D3DXVECTOR3( vMax.x, vMin.y, vMax.z ) },
+        { D3DXVECTOR3( vMax.x, vMax.y, vMin.z ) },
+        { D3DXVECTOR3( vMax.x, vMax.y, vMax.z ) },
+    };*/
+	
+	VsInput vertices[] =
+    {
+        { D3DXVECTOR3( -1.0, -1.0, -1.0 ) },
+        { D3DXVECTOR3( -1.0, -1.0, 1.0 ) },
+        { D3DXVECTOR3( -1.0, 1.0, -1.0 ) },
+        { D3DXVECTOR3( -1.0, 1.0, 1.0 ) },
+        { D3DXVECTOR3( 1.0, -1.0, -1.0 ) },
+        { D3DXVECTOR3( 1.0, -1.0, 1.0 ) },
+        { D3DXVECTOR3( 1.0, 1.0, -1.0 ) },
+        { D3DXVECTOR3( 1.0, 1.0, 1.0 ) },
     };
+
+	SAFE_RELEASE(pGridBoxVertexBuffer);
+	SAFE_RELEASE(pGridBoxIndexBuffer);
+	SAFE_RELEASE(pGridBoxLayout);
 
     D3D11_BUFFER_DESC bd;
     bd.Usage = D3D11_USAGE_DEFAULT;
@@ -332,17 +336,21 @@ HRESULT VolumeRenderer::CreateGridBox()
 }
 
 
-HRESULT VolumeRenderer::CreateScreenQuad() 
+HRESULT VolumeRenderer::CreateScreenQuad(VERTEX vMin, VERTEX vMax) 
 {
     HRESULT hr;
-    // Create our quad input layout
+    
+	SAFE_RELEASE(pQuadLayout);
+	SAFE_RELEASE(pQuadVertexBuffer);
+
+	// Create our quad input layout
     const D3D11_INPUT_ELEMENT_DESC quadlayout[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
 	D3DX11_PASS_SHADER_DESC passVsDesc;
-	m_pTechnique->GetPassByName("QuadRaycastSmoke")->GetVertexShaderDesc(&passVsDesc);
+	m_pTechnique->GetPassByName("QuadRaycast")->GetVertexShaderDesc(&passVsDesc);
 	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
 	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
 	const void *vsCodePtr = effectVsDesc.pBytecode;
@@ -353,10 +361,10 @@ HRESULT VolumeRenderer::CreateScreenQuad()
 
     // Create a screen quad for all render to texture operations
     VsInput svQuad[4];
-    svQuad[0].pos = D3DXVECTOR3(-1.0f, 1.0f, 0.0f );
-    svQuad[1].pos = D3DXVECTOR3(1.0f, 1.0f, 0.0f );
-    svQuad[2].pos = D3DXVECTOR3(-1.0f, -1.0f, 0.0f );
-    svQuad[3].pos = D3DXVECTOR3(1.0f, -1.0f, 0.0f );
+	svQuad[0].pos = D3DXVECTOR3(0.0f, 1.0f, 0.0f );
+	svQuad[1].pos = D3DXVECTOR3(1.0f, 1.0f, 0.0f );
+	svQuad[2].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f );
+	svQuad[3].pos = D3DXVECTOR3(1.0f, 0.0f, 0.0f );
 
     D3D11_BUFFER_DESC vbdesc =
     {

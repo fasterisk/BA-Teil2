@@ -6,18 +6,18 @@ public:
 	VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect);
 	~VolumeRenderer();
 
-	HRESULT Initialize(int gridWidth, int gridHeight, int gridDepth);
+	HRESULT Initialize(int gridWidth, int gridHeight, int gridDepth, VERTEX vMin, VERTEX vMax);
     HRESULT SetScreenSize(int width, int height);
 
-	void Draw(ID3D11ShaderResourceView * pSourceTexSRV);
+	void Draw(ID3D11ShaderResourceView * pSourceTexSRV, VERTEX vMin, VERTEX vMax);
 
 	
 
 protected:
 
 	HRESULT InitShaders();
-    HRESULT CreateGridBox();
-    HRESULT CreateScreenQuad();
+    HRESULT CreateGridBox(VERTEX vMin, VERTEX vMax);
+    HRESULT CreateScreenQuad(VERTEX vMin, VERTEX vMax);
 	HRESULT CreateRayDataResources(int width, int height);
 	void CalculateRenderTextureSize(int screenWidth, int screenHeight);
 

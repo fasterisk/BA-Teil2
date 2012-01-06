@@ -25,15 +25,6 @@ int							g_Width = 800;
 int							g_Height = 600;
 float						g_zNear = 0.05f;
 float						g_zFar = 1000.0f;
-bool						g_renderGlow = false;
-float						g_glowContribution = 0.81f;
-float						g_finalIntensityScale = 28.0f; 
-float						g_finalAlphaScale = 0.95f;
-float						g_smokeColorMultiplier = 2.0f;   
-float						g_smokeAlphaMultiplier = 0.05f; 
-int							g_RednessFactor = 5; 
-float						g_xyVelocityScale = 4.8f;
-float						g_zVelocityScale = 4.0f;
 D3DXMATRIX					g_View;
 D3DXMATRIX					g_Proj;
 float						g_Fovy = D3DX_PI * 0.25f;
@@ -55,9 +46,9 @@ float						g_fAspectRatio = 0;
 
 float						g_fElapsedTime = 0;
 
-int							g_iTextureWidth = 32;
-int							g_iTextureHeight = 32;
-int							g_iTextureDepth = 32;
+int							g_iTextureWidth = 128;
+int							g_iTextureHeight = 128;
+int							g_iTextureDepth = 128;
 bool						g_bBlockMouseDragging = false;
 
 // Texthelper

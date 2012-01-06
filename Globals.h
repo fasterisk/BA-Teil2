@@ -32,20 +32,10 @@
 #include <stdio.h>
 #include <iostream>
 
-extern bool			g_useFire;
 extern int			g_Width;
 extern int			g_Height;
 extern float		g_zNear;
 extern float		g_zFar;
-extern bool			g_renderGlow;
-extern float		g_glowContribution;
-extern float		g_finalIntensityScale; 
-extern float		g_finalAlphaScale;
-extern float		g_smokeColorMultiplier;   
-extern float		g_smokeAlphaMultiplier; 
-extern int			g_RednessFactor; 
-extern float		g_xyVelocityScale;
-extern float		g_zVelocityScale;
 extern D3DXMATRIX	g_View;
 extern D3DXMATRIX	g_Proj;
 extern float        g_Fovy;
@@ -58,11 +48,6 @@ struct VERTEX
 {
 	float x, y, z;
 	D3DXCOLOR color;
-};
-
-struct CB_PER_FRAME_CONSTANTS
-{
-    D3DXMATRIX mModelViewProjection;
 };
 
 

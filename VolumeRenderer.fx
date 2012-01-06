@@ -31,20 +31,6 @@ float       edgeThreshold = 0.2;
 float       tan_FovXhalf;
 float       tan_FovYhalf;
 
-//gaussian with a sigma of 3, and a miu of 0
-float gaussian_3[5] =
-{
-    0.132981, 0.125794, 0.106483, 0.080657, 0.05467,
-};
-
-bool useGlow               = true;
-float glowContribution     = 0.81f;
-float finalIntensityScale  = 22.0f;
-float finalAlphaScale      = 0.95f;
-float smokeColorMultiplier = 2.0f;   
-float smokeAlphaMultiplier = 0.1f; 
-float fireAlphaMultiplier  = 0.4; 
-int   RednessFactor        = 5; 
 
 //--------------------------------------------------------------------------------------
 // Pipeline State definitions
@@ -281,7 +267,7 @@ float4 PS_RAYDATA_FRONT_NOBLEND(PS_INPUT_RAYDATA_FRONT input) : SV_Target
 
 
 #define OBSTACLE_MAX_HEIGHT 4
-void DoSample(float weight, float3 O, inout float4 color, uniform bool renderFire )
+void DoSample(float weight, float3 O, inout float4 color)
 {
     
     float3 texcoords;
@@ -296,7 +282,7 @@ void DoSample(float weight, float3 O, inout float4 color, uniform bool renderFir
 }
 
 
-float4 Raycast( PS_INPUT_RAYCAST input,uniform bool renderFire )
+float4 Raycast( PS_INPUT_RAYCAST input)
 {
     float4 color = 0;
     float2 normalizedInputPos = float2(input.pos.x/RTWidth,input.pos.y/RTHeight);
@@ -328,17 +314,9 @@ float4 Raycast( PS_INPUT_RAYCAST input,uniform bool renderFire )
    
     float3 O = rayOrigin + stepVec;
     
-    if(renderFire)
-    {
-        // we render fire with back to front ray marching 
-        // In back-to-front blending we start raycasting from the surface point and step towards the eye
-        O += fSamples * stepVec;
-        stepVec = -stepVec;
-    }
-
     for( int i=0; i<nSamples ; i++ )
     {
-        DoSample(1, O, color, renderFire);
+        DoSample(1, O, color);
         O += stepVec;
 
     }
@@ -347,7 +325,7 @@ float4 Raycast( PS_INPUT_RAYCAST input,uniform bool renderFire )
     //  space (fSamples), thus avoiding banding artifacts when the smoke is blended against the scene
     if( i == nSamples )
     {
-        DoSample(frac(fSamples), O, color, renderFire);
+        DoSample(frac(fSamples), O, color);
     }
     
     return color;
@@ -360,35 +338,20 @@ float4 PS_RAYDATACOPY_QUAD(PS_INPUT_RAYCAST input) : SV_Target
 }
 
 
-float4 PS_RAYCAST_QUAD(PS_INPUT_RAYCAST input, uniform bool renderFire) : SV_Target
+float4 PS_RAYCAST_QUAD(PS_INPUT_RAYCAST input) : SV_Target
 {
-    return Raycast(input,renderFire);
+    return Raycast(input);
 }
 
 
-float4 PS_RAYCASTCOPY_QUAD_SMOKE(PS_INPUT_RAYCAST input) : SV_Target
+float4 PS_RAYCASTCOPY_QUAD(PS_INPUT_RAYCAST input) : SV_Target
 {
     float4 tex = rayCastTex.Sample(samLinearClamp, float2(input.pos.x/RTWidth,input.pos.y/RTHeight));
     
     if(tex.a > 0)
-        return Raycast(input,false);
+        return Raycast(input);
     else
         return tex;
-}
-
-
-float4 PS_RAYCASTCOPY_QUAD_FIRE(PS_INPUT_RAYCAST input) : SV_Target
-{
-    float4 tex = rayCastTex.Sample(samLinearClamp, float2(input.pos.x/RTWidth,input.pos.y/RTHeight));
-         
-    float4 color;
-    
-    if(tex.a > 0)
-        color = Raycast(input,true);
-    else
-        color = tex;
-
-    return color;
 }
 
 //------------------------------------------------------------------------------------------------------
@@ -437,42 +400,22 @@ technique10 VolumeRenderer
         SetDepthStencilState( DisableDepth, 0 );
     }
 
-    pass QuadRaycastSmoke
+    pass QuadRaycast
     {
         SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_RAYCAST_QUAD(false) ));
+        SetPixelShader( CompileShader( ps_4_0, PS_RAYCAST_QUAD() ));
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
     }  
     
-    pass QuadRaycastFire
+    pass QuadRaycastCopy
     {
         SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
         SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_RAYCAST_QUAD(true) ));
-        SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
-        SetRasterizerState(CullBack);
-        SetDepthStencilState( DisableDepth, 0 );
-    }  
-         
-    pass QuadRaycastCopySmoke
-    {
-        SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
-        SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_RAYCASTCOPY_QUAD_SMOKE() ));
+        SetPixelShader( CompileShader( ps_4_0, PS_RAYCASTCOPY_QUAD() ));
         SetBlendState( AlphaBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
-        SetRasterizerState(CullBack);
-        SetDepthStencilState( DisableDepth, 0 );
-    }
- 
-    pass QuadRaycastCopyFire
-    {
-        SetVertexShader(CompileShader( vs_4_0, VS_RAYCAST_QUAD() ));
-        SetGeometryShader ( NULL );
-        SetPixelShader( CompileShader( ps_4_0, PS_RAYCASTCOPY_QUAD_FIRE() ));
-        SetBlendState( FireBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetRasterizerState(CullBack);
         SetDepthStencilState( DisableDepth, 0 );
     }

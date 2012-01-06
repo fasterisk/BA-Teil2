@@ -93,6 +93,12 @@ HRESULT Voxelizer::Initialize()
         m_height = tex3Ddesc.Height;
         m_depth = tex3Ddesc.Depth;
 
+		
+		/*OutputDebugString(L"############################################################\n");
+		char bla[100];
+		sprintf(bla, "%d | %d | %d \n", m_width, m_height, m_depth);
+		OutputDebugStringA(bla); 
+		*/
         ComputeRowColsForFlat3DTexture(m_depth, &m_cols, &m_rows);
     }
 
@@ -415,6 +421,7 @@ HRESULT Voxelizer::RenderClippedMesh(float zNear, float zFar, ID3DX11EffectTechn
     D3DXMATRIX proj;
     D3DXMATRIX worldViewProj;
 	D3DXMATRIX modelViewProj;
+
 
     D3DXMatrixOrthoOffCenterLH(&proj, -0.5, 0.5, -0.5, 0.5, zNear, zFar);
     D3DXMatrixMultiply(&worldViewProj, &m_objToVolumeXForm, &proj);
