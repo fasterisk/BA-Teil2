@@ -29,12 +29,12 @@ public:
 	HRESULT InitRenderTargets(int iWidth, int iHeight, int iDepth);
 
 	// BoundingBox Wireframe Methods
-	HRESULT UpdateVertexBuffer();
-	void RenderWireframe(D3DXMATRIX mViewProjection);
+	HRESULT UpdateBoundingBuffer();
+	void RenderBoundingBox(D3DXMATRIX mViewProjection, bool bWireframe);
 
 protected:
 	HRESULT InitSurfaces();
-	HRESULT InitBuffers();
+	HRESULT InitBoundingBuffers();
 	HRESULT InitTechniques();
 
 	// Device
@@ -55,10 +55,16 @@ protected:
 
 	// Effects and Techniques
 	ID3DX11Effect*					m_pDiffusionEffect;
-	ID3DX11Effect*					m_pSurfaceEffect;
 	ID3DX11Effect*					m_pVolumeRenderEffect;
 	ID3DX11Effect*					m_pVoxelizerEffect;
 
+	ID3DX11Effect*					m_pSurfaceEffect;
+	ID3DX11EffectTechnique*			m_pSETechnique;
+	ID3D11InputLayout*				m_pSEInputLayout;
+	ID3DX11EffectMatrixVariable		*m_pSEModelViewProjectionVar;
+
+	ID3DX11EffectTechnique*			m_pSEWireframeTechnique;
+	
 	// Effect variables
 	ID3DX11EffectMatrixVariable*	MVPMatrixShaderVariable;
 	ID3DX11EffectScalarVariable*	TextureWidthShaderVariable;
@@ -84,9 +90,9 @@ protected:
 
 
 	// BoundingBox Wireframe members
-	VERTEX *m_pVertices;
-	ID3D11Buffer *m_pVertexBuffer;
-	ID3D11Buffer *m_pIndexBuffer;
+	VERTEX *m_pBVertices;
+	ID3D11Buffer *m_pBVertexBuffer;
+	ID3D11Buffer *m_pBIndexBuffer;
 
 
 

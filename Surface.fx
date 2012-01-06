@@ -11,10 +11,22 @@ DepthStencilState WriteDepthTest
     StencilWriteMask = 0x00;
 };
 
+DepthStencilState EnableDepth
+{
+    DepthEnable = TRUE;
+    DepthWriteMask = ALL;
+    DepthFunc = LESS_EQUAL;
+};
+
 RasterizerState CullBack
 {
     MultiSampleEnable = True;
     CullMode = Back;
+};
+
+RasterizerState Wireframe
+{
+	FillMode = WIREFRAME;
 };
 
 
@@ -36,10 +48,20 @@ struct VsOutput
     float  Depth   : TEXCOORD0;
 };
 
+struct VsWOutput
+{
+	float4 Pos		: SV_POSITION;
+};
+
 struct PsOutput
 {
     float4 Color    : SV_Target0;
     float  Depth    : SV_Target1;
+};
+
+struct PsWOutput
+{
+	float4 Color    : SV_Target0;
 };
 
 //--------------------------------------------------------------------------------------
@@ -57,6 +79,13 @@ VsOutput VS_COLOR_AND_DEPTH(VsInput input)
     return output;
 }
 
+VsWOutput VS_WIREFRAME(VsInput input)
+{
+	VsWOutput output;
+	output.Pos = mul(float4(input.Pos, 1.0f), ModelViewProjectionMatrix);
+	return output;
+}
+
 
 //--------------------------------------------------------------------------------------
 // Pixel Shaders
@@ -69,6 +98,13 @@ PsOutput PS_COLOR_AND_DEPTH( VsOutput input )
     output.Color = input.Color;
     output.Depth = input.Depth;
     return output;
+}
+
+PsWOutput PS_WIREFRAME(VsWOutput input)
+{
+	PsWOutput output;
+	output.Color = float4(1.0, 0.0, 0.0, 1.0);
+	return output;
 }
 
 //--------------------------------------------------------------------------------------
@@ -86,5 +122,28 @@ technique10 RenderColorAndDepth
         SetDepthStencilState( WriteDepthTest, 0 );
         SetRasterizerState( CullBack );
     }
+
+	pass
+	{
+		SetVertexShader(CompileShader(vs_4_0, VS_WIREFRAME()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_4_0, PS_WIREFRAME()));
+
+		SetDepthStencilState( EnableDepth, 0);
+		SetRasterizerState(Wireframe);
+	}
+}
+
+technique10 RenderWireframe
+{
+	pass
+	{
+		SetVertexShader(CompileShader(vs_4_0, VS_WIREFRAME()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_4_0, PS_WIREFRAME()));
+
+		SetDepthStencilState( EnableDepth, 0);
+		SetRasterizerState(Wireframe);
+	}
 }
 
