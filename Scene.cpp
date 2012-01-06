@@ -13,10 +13,6 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dImmediateContext = pd3dImmediateContext;
 
-	memset(m_pRenderTargets3D, 0, sizeof(m_pRenderTargets3D));
-    memset(m_pShaderResourceVariables, 0, sizeof(m_pShaderResourceVariables));
-    memset(m_pRenderTargetShaderViews, 0, sizeof(m_pRenderTargetShaderViews));
-    memset(m_pRenderTargetViews, 0, sizeof(m_pRenderTargetViews));
 }
 
 Scene::~Scene()
@@ -36,13 +32,6 @@ Scene::~Scene()
 	SAFE_DELETE(m_pSurface1);
 	SAFE_DELETE(m_pSurface2);
 	
-	for(int i=0;i<NUM_RENDER_TARGETS;i++)
-    {
-        SAFE_RELEASE(m_pRenderTargets3D[i]);
-        SAFE_RELEASE(m_pRenderTargetShaderViews[i]);
-        SAFE_RELEASE(m_pRenderTargetViews[i]);
-    }
-
 	SAFE_RELEASE(m_pSurface1Texture3D);
 	SAFE_RELEASE(m_pSurface1SRV);
 }
@@ -378,29 +367,6 @@ void Scene::Scale(float fFactor)
 	m_pControlledSurface->Scale(fFactor);
 }
 
-
-HRESULT Scene::CreateRenderTarget(int rtIndex, D3D11_TEXTURE3D_DESC desc)
-{
-	 HRESULT hr;
-
-    // Release resources in case they exist
-	SAFE_RELEASE( m_pRenderTargets3D[rtIndex] ); //  exception raises; dunno why
-    SAFE_RELEASE( m_pRenderTargetViews[rtIndex] );
-
-    // Create the texture
-    V_RETURN( m_pd3dDevice->CreateTexture3D(&desc,NULL,&m_pRenderTargets3D[rtIndex]));
-    // Create the render target view
-    D3D11_RENDER_TARGET_VIEW_DESC DescRT;
-    DescRT.Format = desc.Format;
-    DescRT.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE3D;
-    DescRT.Texture3D.FirstWSlice = 0;
-    DescRT.Texture3D.MipSlice = 0;
-    DescRT.Texture3D.WSize = desc.Depth;
-
-    V_RETURN( m_pd3dDevice->CreateRenderTargetView( m_pRenderTargets3D[rtIndex], &DescRT, &m_pRenderTargetViews[rtIndex]) );
-
-    return S_OK;
-}
 
 HRESULT Scene::UpdateBoundingBuffer()
 {

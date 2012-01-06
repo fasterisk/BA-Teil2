@@ -66,11 +66,6 @@ protected:
     ID3DX11EffectScalarVariable*	TextureHeightShaderVariable;
     ID3DX11EffectScalarVariable*	TextureDepthShaderVariable;
 
-	ID3D11Texture3D*						m_pRenderTargets3D[NUM_RENDER_TARGETS]; 
-	ID3D11ShaderResourceView*				m_pRenderTargetShaderViews[NUM_RENDER_TARGETS];
-	ID3D11RenderTargetView*					m_pRenderTargetViews[NUM_RENDER_TARGETS];
-	ID3DX11EffectShaderResourceVariable*	m_pShaderResourceVariables[NUM_RENDER_TARGETS];
-
 	// TEST
 	ID3D11Texture3D*						m_pSurface1Texture3D;
 	ID3D11ShaderResourceView*				m_pSurface1SRV;
