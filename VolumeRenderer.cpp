@@ -1,11 +1,6 @@
 #include "Globals.h"
 #include "VolumeRenderer.h"
 
-struct VsInput
-{
-    D3DXVECTOR3 pos;  
-};
-
 VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect)
 {
 	m_pd3dDevice = pd3dDevice;
@@ -62,6 +57,10 @@ HRESULT VolumeRenderer::SetScreenSize(int iWidth, int iHeight)
     SAFE_RELEASE(m_pBackRTV);
     SAFE_RELEASE(m_pBackSRV);
 
+	//Set members
+	m_iWidth = iWidth;
+	m_iHeight = iHeight;
+
 	//create 2D texture for front- and backface rendering
 	D3D11_TEXTURE2D_DESC desc;
 	desc.ArraySize = 1;
@@ -99,9 +98,39 @@ HRESULT VolumeRenderer::SetScreenSize(int iWidth, int iHeight)
 	return S_OK;
 }
 
-void VolumeRenderer::Render(VERTEX* pBBVertices, ID3D11Texture3D* p3DTexture)
+void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXMATRIX mWorldViewProjection, ID3D11Texture3D* p3DTexture)
 {
+	//Update vertex buffer for boundingbox
 	UpdateBoundingVertices(pBBVertices);
+
+	float color[4] = {0, 0, 0, 0 };
+
+	//Update shader variables
+	m_pWorldViewProjectionVar->SetMatrix(mWorldViewProjection);
+
+	//Set rendertarget-viewport
+	D3D11_VIEWPORT rtViewport;
+	rtViewport.TopLeftX = 0;
+	rtViewport.TopLeftY = 0;
+	rtViewport.MinDepth = 0;
+	rtViewport.MaxDepth = 1;
+	rtViewport.Width = float(m_iWidth);
+	rtViewport.Height = float(m_iHeight);
+	m_pd3dImmediateContext->RSSetViewports(1, &rtViewport);
+
+	/*ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
+    ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
+
+    m_pd3dImmediateContext->ClearRenderTargetView( pRTV, color );
+    m_pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
+	m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
+	*/
+
+	//Render front of boundingbox
+	m_pd3dImmediateContext->ClearRenderTargetView(m_pFrontRTV, color);
+	m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pFrontRTV, NULL);
+	m_pVolumeRenderTechnique->GetPassByName("BoundingBoxFront")->Apply(0, m_pd3dImmediateContext);
+	DrawBoundingBox();
 }
 
 HRESULT VolumeRenderer::InitShader()
@@ -109,7 +138,8 @@ HRESULT VolumeRenderer::InitShader()
 	HRESULT hr;
 
 	m_pVolumeRenderTechnique = m_pEffect->GetTechniqueByName("VolumeRendering");
-
+	m_pWorldViewProjectionVar = m_pEffect->GetVariableByName("WorldViewProjection")->AsMatrix();
+	
 	return S_OK;
 }
 
@@ -170,4 +200,15 @@ HRESULT VolumeRenderer::UpdateBoundingVertices(VERTEX* BBVertices)
 	V_RETURN(m_pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pBBVertexBuffer));
 
 	return S_OK;
+}
+
+void VolumeRenderer::DrawBoundingBox()
+{
+	UINT strides = sizeof(VERTEX);
+    UINT offsets = 0;
+	m_pd3dImmediateContext->IASetInputLayout(m_pBBInputLayout);
+	m_pd3dImmediateContext->IASetIndexBuffer(m_pBBIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pBBVertexBuffer, &strides, &offsets);
+    m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_pd3dImmediateContext->DrawIndexed(36, 0, 0);
 }

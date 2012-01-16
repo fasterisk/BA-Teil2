@@ -51,18 +51,7 @@ protected:
 	// Effects and Techniques
 	ID3DX11Effect*					m_pVolumeRenderEffect;
 	ID3DX11Effect*					m_pVoxelizerEffect;
-
 	ID3DX11Effect*					m_pSurfaceEffect;
-	ID3DX11EffectTechnique*			m_pSETechnique;
-	ID3D11InputLayout*				m_pSEInputLayout;
-	ID3DX11EffectMatrixVariable		*m_pSEModelViewProjectionVar;
-
-	
-	// Effect variables
-	ID3DX11EffectMatrixVariable*	MVPMatrixShaderVariable;
-	ID3DX11EffectScalarVariable*	TextureWidthShaderVariable;
-    ID3DX11EffectScalarVariable*	TextureHeightShaderVariable;
-    ID3DX11EffectScalarVariable*	TextureDepthShaderVariable;
 
 	// TEST
 	ID3D11Texture3D*						m_pSurface1Texture3D;
@@ -70,11 +59,7 @@ protected:
 	D3D11_SHADER_RESOURCE_VIEW_DESC			SRVDesc;
 
 
-	// BoundingBox Wireframe members
-	VERTEX *m_pBVertices;
-	ID3D11Buffer *m_pBVertexBuffer;
-	ID3D11Buffer *m_pBIndexBuffer;
-
+	VERTEX* m_pBBVertices;
 
 	// Helper Functions
 

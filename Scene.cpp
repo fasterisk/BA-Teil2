@@ -17,17 +17,13 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 
 Scene::~Scene()
 {
-	SAFE_RELEASE(m_pBVertexBuffer);
-	SAFE_RELEASE(m_pBIndexBuffer);
-	SAFE_RELEASE(m_pSEInputLayout);
-
 	SAFE_RELEASE(m_pVolumeRenderEffect);
 	SAFE_RELEASE(m_pVoxelizerEffect);
 	SAFE_RELEASE(m_pSurfaceEffect);
 	SAFE_DELETE(m_pVoxelizer);
 	SAFE_DELETE(m_pVolumeRenderer);
 
-	SAFE_DELETE(m_pBVertices);
+	SAFE_DELETE(m_pBBVertices);
 	
 	SAFE_DELETE(m_pSurface1);
 	SAFE_DELETE(m_pSurface2);
@@ -54,7 +50,7 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(CreateEffect(str, &m_pVoxelizerEffect));
 
 	V_RETURN(InitSurfaces());
-	V_RETURN(InitBoundingBuffers());
+	V_RETURN(InitBoundingBox());
 	V_RETURN(InitTechniques());
 	V_RETURN(InitRenderTargets(iTexWidth, iTexHeight, iTexDepth));
 	
@@ -65,7 +61,8 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 
 	// Initialize VolumeRenderer
 	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
-	V_RETURN(m_pVolumeRenderer->Initialize(iTexWidth, iTexHeight, iTexDepth, m_vMin, m_vMax));
+	V_RETURN(m_pVolumeRenderer->Initialize());
+	//V_RETURN(m_pVolumeRenderer->Initialize(iTexWidth, iTexHeight, iTexDepth, m_vMin, m_vMax));
 
 
 	return S_OK;
@@ -95,7 +92,7 @@ HRESULT Scene::InitBoundingBox()
 {
 	HRESULT hr;
 
-	m_pBVertices = new VERTEX[8];
+	m_pBBVertices = new VERTEX[8];
 	VERTEX min, max;
 	for(int i = 0; i < m_pSurface1->m_vNum; i++)
 	{
@@ -152,47 +149,31 @@ HRESULT Scene::InitBoundingBox()
 	m_vMax = max;
 
 
-	m_pBVertices[0].x = min.x;
-	m_pBVertices[0].y = min.y;
-	m_pBVertices[0].z = min.z;
-	m_pBVertices[1].x = max.x;
-	m_pBVertices[1].y = min.y;
-	m_pBVertices[1].z = min.z;
-	m_pBVertices[2].x = max.x;
-	m_pBVertices[2].y = max.y;
-	m_pBVertices[2].z = min.z;
-	m_pBVertices[3].x = min.x;
-	m_pBVertices[3].y = max.y;
-	m_pBVertices[3].z = min.z;
-	m_pBVertices[4].x = max.x;
-	m_pBVertices[4].y = min.y;
-	m_pBVertices[4].z = max.z;
-	m_pBVertices[5].x = min.x;
-	m_pBVertices[5].y = min.y;
-	m_pBVertices[5].z = max.z;
-	m_pBVertices[6].x = max.x;
-	m_pBVertices[6].y = max.y;
-	m_pBVertices[6].z = max.z;
-	m_pBVertices[7].x = min.x;
-	m_pBVertices[7].y = max.y;
-	m_pBVertices[7].z = max.z;
+	m_pBBVertices[0].x = min.x;
+	m_pBBVertices[0].y = min.y;
+	m_pBBVertices[0].z = min.z;
+	m_pBBVertices[1].x = max.x;
+	m_pBBVertices[1].y = min.y;
+	m_pBBVertices[1].z = min.z;
+	m_pBBVertices[2].x = max.x;
+	m_pBBVertices[2].y = max.y;
+	m_pBBVertices[2].z = min.z;
+	m_pBBVertices[3].x = min.x;
+	m_pBBVertices[3].y = max.y;
+	m_pBBVertices[3].z = min.z;
+	m_pBBVertices[4].x = max.x;
+	m_pBBVertices[4].y = min.y;
+	m_pBBVertices[4].z = max.z;
+	m_pBBVertices[5].x = min.x;
+	m_pBBVertices[5].y = min.y;
+	m_pBBVertices[5].z = max.z;
+	m_pBBVertices[6].x = max.x;
+	m_pBBVertices[6].y = max.y;
+	m_pBBVertices[6].z = max.z;
+	m_pBBVertices[7].x = min.x;
+	m_pBBVertices[7].y = max.y;
+	m_pBBVertices[7].z = max.z;
 
-	/*
-	//Create Vertex buffer
-	D3D11_BUFFER_DESC vbd;
-	ZeroMemory(&vbd, sizeof(vbd));
-	vbd.Usage = D3D11_USAGE_DYNAMIC;
-	vbd.ByteWidth = sizeof(VERTEX) * 8;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	D3D11_SUBRESOURCE_DATA vertexData;
-	vertexData.pSysMem = m_pBVertices;
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
-	V_RETURN(m_pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pBVertexBuffer));
-
-	
-	*/
 	return S_OK;
 }
 
@@ -203,60 +184,13 @@ HRESULT Scene::SetScreenSize(int iWidth, int iHeight)
 
 void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneDepthRTV, ID3D11DepthStencilView* pDSV, D3DXMATRIX mViewProjection)
 {
-	UpdateBoundingBuffer();
-	
 	m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
+
+	UpdateBoundingBox();
 	
-	D3D11_VIEWPORT rtViewport;
-    rtViewport.TopLeftX = 0;
-    rtViewport.TopLeftY = 0;
-    rtViewport.MinDepth = 0;
-    rtViewport.MaxDepth = 1;
-    rtViewport.Width = float(g_Width);
-    rtViewport.Height = float(g_Height);
-
-	m_pd3dImmediateContext->RSSetViewports(1,&rtViewport);
-	ID3D11RenderTargetView *pRTVs[2] = { pRTV, pSceneDepthRTV };
-	m_pd3dImmediateContext->OMSetRenderTargets(2, pRTVs, pDSV);
-	RenderBoundingBox(mViewProjection);
-	
-	m_pd3dImmediateContext->OMSetRenderTargets( 0, NULL, NULL );
-
-	D3D11_TEXTURE3D_DESC desc;
-	m_pSurface1Texture3D->GetDesc(&desc);
-	m_pd3dDevice->CreateShaderResourceView( m_pSurface1Texture3D, &SRVDesc, &m_pSurface1SRV);
-
-
-
-	m_pVolumeRenderer->Draw(m_pSurface1SRV, m_vMin, m_vMax);
-
-	SAFE_RELEASE(m_pSurface1SRV);
+	m_pVolumeRenderer->Render(m_pBBVertices, mViewProjection, m_pSurface1Texture3D);
 }	
 
-void Scene::RenderBoundingBox(D3DXMATRIX mViewProjection)
-{
-	m_pSEModelViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&mViewProjection));
-
-	UINT stride = sizeof(VERTEX);
-	UINT offset = 0;
-	m_pd3dImmediateContext->IASetInputLayout(m_pSEInputLayout);
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pBVertexBuffer, &stride, &offset);
-	m_pd3dImmediateContext->IASetIndexBuffer(m_pBIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	
-	
-	D3DX11_TECHNIQUE_DESC techDesc;
-	m_pSETechnique->GetDesc(&techDesc);
-
-	for( UINT p = 0; p < techDesc.Passes; ++p )
-	{
-		//apply technique
-		m_pSETechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
-				
-		//draw
-		m_pd3dImmediateContext->DrawIndexed(36, 0, 0);
-	}
-}
 
 HRESULT Scene::InitRenderTargets(int iWidth, int iHeight, int iDepth)
 {
@@ -319,8 +253,6 @@ HRESULT Scene::UpdateBoundingBox()
 {
 	HRESULT hr;
 
-	m_pBVertexBuffer->Release();
-	
 	VERTEX min, max;
 	for(int i = 0; i < m_pSurface1->m_vNum; i++)
 	{
@@ -375,43 +307,30 @@ HRESULT Scene::UpdateBoundingBox()
 	m_vMin = min;
 	m_vMax = max;
 
-	m_pBVertices[0].x = min.x;
-	m_pBVertices[0].y = min.y;
-	m_pBVertices[0].z = min.z;
-	m_pBVertices[1].x = max.x;
-	m_pBVertices[1].y = min.y;
-	m_pBVertices[1].z = min.z;
-	m_pBVertices[2].x = max.x;
-	m_pBVertices[2].y = max.y;
-	m_pBVertices[2].z = min.z;
-	m_pBVertices[3].x = min.x;
-	m_pBVertices[3].y = max.y;
-	m_pBVertices[3].z = min.z;
-	m_pBVertices[4].x = max.x;
-	m_pBVertices[4].y = min.y;
-	m_pBVertices[4].z = max.z;
-	m_pBVertices[5].x = min.x;
-	m_pBVertices[5].y = min.y;
-	m_pBVertices[5].z = max.z;
-	m_pBVertices[6].x = max.x;
-	m_pBVertices[6].y = max.y;
-	m_pBVertices[6].z = max.z;
-	m_pBVertices[7].x = min.x;
-	m_pBVertices[7].y = max.y;
-	m_pBVertices[7].z = max.z;
-
-	//Create Vertex buffer
-	D3D11_BUFFER_DESC vbd;
-	ZeroMemory(&vbd, sizeof(vbd));
-	vbd.Usage = D3D11_USAGE_DYNAMIC;
-	vbd.ByteWidth = sizeof(VERTEX) * 8;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	D3D11_SUBRESOURCE_DATA vertexData;
-	vertexData.pSysMem = m_pBVertices;
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
-	V_RETURN(m_pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pBVertexBuffer));
+	m_pBBVertices[0].x = min.x;
+	m_pBBVertices[0].y = min.y;
+	m_pBBVertices[0].z = min.z;
+	m_pBBVertices[1].x = max.x;
+	m_pBBVertices[1].y = min.y;
+	m_pBBVertices[1].z = min.z;
+	m_pBBVertices[2].x = max.x;
+	m_pBBVertices[2].y = max.y;
+	m_pBBVertices[2].z = min.z;
+	m_pBBVertices[3].x = min.x;
+	m_pBBVertices[3].y = max.y;
+	m_pBBVertices[3].z = min.z;
+	m_pBBVertices[4].x = max.x;
+	m_pBBVertices[4].y = min.y;
+	m_pBBVertices[4].z = max.z;
+	m_pBBVertices[5].x = min.x;
+	m_pBBVertices[5].y = min.y;
+	m_pBBVertices[5].z = max.z;
+	m_pBBVertices[6].x = max.x;
+	m_pBBVertices[6].y = max.y;
+	m_pBBVertices[6].z = max.z;
+	m_pBBVertices[7].x = min.x;
+	m_pBBVertices[7].y = max.y;
+	m_pBBVertices[7].z = max.z;
 
 	return S_OK;
 }

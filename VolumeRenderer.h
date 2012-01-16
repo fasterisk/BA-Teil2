@@ -7,15 +7,21 @@ public:
 	HRESULT Initialize();
 	HRESULT SetScreenSize(int iWidth, int iHeight);
 
-	void Render(VERTEX* pBBVertices, ID3D11Texture3D* p3DTexture);
+	void Render(VERTEX* pBBVertices, D3DXMATRIX mWorldViewProjection, ID3D11Texture3D* p3DTexture);
 
 private:
 	// Device
 	ID3D11Device*			m_pd3dDevice;
 	ID3D11DeviceContext*	m_pd3dImmediateContext;
-	ID3DX11Effect*			m_pEffect;
-	ID3DX11EffectTechnique* m_pVolumeRenderTechnique;
+	
+	// Shader effect and variables
+	ID3DX11Effect*					m_pEffect;
+	ID3DX11EffectTechnique*			m_pVolumeRenderTechnique;
+	ID3DX11EffectMatrixVariable*	m_pWorldViewProjectionVar;
 
+	//Screen size
+	int m_iWidth;
+	int m_iHeight;
 
 	//Bounding Box
 	ID3D11Buffer*			m_pBBVertexBuffer;
@@ -33,6 +39,7 @@ private:
 	HRESULT InitShader();
 	HRESULT InitBoundingIndicesAndLayout();
 	HRESULT UpdateBoundingVertices(VERTEX* BBVertices);
+	void DrawBoundingBox();
 	
 
 };
