@@ -344,6 +344,53 @@ HRESULT Voxelizer::DoVoxelization(void)
     return hr;
 }
 
+void Voxelizer::UpdateMinMax()
+{
+	for(int i = 0; i < m_pSurface1->m_vNum; i++)
+	{
+		VERTEX tempver = m_pSurface1->m_pVertices[i];
+		D3DXVECTOR4 temp;
+		D3DXVec3Transform(&temp, &D3DXVECTOR3(tempver.x, tempver.y, tempver.z), &m_pSurface1->m_mModel);
+		if(i == 0)
+		{
+			m_xMin = temp.x;
+			m_xMax = temp.x;
+			m_yMin = temp.y;
+			m_yMax = temp.y;
+			m_zMin = temp.z;
+			m_zMax = temp.z;
+		}
+
+		if(temp.x < m_xMin)
+			m_xMin = temp.x;
+		if(temp.x > m_xMax)
+			m_xMax = temp.x;
+		if(temp.y < m_yMin)
+			m_yMin = temp.y;
+		if(temp.y > m_yMax)
+			m_yMax = temp.y;
+		if(temp.z < m_zMin)
+			m_zMin = temp.z;
+		if(temp.z > m_zMax)
+			m_zMax = temp.z;
+	}
+
+	/*for(int i = 0; i < m_pSurface2->m_vNum; i++)
+	{
+		VERTEX tempver = m_pSurface2->m_pVertices[i];
+		D3DXVECTOR4 temp;
+		D3DXVec3Transform(&temp, &D3DXVECTOR3(tempver.x, tempver.y, tempver.z), &m_pSurface2->m_mModel);
+		if(temp.x < xMin)
+			xMin = temp.x;
+		if(temp.x > xMax)
+			xMax = temp.x;
+		if(temp.z < yMin)
+			yMin = temp.z;
+		if(temp.z > yMax)
+			yMax = temp.z;
+	}*/
+}
+
 //
 // StencilClipVolume algorithm summary:
 // ====================================
@@ -373,6 +420,8 @@ HRESULT Voxelizer::StencilClipVolume(void)
     HRESULT hr(S_OK);
     int x, y;
 
+	UpdateMinMax();
+
     assert(m_initialized);
     
     // clear depthstencil buffer to 0
@@ -391,7 +440,8 @@ HRESULT Voxelizer::StencilClipVolume(void)
         D3D11_RECT scissorRect = { x, y, x+m_width, y+m_height };
         m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect);
 
-        V_RETURN(RenderClippedMesh((float)z/m_depth - 0.5f, 100000.0f, m_pNZTech));
+		float distFromZMinToZMax = m_zMax - m_zMin;
+        V_RETURN(RenderClippedMesh((float)z/m_depth*distFromZMinToZMax + m_zMin, m_zMax, m_pNZTech));
     }
 
     // set texture as rendertarget
@@ -422,57 +472,13 @@ HRESULT Voxelizer::RenderClippedMesh(float zNear, float zFar, ID3DX11EffectTechn
     D3DXMATRIX worldViewProj;
 	D3DXMATRIX modelViewProj;
 
-	float xMin, yMin, zMin, xMax, yMax, zMax;
+	
 
-	for(int i = 0; i < m_pSurface1->m_vNum; i++)
-	{
-		VERTEX tempver = m_pSurface1->m_pVertices[i];
-		D3DXVECTOR4 temp;
-		D3DXVec3Transform(&temp, &D3DXVECTOR3(tempver.x, tempver.y, tempver.z), &m_pSurface1->m_mModel);
-		if(i == 0)
-		{
-			xMin = temp.x;
-			xMax = temp.x;
-			yMin = temp.y;
-			yMax = temp.y;
-			zMin = temp.z;
-			zMax = temp.z;
-		}
-
-		if(temp.x < xMin)
-			xMin = temp.x;
-		if(temp.x > xMax)
-			xMax = temp.x;
-		if(temp.y < yMin)
-			yMin = temp.y;
-		if(temp.y > yMax)
-			yMax = temp.y;
-		if(temp.z < zMin)
-			zMin = temp.z;
-		if(temp.z > zMax)
-			zMax = temp.z;
-	}
-
-	/*for(int i = 0; i < m_pSurface2->m_vNum; i++)
-	{
-		VERTEX tempver = m_pSurface2->m_pVertices[i];
-		D3DXVECTOR4 temp;
-		D3DXVec3Transform(&temp, &D3DXVECTOR3(tempver.x, tempver.y, tempver.z), &m_pSurface2->m_mModel);
-		if(temp.x < xMin)
-			xMin = temp.x;
-		if(temp.x > xMax)
-			xMax = temp.x;
-		if(temp.z < yMin)
-			yMin = temp.z;
-		if(temp.z > yMax)
-			yMax = temp.z;
-	}*/
+	
 
 
-    //D3DXMatrixOrthoOffCenterLH(&proj, -2.0f, 2.0f, -2.0f, 2.0f, zNear, zFar);
-	D3DXMatrixOrthoOffCenterLH(&proj, xMin, xMax, yMin, yMax, zNear, zFar);
+	D3DXMatrixOrthoOffCenterLH(&proj, m_xMin, m_xMax, m_yMin, m_yMax, zNear, zFar);
 	D3DXMatrixMultiply(&worldViewProj, &m_pSurface1->m_mModel, &proj);
-	//D3DXMatrixMultiply(&modelViewProj, &m_pSurface1->m_mModel, &worldViewProj);
     V_RETURN(m_pWorldViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&worldViewProj)));
     
 	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);

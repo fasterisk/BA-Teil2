@@ -19,6 +19,7 @@ private:
     HRESULT InitTextures();
     HRESULT InitShaders();
     HRESULT InitSlices();
+	void UpdateMinMax();
     void Cleanup();
 
     void DrawSlices();
@@ -68,6 +69,8 @@ private:
     ID3D11InputLayout           *m_pSlicesLayout;
     ID3D11Buffer                *m_pSlicesVB;
 
+
+	float m_xMin, m_yMin, m_zMin, m_xMax, m_yMax, m_zMax;
 };
 
 #endif // _VOXELIZER_H_
