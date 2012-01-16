@@ -22,13 +22,11 @@ public:
 
 	HRESULT InitRenderTargets(int iWidth, int iHeight, int iDepth);
 
-	// BoundingBox Wireframe Methods
-	HRESULT UpdateBoundingBuffer();
-	void RenderBoundingBox(D3DXMATRIX mViewProjection);
+	HRESULT UpdateBoundingBox();
 
 protected:
 	HRESULT InitSurfaces();
-	HRESULT InitBoundingBuffers();
+	HRESULT InitBoundingBox();
 	HRESULT InitTechniques();
 
 	// Device

@@ -88,20 +88,12 @@ HRESULT Scene::InitSurfaces()
 
 	m_pControlledSurface = m_pSurface1;
 
-	ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
-    SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
-    SRVDesc.Texture3D.MipLevels = 1;
-    SRVDesc.Texture3D.MostDetailedMip = 0;
-	SRVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-
 	return S_OK;
 }
 
-HRESULT Scene::InitBoundingBuffers()
+HRESULT Scene::InitBoundingBox()
 {
 	HRESULT hr;
-
-	char c[256];
 
 	m_pBVertices = new VERTEX[8];
 	VERTEX min, max;
@@ -163,36 +155,29 @@ HRESULT Scene::InitBoundingBuffers()
 	m_pBVertices[0].x = min.x;
 	m_pBVertices[0].y = min.y;
 	m_pBVertices[0].z = min.z;
-	m_pBVertices[0].color = D3DXCOLOR(0.0, 0.0, 0.0, 1.0);
 	m_pBVertices[1].x = max.x;
 	m_pBVertices[1].y = min.y;
 	m_pBVertices[1].z = min.z;
-	m_pBVertices[1].color = D3DXCOLOR(0.0, 0.0, 0.0, 1.0);
 	m_pBVertices[2].x = max.x;
 	m_pBVertices[2].y = max.y;
 	m_pBVertices[2].z = min.z;
-	m_pBVertices[2].color = D3DXCOLOR(0.0, 0.0, 0.0, 1.0);
 	m_pBVertices[3].x = min.x;
 	m_pBVertices[3].y = max.y;
 	m_pBVertices[3].z = min.z;
-	m_pBVertices[3].color = D3DXCOLOR(0.0, 0.0, 0.0, 1.0);
 	m_pBVertices[4].x = max.x;
 	m_pBVertices[4].y = min.y;
 	m_pBVertices[4].z = max.z;
-	m_pBVertices[4].color = D3DXCOLOR(0.0, 0.0, 0.0, 1.0);
 	m_pBVertices[5].x = min.x;
 	m_pBVertices[5].y = min.y;
 	m_pBVertices[5].z = max.z;
-	m_pBVertices[5].color = D3DXCOLOR(0.0, 0.0, 0.0, 1.0);
 	m_pBVertices[6].x = max.x;
 	m_pBVertices[6].y = max.y;
 	m_pBVertices[6].z = max.z;
-	m_pBVertices[6].color = D3DXCOLOR(0.0, 0.0, 0.0, 1.0);
 	m_pBVertices[7].x = min.x;
 	m_pBVertices[7].y = max.y;
 	m_pBVertices[7].z = max.z;
-	m_pBVertices[7].color = D3DXCOLOR(0.0, 0.0, 0.0, 1.0);
 
+	/*
 	//Create Vertex buffer
 	D3D11_BUFFER_DESC vbd;
 	ZeroMemory(&vbd, sizeof(vbd));
@@ -206,40 +191,8 @@ HRESULT Scene::InitBoundingBuffers()
 	vertexData.SysMemSlicePitch = 0;
 	V_RETURN(m_pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pBVertexBuffer));
 
-	//Create Index buffer
-	unsigned int indices[36] = {0,2,1,0,3,2,0,1,4,0,4,5,1,2,6,1,6,4,2,3,7,2,7,6,3,0,5,3,5,7,5,4,6,5,6,7};
-
-	D3D11_BUFFER_DESC ibd;
-	ZeroMemory(&ibd, sizeof(ibd));
-	ibd.Usage = D3D11_USAGE_DYNAMIC;
-	ibd.ByteWidth = sizeof(unsigned int) * 36;
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	//ibd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA indexData;
-	indexData.pSysMem = indices;
-	indexData.SysMemPitch = 0;
-	indexData.SysMemSlicePitch = 0;
-	V_RETURN(m_pd3dDevice->CreateBuffer(&ibd, &indexData, &m_pBIndexBuffer));
-
-	m_pSETechnique = m_pSurfaceEffect->GetTechniqueByName("RenderColorAndDepth");
-	m_pSEModelViewProjectionVar = m_pSurfaceEffect->GetVariableByName("ModelViewProjectionMatrix")->AsMatrix();
-
-	D3DX11_PASS_SHADER_DESC passVsDesc;
-	m_pSETechnique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
-	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
-	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
-	const void *vsCodePtr = effectVsDesc.pBytecode;
-	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
-
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-    };
-
-	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pSEInputLayout));
-
+	
+	*/
 	return S_OK;
 }
 
@@ -265,8 +218,6 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 	m_pd3dImmediateContext->RSSetViewports(1,&rtViewport);
 	ID3D11RenderTargetView *pRTVs[2] = { pRTV, pSceneDepthRTV };
 	m_pd3dImmediateContext->OMSetRenderTargets(2, pRTVs, pDSV);
-	// draw color and depth of the surfaces
-	//m_pSurface1->Render(mViewProjection);
 	RenderBoundingBox(mViewProjection);
 	
 	m_pd3dImmediateContext->OMSetRenderTargets( 0, NULL, NULL );
@@ -364,7 +315,7 @@ void Scene::Scale(float fFactor)
 }
 
 
-HRESULT Scene::UpdateBoundingBuffer()
+HRESULT Scene::UpdateBoundingBox()
 {
 	HRESULT hr;
 
