@@ -133,7 +133,7 @@ HRESULT Scene::InitBoundingBuffers()
 			max.z = temp.z;
 	}
 
-	for(int i = 0; i < m_pSurface2->m_vNum; i++)
+	/*for(int i = 0; i < m_pSurface2->m_vNum; i++)
 	{
 		VERTEX temp = m_pSurface2->m_pVertices[i];
 		D3DXVECTOR4 mul;
@@ -154,7 +154,7 @@ HRESULT Scene::InitBoundingBuffers()
 			max.y = temp.y;
 		if(temp.z > max.z)
 			max.z = temp.z;
-	}
+	}*/
 
 	m_vMin = min;
 	m_vMax = max;
@@ -252,11 +252,7 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 {
 	UpdateBoundingBuffer();
 	
-	// Compute mesh-to-grid xform
-    D3DXMATRIX gridWorldInv;
-    D3DXMatrixInverse(&gridWorldInv, NULL, &g_gridWorld);
-        
-	m_pVoxelizer->Voxelize(gridWorldInv, m_pSurface1);
+	m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2);
 	
 	D3D11_VIEWPORT rtViewport;
     rtViewport.TopLeftX = 0;
@@ -403,7 +399,7 @@ HRESULT Scene::UpdateBoundingBuffer()
 			max.z = temp.z;
 	}
 
-	for(int i = 0; i < m_pSurface2->m_vNum; i++)
+	/*for(int i = 0; i < m_pSurface2->m_vNum; i++)
 	{
 		VERTEX temp = m_pSurface2->m_pVertices[i];
 		D3DXVECTOR4 mul;
@@ -423,7 +419,7 @@ HRESULT Scene::UpdateBoundingBuffer()
 			max.y = temp.y;
 		if(temp.z > max.z)
 			max.z = temp.z;
-	}
+	}*/
 
 	m_vMin = min;
 	m_vMax = max;

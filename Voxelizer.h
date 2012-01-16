@@ -12,7 +12,7 @@ public:
    
     HRESULT SetDestination(ID3D11Texture3D *pDstInOutTexture3D);
     
-    HRESULT Voxelize(D3DXMATRIX& objToVolumeXForm, Surface *pSurface);
+    HRESULT Voxelize(Surface *pSurface1, Surface *pSurface2);
 
 private:
     HRESULT Initialize();
@@ -44,9 +44,8 @@ private:
     int                         m_rows;
     
     // Source state
-    Surface						*m_pSurface;
-
-    D3DXMATRIX                  m_objToVolumeXForm;
+    Surface						*m_pSurface1;
+	Surface						*m_pSurface2;
 
     // Other state
     bool m_initialized;
@@ -68,6 +67,10 @@ private:
     // Slices state
     ID3D11InputLayout           *m_pSlicesLayout;
     ID3D11Buffer                *m_pSlicesVB;
+
+
+	//TEST
+	bool b;
 };
 
 #endif // _VOXELIZER_H_

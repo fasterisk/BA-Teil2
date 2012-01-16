@@ -127,7 +127,7 @@ void VolumeRenderer::Draw(ID3D11ShaderResourceView * pSourceTexSRV, VERTEX vMin,
     pZFarVar->SetFloat(g_zFar);
 
 	
-    D3DXMATRIX worldView = g_gridWorld * g_View;
+    D3DXMATRIX worldView = g_View;
 
     // The length of one of the axis of the worldView matrix is the length of longest side of the box
     //  in view space. This is used to convert the length of a ray from view space to grid space.

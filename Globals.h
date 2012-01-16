@@ -42,8 +42,6 @@ extern float        g_Fovy;
 
 extern ID3D11ShaderResourceView*	g_pSceneDepthSRV;
 
-extern D3DXMATRIX                   g_gridWorld;
-
 struct VERTEX
 {
 	float x, y, z;

@@ -34,8 +34,6 @@ ID3D11Texture2D*            g_pSceneDepthTex2DNonMS = NULL;
 ID3D11ShaderResourceView*   g_pSceneDepthSRV        = NULL;
 ID3D11RenderTargetView*     g_pSceneDepthRTV        = NULL;
 
-D3DXMATRIX                  g_gridWorld;
-
 // Control parameters
 int							g_mouseX = 0;
 int							g_mouseY = 0;
@@ -158,16 +156,16 @@ void InitApp()
 	g_SampleUI.GetRadioButton( IDC_ROTATE )->SetChecked(true);
 	g_SampleUI.AddButton( IDC_CHANGE_TEXTRES, L"Change texture res.", 0, iY+=52, 170, 30);
 	StringCchPrintf( sz, 100, L"Texture Width: %d", g_iTextureWidth ); 
-	//g_SampleUI.AddStatic( IDC_TEXTRES_WIDTH_STATIC, sz, 15, iY += 35, 125, 22 );
-	//g_SampleUI.AddSlider( IDC_TEXTRES_WIDTH_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200 );
+	g_SampleUI.AddStatic( IDC_TEXTRES_WIDTH_STATIC, sz, 15, iY += 35, 125, 22 );
+	g_SampleUI.AddSlider( IDC_TEXTRES_WIDTH_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200 );
 
     StringCchPrintf( sz, 100, L"Texture Height: %d", g_iTextureHeight ); 
-    //g_SampleUI.AddStatic( IDC_TEXTRES_HEIGHT_STATIC, sz, 15, iY += 24, 125, 22 );
-    //g_SampleUI.AddSlider( IDC_TEXTRES_HEIGHT_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200);
+    g_SampleUI.AddStatic( IDC_TEXTRES_HEIGHT_STATIC, sz, 15, iY += 24, 125, 22 );
+    g_SampleUI.AddSlider( IDC_TEXTRES_HEIGHT_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200);
 
     StringCchPrintf( sz, 100, L"Texture Depth: %d", g_iTextureDepth ); 
-    //g_SampleUI.AddStatic( IDC_TEXTRES_DEPTH_STATIC, sz, 15, iY += 24, 125, 22 );
-    //g_SampleUI.AddSlider( IDC_TEXTRES_DEPTH_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200);
+    g_SampleUI.AddStatic( IDC_TEXTRES_DEPTH_STATIC, sz, 15, iY += 24, 125, 22 );
+    g_SampleUI.AddSlider( IDC_TEXTRES_DEPTH_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200);
 
 	// Setup the camera's view parameters
     D3DXVECTOR3 vecEye( 0.0f, 0.0f, -4.0f );
@@ -583,14 +581,6 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
         pd3dImmediateContext->OMSetRenderTargets( 0, NULL, NULL );
         return;
     }
-
-	//g_pScene->InitRenderTargets(g_iTextureWidth, g_iTextureHeight, g_iTextureDepth);
-
-	// Initialize the grid matrices
-    D3DXMATRIX gridScale, gridRotate;
-    D3DXMatrixScaling(&gridScale, 5.0f, 5.0f, 5.0f );
-    D3DXMatrixRotationX(&gridRotate, 3.0f*3.1416f/2.0f);
-    g_gridWorld = gridScale * gridRotate;
 
 	// UPDATE GLOBAL VARIABLES FOR VOLUME RENDERING
 	g_View = *g_Camera.GetViewMatrix();
