@@ -319,10 +319,16 @@ void Voxelizer::DrawSlices(void)
 }
 
 
-HRESULT Voxelizer::Voxelize(Surface *pSurface1, Surface *pSurface2)
+HRESULT Voxelizer::Voxelize(Surface *pSurface1, Surface *pSurface2, VERTEX vMin, VERTEX vMax)
 {
     m_pSurface1 = pSurface1;
 	m_pSurface2 = pSurface2;
+	m_xMin = vMin.x;
+	m_xMax = vMax.x;
+	m_yMin = vMin.y;
+	m_yMax = vMax.y;
+	m_zMin = vMin.z;
+	m_zMax = vMax.z;
 
     HRESULT hr = DoVoxelization();
 
@@ -344,52 +350,6 @@ HRESULT Voxelizer::DoVoxelization(void)
     return hr;
 }
 
-void Voxelizer::UpdateMinMax()
-{
-	for(int i = 0; i < m_pSurface1->m_vNum; i++)
-	{
-		VERTEX tempver = m_pSurface1->m_pVertices[i];
-		D3DXVECTOR4 temp;
-		D3DXVec3Transform(&temp, &D3DXVECTOR3(tempver.x, tempver.y, tempver.z), &m_pSurface1->m_mModel);
-		if(i == 0)
-		{
-			m_xMin = temp.x;
-			m_xMax = temp.x;
-			m_yMin = temp.y;
-			m_yMax = temp.y;
-			m_zMin = temp.z;
-			m_zMax = temp.z;
-		}
-
-		if(temp.x < m_xMin)
-			m_xMin = temp.x;
-		if(temp.x > m_xMax)
-			m_xMax = temp.x;
-		if(temp.y < m_yMin)
-			m_yMin = temp.y;
-		if(temp.y > m_yMax)
-			m_yMax = temp.y;
-		if(temp.z < m_zMin)
-			m_zMin = temp.z;
-		if(temp.z > m_zMax)
-			m_zMax = temp.z;
-	}
-
-	/*for(int i = 0; i < m_pSurface2->m_vNum; i++)
-	{
-		VERTEX tempver = m_pSurface2->m_pVertices[i];
-		D3DXVECTOR4 temp;
-		D3DXVec3Transform(&temp, &D3DXVECTOR3(tempver.x, tempver.y, tempver.z), &m_pSurface2->m_mModel);
-		if(temp.x < xMin)
-			xMin = temp.x;
-		if(temp.x > xMax)
-			xMax = temp.x;
-		if(temp.z < yMin)
-			yMin = temp.z;
-		if(temp.z > yMax)
-			yMax = temp.z;
-	}*/
-}
 
 //
 // StencilClipVolume algorithm summary:
@@ -419,8 +379,6 @@ HRESULT Voxelizer::StencilClipVolume(void)
 {
     HRESULT hr(S_OK);
     int x, y;
-
-	UpdateMinMax();
 
     assert(m_initialized);
     

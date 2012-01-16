@@ -12,14 +12,13 @@ public:
    
     HRESULT SetDestination(ID3D11Texture3D *pDstInOutTexture3D);
     
-    HRESULT Voxelize(Surface *pSurface1, Surface *pSurface2);
+    HRESULT Voxelize(Surface *pSurface1, Surface *pSurface2, VERTEX vMin, VERTEX vMax);
 
 private:
     HRESULT Initialize();
     HRESULT InitTextures();
     HRESULT InitShaders();
     HRESULT InitSlices();
-	void UpdateMinMax();
     void Cleanup();
 
     void DrawSlices();

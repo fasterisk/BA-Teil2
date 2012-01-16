@@ -252,7 +252,7 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 {
 	UpdateBoundingBuffer();
 	
-	m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2);
+	m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
 	
 	D3D11_VIEWPORT rtViewport;
     rtViewport.TopLeftX = 0;
