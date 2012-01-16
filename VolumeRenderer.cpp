@@ -12,19 +12,89 @@ VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd
 	m_pd3dImmediateContext = pd3dImmediateContext;
 	m_pEffect = pEffect;
 
+	m_pVolumeRenderTechnique = NULL;
+	
+	m_pBBVertexBuffer = NULL;
+	m_pBBIndexBuffer = NULL;
+	m_pBBInputLayout = NULL;
+
+	m_pFrontTexture2D = NULL;
+    m_pFrontRTV = NULL;
+    m_pFrontSRV = NULL;
+    m_pBackTexture2D = NULL;
+    m_pBackRTV = NULL;
+    m_pBackSRV = NULL;
+
 }
 
 VolumeRenderer::~VolumeRenderer()
 {
+	SAFE_RELEASE(m_pBBVertexBuffer);
+	SAFE_RELEASE(m_pBBIndexBuffer);
+	SAFE_RELEASE(m_pBBInputLayout);
+
+	SAFE_RELEASE(m_pFrontTexture2D);
+    SAFE_RELEASE(m_pFrontRTV);
+    SAFE_RELEASE(m_pFrontSRV);
+    SAFE_RELEASE(m_pBackTexture2D);
+    SAFE_RELEASE(m_pBackRTV);
+    SAFE_RELEASE(m_pBackSRV);
 }
 
 HRESULT VolumeRenderer::Initialize()
 {
 	HRESULT hr;
 	V_RETURN(InitShader());
-	
-
 	V_RETURN(InitBoundingIndicesAndLayout());
+
+	return S_OK;
+}
+
+HRESULT VolumeRenderer::SetScreenSize(int iWidth, int iHeight)
+{
+	HRESULT hr;
+
+	//clean up all resources
+	SAFE_RELEASE(m_pFrontTexture2D);
+    SAFE_RELEASE(m_pFrontRTV);
+    SAFE_RELEASE(m_pFrontSRV);
+    SAFE_RELEASE(m_pBackTexture2D);
+    SAFE_RELEASE(m_pBackRTV);
+    SAFE_RELEASE(m_pBackSRV);
+
+	//create 2D texture for front- and backface rendering
+	D3D11_TEXTURE2D_DESC desc;
+	desc.ArraySize = 1;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc.CPUAccessFlags = 0;
+	desc.MipLevels = 1;
+	desc.MiscFlags = 0;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.Width = iWidth;
+	desc.Height = iHeight;
+	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	V_RETURN(m_pd3dDevice->CreateTexture2D(&desc, NULL, &m_pFrontTexture2D));
+	V_RETURN(m_pd3dDevice->CreateTexture2D(&desc, NULL, &m_pBackTexture2D));
+
+	//create the render target views
+	D3D11_RENDER_TARGET_VIEW_DESC descRT;
+	descRT.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	descRT.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	descRT.Texture2D.MipSlice = 0;
+	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pFrontTexture2D, &descRT, &m_pFrontRTV));
+	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pBackTexture2D, &descRT, &m_pBackRTV));
+
+	//create the shader resource views
+	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
+	//ZeroMemory( &descSRV, sizeof(descSRV) ); -> used in nvidia sample; don't know if it is needed
+	descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	descSRV.Texture2D.MostDetailedMip = 0;
+	descSRV.Texture2D.MipLevels = 1;
+	descSRV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pFrontTexture2D, &descSRV, &m_pFrontSRV));
+	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pBackTexture2D, &descSRV, &m_pBackSRV));
 
 	return S_OK;
 }
