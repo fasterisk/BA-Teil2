@@ -26,9 +26,6 @@ Voxelizer::Voxelizer(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediat
 	m_pDSTex2DSRVar = NULL;
 	m_pSlicesLayout = NULL;
 	m_pSlicesVB = NULL;
-    D3DXMatrixIdentity(&m_objToVolumeXForm);
-
-	b = true;
 }
 
 Voxelizer::~Voxelizer()
@@ -322,9 +319,8 @@ void Voxelizer::DrawSlices(void)
 }
 
 
-HRESULT Voxelizer::Voxelize(D3DXMATRIX& objToVolumeXForm, Surface *pSurface1, Surface *pSurface2)
+HRESULT Voxelizer::Voxelize(Surface *pSurface1, Surface *pSurface2)
 {
-	D3DXMatrixMultiply(&m_objToVolumeXForm, &pSurface1->m_mModel, &objToVolumeXForm);
     m_pSurface1 = pSurface1;
 	m_pSurface2 = pSurface2;
 
@@ -426,15 +422,9 @@ HRESULT Voxelizer::RenderClippedMesh(float zNear, float zFar, ID3DX11EffectTechn
     D3DXMATRIX worldViewProj;
 	D3DXMATRIX modelViewProj;
 
-	float xMin, yMin, xMax, yMax;
+	float xMin, yMin, zMin, xMax, yMax, zMax;
 
-	if(b == true)
-	{
-		m_pSurface1->Translate(0.5f, 0.5f, 0.0f);
-		b = false;
-	}
-
-	/*for(int i = 0; i < m_pSurface1->m_vNum; i++)
+	for(int i = 0; i < m_pSurface1->m_vNum; i++)
 	{
 		VERTEX tempver = m_pSurface1->m_pVertices[i];
 		D3DXVECTOR4 temp;
@@ -443,19 +433,25 @@ HRESULT Voxelizer::RenderClippedMesh(float zNear, float zFar, ID3DX11EffectTechn
 		{
 			xMin = temp.x;
 			xMax = temp.x;
-			yMin = temp.z;
-			yMax = temp.z;
+			yMin = temp.y;
+			yMax = temp.y;
+			zMin = temp.z;
+			zMax = temp.z;
 		}
 
 		if(temp.x < xMin)
 			xMin = temp.x;
 		if(temp.x > xMax)
 			xMax = temp.x;
-		if(temp.z < yMin)
-			yMin = temp.z;
-		if(temp.z > yMax)
-			yMax = temp.z;
-	}*/
+		if(temp.y < yMin)
+			yMin = temp.y;
+		if(temp.y > yMax)
+			yMax = temp.y;
+		if(temp.z < zMin)
+			zMin = temp.z;
+		if(temp.z > zMax)
+			zMax = temp.z;
+	}
 
 	/*for(int i = 0; i < m_pSurface2->m_vNum; i++)
 	{
@@ -473,8 +469,8 @@ HRESULT Voxelizer::RenderClippedMesh(float zNear, float zFar, ID3DX11EffectTechn
 	}*/
 
 
-    D3DXMatrixOrthoOffCenterLH(&proj, -2.0f, 2.0f, -2.0f, 2.0f, zNear, zFar);
-	//D3DXMatrixOrthoOffCenterLH(&proj, 0.0f, 1.0f, -1.0f, 0.0f, zNear, zFar);
+    //D3DXMatrixOrthoOffCenterLH(&proj, -2.0f, 2.0f, -2.0f, 2.0f, zNear, zFar);
+	D3DXMatrixOrthoOffCenterLH(&proj, xMin, xMax, yMin, yMax, zNear, zFar);
 	D3DXMatrixMultiply(&worldViewProj, &m_pSurface1->m_mModel, &proj);
 	//D3DXMatrixMultiply(&modelViewProj, &m_pSurface1->m_mModel, &worldViewProj);
     V_RETURN(m_pWorldViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&worldViewProj)));

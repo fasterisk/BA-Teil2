@@ -68,9 +68,6 @@ private:
     ID3D11InputLayout           *m_pSlicesLayout;
     ID3D11Buffer                *m_pSlicesVB;
 
-
-	//TEST
-	bool b;
 };
 
 #endif // _VOXELIZER_H_
