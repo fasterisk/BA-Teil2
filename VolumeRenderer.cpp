@@ -19,7 +19,6 @@ VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd
     m_pBackTexture2D = NULL;
     m_pBackRTV = NULL;
     m_pBackSRV = NULL;
-
 }
 
 VolumeRenderer::~VolumeRenderer()
@@ -118,19 +117,20 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXMATRIX mWorldViewProjection
 	rtViewport.Height = float(m_iHeight);
 	m_pd3dImmediateContext->RSSetViewports(1, &rtViewport);
 
-	/*ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
+	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
 
     m_pd3dImmediateContext->ClearRenderTargetView( pRTV, color );
     m_pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 	m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
-	*/
+	
 
 	//Render front of boundingbox
-	m_pd3dImmediateContext->ClearRenderTargetView(m_pFrontRTV, color);
-	m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pFrontRTV, NULL);
+	//m_pd3dImmediateContext->ClearRenderTargetView(m_pFrontRTV, color);
+	//m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pFrontRTV, NULL);
 	m_pVolumeRenderTechnique->GetPassByName("BoundingBoxFront")->Apply(0, m_pd3dImmediateContext);
 	DrawBoundingBox();
+
 }
 
 HRESULT VolumeRenderer::InitShader()
@@ -146,6 +146,9 @@ HRESULT VolumeRenderer::InitShader()
 HRESULT VolumeRenderer::InitBoundingIndicesAndLayout()
 {
 	HRESULT hr;
+
+	SAFE_RELEASE(m_pBBIndexBuffer);
+	SAFE_RELEASE(m_pBBInputLayout);
 
 	//Create Index buffer
 	unsigned int indices[36] = {0,2,1,0,3,2,0,1,4,0,4,5,1,2,6,1,6,4,2,3,7,2,7,6,3,0,5,3,5,7,5,4,6,5,6,7};
@@ -184,6 +187,8 @@ HRESULT VolumeRenderer::InitBoundingIndicesAndLayout()
 HRESULT VolumeRenderer::UpdateBoundingVertices(VERTEX* BBVertices)
 {
 	HRESULT hr;
+
+	SAFE_RELEASE(m_pBBVertexBuffer);
 	
 	//Create Vertex buffer
 	D3D11_BUFFER_DESC vbd;

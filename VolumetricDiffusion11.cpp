@@ -15,7 +15,7 @@ CDXUTDialog                 g_SampleUI;             // dialog for sample specifi
 // Scene
 Scene*						g_pScene;
 
-D3DXVECTOR3                 g_Eye = D3DXVECTOR3( 0.0f, 0.0f, -20.0f );
+D3DXVECTOR3                 g_Eye = D3DXVECTOR3( 0.0f, 0.0f, -5.0f );
 D3DXVECTOR3                 g_At = D3DXVECTOR3( 0.0f, 0.0f, 0.0f );
 D3DXVECTOR3                 g_Up = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
 

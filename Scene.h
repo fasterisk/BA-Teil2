@@ -27,7 +27,6 @@ public:
 protected:
 	HRESULT InitSurfaces();
 	HRESULT InitBoundingBox();
-	HRESULT InitTechniques();
 
 	// Device
 	ID3D11Device*			m_pd3dDevice;

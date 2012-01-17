@@ -13,6 +13,13 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_pd3dDevice = pd3dDevice;
 	m_pd3dImmediateContext = pd3dImmediateContext;
 
+	m_pVolumeRenderEffect = NULL;
+	m_pVoxelizerEffect = NULL;
+	m_pSurfaceEffect = NULL;
+	m_pSurface1Texture3D = NULL;
+	m_pSurface1SRV = NULL;
+	m_pBBVertices = NULL;
+
 }
 
 Scene::~Scene()
@@ -51,7 +58,6 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 
 	V_RETURN(InitSurfaces());
 	V_RETURN(InitBoundingBox());
-	V_RETURN(InitTechniques());
 	V_RETURN(InitRenderTargets(iTexWidth, iTexHeight, iTexDepth));
 	
 
@@ -91,6 +97,8 @@ HRESULT Scene::InitSurfaces()
 HRESULT Scene::InitBoundingBox()
 {
 	HRESULT hr;
+
+	SAFE_DELETE(m_pBBVertices);
 
 	m_pBBVertices = new VERTEX[8];
 	VERTEX min, max;
@@ -196,6 +204,8 @@ HRESULT Scene::InitRenderTargets(int iWidth, int iHeight, int iDepth)
 {
 	HRESULT hr;
 
+	SAFE_RELEASE(m_pSurface1Texture3D);
+
 	D3D11_TEXTURE3D_DESC desc;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	desc.CPUAccessFlags = 0;
@@ -209,11 +219,6 @@ HRESULT Scene::InitRenderTargets(int iWidth, int iHeight, int iDepth)
 
 	V_RETURN( m_pd3dDevice->CreateTexture3D(&desc,NULL, &m_pSurface1Texture3D));
 
-	return S_OK;
-}
-
-HRESULT Scene::InitTechniques()
-{
 	return S_OK;
 }
 
