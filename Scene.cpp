@@ -156,39 +156,26 @@ HRESULT Scene::UpdateBoundingBox()
 			max.z = temp.z;
 	}*/
 
-	D3DXMATRIX mTransform, mTranslate, mTranslateInv, mScale, mScaleInv;
+	D3DXMATRIX mTranslate, mTranslateInv, mScale, mScaleInv;
 
-	D3DXVECTOR4 vSide, vMinAfterTrans, vMaxAfterTrans;
+	D3DXVECTOR4 vDiff, vMinAfterScale, vMaxAfterScale, vZero, vDiffMinZero;
 
-	vSide = max + min;
+	vDiff = max - min;
+	float fMaxDiff = max(vDiff.x, max(vDiff.y, vDiff.z));
 
-	D3DXMatrixTranslation(&mTranslate, vSide.x/-2, vSide.y/-2, vSide.z/-2);
-	D3DXMatrixTranslation(&mTranslateInv, vSide.x/2, vSide.y/2, vSide.z/2);
-	D3DXVec4Transform(&vMinAfterTrans, &min, &mTranslate);
-	D3DXVec4Transform(&vMaxAfterTrans, &max, &mTranslate);
+	D3DXMatrixScaling(&mScale, 1/fMaxDiff, 1/fMaxDiff, 1/fMaxDiff);
+	D3DXMatrixScaling(&mScaleInv, fMaxDiff, fMaxDiff, fMaxDiff);
+	D3DXVec4Transform(&vMinAfterScale, &min, &mScale);
+	D3DXVec4Transform(&vMaxAfterScale, &max, &mScale);
 
-	float fMin = min(vMinAfterTrans.x, min(vMinAfterTrans.y, vMinAfterTrans.z));
-	float fMax = max(vMaxAfterTrans.x, max(vMaxAfterTrans.y, vMaxAfterTrans.z));
-	
-	float fAbsMin = abs(fMin);
-	float fAbsMax = abs(fMax);
-	
-	
-	if(fAbsMin > fAbsMax)
-	{
-		D3DXMatrixScaling(&mScale, 1/fAbsMin, 1/fAbsMin, 1/fAbsMin);
-		D3DXMatrixScaling(&mScaleInv, fAbsMin, fAbsMin, fAbsMin);
-	}
-	else
-	{
-		D3DXMatrixScaling(&mScale, 1/fAbsMax, 1/fAbsMax, 1/fAbsMax);
-		D3DXMatrixScaling(&mScaleInv, fAbsMax, fAbsMax, fAbsMax);
-	}
+	vZero = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f);
+	vDiffMinZero = vZero - vMinAfterScale;
+	D3DXMatrixTranslation(&mTranslate, vDiffMinZero.x, vDiffMinZero.y, vDiffMinZero.z);
+	D3DXMatrixTranslation(&mTranslateInv, -vDiffMinZero.x, -vDiffMinZero.y, -vDiffMinZero.z);
+	D3DXVec4Transform(&m_vMin, &vMinAfterScale, &mTranslate);
+	D3DXVec4Transform(&m_vMax, &vMaxAfterScale, &mTranslate);
 
 	D3DXMatrixMultiply(&m_mBBInv, &mScaleInv, &mTranslateInv);
-
-	D3DXVec4Transform(&m_vMin, &vMinAfterTrans, &mScale);
-	D3DXVec4Transform(&m_vMax, &vMaxAfterTrans, &mScale);
 
 	m_pBBVertices[0].x = m_vMin.x;
 	m_pBBVertices[0].y = m_vMin.y;

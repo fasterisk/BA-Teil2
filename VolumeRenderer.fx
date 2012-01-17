@@ -4,6 +4,10 @@
 
 matrix WorldViewProjection;
 
+texture2D FrontTexture;
+texture2D BackTexture;
+texture3D VolumeTexture;
+
 //------------------------------------------------------------------------------------------------------
 // States
 //------------------------------------------------------------------------------------------------------
@@ -65,7 +69,7 @@ VsOutput VS_BOUNDINGBOX(VsInput input)
 PsOutput PS_BOUNDINGBOX(VsOutput input)
 {
 	PsOutput output;
-	output.color = (input.posb+1)/2;
+	output.color = input.posb;
 	return output;
 }
 

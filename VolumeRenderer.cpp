@@ -118,14 +118,14 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXMATRIX mWorldViewProjection
 	m_pd3dImmediateContext->RSSetViewports(1, &rtViewport);
 
 	//TEST
-	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
-    ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
-	m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
+	//ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
+    //ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
+	//m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
 	//ENDTEST
 
 	//Render frontfaces of boundingbox
-	//m_pd3dImmediateContext->ClearRenderTargetView(m_pFrontRTV, color);
-	//m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pFrontRTV, NULL);
+	m_pd3dImmediateContext->ClearRenderTargetView(m_pFrontRTV, color);
+	m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pFrontRTV, NULL);
 	m_pVolumeRenderTechnique->GetPassByName("BoundingBoxFront")->Apply(0, m_pd3dImmediateContext);
 	DrawBoundingBox();
 
@@ -135,10 +135,9 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXMATRIX mWorldViewProjection
 	m_pVolumeRenderTechnique->GetPassByName("BoundingBoxBack")->Apply(0, m_pd3dImmediateContext);
 	DrawBoundingBox();
 
-
 	//Restore Rendertarget- and Depthstencilview
-	//ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
-    //ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
+	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
+    ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
 	m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
 }
 
