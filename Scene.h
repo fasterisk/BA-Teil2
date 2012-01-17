@@ -26,7 +26,6 @@ public:
 
 protected:
 	HRESULT InitSurfaces();
-	HRESULT InitBoundingBox();
 
 	// Device
 	ID3D11Device*			m_pd3dDevice;
@@ -38,8 +37,9 @@ protected:
 	Surface*	m_pControlledSurface;
 	bool		m_bSurface1IsControlled;
 
-	VERTEX m_vMin;
-	VERTEX m_vMax;
+	D3DXVECTOR4 m_vMin;
+	D3DXVECTOR4 m_vMax;
+	D3DXMATRIX m_mBBInv;
 
 	// Voxelizer
 	Voxelizer*				m_pVoxelizer;

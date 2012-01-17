@@ -57,7 +57,7 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(CreateEffect(str, &m_pVoxelizerEffect));
 
 	V_RETURN(InitSurfaces());
-	V_RETURN(InitBoundingBox());
+	V_RETURN(UpdateBoundingBox());
 	V_RETURN(InitRenderTargets(iTexWidth, iTexHeight, iTexDepth));
 	
 
@@ -89,24 +89,27 @@ HRESULT Scene::InitSurfaces()
 	m_pSurface2->SetColor(1.0, 1.0, 1.0);
 	m_pSurface2->Scale(0.5);
 
+	//TEST
+	//m_pSurface1->Translate(1.0f, 0.0f, 0.0f);
+
 	m_pControlledSurface = m_pSurface1;
 
 	return S_OK;
 }
 
-HRESULT Scene::InitBoundingBox()
+HRESULT Scene::UpdateBoundingBox()
 {
 	HRESULT hr;
 
 	SAFE_DELETE(m_pBBVertices);
 
 	m_pBBVertices = new VERTEX[8];
-	VERTEX min, max;
+	D3DXVECTOR4 min, max;
 	for(int i = 0; i < m_pSurface1->m_vNum; i++)
 	{
-		VERTEX temp = m_pSurface1->m_pVertices[i];
+		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface1->m_pVertices[i].x, m_pSurface1->m_pVertices[i].y, m_pSurface1->m_pVertices[i].z, 1.0);
 		D3DXVECTOR4 mul;
-		D3DXVec4Transform(&mul, &D3DXVECTOR4(temp.x, temp.y, temp.z, 1.0), &m_pSurface1->m_mModel);
+		D3DXVec4Transform(&mul, &temp, &m_pSurface1->m_mModel);
 		temp.x = mul.x;
 		temp.y = mul.y;
 		temp.z = mul.z;
@@ -153,34 +156,64 @@ HRESULT Scene::InitBoundingBox()
 			max.z = temp.z;
 	}*/
 
-	m_vMin = min;
-	m_vMax = max;
+	D3DXMATRIX mTransform, mTranslate, mTranslateInv, mScale, mScaleInv;
 
+	D3DXVECTOR4 vSide, vMinAfterTrans, vMaxAfterTrans;
 
-	m_pBBVertices[0].x = min.x;
-	m_pBBVertices[0].y = min.y;
-	m_pBBVertices[0].z = min.z;
-	m_pBBVertices[1].x = max.x;
-	m_pBBVertices[1].y = min.y;
-	m_pBBVertices[1].z = min.z;
-	m_pBBVertices[2].x = max.x;
-	m_pBBVertices[2].y = max.y;
-	m_pBBVertices[2].z = min.z;
-	m_pBBVertices[3].x = min.x;
-	m_pBBVertices[3].y = max.y;
-	m_pBBVertices[3].z = min.z;
-	m_pBBVertices[4].x = max.x;
-	m_pBBVertices[4].y = min.y;
-	m_pBBVertices[4].z = max.z;
-	m_pBBVertices[5].x = min.x;
-	m_pBBVertices[5].y = min.y;
-	m_pBBVertices[5].z = max.z;
-	m_pBBVertices[6].x = max.x;
-	m_pBBVertices[6].y = max.y;
-	m_pBBVertices[6].z = max.z;
-	m_pBBVertices[7].x = min.x;
-	m_pBBVertices[7].y = max.y;
-	m_pBBVertices[7].z = max.z;
+	vSide = max + min;
+
+	D3DXMatrixTranslation(&mTranslate, vSide.x/-2, vSide.y/-2, vSide.z/-2);
+	D3DXMatrixTranslation(&mTranslateInv, vSide.x/2, vSide.y/2, vSide.z/2);
+	D3DXVec4Transform(&vMinAfterTrans, &min, &mTranslate);
+	D3DXVec4Transform(&vMaxAfterTrans, &max, &mTranslate);
+
+	float fMin = min(vMinAfterTrans.x, min(vMinAfterTrans.y, vMinAfterTrans.z));
+	float fMax = max(vMaxAfterTrans.x, max(vMaxAfterTrans.y, vMaxAfterTrans.z));
+	
+	float fAbsMin = abs(fMin);
+	float fAbsMax = abs(fMax);
+	
+	
+	if(fAbsMin > fAbsMax)
+	{
+		D3DXMatrixScaling(&mScale, 1/fAbsMin, 1/fAbsMin, 1/fAbsMin);
+		D3DXMatrixScaling(&mScaleInv, fAbsMin, fAbsMin, fAbsMin);
+	}
+	else
+	{
+		D3DXMatrixScaling(&mScale, 1/fAbsMax, 1/fAbsMax, 1/fAbsMax);
+		D3DXMatrixScaling(&mScaleInv, fAbsMax, fAbsMax, fAbsMax);
+	}
+
+	D3DXMatrixMultiply(&m_mBBInv, &mScaleInv, &mTranslateInv);
+
+	D3DXVec4Transform(&m_vMin, &vMinAfterTrans, &mScale);
+	D3DXVec4Transform(&m_vMax, &vMaxAfterTrans, &mScale);
+
+	m_pBBVertices[0].x = m_vMin.x;
+	m_pBBVertices[0].y = m_vMin.y;
+	m_pBBVertices[0].z = m_vMin.z;
+	m_pBBVertices[1].x = m_vMax.x;
+	m_pBBVertices[1].y = m_vMin.y;
+	m_pBBVertices[1].z = m_vMin.z;
+	m_pBBVertices[2].x = m_vMax.x;
+	m_pBBVertices[2].y = m_vMax.y;
+	m_pBBVertices[2].z = m_vMin.z;
+	m_pBBVertices[3].x = m_vMin.x;
+	m_pBBVertices[3].y = m_vMax.y;
+	m_pBBVertices[3].z = m_vMin.z;
+	m_pBBVertices[4].x = m_vMax.x;
+	m_pBBVertices[4].y = m_vMin.y;
+	m_pBBVertices[4].z = m_vMax.z;
+	m_pBBVertices[5].x = m_vMin.x;
+	m_pBBVertices[5].y = m_vMin.y;
+	m_pBBVertices[5].z = m_vMax.z;
+	m_pBBVertices[6].x = m_vMax.x;
+	m_pBBVertices[6].y = m_vMax.y;
+	m_pBBVertices[6].z = m_vMax.z;
+	m_pBBVertices[7].x = m_vMin.x;
+	m_pBBVertices[7].y = m_vMax.y;
+	m_pBBVertices[7].z = m_vMax.z;
 
 	return S_OK;
 }
@@ -196,7 +229,10 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 
 	UpdateBoundingBox();
 	
-	m_pVolumeRenderer->Render(m_pBBVertices, mViewProjection, m_pSurface1Texture3D);
+	D3DXMATRIX mBBWorldViewProjection;
+	D3DXMatrixMultiply(&mBBWorldViewProjection, &m_mBBInv, &mViewProjection);
+
+	m_pVolumeRenderer->Render(m_pBBVertices, mBBWorldViewProjection, m_pSurface1Texture3D);
 }	
 
 
@@ -252,94 +288,6 @@ void Scene::Scale(float fFactor)
 {
 	m_pControlledSurface->Scale(fFactor);
 }
-
-
-HRESULT Scene::UpdateBoundingBox()
-{
-	HRESULT hr;
-
-	VERTEX min, max;
-	for(int i = 0; i < m_pSurface1->m_vNum; i++)
-	{
-		VERTEX temp = m_pSurface1->m_pVertices[i];
-		D3DXVECTOR4 mul;
-		D3DXVec4Transform(&mul, &D3DXVECTOR4(temp.x, temp.y, temp.z, 1.0), &m_pSurface1->m_mModel);
-		temp.x = mul.x;
-		temp.y = mul.y;
-		temp.z = mul.z;
-		if(i == 0)
-		{
-			min = temp;
-			max = temp;
-		}
-
-		if(temp.x < min.x)
-			min.x = temp.x;
-		if(temp.y < min.y)
-			min.y = temp.y;
-		if(temp.z < min.z)
-			min.z = temp.z;
-		if(temp.x > max.x)
-			max.x = temp.x;
-		if(temp.y > max.y)
-			max.y = temp.y;
-		if(temp.z > max.z)
-			max.z = temp.z;
-	}
-
-	/*for(int i = 0; i < m_pSurface2->m_vNum; i++)
-	{
-		VERTEX temp = m_pSurface2->m_pVertices[i];
-		D3DXVECTOR4 mul;
-		D3DXVec4Transform(&mul, &D3DXVECTOR4(temp.x, temp.y, temp.z, 1.0), &m_pSurface2->m_mModel);
-		temp.x = mul.x;
-		temp.y = mul.y;
-		temp.z = mul.z;
-		if(temp.x < min.x)
-			min.x = temp.x;
-		if(temp.y < min.y)
-			min.y = temp.y;
-		if(temp.z < min.z)
-			min.z = temp.z;
-		if(temp.x > max.x)
-			max.x = temp.x;
-		if(temp.y > max.y)
-			max.y = temp.y;
-		if(temp.z > max.z)
-			max.z = temp.z;
-	}*/
-
-	m_vMin = min;
-	m_vMax = max;
-
-	m_pBBVertices[0].x = min.x;
-	m_pBBVertices[0].y = min.y;
-	m_pBBVertices[0].z = min.z;
-	m_pBBVertices[1].x = max.x;
-	m_pBBVertices[1].y = min.y;
-	m_pBBVertices[1].z = min.z;
-	m_pBBVertices[2].x = max.x;
-	m_pBBVertices[2].y = max.y;
-	m_pBBVertices[2].z = min.z;
-	m_pBBVertices[3].x = min.x;
-	m_pBBVertices[3].y = max.y;
-	m_pBBVertices[3].z = min.z;
-	m_pBBVertices[4].x = max.x;
-	m_pBBVertices[4].y = min.y;
-	m_pBBVertices[4].z = max.z;
-	m_pBBVertices[5].x = min.x;
-	m_pBBVertices[5].y = min.y;
-	m_pBBVertices[5].z = max.z;
-	m_pBBVertices[6].x = max.x;
-	m_pBBVertices[6].y = max.y;
-	m_pBBVertices[6].z = max.z;
-	m_pBBVertices[7].x = min.x;
-	m_pBBVertices[7].y = max.y;
-	m_pBBVertices[7].z = max.z;
-
-	return S_OK;
-}
-
 
 
 HRESULT Scene::CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect)

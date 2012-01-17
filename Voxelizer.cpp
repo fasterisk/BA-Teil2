@@ -319,7 +319,7 @@ void Voxelizer::DrawSlices(void)
 }
 
 
-HRESULT Voxelizer::Voxelize(Surface *pSurface1, Surface *pSurface2, VERTEX vMin, VERTEX vMax)
+HRESULT Voxelizer::Voxelize(Surface *pSurface1, Surface *pSurface2, D3DXVECTOR4 vMin, D3DXVECTOR4 vMax)
 {
     m_pSurface1 = pSurface1;
 	m_pSurface2 = pSurface2;
