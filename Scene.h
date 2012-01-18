@@ -20,7 +20,7 @@ public:
 	void RotateY(float fFactor);
 	void Scale(float fFactor);
 
-	HRESULT InitRenderTargets(int iWidth, int iHeight, int iDepth);
+	HRESULT Init3DTexture(int iWidth, int iHeight, int iDepth);
 
 	HRESULT UpdateBoundingBox();
 
@@ -37,6 +37,8 @@ protected:
 	Surface*	m_pControlledSurface;
 	bool		m_bSurface1IsControlled;
 
+	D3DXVECTOR4 m_vMinVoxelizer;
+	D3DXVECTOR4 m_vMaxVoxelizer;
 	D3DXVECTOR4 m_vMin;
 	D3DXVECTOR4 m_vMax;
 	D3DXMATRIX m_mBBInv;
@@ -53,16 +55,12 @@ protected:
 	ID3DX11Effect*					m_pSurfaceEffect;
 
 	// TEST
-	ID3D11Texture3D*						m_pSurface1Texture3D;
-	ID3D11ShaderResourceView*				m_pSurface1SRV;
-	D3D11_SHADER_RESOURCE_VIEW_DESC			SRVDesc;
+	ID3D11Texture3D*				m_pTexture3D;
+	ID3D11ShaderResourceView*		m_pTexture3DSRV;
 
 
 	VERTEX* m_pBBVertices;
 
-	// Helper Functions
-
-	HRESULT CreateRenderTarget(int rtIndex, D3D11_TEXTURE3D_DESC desc);
 
 	// Shader and effect creation
 	HRESULT CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect);

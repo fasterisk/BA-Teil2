@@ -33,13 +33,19 @@ VolumeRenderer::~VolumeRenderer()
     SAFE_RELEASE(m_pBackTexture2D);
     SAFE_RELEASE(m_pBackRTV);
     SAFE_RELEASE(m_pBackSRV);
+
+	SAFE_RELEASE(m_pSQInputLayout);
+	SAFE_RELEASE(m_pSQVertexBuffer);
 }
 
-HRESULT VolumeRenderer::Initialize()
+HRESULT VolumeRenderer::Initialize(int iWidth, int iHeight, int iDepth)
 {
 	HRESULT hr;
 	V_RETURN(InitShader());
 	V_RETURN(InitBoundingIndicesAndLayout());
+	V_RETURN(CreateScreenQuad());
+
+	InitTextureSize(iWidth, iHeight, iDepth);
 
 	return S_OK;
 }
@@ -97,7 +103,7 @@ HRESULT VolumeRenderer::SetScreenSize(int iWidth, int iHeight)
 	return S_OK;
 }
 
-void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXMATRIX mWorldViewProjection, ID3D11Texture3D* p3DTexture)
+void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV)
 {
 	//Update vertex buffer for boundingbox
 	UpdateBoundingVertices(pBBVertices);
@@ -117,11 +123,7 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXMATRIX mWorldViewProjection
 	rtViewport.Height = float(m_iHeight);
 	m_pd3dImmediateContext->RSSetViewports(1, &rtViewport);
 
-	//TEST
-	//ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
-    //ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
-	//m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
-	//ENDTEST
+	
 
 	//Render frontfaces of boundingbox
 	m_pd3dImmediateContext->ClearRenderTargetView(m_pFrontRTV, color);
@@ -135,10 +137,29 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXMATRIX mWorldViewProjection
 	m_pVolumeRenderTechnique->GetPassByName("BoundingBoxBack")->Apply(0, m_pd3dImmediateContext);
 	DrawBoundingBox();
 
+	m_pFrontTextureVar->SetResource(m_pFrontSRV);
+	m_pBackTextureVar->SetResource(m_pBackSRV);
+	m_pVolumeTextureVar->SetResource(p3DTextureSRV);
+
+	//TEST
+	//ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
+    //ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
+	//m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
+	//m_pVolumeRenderTechnique->GetPassByName("Direction")->Apply(0, m_pd3dImmediateContext);
+	//DrawScreenQuad();
+	//ENDTEST
+
 	//Restore Rendertarget- and Depthstencilview
 	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
 	m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
+
+	m_pVolumeRenderTechnique->GetPassByName("RayCast")->Apply(0, m_pd3dImmediateContext);
+	DrawScreenQuad();
+
+	//Draw wireframe boundingbox
+	m_pVolumeRenderTechnique->GetPassByName("Wireframe")->Apply(0, m_pd3dImmediateContext);
+	DrawBoundingBox();
 }
 
 HRESULT VolumeRenderer::InitShader()
@@ -147,8 +168,24 @@ HRESULT VolumeRenderer::InitShader()
 
 	m_pVolumeRenderTechnique = m_pEffect->GetTechniqueByName("VolumeRendering");
 	m_pWorldViewProjectionVar = m_pEffect->GetVariableByName("WorldViewProjection")->AsMatrix();
-	
+	m_pFrontTextureVar = m_pEffect->GetVariableByName("FrontTexture")->AsShaderResource();
+	m_pBackTextureVar = m_pEffect->GetVariableByName("BackTexture")->AsShaderResource();
+	m_pVolumeTextureVar = m_pEffect->GetVariableByName("VolumeTexture")->AsShaderResource();
+	m_pStepSizeVar = m_pEffect->GetVariableByName("vStepSize")->AsVector();
+	m_pIterationsVar = m_pEffect->GetVariableByName("iIterations")->AsScalar();
+
 	return S_OK;
+}
+
+void VolumeRenderer::InitTextureSize(int iWidth, int iHeight, int iDepth)
+{
+	float maxSize = (float)max(iWidth, max(iHeight, iDepth));
+	D3DXVECTOR3 vStepSize = D3DXVECTOR3(1.0f / (iWidth * (maxSize/iWidth)),
+										1.0f / (iHeight * (maxSize / iHeight)),
+										1.0f / (iDepth * (maxSize / iDepth)));
+	m_pStepSizeVar->SetFloatVector(vStepSize); // STEPSCALE?
+	int iIterations = (int)maxSize * 2.0f;
+	m_pIterationsVar->SetInt(iIterations);
 }
 
 HRESULT VolumeRenderer::InitBoundingIndicesAndLayout()
@@ -192,6 +229,49 @@ HRESULT VolumeRenderer::InitBoundingIndicesAndLayout()
 	return S_OK;
 }
 
+HRESULT VolumeRenderer::CreateScreenQuad()
+{
+	HRESULT hr;
+
+	//Create input layout
+	D3DX11_PASS_SHADER_DESC passVsDesc;
+	m_pVolumeRenderTechnique->GetPassByName("Direction")->GetVertexShaderDesc(&passVsDesc);
+	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
+	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
+	const void *vsCodePtr = effectVsDesc.pBytecode;
+	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
+
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+    {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+
+	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pSQInputLayout));
+
+	// Create screenquad vertices
+	VERTEX vSQ[4];
+	vSQ[0].x = -1.0f; vSQ[0].y =  1.0f; vSQ[0].z = 0.0f;
+	vSQ[1].x =  1.0f; vSQ[1].y =  1.0f; vSQ[1].z = 0.0f;
+	vSQ[2].x = -1.0f; vSQ[2].y = -1.0f; vSQ[2].z = 0.0f;
+	vSQ[3].x =  1.0f; vSQ[3].y = -1.0f; vSQ[3].z = 0.0f;
+
+	//Create Vertex buffer
+	D3D11_BUFFER_DESC vbd;
+	ZeroMemory(&vbd, sizeof(vbd));
+	vbd.Usage = D3D11_USAGE_DYNAMIC;
+	vbd.ByteWidth = sizeof(VERTEX) * 8;
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	D3D11_SUBRESOURCE_DATA vertexData;
+	vertexData.pSysMem = vSQ;
+	vertexData.SysMemPitch = 0;
+	vertexData.SysMemSlicePitch = 0;
+	
+	V_RETURN(m_pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pSQVertexBuffer));
+
+	return S_OK;
+}
+
 HRESULT VolumeRenderer::UpdateBoundingVertices(VERTEX* BBVertices)
 {
 	HRESULT hr;
@@ -224,4 +304,14 @@ void VolumeRenderer::DrawBoundingBox()
 	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pBBVertexBuffer, &strides, &offsets);
     m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pd3dImmediateContext->DrawIndexed(36, 0, 0);
+}
+
+void VolumeRenderer::DrawScreenQuad()
+{
+	UINT strides = sizeof(VERTEX);
+    UINT offsets = 0;
+	m_pd3dImmediateContext->IASetInputLayout(m_pSQInputLayout);
+    m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pSQVertexBuffer, &strides, &offsets);
+    m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+    m_pd3dImmediateContext->Draw(4, 0);
 }
