@@ -549,16 +549,13 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     }
 
     // Clear the render target and depth stencil
-    float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    float ClearColor[4] = { 0.0f, 0.25f, 0.25f, 0.55f };
     ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
 
     pd3dImmediateContext->ClearRenderTargetView( pRTV, ClearColor );
     pd3dImmediateContext->ClearDepthStencilView( pDSV, D3D11_CLEAR_DEPTH, 1.0, 0 );
 
-	//extreme performance loss:
-	float colorZ[4] = { 0,0,0,0};
-	pd3dImmediateContext->ClearRenderTargetView( g_pSceneDepthRTV, colorZ );
 	
 	// Create a viewport to match the screen size
     D3D11_VIEWPORT rtViewport;

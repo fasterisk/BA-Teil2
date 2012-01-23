@@ -153,7 +153,7 @@ float4 PS_RESOLVE( GsResOutput input ) : SV_Target
 {
     if( stencilbufferTex2D.Load(int3(input.Tex.x, input.Tex.y,0)).g )
         return 0.5;
-    return 0;
+    return float4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 

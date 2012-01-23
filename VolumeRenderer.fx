@@ -44,19 +44,47 @@ RasterizerState RasterizerWireframe
 	FillMode = WIREFRAME;
 };
 
+BlendState AlphaBlending
+{
+    AlphaToCoverageEnable = FALSE;
+    BlendEnable[0] = TRUE;
+    SrcBlend = SRC_ALPHA;
+    DestBlend = INV_SRC_ALPHA;
+    BlendOp = ADD;
+    SrcBlendAlpha = SRC_ALPHA;
+    DestBlendAlpha = INV_SRC_ALPHA;
+    BlendOpAlpha = ADD;
+    RenderTargetWriteMask[0] = 0x0F;
+};
+
+BlendState NoBlending
+{
+    AlphaToCoverageEnable = FALSE;
+    BlendEnable[0] = FALSE;
+    RenderTargetWriteMask[0] = 0x0F;
+};
+
 
 //------------------------------------------------------------------------------------------------------
 // Sampler
 //------------------------------------------------------------------------------------------------------
 
-SamplerState linearSampler
+SamplerState linearSamplerBorder
 {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Border;				// border sampling in U
     AddressV = Border;				// border sampling in V
+	AddressW = Border;				// border sampling in W
     BorderColor = float4(0,0,0,0);	// outside of border should be black
 };
 
+SamplerState linearSamplerClamp
+{
+    Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Clamp;
+    AddressV = Clamp;
+    AddressW = Clamp;
+};
 
 //------------------------------------------------------------------------------------------------------
 // Structs
@@ -123,8 +151,8 @@ PsOutput PS_DIRECTION(VsOutput input)
 	texC.x = 0.5f*texC.x + 0.5f;
 	texC.y = -0.5f*texC.y + 0.5f;
 
-	float3 front = FrontTexture.Sample(linearSampler, texC).rgb;
-	float3 back = BackTexture.Sample(linearSampler, texC).rgb;
+	float3 front = FrontTexture.Sample(linearSamplerClamp, texC).rgb;
+	float3 back = BackTexture.Sample(linearSamplerClamp, texC).rgb;
 
 	//output.color = float4(front, 1.0f);
 	//output.color = float4(back, 1.0f);
@@ -143,8 +171,8 @@ PsOutput PS_RAYCAST(VsOutput input)
 	texC.x =  0.5f*texC.x + 0.5f; 
 	texC.y = -0.5f*texC.y + 0.5f;  
 	
-    float3 front = FrontTexture.Sample(linearSampler, texC).rgb;
-	float3 back = BackTexture.Sample(linearSampler, texC).rgb;
+    float3 front = FrontTexture.Sample(linearSamplerClamp, texC).rgb;
+	float3 back = BackTexture.Sample(linearSamplerClamp, texC).rgb;
     
     float3 dir = normalize(back - front);
     float4 pos = float4(front, 0);
@@ -158,18 +186,19 @@ PsOutput PS_RAYCAST(VsOutput input)
     
     for(int i = 0; i < iIterations; i++)
     {
-		value = VolumeTexture.SampleLevel(linearSampler, front, 0).r;
-				
-		src = (float4)value;
-		src.a *= .1f; //reduce the alpha to have a more transparent result
+		src = VolumeTexture.SampleLevel(linearSamplerClamp, pos, 0).rgba;
+		
+		//src = (float4)value;
+		src.a *= 1.0f/iIterations; //reduce the alpha to have a more transparent result
 					  //this needs to be adjusted based on the step size
 					  //i.e. the more steps we take, the faster the alpha will grow	
 			
 		//Front to back blending
 		// dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb
 		// dst.a   = dst.a   + (1 - dst.a) * src.a		
-		src.rgb *= src.a;
-		output.color = (1.0f - output.color.a)*src + output.color;		
+		//src.rgb *= src.a;
+		output.color = output.color + src;
+		//output.color = float4(front.rgb, 1.0);
 		
 		//break from the loop when alpha gets high enough
 		if(output.color.a >= .95f)
@@ -197,6 +226,7 @@ technique10 VolumeRendering
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_POSITION()));
 
+		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullBack);
 		SetDepthStencilState(DisableDepth, 0);
 	}
@@ -207,6 +237,7 @@ technique10 VolumeRendering
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_POSITION()));
 
+		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullFront);
 		SetDepthStencilState(DisableDepth, 0);
 	}
@@ -217,7 +248,9 @@ technique10 VolumeRendering
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_DIRECTION()));
 
+		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullBack);
+		SetDepthStencilState( DisableDepth, 0 );
 	}
 
 	pass RayCast
@@ -226,7 +259,9 @@ technique10 VolumeRendering
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_RAYCAST()));
 
+		SetBlendState(AlphaBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullBack);
+		SetDepthStencilState( DisableDepth, 0 );
 	}
 
 	pass Wireframe
@@ -235,6 +270,8 @@ technique10 VolumeRendering
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_WIREFRAME()));
 
+		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(RasterizerWireframe);
+		SetDepthStencilState( DisableDepth, 0 );
 	}
 }
