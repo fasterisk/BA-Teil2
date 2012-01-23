@@ -399,6 +399,8 @@ HRESULT Voxelizer::StencilClipVolume(void)
         m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect);
 
 		float distFromZMinToZMax = m_zMax - m_zMin;
+
+
         V_RETURN(RenderClippedMesh((float)z/m_depth*distFromZMinToZMax + m_zMin, m_zMax, m_pNZTech));
     }
 
@@ -429,11 +431,6 @@ HRESULT Voxelizer::RenderClippedMesh(float zNear, float zFar, ID3DX11EffectTechn
     D3DXMATRIX proj;
     D3DXMATRIX worldViewProj;
 	D3DXMATRIX modelViewProj;
-
-	
-
-	
-
 
 	D3DXMatrixOrthoOffCenterLH(&proj, m_xMin, m_xMax, m_yMin, m_yMax, zNear, zFar);
 	D3DXMatrixMultiply(&worldViewProj, &m_pSurface1->m_mModel, &proj);

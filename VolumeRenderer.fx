@@ -132,8 +132,9 @@ PsOutput PS_DIRECTION(VsOutput input)
 	return output;
 }
 
-/*PsOutput PS_RAYCAST(VsOutput input)
+PsOutput PS_RAYCAST(VsOutput input)
 {
+
 	PsOutput output;
 
 	//calculate projective texture coordinates
@@ -157,8 +158,7 @@ PsOutput PS_DIRECTION(VsOutput input)
     
     for(int i = 0; i < iIterations; i++)
     {
-		pos.w = 0;
-		value = 1.0f;//tex3Dlod(linearSampler, pos).r;
+		value = VolumeTexture.SampleLevel(linearSampler, front, 0).r;
 				
 		src = (float4)value;
 		src.a *= .1f; //reduce the alpha to have a more transparent result
@@ -182,9 +182,8 @@ PsOutput PS_DIRECTION(VsOutput input)
 		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
 			break;
     }
-    
     return output;
-}*/
+}
 
 //------------------------------------------------------------------------------------------------------
 // Techniques
@@ -221,12 +220,14 @@ technique10 VolumeRendering
 		SetRasterizerState(CullBack);
 	}
 
-	/*pass RayCast
+	pass RayCast
 	{
 		SetVertexShader(CompileShader(vs_4_0, VS_RAYCAST()));
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_RAYCAST()));
-	}*/
+
+		SetRasterizerState(CullBack);
+	}
 
 	pass Wireframe
 	{
