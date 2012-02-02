@@ -126,7 +126,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
     DXUTCreateWindow( L"Volumetric Diffusion" );
 	DXUTCreateDevice (D3D_FEATURE_LEVEL_10_0, true, g_Width, g_Height);
     DXUTMainLoop(); // Enter into the DXUT render loop
-
+	
     return DXUTGetExitCode();
 }
 
@@ -549,7 +549,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
     }
 
     // Clear the render target and depth stencil
-    float ClearColor[4] = { 0.0f, 0.25f, 0.25f, 0.55f };
+    float ClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
 

@@ -35,7 +35,7 @@ RasterizerState CullBack
 
 RasterizerState CullNone
 {
-    MultiSampleEnable = True;
+    MultiSampleEnable = False;
     CullMode = None;
 };
 
@@ -83,22 +83,34 @@ SamplerState linearSamplerClamp
     Filter = MIN_MAG_MIP_LINEAR;
     AddressU = Clamp;
     AddressV = Clamp;
-    AddressW = Clamp;
+   // AddressW = Clamp;
 };
 
 //------------------------------------------------------------------------------------------------------
 // Structs
 //------------------------------------------------------------------------------------------------------
 
-struct VsInput
+struct VsBBInput
 {
 	float3 pos : POSITION;
 };
 
-struct VsOutput
+struct VsBBOutput
 {
 	float4 pos : SV_POSITION;
-	float4 posb : POSITION;
+	float3 texC : TEXCOORD;
+};
+
+struct VsSQInput
+{
+	float3 pos : POSITION;
+	float2 texC : TEXCOORD;
+};
+
+struct VsSQOutput
+{
+	float4 pos : SV_POSITION;
+	float2 texC : TEXCOORD;
 };
 
 struct PsOutput
@@ -110,19 +122,19 @@ struct PsOutput
 // Vertex Shaders
 //------------------------------------------------------------------------------------------------------
 
-VsOutput VS_POSITION(VsInput input)
+VsBBOutput VS_BB_POSITION(VsBBInput input)
 {
-	VsOutput output;
-	output.pos = mul(float4(input.pos, 1), WorldViewProjection);
-	output.posb = float4(input.pos, 1);
+	VsBBOutput output;
+	output.pos = mul(float4(input.pos, 1.0f), WorldViewProjection);
+	output.texC = input.pos;
 	return output;
 }
 
-VsOutput VS_RAYCAST(VsInput input)
+VsSQOutput VS_RAYCAST(VsSQInput input)
 {
-	VsOutput output;
-	output.pos = float4(input.pos, 1);
-	output.posb = float4(input.pos, 1);
+	VsSQOutput output;
+	output.pos = float4(input.pos, 1.0f);
+	output.texC = input.texC;
 	return output;
 }
 
@@ -130,49 +142,43 @@ VsOutput VS_RAYCAST(VsInput input)
 // Pixel Shaders
 //------------------------------------------------------------------------------------------------------
 
-PsOutput PS_WIREFRAME(VsOutput input)
+PsOutput PS_BB_WIREFRAME(VsBBOutput input)
 {
 	PsOutput output;
 	output.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
 	return output;
 }
 
-PsOutput PS_POSITION(VsOutput input)
+PsOutput PS_BB_POSITION(VsBBOutput input)
 {
 	PsOutput output;
-	output.color = input.posb;
+	output.color = float4(input.texC, 1.0f);
 	return output;
 }
 
-PsOutput PS_DIRECTION(VsOutput input)
+PsOutput PS_DIRECTION(VsSQOutput input)
 {
 	PsOutput output;
-	float2 texC = input.posb.xy / input.posb.w;
-	texC.x = 0.5f*texC.x + 0.5f;
-	texC.y = -0.5f*texC.y + 0.5f;
+	//float2 texC = input.texC.xy /= input.pos.w;
+	//texC.x =  0.5f*texC.x + 0.5f; 
+	//texC.y = -0.5f*texC.y + 0.5f;
 
-	float3 front = FrontTexture.Sample(linearSamplerClamp, texC).rgb;
-	float3 back = BackTexture.Sample(linearSamplerClamp, texC).rgb;
+	float3 front = FrontTexture.Sample(linearSamplerClamp, input.texC).rgb;
+	float3 back = BackTexture.Sample(linearSamplerClamp, input.texC).rgb;
 
-	//output.color = float4(front, 1.0f);
-	//output.color = float4(back, 1.0f);
+//	output.color = front;
+//	output.color = float4(front, 1.0f);
 	output.color = float4(abs(back - front), 1.0f);
 	return output;
 }
 
-PsOutput PS_RAYCAST(VsOutput input)
+PsOutput PS_RAYCAST(VsSQOutput input)
 {
 
 	PsOutput output;
 
-	//calculate projective texture coordinates
-	//used to project the front and back position textures onto the cube
-	float2 texC = input.posb.xy / input.posb.w;
-	texC.x =  0.5f*texC.x + 0.5f; 
-	texC.y = -0.5f*texC.y + 0.5f;  
-	
-    float3 front = FrontTexture.Sample(linearSamplerClamp, texC).rgb;
-	float3 back = BackTexture.Sample(linearSamplerClamp, texC).rgb;
+    float3 front = FrontTexture.Sample(linearSamplerClamp, input.texC).rgb;
+	float3 back = BackTexture.Sample(linearSamplerClamp, input.texC).rgb;
     
     float3 dir = normalize(back - front);
     float4 pos = float4(front, 0);
@@ -180,28 +186,16 @@ PsOutput PS_RAYCAST(VsOutput input)
     output.color = float4(0, 0, 0, 0);
     float4 src = 0;
     
-    float value = 0;
-	
 	float3 Step = dir * vStepSize;
     
     for(int i = 0; i < iIterations; i++)
     {
 		src = VolumeTexture.SampleLevel(linearSamplerClamp, pos, 0).rgba;
 		
-		//src = (float4)value;
-		src.a *= 1.0f/iIterations; //reduce the alpha to have a more transparent result
-					  //this needs to be adjusted based on the step size
-					  //i.e. the more steps we take, the faster the alpha will grow	
-			
-		//Front to back blending
-		// dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb
-		// dst.a   = dst.a   + (1 - dst.a) * src.a		
-		//src.rgb *= src.a;
 		output.color = output.color + src;
-		//output.color = float4(front.rgb, 1.0);
 		
 		//break from the loop when alpha gets high enough
-		if(output.color.a >= .95f)
+		if(output.color.a >= .99f)
 			break;	
 		
 		//advance the current position
@@ -222,24 +216,24 @@ technique10 VolumeRendering
 {
 	pass BoundingBoxFront
 	{
-		SetVertexShader(CompileShader(vs_4_0, VS_POSITION()));
+		SetVertexShader(CompileShader(vs_4_0, VS_BB_POSITION()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_4_0, PS_POSITION()));
+		SetPixelShader(CompileShader(ps_4_0, PS_BB_POSITION()));
 
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullBack);
-		SetDepthStencilState(DisableDepth, 0);
+		SetDepthStencilState( DisableDepth, 0 );
 	}
 
 	pass BoundingBoxBack
 	{
-		SetVertexShader(CompileShader(vs_4_0, VS_POSITION()));
+		SetVertexShader(CompileShader(vs_4_0, VS_BB_POSITION()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_4_0, PS_POSITION()));
+		SetPixelShader(CompileShader(ps_4_0, PS_BB_POSITION()));
 
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullFront);
-		SetDepthStencilState(DisableDepth, 0);
+		SetDepthStencilState( DisableDepth, 0 );
 	}
 
 	pass Direction
@@ -266,9 +260,9 @@ technique10 VolumeRendering
 
 	pass Wireframe
 	{
-		SetVertexShader(CompileShader(vs_4_0, VS_POSITION()));
+		SetVertexShader(CompileShader(vs_4_0, VS_BB_POSITION()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_4_0, PS_WIREFRAME()));
+		SetPixelShader(CompileShader(ps_4_0, PS_BB_WIREFRAME()));
 
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(RasterizerWireframe);

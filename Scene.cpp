@@ -104,7 +104,7 @@ HRESULT Scene::UpdateBoundingBox()
 	D3DXVECTOR4 min, max;
 	for(int i = 0; i < m_pSurface1->m_vNum; i++)
 	{
-		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface1->m_pVertices[i].x, m_pSurface1->m_pVertices[i].y, m_pSurface1->m_pVertices[i].z, 1.0);
+		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface1->m_pVertices[i].position.x, m_pSurface1->m_pVertices[i].position.y, m_pSurface1->m_pVertices[i].position.z, 1.0);
 		D3DXVECTOR4 mul;
 		D3DXVec4Transform(&mul, &temp, &m_pSurface1->m_mModel);
 		temp.x = mul.x;
@@ -177,30 +177,30 @@ HRESULT Scene::UpdateBoundingBox()
 
 	D3DXMatrixMultiply(&m_mBBInv, &mScaleInv, &mTranslateInv);
 
-	m_pBBVertices[0].x = m_vMin.x;
-	m_pBBVertices[0].y = m_vMin.y;
-	m_pBBVertices[0].z = m_vMin.z;
-	m_pBBVertices[1].x = m_vMax.x;
-	m_pBBVertices[1].y = m_vMin.y;
-	m_pBBVertices[1].z = m_vMin.z;
-	m_pBBVertices[2].x = m_vMax.x;
-	m_pBBVertices[2].y = m_vMax.y;
-	m_pBBVertices[2].z = m_vMin.z;
-	m_pBBVertices[3].x = m_vMin.x;
-	m_pBBVertices[3].y = m_vMax.y;
-	m_pBBVertices[3].z = m_vMin.z;
-	m_pBBVertices[4].x = m_vMax.x;
-	m_pBBVertices[4].y = m_vMin.y;
-	m_pBBVertices[4].z = m_vMax.z;
-	m_pBBVertices[5].x = m_vMin.x;
-	m_pBBVertices[5].y = m_vMin.y;
-	m_pBBVertices[5].z = m_vMax.z;
-	m_pBBVertices[6].x = m_vMax.x;
-	m_pBBVertices[6].y = m_vMax.y;
-	m_pBBVertices[6].z = m_vMax.z;
-	m_pBBVertices[7].x = m_vMin.x;
-	m_pBBVertices[7].y = m_vMax.y;
-	m_pBBVertices[7].z = m_vMax.z;
+	m_pBBVertices[0].position.x = m_vMin.x;
+	m_pBBVertices[0].position.y = m_vMin.y;
+	m_pBBVertices[0].position.z = m_vMin.z;
+	m_pBBVertices[1].position.x = m_vMax.x;
+	m_pBBVertices[1].position.y = m_vMin.y;
+	m_pBBVertices[1].position.z = m_vMin.z;
+	m_pBBVertices[2].position.x = m_vMax.x;
+	m_pBBVertices[2].position.y = m_vMax.y;
+	m_pBBVertices[2].position.z = m_vMin.z;
+	m_pBBVertices[3].position.x = m_vMin.x;
+	m_pBBVertices[3].position.y = m_vMax.y;
+	m_pBBVertices[3].position.z = m_vMin.z;
+	m_pBBVertices[4].position.x = m_vMax.x;
+	m_pBBVertices[4].position.y = m_vMin.y;
+	m_pBBVertices[4].position.z = m_vMax.z;
+	m_pBBVertices[5].position.x = m_vMin.x;
+	m_pBBVertices[5].position.y = m_vMin.y;
+	m_pBBVertices[5].position.z = m_vMax.z;
+	m_pBBVertices[6].position.x = m_vMax.x;
+	m_pBBVertices[6].position.y = m_vMax.y;
+	m_pBBVertices[6].position.z = m_vMax.z;
+	m_pBBVertices[7].position.x = m_vMin.x;
+	m_pBBVertices[7].position.y = m_vMax.y;
+	m_pBBVertices[7].position.z = m_vMax.z;
 
 	return S_OK;
 }

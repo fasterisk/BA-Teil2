@@ -183,8 +183,8 @@ void VolumeRenderer::InitTextureSize(int iWidth, int iHeight, int iDepth)
 	D3DXVECTOR3 vStepSize = D3DXVECTOR3(1.0f / (iWidth * (maxSize/iWidth)),
 										1.0f / (iHeight * (maxSize / iHeight)),
 										1.0f / (iDepth * (maxSize / iDepth)));
-	m_pStepSizeVar->SetFloatVector(vStepSize); // STEPSCALE?
-	int iIterations = (int)maxSize * 2.0f;
+	m_pStepSizeVar->SetFloatVector(vStepSize);
+	int iIterations = (int)maxSize;// * 2.0f;
 	m_pIterationsVar->SetInt(iIterations);
 }
 
@@ -243,25 +243,33 @@ HRESULT VolumeRenderer::CreateScreenQuad()
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
     {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,	  0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
     };
 
 	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pSQInputLayout));
 
 	// Create screenquad vertices
 	VERTEX vSQ[4];
-	vSQ[0].x = -1.0f; vSQ[0].y =  1.0f; vSQ[0].z = 0.0f;
-	vSQ[1].x =  1.0f; vSQ[1].y =  1.0f; vSQ[1].z = 0.0f;
-	vSQ[2].x = -1.0f; vSQ[2].y = -1.0f; vSQ[2].z = 0.0f;
-	vSQ[3].x =  1.0f; vSQ[3].y = -1.0f; vSQ[3].z = 0.0f;
+	vSQ[0].position =  D3DXVECTOR3(-1.0f,  1.0f, 0.0f);
+	vSQ[0].texCoords = D3DXVECTOR2( 0.0f,  0.0f);
+	vSQ[1].position =  D3DXVECTOR3( 1.0f,  1.0f, 0.0f);
+	vSQ[1].texCoords = D3DXVECTOR2( 1.0f,  0.0f);
+	vSQ[2].position =  D3DXVECTOR3(-1.0f, -1.0f, 0.0f);
+	vSQ[2].texCoords = D3DXVECTOR2( 0.0f,  1.0f);
+	vSQ[3].position =  D3DXVECTOR3( 1.0f, -1.0f, 0.0f);
+	vSQ[3].texCoords = D3DXVECTOR2( 1.0f,  1.0f);
+
 
 	//Create Vertex buffer
 	D3D11_BUFFER_DESC vbd;
 	ZeroMemory(&vbd, sizeof(vbd));
-	vbd.Usage = D3D11_USAGE_DYNAMIC;
-	vbd.ByteWidth = sizeof(VERTEX) * 8;
+	vbd.Usage = D3D11_USAGE_DEFAULT;
+	vbd.ByteWidth = sizeof(vSQ);
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
+	vbd.StructureByteStride = 0;
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = vSQ;
 	vertexData.SysMemPitch = 0;

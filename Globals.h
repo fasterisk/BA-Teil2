@@ -44,8 +44,8 @@ extern ID3D11ShaderResourceView*	g_pSceneDepthSRV;
 
 struct VERTEX
 {
-	float x, y, z;
-	D3DXCOLOR color;
+	D3DXVECTOR3 position;
+	D3DXVECTOR2 texCoords;
 };
 
 

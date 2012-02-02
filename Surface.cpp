@@ -82,7 +82,7 @@ void Surface::SetColor(float fR, float fG, float fB)
 {
 	for(int i = 0; i < m_vNum; i++)
 	{
-		m_pVertices[i].color = D3DXCOLOR(fR, fG, fB, 1.0);
+		//m_pVertices[i].color = D3DXCOLOR(fR, fG, fB, 1.0);
 	}
 }
 
@@ -244,15 +244,15 @@ void Surface::ReadVectorFile(char *s)
 		while (!stringStartsWith(token, "x="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].x = float(atof(token));
+		m_pVertices[i].position.x = float(atof(token));
 		while (!stringStartsWith(token, "y="))
 			token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].y = float(atof(token));
+		m_pVertices[i].position.y = float(atof(token));
 		while (!stringStartsWith(token, "z="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].z = float(atof(token));
+		m_pVertices[i].position.z = float(atof(token));
 		fgets(buff, 255, F);
 		
 		
@@ -296,9 +296,9 @@ void Surface::ReadVectorFile(char *s)
 
 	for(int i=0; i < m_vNum; i++)
 	{
-		m_pVertices[i].color = color;
+		//m_pVertices[i].color = color;
 
-		sprintf(c, "vertex[%d]=(%g,%g,%g) color=(%g,%g,%g) \n", i, m_pVertices[i].x, m_pVertices[i].y, m_pVertices[i].z, m_pVertices[i].color.r, m_pVertices[i].color.g, m_pVertices[i].color.b);
+	//	sprintf(c, "vertex[%d]=(%g,%g,%g) color=(%g,%g,%g) \n", i, m_pVertices[i].position.x, m_pVertices[i].position.y, m_pVertices[i].position.z, m_pVertices[i].color.r, m_pVertices[i].color.g, m_pVertices[i].color.b);
 		fputs(c, F_out);
 	}
 	
