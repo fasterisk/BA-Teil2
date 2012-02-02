@@ -20,7 +20,10 @@ public:
 	void RotateY(float fFactor);
 	void Scale(float fFactor);
 
-	HRESULT Init3DTexture(int iWidth, int iHeight, int iDepth);
+	int GetTextureWidth()	{return iTextureWidth;}
+	int GetTextureHeight()	{return iTextureHeight;}
+	int GetTextureDepth()	{return iTextureDepth;}
+
 
 	HRESULT UpdateBoundingBox();
 
@@ -36,6 +39,10 @@ protected:
 	Surface*	m_pSurface2;
 	Surface*	m_pControlledSurface;
 	bool		m_bSurface1IsControlled;
+
+	int iTextureWidth;
+	int iTextureHeight;
+	int iTextureDepth;
 
 	D3DXVECTOR4 m_vMinVoxelizer;
 	D3DXVECTOR4 m_vMaxVoxelizer;
@@ -60,6 +67,9 @@ protected:
 
 
 	VERTEX* m_pBBVertices;
+
+
+	HRESULT Init3DTexture();
 
 
 	// Shader and effect creation

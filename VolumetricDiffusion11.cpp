@@ -333,6 +333,20 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 
 	g_mouseX = iX;
 	g_mouseY = iY;
+
+	WCHAR sz[100];
+
+	g_iTextureWidth = g_pScene->GetTextureWidth();
+	StringCchPrintf( sz, 100, L"Texture Width: %d", g_iTextureWidth ); 
+    g_SampleUI.GetStatic( IDC_TEXTRES_WIDTH_STATIC )->SetText( sz );
+
+	g_iTextureHeight = g_pScene->GetTextureHeight();
+	StringCchPrintf( sz, 100, L"Texture Height: %d", g_iTextureHeight ); 
+	g_SampleUI.GetStatic( IDC_TEXTRES_HEIGHT_STATIC )->SetText( sz );
+
+	g_iTextureDepth = g_pScene->GetTextureDepth();
+	StringCchPrintf( sz, 100, L"Texture Depth: %d", g_iTextureDepth ); 
+	g_SampleUI.GetStatic( IDC_TEXTRES_DEPTH_STATIC )->SetText( sz );
 }
 
 //--------------------------------------------------------------------------------------

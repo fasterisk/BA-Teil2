@@ -56,19 +56,20 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Voxelizer.fx"));
 	V_RETURN(CreateEffect(str, &m_pVoxelizerEffect));
 
-	V_RETURN(InitSurfaces());
-	V_RETURN(UpdateBoundingBox());
-	V_RETURN(Init3DTexture(iTexWidth, iTexHeight, iTexDepth));
-	
+	iTextureWidth = iTexWidth;
+	iTextureHeight = iTexHeight;
+	iTextureDepth = iTexDepth;
+
+	Init3DTexture();
 
 	// Initialize Voxelizer
 	m_pVoxelizer = new Voxelizer(m_pd3dDevice, m_pd3dImmediateContext, m_pVoxelizerEffect);
-	V_RETURN(m_pVoxelizer->SetDestination(m_pTexture3D));
 
 	// Initialize VolumeRenderer
 	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
-	V_RETURN(m_pVolumeRenderer->Initialize(iTexWidth, iTexHeight, iTexDepth));
-	//V_RETURN(m_pVolumeRenderer->Initialize(iTexWidth, iTexHeight, iTexDepth, m_vMin, m_vMax));
+
+	V_RETURN(InitSurfaces());
+	V_RETURN(UpdateBoundingBox());
 
 
 	return S_OK;
@@ -202,6 +203,21 @@ HRESULT Scene::UpdateBoundingBox()
 	m_pBBVertices[7].position.y = m_vMax.y;
 	m_pBBVertices[7].position.z = m_vMax.z;
 
+
+	// Change texture size corresponding to the ratio between x y and z of BB
+	vDiff = m_vMax - m_vMin;
+	fMaxDiff = max(vDiff.x, max(vDiff.y, vDiff.z));
+	vDiff /= fMaxDiff;
+
+	int previousMax = max(iTextureWidth, max(iTextureHeight, iTextureDepth));
+	iTextureWidth = (int)(vDiff.x * previousMax);
+	iTextureHeight = (int)(vDiff.y * previousMax);
+	iTextureDepth = (int)(vDiff.z * previousMax);
+
+	Init3DTexture();
+	V_RETURN(m_pVoxelizer->SetDestination(m_pTexture3D));
+	V_RETURN(m_pVolumeRenderer->Initialize(iTextureWidth, iTextureHeight, iTextureDepth));
+
 	return S_OK;
 }
 
@@ -212,9 +228,9 @@ HRESULT Scene::SetScreenSize(int iWidth, int iHeight)
 
 void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneDepthRTV, ID3D11DepthStencilView* pDSV, D3DXMATRIX mViewProjection)
 {
-	m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2, m_vMinVoxelizer, m_vMaxVoxelizer);
-
 	UpdateBoundingBox();
+
+	m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2, m_vMinVoxelizer, m_vMaxVoxelizer);
 	
 	D3DXMATRIX mBBWorldViewProjection;
 	D3DXMatrixMultiply(&mBBWorldViewProjection, &m_mBBInv, &mViewProjection);
@@ -223,12 +239,16 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 }	
 
 
-HRESULT Scene::Init3DTexture(int iWidth, int iHeight, int iDepth)
+HRESULT Scene::Init3DTexture()
 {
 	HRESULT hr;
 
 	SAFE_RELEASE(m_pTexture3D);
 	SAFE_RELEASE(m_pTexture3DSRV);
+
+	iTextureWidth = iTextureWidth;
+	iTextureHeight = iTextureHeight;
+	iTextureDepth = iTextureDepth;
 
 	D3D11_TEXTURE3D_DESC desc;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
@@ -236,9 +256,9 @@ HRESULT Scene::Init3DTexture(int iWidth, int iHeight, int iDepth)
 	desc.MipLevels = 1;
 	desc.MiscFlags = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.Width = iWidth;
-	desc.Height = iHeight;
-	desc.Depth = iDepth;
+	desc.Width = iTextureWidth;
+	desc.Height = iTextureHeight;
+	desc.Depth = iTextureDepth;
 	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
 	V_RETURN( m_pd3dDevice->CreateTexture3D(&desc,NULL, &m_pTexture3D));

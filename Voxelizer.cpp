@@ -92,12 +92,6 @@ HRESULT Voxelizer::Initialize()
         m_height = tex3Ddesc.Height;
         m_depth = tex3Ddesc.Depth;
 
-		
-		/*OutputDebugString(L"############################################################\n");
-		char bla[100];
-		sprintf(bla, "%d | %d | %d \n", m_width, m_height, m_depth);
-		OutputDebugStringA(bla); 
-		*/
         ComputeRowColsForFlat3DTexture(m_depth, &m_cols, &m_rows);
     }
 
