@@ -157,30 +157,9 @@ HRESULT Scene::UpdateBoundingBox()
 			max.z = temp.z;
 	}*/
 
-	m_vMinVoxelizer = min;
-	m_vMaxVoxelizer = max;
-
-	D3DXMATRIX mTranslate, mTranslateInv, mScale, mScaleInv;
-
-	D3DXVECTOR4 vDiff, vMinAfterScale, vMaxAfterScale, vZero, vDiffMinZero;
-
-	vDiff = max - min;
-	float fMaxDiff = max(vDiff.x, max(vDiff.y, vDiff.z));
-
-	D3DXMatrixScaling(&mScale, 1/fMaxDiff, 1/fMaxDiff, 1/fMaxDiff);
-	D3DXMatrixScaling(&mScaleInv, fMaxDiff, fMaxDiff, fMaxDiff);
-	D3DXVec4Transform(&vMinAfterScale, &min, &mScale);
-	D3DXVec4Transform(&vMaxAfterScale, &max, &mScale);
-
-	vZero = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f);
-	vDiffMinZero = vZero - vMinAfterScale;
-	D3DXMatrixTranslation(&mTranslate, vDiffMinZero.x, vDiffMinZero.y, vDiffMinZero.z);
-	D3DXMatrixTranslation(&mTranslateInv, -vDiffMinZero.x, -vDiffMinZero.y, -vDiffMinZero.z);
-	D3DXVec4Transform(&m_vMin, &vMinAfterScale, &mTranslate);
-	D3DXVec4Transform(&m_vMax, &vMaxAfterScale, &mTranslate);
-
-	D3DXMatrixMultiply(&m_mBBInv, &mScaleInv, &mTranslateInv);
-
+	m_vMin = D3DXVECTOR3(min.x, min.y, min.z);
+	m_vMax = D3DXVECTOR3(max.x, max.y, max.z);
+	
 	m_pBBVertices[0].position.x = m_vMin.x;
 	m_pBBVertices[0].position.y = m_vMin.y;
 	m_pBBVertices[0].position.z = m_vMin.z;
@@ -208,15 +187,15 @@ HRESULT Scene::UpdateBoundingBox()
 
 
 	// Change texture size corresponding to the ratio between x y and z of BB
-	vDiff = m_vMax - m_vMin;
-	fMaxDiff = max(vDiff.x, max(vDiff.y, vDiff.z));
+	/*D3DXVECTOR3 vDiff = m_vMax - m_vMin;
+	float fMaxDiff = max(vDiff.x, max(vDiff.y, vDiff.z));
 	vDiff /= fMaxDiff;
 
 	int previousMax = max(iTextureWidth, max(iTextureHeight, iTextureDepth));
 	iTextureWidth = (int)(vDiff.x * previousMax);
 	iTextureHeight = (int)(vDiff.y * previousMax);
 	iTextureDepth = (int)(vDiff.z * previousMax);
-
+	*/
 	V_RETURN(Init3DTexture());
 	V_RETURN(m_pVoxelizer->SetDestination(m_pTexture3D));
 	V_RETURN(m_pVolumeRenderer->Initialize(iTextureWidth, iTextureHeight, iTextureDepth));
@@ -232,12 +211,9 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 {
 	UpdateBoundingBox();
 
-	m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2, m_vMinVoxelizer, m_vMaxVoxelizer);
+	m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
 	
-	D3DXMATRIX mBBWorldViewProjection;
-	D3DXMatrixMultiply(&mBBWorldViewProjection, &m_mBBInv, &mViewProjection);
-
-	m_pVolumeRenderer->Render(m_pBBVertices, mBBWorldViewProjection, m_pTexture3DSRV);
+	m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pTexture3DSRV);
 
 	m_pSurface1->Render(mViewProjection);
 }	

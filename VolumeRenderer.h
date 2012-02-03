@@ -7,7 +7,7 @@ public:
 	HRESULT Initialize(int iWidth, int iHeight, int iDepth);
 	HRESULT SetScreenSize(int iWidth, int iHeight);
 
-	void Render(VERTEX* pBBVertices, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
+	void Render(VERTEX* pBBVertices, D3DXVECTOR3 vMin, D3DXVECTOR3 vMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
 
 private:
 	// Device
@@ -25,6 +25,8 @@ private:
 	ID3DX11EffectShaderResourceVariable*	m_pVolumeTextureVar;
 
 	ID3DX11EffectVectorVariable*			m_pStepSizeVar;
+	ID3DX11EffectVectorVariable*			m_pMinVar;
+	ID3DX11EffectVectorVariable*			m_pMaxVar;
     
 	ID3DX11EffectScalarVariable*			m_pIterationsVar;
 

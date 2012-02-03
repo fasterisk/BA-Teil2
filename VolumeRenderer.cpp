@@ -106,8 +106,11 @@ HRESULT VolumeRenderer::SetScreenSize(int iWidth, int iHeight)
 	return S_OK;
 }
 
-void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV)
+void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vMin, D3DXVECTOR3 vMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV)
 {
+	m_pMinVar->SetFloatVector(vMin);
+	m_pMaxVar->SetFloatVector(vMax);
+
 	//Update vertex buffer for boundingbox
 	UpdateBoundingVertices(pBBVertices);
 
@@ -176,6 +179,8 @@ HRESULT VolumeRenderer::InitShader()
 	m_pVolumeTextureVar = m_pEffect->GetVariableByName("VolumeTexture")->AsShaderResource();
 	m_pStepSizeVar = m_pEffect->GetVariableByName("vStepSize")->AsVector();
 	m_pIterationsVar = m_pEffect->GetVariableByName("iIterations")->AsScalar();
+	m_pMinVar = m_pEffect->GetVariableByName("vBBMin")->AsVector();
+	m_pMaxVar = m_pEffect->GetVariableByName("vBBMax")->AsVector();
 
 	return S_OK;
 }

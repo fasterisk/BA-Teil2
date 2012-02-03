@@ -11,6 +11,9 @@ Texture3D VolumeTexture;
 float3 vStepSize;
 int iIterations;
 
+float3 vBBMin;
+float3 vBBMax;
+
 //------------------------------------------------------------------------------------------------------
 // States
 //------------------------------------------------------------------------------------------------------
@@ -42,6 +45,7 @@ RasterizerState CullNone
 RasterizerState RasterizerWireframe
 {
 	FillMode = WIREFRAME;
+	CullMode = None;
 };
 
 BlendState AlphaBlending
@@ -152,7 +156,8 @@ PsOutput PS_BB_WIREFRAME(VsBBOutput input)
 PsOutput PS_BB_POSITION(VsBBOutput input)
 {
 	PsOutput output;
-	output.color = float4(input.texC, 1.0f);
+	float3 col = (input.texC - vBBMin) / (vBBMax - vBBMin);
+	output.color = float4(col, 1.0f);
 	return output;
 }
 

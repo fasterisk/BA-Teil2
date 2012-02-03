@@ -44,11 +44,8 @@ protected:
 	int iTextureHeight;
 	int iTextureDepth;
 
-	D3DXVECTOR4 m_vMinVoxelizer;
-	D3DXVECTOR4 m_vMaxVoxelizer;
-	D3DXVECTOR4 m_vMin;
-	D3DXVECTOR4 m_vMax;
-	D3DXMATRIX m_mBBInv;
+	D3DXVECTOR3 m_vMin;
+	D3DXVECTOR3 m_vMax;
 
 	// Voxelizer
 	Voxelizer*				m_pVoxelizer;

@@ -12,7 +12,7 @@ public:
    
     HRESULT SetDestination(ID3D11Texture3D *pDstInOutTexture3D);
     
-    HRESULT Voxelize(Surface *pSurface1, Surface *pSurface2, D3DXVECTOR4 vMin, D3DXVECTOR4 vMax);
+    HRESULT Voxelize(Surface *pSurface1, Surface *pSurface2, D3DXVECTOR3 vMin, D3DXVECTOR3 vMax);
 
 private:
     HRESULT Initialize();
