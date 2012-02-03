@@ -207,6 +207,17 @@ HRESULT Scene::SetScreenSize(int iWidth, int iHeight)
     return m_pVolumeRenderer->SetScreenSize(iWidth, iHeight);
 }
 
+void Scene::UpdateTextureResolution(int iMaxRes)
+{
+	D3DXVECTOR3 vDiff = m_vMax - m_vMin;
+	float fMaxDiff = max(vDiff.x, max(vDiff.y, vDiff.z));
+	vDiff /= fMaxDiff;
+
+	iTextureWidth = int(vDiff.x * iMaxRes + 0.5);
+	iTextureHeight = int(vDiff.y * iMaxRes + 0.5);
+	iTextureDepth = int(vDiff.z * iMaxRes + 0.5);
+}
+
 void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneDepthRTV, ID3D11DepthStencilView* pDSV, D3DXMATRIX mViewProjection)
 {
 	UpdateBoundingBox();

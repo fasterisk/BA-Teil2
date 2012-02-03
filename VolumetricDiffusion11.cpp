@@ -47,6 +47,7 @@ float						g_fElapsedTime = 0;
 int							g_iTextureWidth = 128;
 int							g_iTextureHeight = 128;
 int							g_iTextureDepth = 128;
+int							g_iTextureMaximum = 128;
 bool						g_bBlockMouseDragging = false;
 
 // Texthelper
@@ -64,13 +65,11 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_ROTATE					6
 #define IDC_MOVE					7
 #define IDC_CAMERA					8
-#define IDC_CHANGE_TEXTRES			9
-#define IDC_TEXTRES_WIDTH_STATIC	10
-#define IDC_TEXTRES_WIDTH_SLIDER	11
-#define IDC_TEXTRES_HEIGHT_STATIC	12
-#define IDC_TEXTRES_HEIGHT_SLIDER	13
-#define IDC_TEXTRES_DEPTH_STATIC	14
-#define IDC_TEXTRES_DEPTH_SLIDER	15
+#define IDC_TEXTRES_WIDTH_STATIC	9
+#define IDC_TEXTRES_HEIGHT_STATIC	10
+#define IDC_TEXTRES_DEPTH_STATIC	11
+#define IDC_TEXTRES_MAX_STATIC		12
+#define IDC_TEXTRES_MAX_SLIDER		13
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -154,18 +153,16 @@ void InitApp()
 	g_SampleUI.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 26, 170, 30);
 	g_SampleUI.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 26, 170, 30);
 	g_SampleUI.GetRadioButton( IDC_ROTATE )->SetChecked(true);
-	g_SampleUI.AddButton( IDC_CHANGE_TEXTRES, L"Change texture res.", 0, iY+=52, 170, 30);
+	
 	StringCchPrintf( sz, 100, L"Texture Width: %d", g_iTextureWidth ); 
-	g_SampleUI.AddStatic( IDC_TEXTRES_WIDTH_STATIC, sz, 15, iY += 35, 125, 22 );
-	g_SampleUI.AddSlider( IDC_TEXTRES_WIDTH_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200 );
-
+	g_SampleUI.AddStatic( IDC_TEXTRES_WIDTH_STATIC, sz, 0, iY += 35, 100, 22 );
     StringCchPrintf( sz, 100, L"Texture Height: %d", g_iTextureHeight ); 
-    g_SampleUI.AddStatic( IDC_TEXTRES_HEIGHT_STATIC, sz, 15, iY += 24, 125, 22 );
-    g_SampleUI.AddSlider( IDC_TEXTRES_HEIGHT_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200);
-
+    g_SampleUI.AddStatic( IDC_TEXTRES_HEIGHT_STATIC, sz, 0, iY += 24, 100, 22 );
     StringCchPrintf( sz, 100, L"Texture Depth: %d", g_iTextureDepth ); 
-    g_SampleUI.AddStatic( IDC_TEXTRES_DEPTH_STATIC, sz, 15, iY += 24, 125, 22 );
-    g_SampleUI.AddSlider( IDC_TEXTRES_DEPTH_SLIDER, 15, iY += 20, 130, 22, 100, 300, 200);
+    g_SampleUI.AddStatic( IDC_TEXTRES_DEPTH_STATIC, sz, 0, iY += 24, 100, 22 );
+    StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
+	g_SampleUI.AddStatic( IDC_TEXTRES_MAX_STATIC, sz, 0, iY += 24, 100, 22 );
+	g_SampleUI.AddSlider( IDC_TEXTRES_MAX_SLIDER, 0, iY += 20, 130, 22, 64, 256, 128);
 
 	// Setup the camera's view parameters
     D3DXVECTOR3 vecEye( 0.0f, 0.0f, -4.0f );
@@ -382,24 +379,13 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 		case IDC_CAMERA:
 			g_bCameraActive = true;
 			break;
-		case IDC_TEXTRES_WIDTH_SLIDER:
-			g_iTextureWidth = g_SampleUI.GetSlider(IDC_TEXTRES_WIDTH_SLIDER)->GetValue();
+		case IDC_TEXTRES_MAX_SLIDER:
+			g_iTextureMaximum = g_SampleUI.GetSlider(IDC_TEXTRES_MAX_SLIDER)->GetValue();
 			WCHAR sz[100];
-			StringCchPrintf( sz, 100, L"Texture Width: %d", g_iTextureWidth ); 
-            g_SampleUI.GetStatic( IDC_TEXTRES_WIDTH_STATIC )->SetText( sz );
+			StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
+            g_SampleUI.GetStatic( IDC_TEXTRES_MAX_STATIC )->SetText( sz );
 			g_bBlockMouseDragging = true;
-			break;
-		case IDC_TEXTRES_HEIGHT_SLIDER:
-			g_iTextureHeight = g_SampleUI.GetSlider(IDC_TEXTRES_HEIGHT_SLIDER)->GetValue();
-			StringCchPrintf( sz, 100, L"Texture Height: %d", g_iTextureHeight ); 
-            g_SampleUI.GetStatic( IDC_TEXTRES_HEIGHT_STATIC )->SetText( sz );
-			g_bBlockMouseDragging = true;
-			break;
-		case IDC_TEXTRES_DEPTH_SLIDER:
-			g_iTextureDepth = g_SampleUI.GetSlider(IDC_TEXTRES_DEPTH_SLIDER)->GetValue();
-			StringCchPrintf( sz, 100, L"Texture Depth: %d", g_iTextureDepth ); 
-            g_SampleUI.GetStatic( IDC_TEXTRES_DEPTH_STATIC )->SetText( sz );
-			g_bBlockMouseDragging = true;
+			g_pScene->UpdateTextureResolution(g_iTextureMaximum);
 			break;
     }
 
