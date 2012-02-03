@@ -71,7 +71,6 @@ protected:
 
 	HRESULT Init3DTexture();
 
-
 	// Shader and effect creation
 	HRESULT CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect);
 	HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut );

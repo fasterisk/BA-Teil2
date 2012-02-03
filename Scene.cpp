@@ -60,7 +60,7 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	iTextureHeight = iTexHeight;
 	iTextureDepth = iTexDepth;
 
-	Init3DTexture();
+	V_RETURN(Init3DTexture());
 
 	// Initialize Voxelizer
 	m_pVoxelizer = new Voxelizer(m_pd3dDevice, m_pd3dImmediateContext, m_pVoxelizerEffect);
@@ -214,10 +214,9 @@ HRESULT Scene::UpdateBoundingBox()
 	iTextureHeight = (int)(vDiff.y * previousMax);
 	iTextureDepth = (int)(vDiff.z * previousMax);
 
-	Init3DTexture();
+	V_RETURN(Init3DTexture());
 	V_RETURN(m_pVoxelizer->SetDestination(m_pTexture3D));
 	V_RETURN(m_pVolumeRenderer->Initialize(iTextureWidth, iTextureHeight, iTextureDepth));
-
 	return S_OK;
 }
 
@@ -246,10 +245,6 @@ HRESULT Scene::Init3DTexture()
 	SAFE_RELEASE(m_pTexture3D);
 	SAFE_RELEASE(m_pTexture3DSRV);
 
-	iTextureWidth = iTextureWidth;
-	iTextureHeight = iTextureHeight;
-	iTextureDepth = iTextureDepth;
-
 	D3D11_TEXTURE3D_DESC desc;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	desc.CPUAccessFlags = 0;
@@ -274,7 +269,6 @@ HRESULT Scene::Init3DTexture()
 
 	return S_OK;
 }
-
 
 void Scene::ChangeControlledSurface()
 {

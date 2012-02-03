@@ -26,6 +26,7 @@ Voxelizer::Voxelizer(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediat
 	m_pDSTex2DSRVar = NULL;
 	m_pSlicesLayout = NULL;
 	m_pSlicesVB = NULL;
+	m_pInputLayout = NULL;
 }
 
 Voxelizer::~Voxelizer()
@@ -35,8 +36,6 @@ Voxelizer::~Voxelizer()
 
 void Voxelizer::Cleanup()
 {
-    SAFE_RELEASE(m_pd3dDevice);
-
     SAFE_RELEASE(m_pDstInOutTexture3D);
     SAFE_RELEASE(m_pDstInOutTexRTView);
 
@@ -175,6 +174,8 @@ HRESULT Voxelizer::InitShaders()
 {
     HRESULT hr(S_OK);
 
+	SAFE_RELEASE(m_pInputLayout);
+
     m_pNZTech = m_pVoxelizerEffect->GetTechniqueByName( "VoxelizeNZ" );
     m_pResolveWithPSTech = m_pVoxelizerEffect->GetTechniqueByName( "VoxelizeResolveWithPS" );
 
@@ -211,11 +212,8 @@ HRESULT Voxelizer::InitSlices(void)
 {
     HRESULT hr(S_OK);
 
-    if( m_pSlicesVB != NULL )
-    {
-        assert(m_pSlicesLayout != NULL);
-        return hr;
-    }
+	SAFE_RELEASE(m_pSlicesLayout);
+	SAFE_RELEASE(m_pSlicesVB);
 
     // Create full-screen quad input layout
     const D3D11_INPUT_ELEMENT_DESC slicesLayout[] =

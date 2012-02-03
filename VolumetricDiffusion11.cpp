@@ -275,6 +275,7 @@ void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserC
 			g_zNear -= 1.0f;
 			g_Camera.SetProjParams( D3DX_PI / 4, g_fAspectRatio, g_zNear, g_zFar);
             break;
+		
     }
 }
 

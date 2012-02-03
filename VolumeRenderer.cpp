@@ -19,6 +19,9 @@ VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd
     m_pBackTexture2D = NULL;
     m_pBackRTV = NULL;
     m_pBackSRV = NULL;
+
+	m_pSQInputLayout = NULL;
+	m_pSQVertexBuffer = NULL;
 }
 
 VolumeRenderer::~VolumeRenderer()
@@ -232,6 +235,9 @@ HRESULT VolumeRenderer::InitBoundingIndicesAndLayout()
 HRESULT VolumeRenderer::CreateScreenQuad()
 {
 	HRESULT hr;
+
+	SAFE_RELEASE(m_pSQInputLayout);
+	SAFE_RELEASE(m_pSQVertexBuffer);
 
 	//Create input layout
 	D3DX11_PASS_SHADER_DESC passVsDesc;
