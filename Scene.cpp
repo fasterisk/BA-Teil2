@@ -187,15 +187,21 @@ HRESULT Scene::UpdateBoundingBox()
 
 
 	// Change texture size corresponding to the ratio between x y and z of BB
-	/*D3DXVECTOR3 vDiff = m_vMax - m_vMin;
+	D3DXVECTOR3 vDiff = m_vMax - m_vMin;
 	float fMaxDiff = max(vDiff.x, max(vDiff.y, vDiff.z));
 	vDiff /= fMaxDiff;
 
 	int previousMax = max(iTextureWidth, max(iTextureHeight, iTextureDepth));
-	iTextureWidth = (int)(vDiff.x * previousMax);
-	iTextureHeight = (int)(vDiff.y * previousMax);
-	iTextureDepth = (int)(vDiff.z * previousMax);
-	*/
+	iTextureWidth = int(vDiff.x * previousMax + 0.5);
+	iTextureHeight = int(vDiff.y * previousMax + 0.5);
+	iTextureDepth = int(vDiff.z * previousMax + 0.5);
+	
+	if(iTextureWidth != 128 && iTextureHeight != 128 && iTextureDepth != 128)
+	{
+
+		float test = 0;
+	}
+
 	V_RETURN(Init3DTexture());
 	V_RETURN(m_pVoxelizer->SetDestination(m_pTexture3D));
 	V_RETURN(m_pVolumeRenderer->Initialize(iTextureWidth, iTextureHeight, iTextureDepth));
