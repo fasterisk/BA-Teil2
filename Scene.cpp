@@ -196,12 +196,6 @@ HRESULT Scene::UpdateBoundingBox()
 	iTextureHeight = int(vDiff.y * previousMax + 0.5);
 	iTextureDepth = int(vDiff.z * previousMax + 0.5);
 	
-	if(iTextureWidth != 128 && iTextureHeight != 128 && iTextureDepth != 128)
-	{
-
-		float test = 0;
-	}
-
 	V_RETURN(Init3DTexture());
 	V_RETURN(m_pVoxelizer->SetDestination(m_pTexture3D));
 	V_RETURN(m_pVolumeRenderer->Initialize(iTextureWidth, iTextureHeight, iTextureDepth));
