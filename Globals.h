@@ -46,6 +46,7 @@ struct VERTEX
 {
 	D3DXVECTOR3 position;
 	D3DXVECTOR2 texCoords;
+	D3DXCOLOR color;
 };
 
 

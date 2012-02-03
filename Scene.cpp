@@ -24,6 +24,9 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 
 Scene::~Scene()
 {
+	SAFE_RELEASE(m_pd3dDevice);
+	SAFE_RELEASE(m_pd3dImmediateContext);
+
 	SAFE_RELEASE(m_pVolumeRenderEffect);
 	SAFE_RELEASE(m_pVoxelizerEffect);
 	SAFE_RELEASE(m_pSurfaceEffect);
@@ -235,6 +238,8 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 	D3DXMatrixMultiply(&mBBWorldViewProjection, &m_mBBInv, &mViewProjection);
 
 	m_pVolumeRenderer->Render(m_pBBVertices, mBBWorldViewProjection, m_pTexture3DSRV);
+
+	m_pSurface1->Render(mViewProjection);
 }	
 
 

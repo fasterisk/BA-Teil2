@@ -82,7 +82,7 @@ void Surface::SetColor(float fR, float fG, float fB)
 {
 	for(int i = 0; i < m_vNum; i++)
 	{
-		//m_pVertices[i].color = D3DXCOLOR(fR, fG, fB, 1.0);
+		m_pVertices[i].color = D3DXCOLOR(fR, fG, fB, 1.0);
 	}
 }
 

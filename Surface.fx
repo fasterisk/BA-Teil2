@@ -29,6 +29,26 @@ RasterizerState Wireframe
 	FillMode = WIREFRAME;
 };
 
+BlendState AlphaBlending
+{
+    AlphaToCoverageEnable = FALSE;
+    BlendEnable[0] = TRUE;
+    SrcBlend = SRC_ALPHA;
+    DestBlend = INV_SRC_ALPHA;
+    BlendOp = ADD;
+    SrcBlendAlpha = SRC_ALPHA;
+    DestBlendAlpha = INV_SRC_ALPHA;
+    BlendOpAlpha = ADD;
+    RenderTargetWriteMask[0] = 0x0F;
+};
+
+BlendState NoBlending
+{
+    AlphaToCoverageEnable = FALSE;
+    BlendEnable[0] = FALSE;
+    RenderTargetWriteMask[0] = 0x0F;
+};
+
 
 matrix    ModelViewProjectionMatrix;
 
@@ -97,13 +117,15 @@ PsOutput PS_COLOR_AND_DEPTH( VsOutput input )
     PsOutput output;
     output.Color = input.Color;
     output.Depth = input.Depth;
+
+	output.Color.a = 0.5f;
     return output;
 }
 
 PsWOutput PS_WIREFRAME(VsWOutput input)
 {
 	PsWOutput output;
-	output.Color = float4(1.0, 0.0, 0.0, 1.0);
+	output.Color = float4(0.0, 1.0, 0.0, 1.0);
 	return output;
 }
 
@@ -119,6 +141,7 @@ technique10 RenderColorAndDepth
         SetGeometryShader(NULL);
         SetPixelShader( CompileShader( ps_4_0, PS_COLOR_AND_DEPTH() ) );
 
+		SetBlendState(AlphaBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetDepthStencilState( WriteDepthTest, 0 );
         SetRasterizerState( CullBack );
     }
