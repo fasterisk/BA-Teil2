@@ -182,6 +182,8 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 
 	PsOutput output;
 
+	input.texC.y = 1.0-input.texC.y;
+
     float3 front = FrontTexture.Sample(linearSamplerClamp, input.texC).rgb;
 	float3 back = BackTexture.Sample(linearSamplerClamp, input.texC).rgb;
     
@@ -195,7 +197,7 @@ PsOutput PS_RAYCAST(VsSQOutput input)
     
     for(int i = 0; i < iIterations; i++)
     {
-		src = VolumeTexture.SampleLevel(linearSamplerClamp, pos, 0).rgba;
+		src = VolumeTexture.SampleLevel(linearSamplerBorder, pos, 0).rgba;
 		
 		output.color = output.color + src;
 		

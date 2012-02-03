@@ -23,8 +23,8 @@ D3DXVECTOR3                 g_Up = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
 bool						g_useFire = false;;
 int							g_Width = 800;
 int							g_Height = 600;
-float						g_zNear = 0.05f;
-float						g_zFar = 1000.0f;
+float						g_zNear = 0.1f;
+float						g_zFar = 100.0f;
 D3DXMATRIX					g_View;
 D3DXMATRIX					g_Proj;
 float						g_Fovy = D3DX_PI * 0.25f;
@@ -304,8 +304,8 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	{
 		if(bLeftDown)
 		{
-			g_pScene->RotateX((g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
-			g_pScene->RotateY((g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
+			g_pScene->RotateX((g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed*0.1);
+			g_pScene->RotateY((g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed*0.1);
 		}
 		
 		if(iWheelDelta>0)
