@@ -2,6 +2,7 @@ class Surface;
 class Voxelizer;
 class VolumeRenderer;
 class TextureGrid;
+class Voronoi;
 
 class Scene {
 public:
@@ -49,6 +50,9 @@ protected:
 	D3DXVECTOR3 m_vMin;
 	D3DXVECTOR3 m_vMax;
 
+	// Voronoi Diagram Renderer
+	Voronoi*				m_pVoronoi;
+
 	// Voxelizer
 	Voxelizer*				m_pVoxelizer;
 
@@ -59,6 +63,7 @@ protected:
 	ID3DX11Effect*					m_pVolumeRenderEffect;
 	ID3DX11Effect*					m_pVoxelizerEffect;
 	ID3DX11Effect*					m_pSurfaceEffect;
+	ID3DX11Effect*					m_pVoronoiEffect;
 
 	// TEST
 	ID3D11Texture3D*				m_pTexture3D;

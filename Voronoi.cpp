@@ -23,7 +23,10 @@ Voronoi::~Voronoi()
 }
 
 void Voronoi::Cleanup()
-{}
+{
+	SAFE_RELEASE(m_pDestColorTex3DRTV);
+	SAFE_RELEASE(m_pDestDistTex3DRTV);
+}
 
 HRESULT Voronoi::SetDestination(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3D *pDestDistTex3D)
 {
@@ -91,7 +94,36 @@ HRESULT Voronoi::InitRendertargets()
 
 HRESULT Voronoi::InitShaders()
 {
-	//TODO
+	HRESULT hr;
+
+	assert(m_pVoronoiEffect);
+
+	// Get Technique and variables
+	m_pVoronoiDiagramTechnique	= m_pVoronoiEffect->GetTechniqueByName("GenerateVoronoiDiagram");
+
+	m_pModelViewProjectionVar	= m_pVoronoiEffect->GetVariableByName("ModelViewProjectionMatrix")->AsMatrix();
+	m_pSliceIndexVar			= m_pVoronoiEffect->GetVariableByName("iSliceIndex")->AsScalar();
+
+	assert(m_pVoronoiDiagramTechnique);
+	assert(m_pModelViewProjectionVar);
+	assert(m_pSliceIndexVar);
+
+	//Create InputLayout
+	D3DX11_PASS_SHADER_DESC passVsDesc;
+	m_pVoronoiDiagramTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
+	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
+	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
+	const void *vsCodePtr = effectVsDesc.pBytecode;
+	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
+
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	};
+
+	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pInputLayout));
+
 	return S_OK;
 }
 

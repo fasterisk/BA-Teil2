@@ -5,7 +5,7 @@
 #include "Surface.h"
 #include "VolumeRenderer.h"
 #include "Voxelizer.h"
-
+#include "Voronoi.h"
 
 
 Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext)
@@ -59,11 +59,17 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Voxelizer.fx"));
 	V_RETURN(CreateEffect(str, &m_pVoxelizerEffect));
 
+	//V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Voronoi.fx"));
+	//V_RETURN(CreateEffect(str, &m_pVoronoiEffect));
+
 	iTextureWidth = iTexWidth;
 	iTextureHeight = iTexHeight;
 	iTextureDepth = iTexDepth;
 
 	V_RETURN(Init3DTexture());
+
+	// Initialize Voronoi Diagram Renderer
+	//m_pVoronoi = new Voronoi(m_pd3dDevice, m_pd3dImmediateContext, m_pVoronoiEffect);
 
 	// Initialize Voxelizer
 	m_pVoxelizer = new Voxelizer(m_pd3dDevice, m_pd3dImmediateContext, m_pVoxelizerEffect);
@@ -221,6 +227,8 @@ void Scene::UpdateTextureResolution(int iMaxRes)
 void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneDepthRTV, ID3D11DepthStencilView* pDSV, D3DXMATRIX mViewProjection)
 {
 	UpdateBoundingBox();
+
+	//m_pVoronoi->RenderVoronoi(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
 
 	m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
 	

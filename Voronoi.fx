@@ -44,9 +44,9 @@ struct PS_VORONOI_OUTPUT
 GS_VORONOI_INPUT VoronoiVS(VS_VORONOI_INPUT input)
 {
 	GS_VORONOI_INPUT output;
-	output.pos = mul(float4(input.position, 1.0f), ModelViewProjectionMatrix);
+	output.position = mul(float4(input.position, 1.0f), ModelViewProjectionMatrix);
 	output.color = input.color;
-	return ouptut;
+	return output;
 }
 
 //--------------------------------------------------------------------------------------

@@ -24,22 +24,27 @@ private:
 	void Cleanup();
 
 	//State
-	ID3D11Device			*m_pd3dDevice;
-	ID3D11DeviceContext		*m_pd3dImmediateContext;
+	ID3D11Device				*m_pd3dDevice;
+	ID3D11DeviceContext			*m_pd3dImmediateContext;
 
-	ID3DX11Effect			*m_pVoronoiEffect;
+	ID3DX11Effect				*m_pVoronoiEffect;
+	ID3DX11EffectTechnique		*m_pVoronoiDiagramTechnique;
 
-	ID3D11Texture3D			*m_pDestColorTex3D;
-	ID3D11Texture3D			*m_pDestDistTex3D;
-	ID3D11RenderTargetView	*m_pDestColorTex3DRTV;
-	ID3D11RenderTargetView	*m_pDestDistTex3DRTV;
+	ID3D11InputLayout			*m_pInputLayout;
+	ID3DX11EffectMatrixVariable	*m_pModelViewProjectionVar;
+	ID3DX11EffectScalarVariable *m_pSliceIndexVar;
 
-	int						m_iTextureWidth;
-	int						m_iTextureHeight;
-	int						m_iTextureDepth;
+	ID3D11Texture3D				*m_pDestColorTex3D;
+	ID3D11Texture3D				*m_pDestDistTex3D;
+	ID3D11RenderTargetView		*m_pDestColorTex3DRTV;
+	ID3D11RenderTargetView		*m_pDestDistTex3DRTV;
+	
+	int							m_iTextureWidth;
+	int							m_iTextureHeight;
+	int							m_iTextureDepth;
 
-	Surface					*m_pSurface1;
-	Surface					*m_pSurface2;
+	Surface						*m_pSurface1;
+	Surface						*m_pSurface2;
 
 
 
