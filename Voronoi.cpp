@@ -89,6 +89,10 @@ HRESULT Voronoi::InitRendertargets()
 	descDT3DRTV.Texture3D.WSize = descDistTex3D.Depth;
 	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pDestDistTex3D, &descCT3DRTV, &m_pDestDistTex3DRTV));
 
+	m_iTextureWidth = descColorTex3D.Width;
+	m_iTextureHeight = descColorTex3D.Height;
+	m_iTextureDepth = descColorTex3D.Depth;
+
 	return S_OK;
 }
 
@@ -130,10 +134,16 @@ HRESULT Voronoi::InitShaders()
 HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 {
 	//TODO
+
+	// generate orth. matrix with bounding parameters
+	//for(int sliceIndex = 0; sliceIndex < m_iTextureDepth; sliceIndex++)
+	//{
+		//m_pSliceIndexVar->SetInt(sliceIndex);
+		//m_pModelViewProjectionVar->SetMatrix(MODELMATRIXOFSURFACE1*ORTHOMATRIX);
+		//pSurface1->Render(m_pVoronoiDiagramTechnique);
+		//m_pModelViewProjectionVar->SetMatrix(MODELMATRIXOFSURFACE2*ORTHOMATRIX);
+		//pSurface2->Render(m_pVoronoiDiagramTechnique);
+	//}
 	return S_OK;
 }
 
-void Voronoi::Draw()
-{
-	//TODO
-}

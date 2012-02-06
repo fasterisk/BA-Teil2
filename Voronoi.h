@@ -20,7 +20,6 @@ private:
 	HRESULT InitRendertargets();
 	HRESULT InitShaders();
 
-	void Draw();
 	void Cleanup();
 
 	//State
