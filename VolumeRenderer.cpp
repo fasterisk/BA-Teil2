@@ -261,7 +261,7 @@ HRESULT VolumeRenderer::CreateScreenQuad()
 	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pSQInputLayout));
 
 	// Create screenquad vertices
-	VERTEX vSQ[4];
+	SCREENQUAD_VERTEX vSQ[4];
 	vSQ[0].position =  D3DXVECTOR3(-1.0f,  1.0f, 0.0f);
 	vSQ[0].texCoords = D3DXVECTOR2( 0.0f,  0.0f);
 	vSQ[1].position =  D3DXVECTOR3( 1.0f,  1.0f, 0.0f);
@@ -327,7 +327,7 @@ void VolumeRenderer::DrawBoundingBox()
 
 void VolumeRenderer::DrawScreenQuad()
 {
-	UINT strides = sizeof(VERTEX);
+	UINT strides = sizeof(SCREENQUAD_VERTEX);
     UINT offsets = 0;
 	m_pd3dImmediateContext->IASetInputLayout(m_pSQInputLayout);
     m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pSQVertexBuffer, &strides, &offsets);

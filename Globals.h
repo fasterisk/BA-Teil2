@@ -42,10 +42,15 @@ extern float        g_Fovy;
 
 extern ID3D11ShaderResourceView*	g_pSceneDepthSRV;
 
-struct VERTEX
+struct SCREENQUAD_VERTEX
 {
 	D3DXVECTOR3 position;
 	D3DXVECTOR2 texCoords;
+};
+
+struct VERTEX
+{
+	D3DXVECTOR3 position;
 	D3DXCOLOR color;
 };
 
