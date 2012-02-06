@@ -22,6 +22,9 @@ Voronoi::~Voronoi()
 {
 }
 
+void Voronoi::Cleanup()
+{}
+
 HRESULT Voronoi::SetDestination(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3D *pDestDistTex3D)
 {
 	m_pDestColorTex3D = pDestColorTex3D;
@@ -89,11 +92,13 @@ HRESULT Voronoi::InitRendertargets()
 HRESULT Voronoi::InitShaders()
 {
 	//TODO
+	return S_OK;
 }
 
 HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 {
 	//TODO
+	return S_OK;
 }
 
 void Voronoi::Draw()
