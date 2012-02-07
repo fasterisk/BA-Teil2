@@ -40,7 +40,9 @@ extern D3DXMATRIX	g_View;
 extern D3DXMATRIX	g_Proj;
 extern float        g_Fovy;
 
-extern ID3D11ShaderResourceView*	g_pSceneDepthSRV;
+#ifndef M_PI
+#define M_PI    3.14159265358979323846f
+#endif
 
 struct SCREENQUAD_VERTEX
 {

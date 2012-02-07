@@ -37,7 +37,7 @@ ID3D11RenderTargetView*     g_pSceneDepthRTV        = NULL;
 // Control parameters
 int							g_mouseX = 0;
 int							g_mouseY = 0;
-int							g_mouseSpeed = 8;
+int							g_mouseSpeed = 1;
 bool						g_bRotatesWithMouse = true;
 bool						g_bCameraActive = false;
 float						g_fAspectRatio = 0;
@@ -301,8 +301,8 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	{
 		if(bLeftDown)
 		{
-			g_pScene->RotateX((g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed*0.1);
-			g_pScene->RotateY((g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed*0.1);
+			g_pScene->RotateX((g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
+			g_pScene->RotateY((g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
 		}
 		
 		if(iWheelDelta>0)

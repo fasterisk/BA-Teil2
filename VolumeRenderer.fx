@@ -182,9 +182,7 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 
 	PsOutput output;
 
-	input.texC.y = 1.0-input.texC.y;
-
-    float3 front = FrontTexture.Sample(linearSamplerClamp, input.texC).rgb;
+	float3 front = FrontTexture.Sample(linearSamplerClamp, input.texC).rgb;
 	float3 back = BackTexture.Sample(linearSamplerClamp, input.texC).rgb;
     
     float3 dir = normalize(back - front);
