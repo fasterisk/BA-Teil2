@@ -420,21 +420,25 @@ HRESULT Voxelizer::StencilClipVolume(void)
 HRESULT Voxelizer::RenderClippedMesh(float zNear, float zFar, ID3DX11EffectTechnique *pTechnique)
 {
     HRESULT hr(S_OK);
-    D3DXMATRIX proj;
-    D3DXMATRIX worldViewProj;
-	D3DXMATRIX modelViewProj;
+    D3DXMATRIX proj, model1ViewProj, model2ViewProj;
 
 	m_pSurface1->RotateY(M_PI);
+	m_pSurface2->RotateY(M_PI);
 
 	D3DXMatrixOrthoOffCenterLH(&proj, m_xMin, m_xMax, m_yMin, m_yMax, zNear, zFar);
-	D3DXMatrixMultiply(&worldViewProj, &m_pSurface1->m_mModel, &proj);
-    V_RETURN(m_pWorldViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&worldViewProj)));
+	D3DXMatrixMultiply(&model1ViewProj, &m_pSurface1->m_mModel, &proj);
+	D3DXMatrixMultiply(&model2ViewProj, &m_pSurface2->m_mModel, &proj);
     
 	m_pSurface1->RotateY(-M_PI);
+	m_pSurface2->RotateY(-M_PI);
 	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
 	
 	//Render surface
+    V_RETURN(m_pWorldViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&model1ViewProj)));
 	m_pSurface1->Render(pTechnique);
+
+    V_RETURN(m_pWorldViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&model2ViewProj)));
+	m_pSurface2->Render(pTechnique);
 
     return hr;
 }

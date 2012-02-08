@@ -4,7 +4,11 @@
 
 matrix    ModelViewProjectionMatrix;
 
+float4 vBBMin;
+float4 vBBMax;
+
 int iSliceIndex;
+int iTextureDepth;
 
 //--------------------------------------------------------------------------------------
 // Structs
@@ -53,29 +57,89 @@ GS_VORONOI_INPUT VoronoiVS(VS_VORONOI_INPUT input)
 // Geometry Shader
 //--------------------------------------------------------------------------------------
 
-//[maxvertexcount()] - TODO
+[maxvertexcount(3)]
 void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VORONOI_OUTPUT> tStream)
 {
 	// Slice index as per frame variable
 	
 	GS_VORONOI_OUTPUT output;
 	output.RTIndex = iSliceIndex;
+
+	float zBBDist = vBBMax.z - vBBMin.z;
+
+	float sliceDepth = (float)iSliceIndex/(float)iTextureDepth*zBBDist;
 		
 	// check if all points of the triangle have a higher/lower z value as the sliceindex-depth
-	//if true
+	if(input[0].position.z < sliceDepth && input[1].position.z < sliceDepth && input[2].position.z < sliceDepth)
+	{
 		//calculate distance function as in paper
-	//else
+		float3 normal = cross(input[0].position.xyz, input[1].position.xyz);
+		if(normal.z < 0)
+		{
+			normal = -normal;
+		}
+
+		normal /= normal.z;
+
+		for(int v = 0; v < 3; v++)
+		{
+			float distPosToSliceZ = sliceDepth - input[v].position.z;
+			float3 normalToPosAtSlice =	normal*distPosToSliceZ;
+			output.position = float4(input[v].position.x+normalToPosAtSlice.x, input[v].position.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
+			output.color = input[v].color;
+			tStream.Append(output);
+		}
+
+
+
+	}
+	else if(input[0].position.z >= sliceDepth && input[1].position.z >= sliceDepth && input[2].position.z >= sliceDepth)
+	{
+		//calculate distance function as in paper
+		float3 normal = cross(input[0].position.xyz, input[1].position.xyz);
+		if(normal.z > 0)
+		{
+			normal = -normal;
+		}
+
+		normal /= normal.z;
+
+		for(int v = 0; v < 3; v++)
+		{
+			float distPosToSliceZ = input[v].position.z - sliceDepth;
+			float3 normalToPosAtSlice =	normal*distPosToSliceZ;
+			output.position = float4(input[v].position.x+normalToPosAtSlice.x, input[v].position.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
+			output.color = input[v].color;
+			tStream.Append(output);
+		}
+	}
+	else
+	{
 		//divide polygon into 2 polygons, divided by the slice
 		//calculate distance function for each polygon
+
+		for(int v = 0; v < 3; v++)
+		{
+			output.position = input[v].position;
+			output.color = input[v].color;
+			tStream.Append(output);
+		}
+	}
 }
 
-//[maxvertexcount()] - TODO
+[maxvertexcount(2)]
 void EdgeGS( line GS_VORONOI_INPUT input[2], inout TriangleStream<GS_VORONOI_OUTPUT> tStream)
 {
 	// Slice index as per frame variable
 
 	GS_VORONOI_OUTPUT output;
 	output.RTIndex = iSliceIndex;
+
+	for(int v = 0; v < 2; v++)
+	{
+		output.position = input[v].position;
+		output.color = input[v].color;
+	}
 
 	// check if all points of the edge have a higher/lower z-value as the sliceindex-depth
 	// if true
@@ -85,13 +149,15 @@ void EdgeGS( line GS_VORONOI_INPUT input[2], inout TriangleStream<GS_VORONOI_OUT
 		//calculate distance function for each edge
 }
 
-//[maxvertexcount()] - TODO
+[maxvertexcount(1)]
 void VertexGS( point GS_VORONOI_INPUT input, inout TriangleStream<GS_VORONOI_OUTPUT> tStream)
 {
 	// Slice index as per frame variable
 
 	GS_VORONOI_OUTPUT output;
 	output.RTIndex = iSliceIndex;
+	output.position = input.position;
+	output.color = input.color;
 
 	// calculate/look up distance function
 }
@@ -120,7 +186,7 @@ technique10 GenerateVoronoiDiagram
 		SetPixelShader(CompileShader(ps_4_0, VoronoiPS()));
 		//TODO: set states
 	}
-	pass P2
+	/*pass P2
 	{
 		SetVertexShader(CompileShader(vs_4_0, VoronoiVS()));
 		SetGeometryShader(CompileShader(gs_4_0, EdgeGS()));
@@ -133,5 +199,5 @@ technique10 GenerateVoronoiDiagram
 		SetGeometryShader(CompileShader(gs_4_0, VertexGS()));
 		SetPixelShader(CompileShader(ps_4_0, VoronoiPS()));
 		//TODO: set states
-	}
+	}*/
 }

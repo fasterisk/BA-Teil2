@@ -30,6 +30,7 @@ Scene::~Scene()
 	SAFE_RELEASE(m_pVolumeRenderEffect);
 	SAFE_RELEASE(m_pVoxelizerEffect);
 	SAFE_RELEASE(m_pSurfaceEffect);
+	SAFE_RELEASE(m_pVoronoiEffect);
 	SAFE_DELETE(m_pVoxelizer);
 	SAFE_DELETE(m_pVolumeRenderer);
 
@@ -59,8 +60,8 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Voxelizer.fx"));
 	V_RETURN(CreateEffect(str, &m_pVoxelizerEffect));
 
-	//V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Voronoi.fx"));
-	//V_RETURN(CreateEffect(str, &m_pVoronoiEffect));
+	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Voronoi.fx"));
+	V_RETURN(CreateEffect(str, &m_pVoronoiEffect));
 
 	iTextureWidth = iTexWidth;
 	iTextureHeight = iTexHeight;
@@ -69,7 +70,7 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(Init3DTexture());
 
 	// Initialize Voronoi Diagram Renderer
-	//m_pVoronoi = new Voronoi(m_pd3dDevice, m_pd3dImmediateContext, m_pVoronoiEffect);
+	m_pVoronoi = new Voronoi(m_pd3dDevice, m_pd3dImmediateContext, m_pVoronoiEffect);
 
 	// Initialize Voxelizer
 	m_pVoxelizer = new Voxelizer(m_pd3dDevice, m_pd3dImmediateContext, m_pVoxelizerEffect);
@@ -140,11 +141,11 @@ HRESULT Scene::UpdateBoundingBox()
 			max.z = temp.z;
 	}
 
-	/*for(int i = 0; i < m_pSurface2->m_vNum; i++)
+	for(int i = 0; i < m_pSurface2->m_vNum; i++)
 	{
-		VERTEX temp = m_pSurface2->m_pVertices[i];
+		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface2->m_pVertices[i].position.x,m_pSurface2->m_pVertices[i].position.y, m_pSurface2->m_pVertices[i].position.z, 1.0f);
 		D3DXVECTOR4 mul;
-		D3DXVec4Transform(&mul, &D3DXVECTOR4(temp.x, temp.y, temp.z, 1.0), &m_pSurface2->m_mModel);
+		D3DXVec4Transform(&mul, &temp, &m_pSurface2->m_mModel);
 		temp.x = mul.x;
 		temp.y = mul.y;
 		temp.z = mul.z;
@@ -161,7 +162,7 @@ HRESULT Scene::UpdateBoundingBox()
 			max.y = temp.y;
 		if(temp.z > max.z)
 			max.z = temp.z;
-	}*/
+	}
 
 	m_vMin = D3DXVECTOR3(min.x, min.y, min.z);
 	m_vMax = D3DXVECTOR3(max.x, max.y, max.z);
@@ -235,6 +236,7 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 	m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pTexture3DSRV);
 
 	m_pSurface1->Render(mViewProjection);
+	m_pSurface2->Render(mViewProjection);
 }	
 
 

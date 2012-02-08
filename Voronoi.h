@@ -17,7 +17,8 @@ public:
 private:
 	//Methods
 	HRESULT Initialize();
-	HRESULT InitRendertargets();
+	HRESULT InitDepthStencil();
+	HRESULT InitRendertargets3D();
 	HRESULT InitShaders();
 
 	void Cleanup();
@@ -30,21 +31,25 @@ private:
 	ID3DX11EffectTechnique		*m_pVoronoiDiagramTechnique;
 
 	ID3D11InputLayout			*m_pInputLayout;
+
 	ID3DX11EffectMatrixVariable	*m_pModelViewProjectionVar;
+
 	ID3DX11EffectScalarVariable *m_pSliceIndexVar;
+	ID3DX11EffectScalarVariable *m_pTextureDepthVar;
+
+	ID3DX11EffectVectorVariable *m_pBBMinVar;
+	ID3DX11EffectVectorVariable *m_pBBMaxVar;
 
 	ID3D11Texture3D				*m_pDestColorTex3D;
 	ID3D11Texture3D				*m_pDestDistTex3D;
+	ID3D11Texture2D				*m_pDepthStencil;
 	ID3D11RenderTargetView		*m_pDestColorTex3DRTV;
 	ID3D11RenderTargetView		*m_pDestDistTex3DRTV;
+	ID3D11DepthStencilView		*m_pDepthStencilView;
 	
 	int							m_iTextureWidth;
 	int							m_iTextureHeight;
 	int							m_iTextureDepth;
-
-	Surface						*m_pSurface1;
-	Surface						*m_pSurface2;
-
 
 
 };

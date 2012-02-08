@@ -9,13 +9,13 @@ Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateCon
 
 	m_pDestColorTex3D = NULL;
 	m_pDestDistTex3D = NULL;
+	m_pDepthStencil = NULL;
 	m_pDestColorTex3DRTV = NULL;
 	m_pDestDistTex3DRTV = NULL;
+	m_pDepthStencilView = NULL;
 	m_iTextureWidth = 0;
 	m_iTextureHeight = 0;
 	m_iTextureDepth = 0;
-	m_pSurface1 = NULL;
-	m_pSurface2 = NULL;
 }
 
 Voronoi::~Voronoi()
@@ -26,6 +26,8 @@ void Voronoi::Cleanup()
 {
 	SAFE_RELEASE(m_pDestColorTex3DRTV);
 	SAFE_RELEASE(m_pDestDistTex3DRTV);
+	SAFE_RELEASE(m_pDepthStencil);
+	SAFE_RELEASE(m_pDepthStencilView);
 }
 
 HRESULT Voronoi::SetDestination(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3D *pDestDistTex3D)
@@ -43,8 +45,16 @@ HRESULT Voronoi::Initialize()
 	assert(m_pd3dDevice);
 	assert(m_pd3dImmediateContext);
 
+	//Initialize DepthStencil Texture and -view
+	hr = InitDepthStencil();
+	if(FAILED(hr))
+	{
+		Cleanup();
+		return hr;
+	}
+
 	//Initialize Rendertargets for the 3D Textures
-	hr = InitRendertargets();
+	hr = InitRendertargets3D();
 	if(FAILED(hr))
 	{
 		Cleanup();
@@ -62,7 +72,29 @@ HRESULT Voronoi::Initialize()
 	
 }
 
-HRESULT Voronoi::InitRendertargets()
+HRESULT Voronoi::InitDepthStencil()
+{
+	HRESULT hr;
+	SAFE_RELEASE(m_pDepthStencil);
+	SAFE_RELEASE(m_pDepthStencilView);
+
+	D3D11_TEXTURE2D_DESC descDS;
+	descDS.MipLevels = 1;
+	descDS.ArraySize = 1;
+	descDS.SampleDesc.Count = 1;
+	descDS.SampleDesc.Quality = 0;
+	descDS.Width = m_iTextureWidth;
+	descDS.Height = m_iTextureHeight;
+	descDS.Usage = D3D11_USAGE_DEFAULT;
+	descDS.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	descDS.Format = DXGI_FORMAT_D32_FLOAT;
+	V_RETURN(m_pd3dDevice->CreateTexture2D(&descDS, NULL, &m_pDepthStencil));
+	V_RETURN(m_pd3dDevice->CreateDepthStencilView(m_pDepthStencil, NULL, &m_pDepthStencilView));
+
+	return S_OK;
+}
+
+HRESULT Voronoi::InitRendertargets3D()
 {
 	HRESULT hr;
 
@@ -107,10 +139,16 @@ HRESULT Voronoi::InitShaders()
 
 	m_pModelViewProjectionVar	= m_pVoronoiEffect->GetVariableByName("ModelViewProjectionMatrix")->AsMatrix();
 	m_pSliceIndexVar			= m_pVoronoiEffect->GetVariableByName("iSliceIndex")->AsScalar();
+	m_pTextureDepthVar			= m_pVoronoiEffect->GetVariableByName("iTextureDepth")->AsScalar();
+	m_pBBMinVar					= m_pVoronoiEffect->GetVariableByName("vBBMin")->AsVector();
+	m_pBBMaxVar					= m_pVoronoiEffect->GetVariableByName("vBBMax")->AsVector();
 
 	assert(m_pVoronoiDiagramTechnique);
 	assert(m_pModelViewProjectionVar);
 	assert(m_pSliceIndexVar);
+	assert(m_pTextureDepthVar);
+	assert(m_pBBMinVar);
+	assert(m_pBBMaxVar);
 
 	//Create InputLayout
 	D3DX11_PASS_SHADER_DESC passVsDesc;
@@ -134,16 +172,31 @@ HRESULT Voronoi::InitShaders()
 HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 {
 	//TODO
+	HRESULT hr;
+	D3DXMATRIX orth, model1Orth, model2Orth;
 
 	// generate orth. matrix with bounding parameters
-	//for(int sliceIndex = 0; sliceIndex < m_iTextureDepth; sliceIndex++)
-	//{
-		//m_pSliceIndexVar->SetInt(sliceIndex);
-		//m_pModelViewProjectionVar->SetMatrix(MODELMATRIXOFSURFACE1*ORTHOMATRIX);
-		//pSurface1->Render(m_pVoronoiDiagramTechnique);
-		//m_pModelViewProjectionVar->SetMatrix(MODELMATRIXOFSURFACE2*ORTHOMATRIX);
-		//pSurface2->Render(m_pVoronoiDiagramTechnique);
-	//}
+	D3DXMatrixOrthoOffCenterLH(&orth, vBBMin.x, vBBMax.x, vBBMin.y, vBBMax.y, vBBMin.z, vBBMax.z);
+	D3DXMatrixMultiply(&model1Orth, &pSurface1->m_mModel, &orth);
+	D3DXMatrixMultiply(&model2Orth, &pSurface2->m_mModel, &orth);
+
+	//set bounding box parameters
+	D3DXVECTOR4 vBBMinOrth, vBBMaxOrth, vBBMinMaxDistOrth;
+	D3DXVec3Transform(&vBBMinOrth, &vBBMin, &orth);
+	D3DXVec3Transform(&vBBMaxOrth, &vBBMax, &orth);
+
+	m_pBBMinVar->SetFloatVector(vBBMinOrth);
+	m_pBBMaxVar->SetFloatVector(vBBMaxOrth);
+	m_pTextureDepthVar->SetFloat(m_iTextureDepth);
+
+	for(int sliceIndex = 0; sliceIndex < m_iTextureDepth; sliceIndex++)
+	{
+		m_pSliceIndexVar->SetInt(sliceIndex);
+		m_pModelViewProjectionVar->SetMatrix(model1Orth);
+		pSurface1->Render(m_pVoronoiDiagramTechnique);
+		m_pModelViewProjectionVar->SetMatrix(model2Orth);
+		pSurface2->Render(m_pVoronoiDiagramTechnique);
+	}
 	return S_OK;
 }
 
