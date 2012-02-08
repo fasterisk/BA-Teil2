@@ -48,24 +48,21 @@ void Surface::Translate(float fX, float fY, float fZ)
 void Surface::RotateX(float fFactor)
 {
 	D3DXMATRIX mRot;
-	const D3DXVECTOR3 axis(1.0, 0.0, 0.0);
-	D3DXMatrixRotationAxis(&mRot, &axis, fFactor);
+	D3DXMatrixRotationX(&mRot, fFactor);
 
 	m_mModel *= m_mTransInv * mRot * m_mTrans;
 }
 void Surface::RotateY(float fFactor)
 {
 	D3DXMATRIX mRot;
-	const D3DXVECTOR3 axis(0.0, 1.0, 0.0);
-	D3DXMatrixRotationAxis(&mRot, &axis, fFactor);
+	D3DXMatrixRotationY(&mRot, fFactor);
 
 	m_mModel *= m_mTransInv * mRot * m_mTrans;
 }
 void Surface::RotateZ(float fFactor)
 {
 	D3DXMATRIX mRot;
-	const D3DXVECTOR3 axis(0.0, 0.0, 1.0);
-	D3DXMatrixRotationAxis(&mRot, &axis, fFactor);
+	D3DXMatrixRotationZ(&mRot, fFactor);
 
 	m_mModel *= m_mTransInv * mRot * m_mTrans;
 }
