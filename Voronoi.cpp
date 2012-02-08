@@ -45,16 +45,19 @@ HRESULT Voronoi::Initialize()
 	assert(m_pd3dDevice);
 	assert(m_pd3dImmediateContext);
 
-	//Initialize DepthStencil Texture and -view
-	hr = InitDepthStencil();
+
+
+	//Initialize Rendertargets for the 3D Textures -- needs to happen before depth stencil initialization
+	// because m_iTextureWidth etc. are initialized in InitRendertargets3D
+	hr = InitRendertargets3D();
 	if(FAILED(hr))
 	{
 		Cleanup();
 		return hr;
 	}
 
-	//Initialize Rendertargets for the 3D Textures
-	hr = InitRendertargets3D();
+	//Initialize DepthStencil Texture and -view
+	hr = InitDepthStencil();
 	if(FAILED(hr))
 	{
 		Cleanup();
@@ -78,17 +81,19 @@ HRESULT Voronoi::InitDepthStencil()
 	SAFE_RELEASE(m_pDepthStencil);
 	SAFE_RELEASE(m_pDepthStencilView);
 
-	D3D11_TEXTURE2D_DESC descDS;
-	descDS.MipLevels = 1;
-	descDS.ArraySize = 1;
-	descDS.SampleDesc.Count = 1;
-	descDS.SampleDesc.Quality = 0;
-	descDS.Width = m_iTextureWidth;
-	descDS.Height = m_iTextureHeight;
-	descDS.Usage = D3D11_USAGE_DEFAULT;
-	descDS.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	descDS.Format = DXGI_FORMAT_D32_FLOAT;
-	V_RETURN(m_pd3dDevice->CreateTexture2D(&descDS, NULL, &m_pDepthStencil));
+	D3D11_TEXTURE2D_DESC dsTexDesc;
+	dsTexDesc.Width = m_iTextureWidth;
+	dsTexDesc.Height = m_iTextureHeight;
+	dsTexDesc.MipLevels = 1;
+	dsTexDesc.ArraySize = 1;
+	dsTexDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsTexDesc.SampleDesc.Count = 1;
+	dsTexDesc.SampleDesc.Quality = 0;
+	dsTexDesc.Usage = D3D11_USAGE_DEFAULT;
+	dsTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	dsTexDesc.CPUAccessFlags = 0;
+	dsTexDesc.MiscFlags = 0;
+	V_RETURN(m_pd3dDevice->CreateTexture2D(&dsTexDesc, NULL, &m_pDepthStencil));
 	V_RETURN(m_pd3dDevice->CreateDepthStencilView(m_pDepthStencil, NULL, &m_pDepthStencilView));
 
 	return S_OK;
@@ -100,6 +105,9 @@ HRESULT Voronoi::InitRendertargets3D()
 
 	assert(m_pDestColorTex3D != NULL);
 	assert(m_pDestDistTex3D != NULL);
+
+	SAFE_RELEASE(m_pDestColorTex3DRTV);
+	SAFE_RELEASE(m_pDestDistTex3DRTV);
 
 	D3D11_TEXTURE3D_DESC descColorTex3D;
 	m_pDestColorTex3D->GetDesc(&descColorTex3D);
@@ -185,9 +193,22 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 	D3DXVec3Transform(&vBBMinOrth, &vBBMin, &orth);
 	D3DXVec3Transform(&vBBMaxOrth, &vBBMax, &orth);
 
+	assert(vBBMinOrth);
+	assert(vBBMaxOrth);
+
 	m_pBBMinVar->SetFloatVector(vBBMinOrth);
 	m_pBBMaxVar->SetFloatVector(vBBMaxOrth);
 	m_pTextureDepthVar->SetFloat(m_iTextureDepth);
+
+	//Create render target array
+	ID3D11RenderTargetView* destTex3DRTVs[2];
+	destTex3DRTVs[0] = m_pDestColorTex3DRTV;
+	destTex3DRTVs[1] = m_pDestDistTex3DRTV;
+	m_pd3dImmediateContext->OMSetRenderTargets(2, destTex3DRTVs, NULL);
+
+	// set viewport to the size of a single slice
+//	D3D11_VIEWPORT viewport = { 0, 0, m_iTextureWidth, m_iTextureHeight, 0.0f, 1.0f };
+  //  m_pd3dImmediateContext->RSSetViewports(1, &viewport);
 
 	for(int sliceIndex = 0; sliceIndex < m_iTextureDepth; sliceIndex++)
 	{
@@ -197,6 +218,12 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 		m_pModelViewProjectionVar->SetMatrix(model2Orth);
 		pSurface2->Render(m_pVoronoiDiagramTechnique);
 	}
+
+	//Restore Rendertarget- and Depthstencilview
+	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
+    ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
+	m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
+
 	return S_OK;
 }
 

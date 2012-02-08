@@ -169,7 +169,8 @@ void VertexGS( point GS_VORONOI_INPUT input, inout TriangleStream<GS_VORONOI_OUT
 PS_VORONOI_OUTPUT VoronoiPS(GS_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
-	//TODO: process input
+	output.color = input.color;
+	output.dist = input.color;
 	return output;
 }
 

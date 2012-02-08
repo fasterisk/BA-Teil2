@@ -9,6 +9,9 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 	m_pd3dImmediateContext = pd3dImmediateContext;
 	m_pSurfaceEffect = pSurfaceEffect;
 
+	m_pVertexBuffer = NULL;
+	m_pIndexBuffer = NULL;
+
 	D3DXMatrixIdentity(&m_mModel);
 	D3DXMatrixIdentity(&m_mRot);
 	D3DXMatrixIdentity(&m_mTrans);
@@ -81,6 +84,8 @@ void Surface::SetColor(float fR, float fG, float fB)
 	{
 		m_pVertices[i].color = D3DXCOLOR(fR, fG, fB, 1.0);
 	}
+
+	InitBuffers();
 }
 
 HRESULT Surface::Initialize(char* s)
@@ -169,6 +174,9 @@ bool stringStartsWith(const char *s, const char *val)
 HRESULT Surface::InitBuffers()
 {
 	HRESULT hr;
+
+	SAFE_RELEASE(m_pVertexBuffer);
+	SAFE_RELEASE(m_pIndexBuffer);
 
 	//Create Vertex buffer
 	D3D11_BUFFER_DESC vbd;

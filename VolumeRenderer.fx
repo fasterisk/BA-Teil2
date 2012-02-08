@@ -196,6 +196,7 @@ PsOutput PS_RAYCAST(VsSQOutput input)
     for(int i = 0; i < iIterations; i++)
     {
 		src = VolumeTexture.SampleLevel(linearSamplerBorder, pos, 0).rgba;
+		//src.a *= 0.01;
 		
 		output.color = output.color + src;
 		
