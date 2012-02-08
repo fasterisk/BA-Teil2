@@ -36,6 +36,7 @@ Scene::~Scene()
 	SAFE_RELEASE(m_pSurfaceEffect);
 	SAFE_RELEASE(m_pVoronoiEffect);
 	SAFE_DELETE(m_pVoxelizer);
+	SAFE_DELETE(m_pVoronoi);
 	SAFE_DELETE(m_pVolumeRenderer);
 
 	SAFE_DELETE(m_pBBVertices);
@@ -276,7 +277,6 @@ HRESULT Scene::Init3DTextures()
 
 	//create the shader resource views
 	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
-	ZeroMemory(&descSRV, sizeof(descSRV));
 	descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
 	descSRV.Texture3D.MostDetailedMip = 0;
 	descSRV.Texture3D.MipLevels = 1;

@@ -7,6 +7,7 @@ Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateCon
 	m_pd3dImmediateContext = pd3dImmediateContext;
 	m_pVoronoiEffect = pVoronoiEffect;
 
+	m_pInputLayout = NULL;
 	m_pDestColorTex3D = NULL;
 	m_pDestDistTex3D = NULL;
 	m_pDepthStencil = NULL;
@@ -20,6 +21,7 @@ Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateCon
 
 Voronoi::~Voronoi()
 {
+	Cleanup();
 }
 
 void Voronoi::Cleanup()
@@ -28,6 +30,7 @@ void Voronoi::Cleanup()
 	SAFE_RELEASE(m_pDestDistTex3DRTV);
 	SAFE_RELEASE(m_pDepthStencil);
 	SAFE_RELEASE(m_pDepthStencilView);
+	SAFE_RELEASE(m_pInputLayout);
 }
 
 HRESULT Voronoi::SetDestination(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3D *pDestDistTex3D)
@@ -141,6 +144,7 @@ HRESULT Voronoi::InitShaders()
 	HRESULT hr;
 
 	assert(m_pVoronoiEffect);
+	SAFE_RELEASE(m_pInputLayout);
 
 	// Get Technique and variables
 	m_pVoronoiDiagramTechnique	= m_pVoronoiEffect->GetTechniqueByName("GenerateVoronoiDiagram");
@@ -219,10 +223,6 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 		pSurface2->Render(m_pVoronoiDiagramTechnique);
 	}
 
-	//Restore Rendertarget- and Depthstencilview
-	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
-    ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
-	m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
 
 	return S_OK;
 }
