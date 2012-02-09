@@ -170,8 +170,6 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vMin, D3DXVECTOR3 v
 
 HRESULT VolumeRenderer::InitShader()
 {
-	HRESULT hr;
-
 	m_pVolumeRenderTechnique = m_pEffect->GetTechniqueByName("VolumeRendering");
 	m_pWorldViewProjectionVar = m_pEffect->GetVariableByName("WorldViewProjection")->AsMatrix();
 	m_pFrontTextureVar = m_pEffect->GetVariableByName("FrontTexture")->AsShaderResource();
@@ -262,14 +260,14 @@ HRESULT VolumeRenderer::CreateScreenQuad()
 
 	// Create screenquad vertices
 	SCREENQUAD_VERTEX vSQ[4];
-	vSQ[0].position =  D3DXVECTOR3(-1.0f,  1.0f, 0.0f);
-	vSQ[0].texCoords = D3DXVECTOR2( 0.0f,  0.0f);
-	vSQ[1].position =  D3DXVECTOR3( 1.0f,  1.0f, 0.0f);
-	vSQ[1].texCoords = D3DXVECTOR2( 1.0f,  0.0f);
-	vSQ[2].position =  D3DXVECTOR3(-1.0f, -1.0f, 0.0f);
-	vSQ[2].texCoords = D3DXVECTOR2( 0.0f,  1.0f);
-	vSQ[3].position =  D3DXVECTOR3( 1.0f, -1.0f, 0.0f);
-	vSQ[3].texCoords = D3DXVECTOR2( 1.0f,  1.0f);
+	vSQ[0].pos =  D3DXVECTOR3(-1.0f,  1.0f, 0.0f);
+	vSQ[0].tex = D3DXVECTOR2( 0.0f,  0.0f);
+	vSQ[1].pos =  D3DXVECTOR3( 1.0f,  1.0f, 0.0f);
+	vSQ[1].tex = D3DXVECTOR2( 1.0f,  0.0f);
+	vSQ[2].pos =  D3DXVECTOR3(-1.0f, -1.0f, 0.0f);
+	vSQ[2].tex = D3DXVECTOR2( 0.0f,  1.0f);
+	vSQ[3].pos =  D3DXVECTOR3( 1.0f, -1.0f, 0.0f);
+	vSQ[3].tex = D3DXVECTOR2( 1.0f,  1.0f);
 
 
 	//Create Vertex buffer

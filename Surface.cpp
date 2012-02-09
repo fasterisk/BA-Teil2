@@ -216,13 +216,9 @@ void Surface::ReadVectorFile(char *s)
 
 	FILE *F = fopen(s, "rb");
 
-	FILE *F_out = fopen("Media\\test_ReadVectorFile.txt", "w");
-	char c[256];
-
 	while (fgets(buff, 255, F))
 		if (stringStartsWith(buff, "<!DOCTYPE SurfaceXML"))
 		{
-			fputs ("(INFO) : This seems to be a diffusion surface file.\n", F_out);//test
 			break;
 		}
 	fgets(buff, 255, F);
@@ -231,14 +227,10 @@ void Surface::ReadVectorFile(char *s)
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
 	m_vNum = int(atof(token));
-	sprintf(c, "m_vNum: %d \n", m_vNum);//test
-	fputs(c, F_out);//test
 	while (!stringStartsWith(token, "nb_indices="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
 	m_iNum = int(atof(token));
-	sprintf(c, "m_iNum: %d \n", m_iNum);//test
-	fputs(c, F_out);//test
 	
 	m_pVertices = new VERTEX[m_vNum];
 	for(int i=0; i < m_vNum; i++)
@@ -249,18 +241,16 @@ void Surface::ReadVectorFile(char *s)
 		while (!stringStartsWith(token, "x="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].position.x = float(atof(token));
+		m_pVertices[i].pos.x = float(atof(token));
 		while (!stringStartsWith(token, "y="))
 			token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].position.y = float(atof(token));
+		m_pVertices[i].pos.y = float(atof(token));
 		while (!stringStartsWith(token, "z="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].position.z = float(atof(token));
+		m_pVertices[i].pos.z = float(atof(token));
 		fgets(buff, 255, F);
-		
-		
 	}
 
 	m_pIndices = new unsigned int[m_iNum];
@@ -274,8 +264,6 @@ void Surface::ReadVectorFile(char *s)
 		token = strtok(NULL, " \"\t");
 		m_pIndices[i] = unsigned int(atof(token));
 		
-		sprintf(c, "index[%d]=%d \n", i, m_pIndices[i]);
-		fputs(c, F_out);
 	}
 
 	D3DXCOLOR color;
@@ -296,18 +284,11 @@ void Surface::ReadVectorFile(char *s)
 	color.b = float(atof(token));
 	fgets(buff, 255, F);
 	
-	sprintf(c, "color=(%g,%g,%g) \n", color.r, color.g, color.b);
-	fputs(c, F_out);
-
 	for(int i=0; i < m_vNum; i++)
 	{
-		//m_pVertices[i].color = color;
-
-	//	sprintf(c, "vertex[%d]=(%g,%g,%g) color=(%g,%g,%g) \n", i, m_pVertices[i].position.x, m_pVertices[i].position.y, m_pVertices[i].position.z, m_pVertices[i].color.r, m_pVertices[i].color.g, m_pVertices[i].color.b);
-		fputs(c, F_out);
+		m_pVertices[i].color = color;
 	}
 	
 	fclose(F);
-	fclose(F_out);
 }
 

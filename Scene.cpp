@@ -123,7 +123,10 @@ HRESULT Scene::UpdateBoundingBox()
 	D3DXVECTOR4 min, max;
 	for(int i = 0; i < m_pSurface1->m_vNum; i++)
 	{
-		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface1->m_pVertices[i].position.x, m_pSurface1->m_pVertices[i].position.y, m_pSurface1->m_pVertices[i].position.z, 1.0);
+		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface1->m_pVertices[i].pos.x, 
+									   m_pSurface1->m_pVertices[i].pos.y, 
+									   m_pSurface1->m_pVertices[i].pos.z, 
+									   1.0);
 		D3DXVECTOR4 mul;
 		D3DXVec4Transform(&mul, &temp, &m_pSurface1->m_mModel);
 		temp.x = mul.x;
@@ -151,7 +154,10 @@ HRESULT Scene::UpdateBoundingBox()
 
 	for(int i = 0; i < m_pSurface2->m_vNum; i++)
 	{
-		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface2->m_pVertices[i].position.x,m_pSurface2->m_pVertices[i].position.y, m_pSurface2->m_pVertices[i].position.z, 1.0f);
+		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface2->m_pVertices[i].pos.x,
+									   m_pSurface2->m_pVertices[i].pos.y, 
+									   m_pSurface2->m_pVertices[i].pos.z,
+									   1.0f);
 		D3DXVECTOR4 mul;
 		D3DXVec4Transform(&mul, &temp, &m_pSurface2->m_mModel);
 		temp.x = mul.x;
@@ -175,30 +181,30 @@ HRESULT Scene::UpdateBoundingBox()
 	m_vMin = D3DXVECTOR3(min.x, min.y, min.z);
 	m_vMax = D3DXVECTOR3(max.x, max.y, max.z);
 	
-	m_pBBVertices[0].position.x = m_vMin.x;
-	m_pBBVertices[0].position.y = m_vMin.y;
-	m_pBBVertices[0].position.z = m_vMin.z;
-	m_pBBVertices[1].position.x = m_vMax.x;
-	m_pBBVertices[1].position.y = m_vMin.y;
-	m_pBBVertices[1].position.z = m_vMin.z;
-	m_pBBVertices[2].position.x = m_vMax.x;
-	m_pBBVertices[2].position.y = m_vMax.y;
-	m_pBBVertices[2].position.z = m_vMin.z;
-	m_pBBVertices[3].position.x = m_vMin.x;
-	m_pBBVertices[3].position.y = m_vMax.y;
-	m_pBBVertices[3].position.z = m_vMin.z;
-	m_pBBVertices[4].position.x = m_vMax.x;
-	m_pBBVertices[4].position.y = m_vMin.y;
-	m_pBBVertices[4].position.z = m_vMax.z;
-	m_pBBVertices[5].position.x = m_vMin.x;
-	m_pBBVertices[5].position.y = m_vMin.y;
-	m_pBBVertices[5].position.z = m_vMax.z;
-	m_pBBVertices[6].position.x = m_vMax.x;
-	m_pBBVertices[6].position.y = m_vMax.y;
-	m_pBBVertices[6].position.z = m_vMax.z;
-	m_pBBVertices[7].position.x = m_vMin.x;
-	m_pBBVertices[7].position.y = m_vMax.y;
-	m_pBBVertices[7].position.z = m_vMax.z;
+	m_pBBVertices[0].pos.x = m_vMin.x;
+	m_pBBVertices[0].pos.y = m_vMin.y;
+	m_pBBVertices[0].pos.z = m_vMin.z;
+	m_pBBVertices[1].pos.x = m_vMax.x;
+	m_pBBVertices[1].pos.y = m_vMin.y;
+	m_pBBVertices[1].pos.z = m_vMin.z;
+	m_pBBVertices[2].pos.x = m_vMax.x;
+	m_pBBVertices[2].pos.y = m_vMax.y;
+	m_pBBVertices[2].pos.z = m_vMin.z;
+	m_pBBVertices[3].pos.x = m_vMin.x;
+	m_pBBVertices[3].pos.y = m_vMax.y;
+	m_pBBVertices[3].pos.z = m_vMin.z;
+	m_pBBVertices[4].pos.x = m_vMax.x;
+	m_pBBVertices[4].pos.y = m_vMin.y;
+	m_pBBVertices[4].pos.z = m_vMax.z;
+	m_pBBVertices[5].pos.x = m_vMin.x;
+	m_pBBVertices[5].pos.y = m_vMin.y;
+	m_pBBVertices[5].pos.z = m_vMax.z;
+	m_pBBVertices[6].pos.x = m_vMax.x;
+	m_pBBVertices[6].pos.y = m_vMax.y;
+	m_pBBVertices[6].pos.z = m_vMax.z;
+	m_pBBVertices[7].pos.x = m_vMin.x;
+	m_pBBVertices[7].pos.y = m_vMax.y;
+	m_pBBVertices[7].pos.z = m_vMax.z;
 
 
 	// Change texture size corresponding to the ratio between x y and z of BB

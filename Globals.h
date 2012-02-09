@@ -46,13 +46,19 @@ extern float        g_Fovy;
 
 struct SCREENQUAD_VERTEX
 {
-	D3DXVECTOR3 position;
-	D3DXVECTOR2 texCoords;
+	D3DXVECTOR3 pos;
+	D3DXVECTOR2 tex;
+};
+
+struct SLICE_SCREENQUAD_VERTEX
+{
+	D3DXVECTOR3 pos;
+	D3DXVECTOR3 tex;
 };
 
 struct VERTEX
 {
-	D3DXVECTOR3 position;
+	D3DXVECTOR3 pos;
 	D3DXCOLOR color;
 };
 

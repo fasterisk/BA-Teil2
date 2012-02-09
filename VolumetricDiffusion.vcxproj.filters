@@ -32,9 +32,6 @@
     <ClInclude Include="VolumeRenderer.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="TextureGrid.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Voxelizer.h">
       <Filter>Headers</Filter>
     </ClInclude>
@@ -53,9 +50,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VolumetricDiffusion11.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureGrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Voxelizer.cpp">

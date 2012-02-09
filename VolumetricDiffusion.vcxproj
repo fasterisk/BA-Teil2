@@ -391,7 +391,6 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Surface.h" />
-    <ClInclude Include="TextureGrid.h" />
     <ClInclude Include="VolumeRenderer.h" />
     <ClInclude Include="Voronoi.h" />
     <ClInclude Include="Voxelizer.h" />
@@ -399,7 +398,6 @@
   <ItemGroup>
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Surface.cpp" />
-    <ClCompile Include="TextureGrid.cpp" />
     <ClCompile Include="VolumeRenderer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>

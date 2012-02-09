@@ -17,6 +17,9 @@ Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateCon
 	m_iTextureWidth = 0;
 	m_iTextureHeight = 0;
 	m_iTextureDepth = 0;
+
+	m_pSlicesLayout = NULL;
+	m_pSlicesVB = NULL;
 }
 
 Voronoi::~Voronoi()
@@ -31,6 +34,8 @@ void Voronoi::Cleanup()
 	SAFE_RELEASE(m_pDepthStencil);
 	SAFE_RELEASE(m_pDepthStencilView);
 	SAFE_RELEASE(m_pInputLayout);
+	SAFE_RELEASE(m_pSlicesLayout);
+	SAFE_RELEASE(m_pSlicesVB);
 }
 
 HRESULT Voronoi::SetDestination(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3D *pDestDistTex3D)
@@ -49,36 +54,22 @@ HRESULT Voronoi::Initialize()
 	assert(m_pd3dImmediateContext);
 
 
-
 	//Initialize Rendertargets for the 3D Textures -- needs to happen before depth stencil initialization
 	// because m_iTextureWidth etc. are initialized in InitRendertargets3D
-	hr = InitRendertargets3D();
-	if(FAILED(hr))
-	{
-		Cleanup();
-		return hr;
-	}
+	V_RETURN(InitRendertargets3D());
+
+	ComputeRowColsForFlat3DTexture(m_iTextureDepth, &m_cols, &m_rows);
 
 	//Initialize DepthStencil Texture and -view
-	hr = InitDepthStencil();
-	if(FAILED(hr))
-	{
-		Cleanup();
-		return hr;
-	}
+	V_RETURN(InitDepthStencil2D());
 
 	//Initialize Techniques and Shadervariables
-	hr = InitShaders();
-	if(FAILED(hr))
-	{
-		Cleanup();
-		return hr;
-	}
-
+	V_RETURN(InitShaders());
 	
+	return S_OK;
 }
 
-HRESULT Voronoi::InitDepthStencil()
+HRESULT Voronoi::InitDepthStencil2D()
 {
 	HRESULT hr;
 	SAFE_RELEASE(m_pDepthStencil);
@@ -181,10 +172,84 @@ HRESULT Voronoi::InitShaders()
 	return S_OK;
 }
 
+HRESULT Voronoi::InitSlices()
+{
+	HRESULT hr;
+
+	SAFE_RELEASE(m_pSlicesLayout);
+	SAFE_RELEASE(m_pSlicesVB);
+
+	//Create full-screen quad input layout
+	const D3D11_INPUT_ELEMENT_DESC slicesLayout[] = 
+	{
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+	D3DX11_PASS_SHADER_DESC passVsDesc;
+	m_pFlatTo3DTexTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
+	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
+	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
+	const void *vsCodePtr = effectVsDesc.pBytecode;
+	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
+	V_RETURN(m_pd3dDevice->CreateInputLayout(slicesLayout, _countof(slicesLayout), vsCodePtr, vsCodeLen, &m_pSlicesLayout));
+
+
+#define SLICEQUAD_VERTEX_COUNT 6
+	// Create a vertex buffers of quads, one per slice, with texcoords to lookup from a flat 3D texture
+    // and with homogenous coordinates to cover a fullscreen quad
+	SLICE_SCREENQUAD_VERTEX* sliceVertices = new SLICE_SCREENQUAD_VERTEX[SLICEQUAD_VERTEX_COUNT*m_iTextureDepth];
+	SLICE_SCREENQUAD_VERTEX sliceVerticesTemp[4];
+	int row, col;
+	float x, y;
+	int vertexIndex = 0;
+	for(int z = 0; z < m_iTextureDepth; z++)
+	{
+		row = z / m_cols;
+		col = z % m_cols;
+		x = float(col) * m_iTextureWidth;
+		y = float(row) * m_iTextureHeight;
+		vertexIndex = z * SLICEQUAD_VERTEX_COUNT;
+
+		sliceVerticesTemp[0].pos = D3DXVECTOR3(-1.0f, 1.0f, 0.5f);
+		sliceVerticesTemp[0].tex = D3DXVECTOR3(x, y, float(z));
+
+		sliceVerticesTemp[1].pos = D3DXVECTOR3(-1.0f, -1.0f, 0.5f);
+		sliceVerticesTemp[1].tex = D3DXVECTOR3(x, y+m_iTextureHeight, float(z));
+        
+        sliceVerticesTemp[2].pos = D3DXVECTOR3(1.0f, -1.0f, 0.5f);
+		sliceVerticesTemp[2].tex = D3DXVECTOR3(x+m_iTextureWidth, y+m_iTextureHeight, float(z));
+        
+        sliceVerticesTemp[3].pos = D3DXVECTOR3(1.0f, 1.0f, 0.5f);
+		sliceVerticesTemp[3].tex = D3DXVECTOR3(x+m_iTextureWidth, y, float(z));
+
+		sliceVertices[vertexIndex+0] = sliceVerticesTemp[0];
+		sliceVertices[vertexIndex+1] = sliceVerticesTemp[1];
+        sliceVertices[vertexIndex+2] = sliceVerticesTemp[2];
+        sliceVertices[vertexIndex+3] = sliceVerticesTemp[0];
+        sliceVertices[vertexIndex+4] = sliceVerticesTemp[2];
+        sliceVertices[vertexIndex+5] = sliceVerticesTemp[3];
+	}
+
+	D3D11_BUFFER_DESC vbDesc;
+	vbDesc.ByteWidth = SLICEQUAD_VERTEX_COUNT*m_iTextureDepth*sizeof(SLICE_SCREENQUAD_VERTEX);
+	vbDesc.Usage = D3D11_USAGE_DEFAULT;
+	vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbDesc.CPUAccessFlags = 0;
+	vbDesc.MiscFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA initialData;
+	initialData.pSysMem = sliceVertices;
+	initialData.SysMemPitch = 0;
+	initialData.SysMemSlicePitch = 0;
+	V_RETURN(m_pd3dDevice->CreateBuffer(&vbDesc, &initialData, &m_pSlicesVB));
+
+	delete[] sliceVertices;
+
+	return S_OK;
+}
+
 HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 {
-	//TODO
-	HRESULT hr;
 	D3DXMATRIX orth, model1Orth, model2Orth;
 
 	// generate orth. matrix with bounding parameters
@@ -202,7 +267,7 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 
 	m_pBBMinVar->SetFloatVector(vBBMinOrth);
 	m_pBBMaxVar->SetFloatVector(vBBMaxOrth);
-	m_pTextureDepthVar->SetFloat(m_iTextureDepth);
+	m_pTextureDepthVar->SetFloat((float)m_iTextureDepth);
 
 	//Create render target array
 	ID3D11RenderTargetView* destTex3DRTVs[2];
@@ -214,16 +279,32 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 //	D3D11_VIEWPORT viewport = { 0, 0, m_iTextureWidth, m_iTextureHeight, 0.0f, 1.0f };
   //  m_pd3dImmediateContext->RSSetViewports(1, &viewport);
 
-	for(int sliceIndex = 0; sliceIndex < m_iTextureDepth; sliceIndex++)
-	{
+	int sliceIndex = 64;//choose a slice in the middle of the texture to check if a single slice is calculated the right way
+	//for(int sliceIndex = 0; sliceIndex < m_iTextureDepth; sliceIndex++)
+	//{
 		m_pSliceIndexVar->SetInt(sliceIndex);
 		m_pModelViewProjectionVar->SetMatrix(model1Orth);
 		pSurface1->Render(m_pVoronoiDiagramTechnique);
 		m_pModelViewProjectionVar->SetMatrix(model2Orth);
 		pSurface2->Render(m_pVoronoiDiagramTechnique);
-	}
+	//}
 
 
 	return S_OK;
+}
+
+void Voronoi::DrawSlices()
+{
+	assert(m_pSlicesLayout);
+	assert(m_pSlicesVB);
+
+	UINT strides = sizeof(SLICE_SCREENQUAD_VERTEX);
+	UINT offsets = 0;
+
+	m_pd3dImmediateContext->IASetInputLayout(m_pSlicesLayout);
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pSlicesVB, &strides, &offsets);
+	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	m_pd3dImmediateContext->Draw(SLICEQUAD_VERTEX_COUNT*m_iTextureDepth, 0);
 }
 

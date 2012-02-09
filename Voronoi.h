@@ -17,9 +17,11 @@ public:
 private:
 	//Methods
 	HRESULT Initialize();
-	HRESULT InitDepthStencil();
+	HRESULT InitDepthStencil2D();
 	HRESULT InitRendertargets3D();
 	HRESULT InitShaders();
+	HRESULT InitSlices();
+	void DrawSlices();
 
 	void Cleanup();
 
@@ -29,9 +31,19 @@ private:
 
 	ID3DX11Effect				*m_pVoronoiEffect;
 	ID3DX11EffectTechnique		*m_pVoronoiDiagramTechnique;
+	ID3DX11EffectTechnique		*m_pFlatTo3DTexTechnique;
 
 	ID3D11InputLayout			*m_pInputLayout;
 
+	// Slices state
+	ID3D11InputLayout			*m_pSlicesLayout;
+	ID3D11Buffer                *m_pSlicesVB;
+
+	//  for flat 3D texture
+    int                         m_cols;
+    int                         m_rows;
+
+	//Shader variables
 	ID3DX11EffectMatrixVariable	*m_pModelViewProjectionVar;
 
 	ID3DX11EffectScalarVariable *m_pSliceIndexVar;
@@ -40,6 +52,7 @@ private:
 	ID3DX11EffectVectorVariable *m_pBBMinVar;
 	ID3DX11EffectVectorVariable *m_pBBMaxVar;
 
+	//Textures, RTVs and DSV
 	ID3D11Texture3D				*m_pDestColorTex3D;
 	ID3D11Texture3D				*m_pDestDistTex3D;
 	ID3D11Texture2D				*m_pDepthStencil;
