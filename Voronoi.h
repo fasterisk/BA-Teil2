@@ -17,7 +17,7 @@ public:
 private:
 	//Methods
 	HRESULT Initialize();
-	HRESULT InitDepthStencil2D();
+	HRESULT InitFlatTextures();
 	HRESULT InitRendertargets3D();
 	HRESULT InitShaders();
 	HRESULT InitSlices();
@@ -55,9 +55,15 @@ private:
 	//Textures, RTVs and DSV
 	ID3D11Texture3D				*m_pDestColorTex3D;
 	ID3D11Texture3D				*m_pDestDistTex3D;
+	ID3D11Texture2D				*m_pFlatColorTex;
+	ID3D11Texture2D				*m_pFlatDistTex;
 	ID3D11Texture2D				*m_pDepthStencil;
 	ID3D11RenderTargetView		*m_pDestColorTex3DRTV;
 	ID3D11RenderTargetView		*m_pDestDistTex3DRTV;
+	ID3D11RenderTargetView		*m_pFlatColorTexRTV;
+	ID3D11RenderTargetView		*m_pFlatDistTexRTV;
+	ID3D11ShaderResourceView	*m_pFlatColorTexSRV;
+	ID3D11ShaderResourceView	*m_pFlatDistTexSRV;
 	ID3D11DepthStencilView		*m_pDepthStencilView;
 	
 	int							m_iTextureWidth;
