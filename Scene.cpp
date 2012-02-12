@@ -246,9 +246,9 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 
 	m_pVoronoi->RenderVoronoi(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
 
-	//m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
+	m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
 	
-	m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3D2SRV);
+	m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3D1SRV);
 
 	//m_pSurface1->Render(mViewProjection);
 	//m_pSurface2->Render(mViewProjection);

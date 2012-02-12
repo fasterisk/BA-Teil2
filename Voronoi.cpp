@@ -72,6 +72,8 @@ HRESULT Voronoi::Initialize()
 	assert(m_pd3dDevice);
 	assert(m_pd3dImmediateContext);
 
+	//Initialize Techniques and Shadervariables
+	V_RETURN(InitShaders());
 
 	//Initialize Rendertargets for the 3D Textures -- needs to happen before depth stencil initialization
 	// because m_iTextureWidth etc. are initialized in InitRendertargets3D
@@ -82,8 +84,9 @@ HRESULT Voronoi::Initialize()
 	//Initialize Flat Textures, their RTVs and SRV; initialize DepthStencil
 	V_RETURN(InitFlatTextures());
 
-	//Initialize Techniques and Shadervariables
-	V_RETURN(InitShaders());
+	//Initialize Slices
+	V_RETURN(InitSlices());
+	
 	
 	return S_OK;
 }
@@ -139,8 +142,8 @@ HRESULT Voronoi::InitFlatTextures()
 
 	//create depth stencil texture and its RTV
 	D3D11_TEXTURE2D_DESC dsTexDesc;
-	dsTexDesc.Width = m_iTextureWidth;
-	dsTexDesc.Height = m_iTextureHeight;
+	dsTexDesc.Width = m_iTextureWidth * m_cols;
+	dsTexDesc.Height = m_iTextureHeight * m_rows;
 	dsTexDesc.MipLevels = 1;
 	dsTexDesc.ArraySize = 1;
 	dsTexDesc.Format = DXGI_FORMAT_D32_FLOAT;
@@ -184,7 +187,7 @@ HRESULT Voronoi::InitRendertargets3D()
 	descDT3DRTV.Texture3D.MipSlice = 0;
 	descDT3DRTV.Texture3D.FirstWSlice = 0;
 	descDT3DRTV.Texture3D.WSize = descDistTex3D.Depth;
-	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pDestDistTex3D, &descCT3DRTV, &m_pDestDistTex3DRTV));
+	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pDestDistTex3D, &descDT3DRTV, &m_pDestDistTex3DRTV));
 
 	m_iTextureWidth = descColorTex3D.Width;
 	m_iTextureHeight = descColorTex3D.Height;
@@ -202,12 +205,15 @@ HRESULT Voronoi::InitShaders()
 
 	// Get Technique and variables
 	m_pVoronoiDiagramTechnique	= m_pVoronoiEffect->GetTechniqueByName("GenerateVoronoiDiagram");
+	m_pFlatTo3DTexTechnique		= m_pVoronoiEffect->GetTechniqueByName("Flat2DTextureTo3D");
 
 	m_pModelViewProjectionVar	= m_pVoronoiEffect->GetVariableByName("ModelViewProjectionMatrix")->AsMatrix();
 	m_pSliceIndexVar			= m_pVoronoiEffect->GetVariableByName("iSliceIndex")->AsScalar();
 	m_pTextureDepthVar			= m_pVoronoiEffect->GetVariableByName("iTextureDepth")->AsScalar();
 	m_pBBMinVar					= m_pVoronoiEffect->GetVariableByName("vBBMin")->AsVector();
 	m_pBBMaxVar					= m_pVoronoiEffect->GetVariableByName("vBBMax")->AsVector();
+	m_pFlatColorTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatColorTexture")->AsShaderResource();
+	m_pFlatDistTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatDistTexture")->AsShaderResource();
 
 	assert(m_pVoronoiDiagramTechnique);
 	assert(m_pModelViewProjectionVar);
@@ -215,6 +221,8 @@ HRESULT Voronoi::InitShaders()
 	assert(m_pTextureDepthVar);
 	assert(m_pBBMinVar);
 	assert(m_pBBMaxVar);
+	assert(m_pFlatColorTex2DSRVar);
+	assert(m_pFlatDistTex2DSRVar);
 
 	//Create InputLayout
 	D3DX11_PASS_SHADER_DESC passVsDesc;
@@ -313,6 +321,15 @@ HRESULT Voronoi::InitSlices()
 
 HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 {
+	HRESULT hr(S_OK);
+
+	//store the old render targets and viewports
+    ID3D11RenderTargetView* pOldRTV = DXUTGetD3D11RenderTargetView();
+    ID3D11DepthStencilView* pOldDSV = DXUTGetD3D11DepthStencilView();
+	UINT NumViewports = 1;
+	D3D11_VIEWPORT pViewports[100];
+	m_pd3dImmediateContext->RSGetViewports( &NumViewports, &pViewports[0]);
+
 	D3DXMATRIX orth, model1Orth, model2Orth;
 
 	// generate orth. matrix with bounding parameters
@@ -327,40 +344,74 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 
 	assert(vBBMinOrth);
 	assert(vBBMaxOrth);
-
+	
+	//1. Set Variables needed for Voronoi Diagram Computation
 	m_pBBMinVar->SetFloatVector(vBBMinOrth);
 	m_pBBMaxVar->SetFloatVector(vBBMaxOrth);
 	m_pTextureDepthVar->SetFloat((float)m_iTextureDepth);
 
-	
+	ID3D11RenderTargetView* destFlatTex2DRTVs[2];
+	destFlatTex2DRTVs[0] = m_pFlatColorTexRTV;
+	destFlatTex2DRTVs[1] = m_pFlatDistTexRTV;
+
+	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
+
 
 	int x, y;
-	int sliceIndex = 64;//choose a slice in the middle of the texture to check if a single slice is calculated the right way
-	//for(int sliceIndex = 0; sliceIndex < m_iTextureDepth; z++)
-	//{
+	//int sliceIndex = 64;//choose a slice in the middle of the texture to check if a single slice is calculated the right way
+	for(int sliceIndex = 0; sliceIndex < m_iTextureDepth; sliceIndex++)
+	{
 		// compute x and y coordinates for the TOP-LEFT corner of the slice in the flat 3D texture
-        x = (sliceIndex % m_cols) * m_iTextureWidth;
-        y = (sliceIndex / m_cols) * m_iTextureHeight;
+		x = (sliceIndex % m_cols) * m_iTextureWidth;
+		y = (sliceIndex / m_cols) * m_iTextureHeight;
 
-        // set viewport and scissor to match the size of single slice
-        D3D11_VIEWPORT viewport = { float(x), float(y), float(m_iTextureWidth), float(m_iTextureDepth), 0.0f, 1.0f };
-        m_pd3dImmediateContext->RSSetViewports(1, &viewport);
-        D3D11_RECT scissorRect = { x, y, x+m_iTextureWidth, y+m_iTextureHeight};
-        m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect);
+		// set viewport and scissor to match the size of single slice
+		D3D11_VIEWPORT viewport = { float(x), float(y), float(m_iTextureWidth), float(m_iTextureDepth), 0.0f, 1.0f };
+		m_pd3dImmediateContext->RSSetViewports(1, &viewport);
+		D3D11_RECT scissorRect = { x, y, x+m_iTextureWidth, y+m_iTextureHeight};
+		m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect);
 
-		m_pSliceIndexVar->SetInt(sliceIndex);
+		//2. Set Flat Textures and depthstencilview as rendertargets
+		m_pd3dImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
+		m_pd3dImmediateContext->OMSetRenderTargets(2, destFlatTex2DRTVs, m_pDepthStencilView);
+		
+		
+		
+		
+
+		V_RETURN(m_pSliceIndexVar->SetInt(sliceIndex));
+		
+		//3. Render to flat textures
 		m_pModelViewProjectionVar->SetMatrix(model1Orth);
 		pSurface1->Render(m_pVoronoiDiagramTechnique);
 		m_pModelViewProjectionVar->SetMatrix(model2Orth);
 		pSurface2->Render(m_pVoronoiDiagramTechnique);
 
-	//}
+	}
+	
+	//4. Set Flat Textures as Variables in Voronoi Shader
+	V_RETURN(m_pFlatColorTex2DSRVar->SetResource(m_pFlatColorTexSRV));
+	V_RETURN(m_pFlatDistTex2DSRVar->SetResource(m_pFlatDistTexSRV));
 
-	//Create render target array
+	//5. Set 3D Textures as RenderTargets
 	ID3D11RenderTargetView* destTex3DRTVs[2];
 	destTex3DRTVs[0] = m_pDestColorTex3DRTV;
 	destTex3DRTVs[1] = m_pDestDistTex3DRTV;
 	m_pd3dImmediateContext->OMSetRenderTargets(2, destTex3DRTVs, NULL);
+
+	//6. Render Flat Textures to 3D Textures
+	V_RETURN(m_pFlatTo3DTexTechnique->GetPassByIndex(0)->Apply(0, m_pd3dImmediateContext));
+
+	// Set viewport and scissor to match the size of a single slice 
+	/*D3D11_VIEWPORT viewport = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight), 0.0f, 1.0f };
+    m_pd3dImmediateContext->RSSetViewports(1, &viewport);
+	D3D11_RECT scissorRect = { 0, 0, m_iTextureWidth, m_iTextureHeight};
+    m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect);*/
+	DrawSlices();
+	
+	//restore old render targets
+	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
+	m_pd3dImmediateContext->RSSetViewports( NumViewports, &pViewports[0]);
 
 	return S_OK;
 }

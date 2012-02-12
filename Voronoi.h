@@ -44,13 +44,16 @@ private:
     int                         m_rows;
 
 	//Shader variables
-	ID3DX11EffectMatrixVariable	*m_pModelViewProjectionVar;
+	ID3DX11EffectMatrixVariable				*m_pModelViewProjectionVar;
 
-	ID3DX11EffectScalarVariable *m_pSliceIndexVar;
-	ID3DX11EffectScalarVariable *m_pTextureDepthVar;
+	ID3DX11EffectScalarVariable				*m_pSliceIndexVar;
+	ID3DX11EffectScalarVariable				*m_pTextureDepthVar;
 
-	ID3DX11EffectVectorVariable *m_pBBMinVar;
-	ID3DX11EffectVectorVariable *m_pBBMaxVar;
+	ID3DX11EffectVectorVariable				*m_pBBMinVar;
+	ID3DX11EffectVectorVariable				*m_pBBMaxVar;
+
+	ID3DX11EffectShaderResourceVariable		*m_pFlatColorTex2DSRVar;
+	ID3DX11EffectShaderResourceVariable		*m_pFlatDistTex2DSRVar;
 
 	//Textures, RTVs and DSV
 	ID3D11Texture3D				*m_pDestColorTex3D;

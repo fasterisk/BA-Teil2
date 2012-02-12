@@ -370,7 +370,15 @@ HRESULT Voxelizer::DoVoxelization(void)
 HRESULT Voxelizer::StencilClipVolume(void)
 {
     HRESULT hr(S_OK);
-    int x, y;
+    
+	//store the old render targets and viewports
+    ID3D11RenderTargetView* pOldRTV = DXUTGetD3D11RenderTargetView();
+    ID3D11DepthStencilView* pOldDSV = DXUTGetD3D11DepthStencilView();
+	UINT NumViewports = 1;
+	D3D11_VIEWPORT pViewports[100];
+	m_pd3dImmediateContext->RSGetViewports( &NumViewports, &pViewports[0]);
+	
+	int x, y;
 
     assert(m_initialized);
     
@@ -412,7 +420,11 @@ HRESULT Voxelizer::StencilClipVolume(void)
     DrawSlices();
 
     V_RETURN(m_pDSTex2DSRVar->SetResource(NULL));
-    m_pd3dImmediateContext->OMSetRenderTargets(0, NULL, NULL );
+    
+	//restore old render targets
+	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
+	m_pd3dImmediateContext->RSSetViewports( NumViewports, &pViewports[0]);
+
 
     return hr;
 }
