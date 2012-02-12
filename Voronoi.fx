@@ -16,11 +16,11 @@ int iTextureDepth;
 // Sampler
 //--------------------------------------------------------------------------------------
 
-SamplerState linearSamplerClamp
+SamplerState linearSamplerBorder
 {
 	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = Clamp;
-	AddressV = Clamp;
+	AddressU = Border;
+	AddressV = Border;
 };
 
 //--------------------------------------------------------------------------------------
@@ -62,15 +62,22 @@ DepthStencilState DSS_NonZeroRule
     
 };
 
+DepthStencilState EnableDepth
+{
+    DepthEnable = TRUE;
+    DepthWriteMask = ALL;
+    DepthFunc = LESS_EQUAL;
+};
+
 DepthStencilState DSS_Disabled
 {
     DepthEnable = FALSE;
     DepthWriteMask = ZERO;
     
     //stencil
-    StencilEnable = FALSE;
-    StencilReadMask = 0x00;
-    StencilWriteMask = 0x00;
+    //StencilEnable = FALSE;
+    //StencilReadMask = 0x00;
+    //StencilWriteMask = 0x00;
 };
 
 //--------------------------------------------------------------------------------------
@@ -100,7 +107,7 @@ struct GS_VORONOI_OUTPUT
 struct PS_VORONOI_OUTPUT
 {
 	float4 color : SV_Target0;
-	float4 dist	 : SV_Target1;
+//	float4 dist	 : SV_Target1;
 };
 
 struct VS_RESOLVE_INPUT
@@ -117,7 +124,7 @@ struct GS_RESOLVE_INPUT
 
 struct GS_RESOLVE_OUTPUT
 {
-	float4 pos : SV_POSITION;
+	float4 pos : SV_Position;
 	float3 tex : TEXCOORD;
 	uint RTIndex : SV_RenderTargetArrayIndex;
 };
@@ -125,7 +132,7 @@ struct GS_RESOLVE_OUTPUT
 struct PS_RESOLVE_OUTPUT
 {
 	float4 color : SV_Target0;
-	float4 dist  : SV_Target1;
+//	float4 dist  : SV_Target1;
 };
 
 
@@ -291,15 +298,15 @@ PS_VORONOI_OUTPUT VoronoiPS(GS_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
 	output.color = input.color;
-	output.dist = input.color;
+	//output.dist = input.color;
 	return output;
 }
 
 PS_RESOLVE_OUTPUT ResolvePS(GS_RESOLVE_OUTPUT input)
 {
 	PS_RESOLVE_OUTPUT output;
-	output.color = flatColorTexture.SampleLevel(linearSamplerClamp, input.tex.xy, 0);
-	output.dist = flatDistTexture.SampleLevel(linearSamplerClamp, input.tex.xy, 0);
+	output.color = flatColorTexture.SampleLevel(linearSamplerBorder, input.tex.xy, 0);
+	//output.dist = flatDistTexture.SampleLevel(linearSamplerBorder, input.tex.xy, 0);
 	return output;
 }
 
@@ -316,7 +323,7 @@ technique10 GenerateVoronoiDiagram
 		SetPixelShader(CompileShader(ps_4_0, VoronoiPS()));
 		SetRasterizerState( RS_CullDisabled );
         SetBlendState( BS_NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
-        SetDepthStencilState( DSS_NonZeroRule, 0 );
+        SetDepthStencilState( EnableDepth, 0 );
 	}
 	/*pass P2
 	{
