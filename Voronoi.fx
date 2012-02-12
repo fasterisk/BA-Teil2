@@ -107,7 +107,7 @@ struct GS_VORONOI_OUTPUT
 struct PS_VORONOI_OUTPUT
 {
 	float4 color : SV_Target0;
-//	float4 dist	 : SV_Target1;
+	float4 dist	 : SV_Target1;
 };
 
 struct VS_RESOLVE_INPUT
@@ -132,7 +132,7 @@ struct GS_RESOLVE_OUTPUT
 struct PS_RESOLVE_OUTPUT
 {
 	float4 color : SV_Target0;
-//	float4 dist  : SV_Target1;
+	float4 dist  : SV_Target1;
 };
 
 
@@ -298,7 +298,7 @@ PS_VORONOI_OUTPUT VoronoiPS(GS_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
 	output.color = input.color;
-	//output.dist = input.color;
+	output.dist = input.color;
 	return output;
 }
 
@@ -306,7 +306,7 @@ PS_RESOLVE_OUTPUT ResolvePS(GS_RESOLVE_OUTPUT input)
 {
 	PS_RESOLVE_OUTPUT output;
 	output.color = flatColorTexture.SampleLevel(linearSamplerBorder, input.tex.xy, 0);
-	//output.dist = flatDistTexture.SampleLevel(linearSamplerBorder, input.tex.xy, 0);
+	output.dist = flatDistTexture.SampleLevel(linearSamplerBorder, input.tex.xy, 0);
 	return output;
 }
 

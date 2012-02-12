@@ -56,7 +56,7 @@ protected:
 	Voronoi*				m_pVoronoi;
 
 	// Voxelizer
-	//Voxelizer*				m_pVoxelizer;
+	Voxelizer*				m_pVoxelizer;
 
 	// VolumeRenderer
 	VolumeRenderer*			m_pVolumeRenderer;
@@ -67,12 +67,12 @@ protected:
 	ID3DX11Effect*					m_pSurfaceEffect;
 	ID3DX11Effect*					m_pVoronoiEffect;
 
-	//ID3D11Texture3D*				m_pTexture3D;
+	ID3D11Texture3D*				m_pTexture3D;
 	ID3D11Texture3D*				m_pVoronoi3D1;
-	//ID3D11Texture3D*				m_pVoronoi3D2;
-	//ID3D11ShaderResourceView*		m_pTexture3DSRV;
+	ID3D11Texture3D*				m_pVoronoi3D2;
+	ID3D11ShaderResourceView*		m_pTexture3DSRV;
 	ID3D11ShaderResourceView*		m_pVoronoi3D1SRV;
-	//ID3D11ShaderResourceView*		m_pVoronoi3D2SRV;
+	ID3D11ShaderResourceView*		m_pVoronoi3D2SRV;
 
 	VERTEX* m_pBBVertices;
 

@@ -9,10 +9,10 @@ Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateCon
 
 	m_pInputLayout = NULL;
 	m_pDestColorTex3D = NULL;
-	//m_pDestDistTex3D = NULL;
+	m_pDestDistTex3D = NULL;
 	m_pDepthStencil = NULL;
 	m_pDestColorTex3DRTV = NULL;
-	//m_pDestDistTex3DRTV = NULL;
+	m_pDestDistTex3DRTV = NULL;
 	m_pDepthStencilView = NULL;
 	m_iTextureWidth = 0;
 	m_iTextureHeight = 0;
@@ -22,9 +22,9 @@ Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateCon
 	m_pFlatColorTexRTV = NULL;
 	m_pFlatColorTexSRV = NULL;
 
-	//m_pFlatDistTex = NULL;
-	//m_pFlatDistTexRTV = NULL;
-	//m_pFlatDistTexSRV = NULL;
+	m_pFlatDistTex = NULL;
+	m_pFlatDistTexRTV = NULL;
+	m_pFlatDistTexSRV = NULL;
 
 	m_pSlicesLayout = NULL;
 	m_pSlicesVB = NULL;
@@ -38,15 +38,15 @@ Voronoi::~Voronoi()
 void Voronoi::Cleanup()
 {
 	SAFE_RELEASE(m_pDestColorTex3DRTV);
-	//SAFE_RELEASE(m_pDestDistTex3DRTV);
+	SAFE_RELEASE(m_pDestDistTex3DRTV);
 
 	SAFE_RELEASE(m_pFlatColorTex);
 	SAFE_RELEASE(m_pFlatColorTexRTV);
 	SAFE_RELEASE(m_pFlatColorTexSRV);
 
-	//SAFE_RELEASE(m_pFlatDistTex);
-	//SAFE_RELEASE(m_pFlatDistTexRTV);
-	//SAFE_RELEASE(m_pFlatDistTexSRV);
+	SAFE_RELEASE(m_pFlatDistTex);
+	SAFE_RELEASE(m_pFlatDistTexRTV);
+	SAFE_RELEASE(m_pFlatDistTexSRV);
 
 	SAFE_RELEASE(m_pDepthStencil);
 	SAFE_RELEASE(m_pDepthStencilView);
@@ -57,10 +57,10 @@ void Voronoi::Cleanup()
 	SAFE_RELEASE(m_pSlicesVB);
 }
 
-HRESULT Voronoi::SetDestination(ID3D11Texture3D *pDestColorTex3D)//, ID3D11Texture3D *pDestDistTex3D)
+HRESULT Voronoi::SetDestination(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3D *pDestDistTex3D)
 {
 	m_pDestColorTex3D = pDestColorTex3D;
-	//m_pDestDistTex3D = pDestDistTex3D;
+	m_pDestDistTex3D = pDestDistTex3D;
 
 	return Initialize();
 }
@@ -99,9 +99,9 @@ HRESULT Voronoi::InitFlatTextures()
 	SAFE_RELEASE(m_pFlatColorTexRTV);
 	SAFE_RELEASE(m_pFlatColorTexSRV);
 
-	//SAFE_RELEASE(m_pFlatDistTex);
-	//SAFE_RELEASE(m_pFlatDistTexRTV);
-	//SAFE_RELEASE(m_pFlatDistTexSRV);
+	SAFE_RELEASE(m_pFlatDistTex);
+	SAFE_RELEASE(m_pFlatDistTexRTV);
+	SAFE_RELEASE(m_pFlatDistTexSRV);
 
 	SAFE_RELEASE(m_pDepthStencil);
 	SAFE_RELEASE(m_pDepthStencilView);
@@ -120,7 +120,7 @@ HRESULT Voronoi::InitFlatTextures()
 	cdTexDesc.Height = m_iTextureHeight * m_rows;
 	cdTexDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	V_RETURN(m_pd3dDevice->CreateTexture2D(&cdTexDesc, NULL, &m_pFlatColorTex));
-	//V_RETURN(m_pd3dDevice->CreateTexture2D(&cdTexDesc, NULL, &m_pFlatDistTex));
+	V_RETURN(m_pd3dDevice->CreateTexture2D(&cdTexDesc, NULL, &m_pFlatDistTex));
 
 	//create RTVs for color and dist texture
 	D3D11_RENDER_TARGET_VIEW_DESC cdRTVDesc;
@@ -128,7 +128,7 @@ HRESULT Voronoi::InitFlatTextures()
 	cdRTVDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	cdRTVDesc.Texture2D.MipSlice = 0;
 	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pFlatColorTex, &cdRTVDesc, &m_pFlatColorTexRTV));
-	//V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pFlatDistTex, &cdRTVDesc, &m_pFlatDistTexRTV));
+	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pFlatDistTex, &cdRTVDesc, &m_pFlatDistTexRTV));
 
 	//create SRVs for color and dist texture
 	D3D11_SHADER_RESOURCE_VIEW_DESC cdSRVDesc;
@@ -138,7 +138,7 @@ HRESULT Voronoi::InitFlatTextures()
 	cdSRVDesc.Texture2D.MipLevels = 1;
 	cdSRVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pFlatColorTex, &cdSRVDesc, &m_pFlatColorTexSRV));
-	//V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pFlatDistTex, &cdSRVDesc, &m_pFlatDistTexSRV));
+	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pFlatDistTex, &cdSRVDesc, &m_pFlatDistTexSRV));
 
 	//create depth stencil texture and its RTV
 	D3D11_TEXTURE2D_DESC dsTexDesc;
@@ -164,10 +164,10 @@ HRESULT Voronoi::InitRendertargets3D()
 	HRESULT hr;
 
 	assert(m_pDestColorTex3D != NULL);
-	//assert(m_pDestDistTex3D != NULL);
+	assert(m_pDestDistTex3D != NULL);
 
 	SAFE_RELEASE(m_pDestColorTex3DRTV);
-	//SAFE_RELEASE(m_pDestDistTex3DRTV);
+	SAFE_RELEASE(m_pDestDistTex3DRTV);
 
 	D3D11_TEXTURE3D_DESC descColorTex3D;
 	m_pDestColorTex3D->GetDesc(&descColorTex3D);
@@ -179,7 +179,7 @@ HRESULT Voronoi::InitRendertargets3D()
 	descCT3DRTV.Texture3D.WSize = descColorTex3D.Depth;
 	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pDestColorTex3D, &descCT3DRTV, &m_pDestColorTex3DRTV));
 
-	/*D3D11_TEXTURE3D_DESC descDistTex3D;
+	D3D11_TEXTURE3D_DESC descDistTex3D;
 	m_pDestDistTex3D->GetDesc(&descDistTex3D);
 	D3D11_RENDER_TARGET_VIEW_DESC descDT3DRTV;
 	descDT3DRTV.Format = descDistTex3D.Format;
@@ -187,7 +187,7 @@ HRESULT Voronoi::InitRendertargets3D()
 	descDT3DRTV.Texture3D.MipSlice = 0;
 	descDT3DRTV.Texture3D.FirstWSlice = 0;
 	descDT3DRTV.Texture3D.WSize = descDistTex3D.Depth;
-	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pDestDistTex3D, &descDT3DRTV, &m_pDestDistTex3DRTV));*/
+	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pDestDistTex3D, &descDT3DRTV, &m_pDestDistTex3DRTV));
 
 	m_iTextureWidth = descColorTex3D.Width;
 	m_iTextureHeight = descColorTex3D.Height;
@@ -213,7 +213,7 @@ HRESULT Voronoi::InitShaders()
 	m_pBBMinVar					= m_pVoronoiEffect->GetVariableByName("vBBMin")->AsVector();
 	m_pBBMaxVar					= m_pVoronoiEffect->GetVariableByName("vBBMax")->AsVector();
 	m_pFlatColorTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatColorTexture")->AsShaderResource();
-	//m_pFlatDistTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatDistTexture")->AsShaderResource();
+	m_pFlatDistTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatDistTexture")->AsShaderResource();
 
 	assert(m_pVoronoiDiagramTechnique);
 	assert(m_pModelViewProjectionVar);
@@ -222,7 +222,7 @@ HRESULT Voronoi::InitShaders()
 	assert(m_pBBMinVar);
 	assert(m_pBBMaxVar);
 	assert(m_pFlatColorTex2DSRVar);
-	//assert(m_pFlatDistTex2DSRVar);
+	assert(m_pFlatDistTex2DSRVar);
 
 	//Create InputLayout
 	D3DX11_PASS_SHADER_DESC passVsDesc;
@@ -357,9 +357,9 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 	m_pBBMaxVar->SetFloatVector(vBBMaxOrth);
 	m_pTextureDepthVar->SetFloat((float)m_iTextureDepth);
 
-	/*ID3D11RenderTargetView* destFlatTex2DRTVs[2];
+	ID3D11RenderTargetView* destFlatTex2DRTVs[2];
 	destFlatTex2DRTVs[0] = m_pFlatColorTexRTV;
-	destFlatTex2DRTVs[1] = m_pFlatDistTexRTV;*/
+	destFlatTex2DRTVs[1] = m_pFlatDistTexRTV;
 
 	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
 
@@ -380,8 +380,8 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 
 		//2. Set Flat Textures and depthstencilview as rendertargets
 		m_pd3dImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
-		//m_pd3dImmediateContext->OMSetRenderTargets(2, destFlatTex2DRTVs, m_pDepthStencilView);
-		m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pFlatColorTexRTV, m_pDepthStencilView);
+		m_pd3dImmediateContext->OMSetRenderTargets(2, destFlatTex2DRTVs, m_pDepthStencilView);
+		//m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pFlatColorTexRTV, m_pDepthStencilView);
 
 		V_RETURN(m_pSliceIndexVar->SetInt(sliceIndex));
 		
@@ -395,14 +395,14 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 	
 	//4. Set Flat Textures as Variables in Voronoi Shader
 	V_RETURN(m_pFlatColorTex2DSRVar->SetResource(m_pFlatColorTexSRV));
-	//V_RETURN(m_pFlatDistTex2DSRVar->SetResource(m_pFlatDistTexSRV));
+	V_RETURN(m_pFlatDistTex2DSRVar->SetResource(m_pFlatDistTexSRV));
 
 	//5. Set 3D Textures as RenderTargets
-	/*ID3D11RenderTargetView* destTex3DRTVs[2];
+	ID3D11RenderTargetView* destTex3DRTVs[2];
 	destTex3DRTVs[0] = m_pDestColorTex3DRTV;
 	destTex3DRTVs[1] = m_pDestDistTex3DRTV;
-	m_pd3dImmediateContext->OMSetRenderTargets(2, destTex3DRTVs, NULL);*/
-	m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pDestColorTex3DRTV, NULL);
+	m_pd3dImmediateContext->OMSetRenderTargets(2, destTex3DRTVs, NULL);
+	//m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pDestColorTex3DRTV, NULL);
 	
 
 	//6. Render Flat Textures to 3D Textures
@@ -416,7 +416,7 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 	DrawSlices();
 
 	V_RETURN(m_pFlatColorTex2DSRVar->SetResource(NULL));
-	//V_RETURN(m_pFlatDistTex2DSRVar->SetResource(NULL));
+	V_RETURN(m_pFlatDistTex2DSRVar->SetResource(NULL));
 	
 	//restore old render targets
 	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
