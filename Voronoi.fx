@@ -64,9 +64,10 @@ DepthStencilState DSS_NonZeroRule
 
 DepthStencilState EnableDepth
 {
-    DepthEnable = TRUE;
-    DepthWriteMask = ALL;
-    DepthFunc = LESS_EQUAL;
+	DepthEnable = TRUE;
+	Depthfunc = LESS_EQUAL;
+	DepthWriteMask = ALL;
+	StencilEnable = FALSE;
 };
 
 DepthStencilState DSS_Disabled
@@ -170,59 +171,52 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 
 	float zBBDist = vBBMax.z - vBBMin.z;
 
-	float sliceDepth = ((float)iSliceIndex/(float)iTextureDepth)*zBBDist+vBBMin.z;
+	float sliceDepth = (iSliceIndex/(float)iTextureDepth)*zBBDist+vBBMin.z;
 		
 	// check if all points of the triangle have a higher/lower z value as the sliceindex-depth
 	if(input[0].pos.z < sliceDepth && input[1].pos.z < sliceDepth && input[2].pos.z < sliceDepth)
 	{
 		//calculate distance function as in paper
-		float3 normal = cross(input[0].pos.xyz, input[1].pos.xyz);
+		float3 normal = cross(input[1].pos.xyz, input[2].pos.xyz);
 		if(normal.z < 0)
 		{
 			normal = -normal;
 		}
 
-		if(normal.z == 0)
+		if(normal.z != 0)
 		{
-			tStream.RestartStrip();
+			normal /= normal.z;
+
+			for(int v = 0; v < 3; v++)
+			{
+				float distPosToSliceZ = sliceDepth - input[v].pos.z;
+				float3 normalToPosAtSlice =	normal*distPosToSliceZ;
+				output.pos = float4(input[v].pos.x+normalToPosAtSlice.x, input[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
+				output.color = input[v].color;
+				tStream.Append(output);
+			}
 		}
-
-		normal /= normal.z;
-
-		for(int v = 0; v < 3; v++)
-		{
-			float distPosToSliceZ = sliceDepth - input[v].pos.z;
-			float3 normalToPosAtSlice =	normal*distPosToSliceZ;
-			output.pos = float4(input[v].pos.x+normalToPosAtSlice.x, input[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
-			output.color = input[v].color;
-			tStream.Append(output);
-		}
-
-
-
 	}
 	else if(input[0].pos.z >= sliceDepth && input[1].pos.z >= sliceDepth && input[2].pos.z >= sliceDepth)
 	{
 		//calculate distance function as in paper
-		float3 normal = cross(input[0].pos.xyz, input[1].pos.xyz);
+		float3 normal = cross(input[1].pos.xyz, input[2].pos.xyz);
 		if(normal.z > 0)
 		{
 			normal = -normal;
 		}
-		if(normal.z == 0)
+		if(normal.z != 0)
 		{
-			tStream.RestartStrip();
-		}
-
-		normal /= normal.z;
-
-		for(int v = 0; v < 3; v++)
-		{
-			float distPosToSliceZ = input[v].pos.z - sliceDepth;
-			float3 normalToPosAtSlice =	normal*distPosToSliceZ;
-			output.pos = float4(input[v].pos.x+normalToPosAtSlice.x, input[v].pos.y+normalToPosAtSlice.y,  input[v].pos.z+normalToPosAtSlice.z, 1.0f);
-			output.color = input[v].color;
-			tStream.Append(output);
+			normal /= -normal.z;
+			
+			for(int v = 0; v < 3; v++)
+			{
+				float distPosToSliceZ = input[v].pos.z - sliceDepth;
+				float3 normalToPosAtSlice =	normal*distPosToSliceZ;
+				output.pos = float4(input[v].pos.x+normalToPosAtSlice.x, input[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
+				output.color = input[v].color;
+				tStream.Append(output);
+			}
 		}
 	}
 	else
@@ -298,7 +292,7 @@ PS_VORONOI_OUTPUT VoronoiPS(GS_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
 	output.color = input.color;
-	output.dist = input.color;
+	output.dist = float4(input.pos.z, 0.0, 0.0, 1.0);//input.color;
 	return output;
 }
 
