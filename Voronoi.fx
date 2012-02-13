@@ -165,64 +165,69 @@ GS_RESOLVE_INPUT ResolveVS(VS_RESOLVE_INPUT input)
 [maxvertexcount(3)]
 void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VORONOI_OUTPUT> tStream)
 {
-	// Slice index as per frame variable
-	
 	GS_VORONOI_OUTPUT output;
 
+	//z-distance of the bounding box
 	float zBBDist = vBBMax.z - vBBMin.z;
 
+	//Calculate depth of the current slice
 	float sliceDepth = (iSliceIndex/(float)iTextureDepth)*zBBDist+vBBMin.z;
+	
+	//Calculate triangle normal
+	float3 v1 = input[2].pos.xyz - input[0].pos.xyz;
+	float3 v2 = input[1].pos.xyz - input[0].pos.xyz;
+	float3 normal = cross(v1, v2);
+
+	//check if normal is not parallel to the slice
+	if(normal.z == 0)
+		return;
 		
 	// check if all points of the triangle have a higher/lower z value as the sliceindex-depth
 	if(input[0].pos.z < sliceDepth && input[1].pos.z < sliceDepth && input[2].pos.z < sliceDepth)
 	{
-		//calculate distance function as in paper
-		float3 v1 = input[2].pos.xyz - input[0].pos.xyz;
-		float3 v2 = input[1].pos.xyz - input[0].pos.xyz;
-		float3 normal = cross(v1, v2);
+		//if normal is pointing away from the slice then invert it
 		if(normal.z < 0)
-		{
 			normal = -normal;
-		}
-
-		if(normal.z != 0)
+		
+		//normalize the normal for the z-value, so we can easily
+		//compute the distance-normal vector between the point
+		//and the slice
+		normal /= normal.z;
+		
+		for(int v = 0; v < 3; v++)
 		{
-			normal /= normal.z;
-
-			for(int v = 0; v < 3; v++)
-			{
-				float distPosToSliceZ = sliceDepth - input[v].pos.z;
-				float3 normalToPosAtSlice =	normal*distPosToSliceZ;
-				output.pos = float4(input[v].pos.x+normalToPosAtSlice.x, input[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
-				output.color = input[v].color;
-				output.dist = float4(output.pos.z, 0.0, 0.0, 1.0);
-				tStream.Append(output);
-			}
+			//distance of the point to the slice
+			float distPosToSliceZ = sliceDepth - input[v].pos.z;
+		
+			//distance-normal between point of the triangle and slice
+			float3 normalToPosAtSlice =	normal*distPosToSliceZ;
+			output.pos = float4(input[v].pos.x+normalToPosAtSlice.x, input[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
+			output.color = input[v].color;
+			output.dist = float4(output.pos.z, 0.0, 0.0, 1.0);
+			tStream.Append(output);
 		}
 	}
 	else if(input[0].pos.z >= sliceDepth && input[1].pos.z >= sliceDepth && input[2].pos.z >= sliceDepth)
 	{
-		//calculate distance function as in paper
-		float3 v1 = input[2].pos.xyz - input[0].pos.xyz;
-		float3 v2 = input[1].pos.xyz - input[0].pos.xyz;
-		float3 normal = cross(v1, v2);
+		//if normal is pointing away from the slice then invert it
 		if(normal.z > 0)
-		{
 			normal = -normal;
-		}
-		if(normal.z != 0)
-		{
-			normal /= normal.z;
+		
+		normal /= -normal.z;//normal points in negative z-direction so we have to
+							//divide by negative z so we dont change the direction
+							//of the normal
 			
-			for(int v = 0; v < 3; v++)
-			{
-				float distPosToSliceZ = sliceDepth - input[v].pos.z;
-				float3 normalToPosAtSlice =	normal*distPosToSliceZ;
-				output.pos = float4(input[v].pos.x+normalToPosAtSlice.x, input[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
-				output.color = input[v].color;
-				output.dist = float4(0.0, output.pos.z, 0.0, 1.0);
-				tStream.Append(output);
-			}
+		for(int v = 0; v < 3; v++)
+		{
+			//distance of the point to the slice
+			float distPosToSliceZ = input[v].pos.z - sliceDepth;
+
+			//distance-normal between point of the triangle and slice
+			float3 normalToPosAtSlice =	normal*distPosToSliceZ;
+			output.pos = float4(input[v].pos.x+normalToPosAtSlice.x, input[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
+			output.color = input[v].color;
+			output.dist = float4(0.0, output.pos.z, 0.0, 1.0);
+			tStream.Append(output);
 		}
 	}
 	else
