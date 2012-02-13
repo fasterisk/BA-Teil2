@@ -121,7 +121,7 @@ HRESULT Scene::UpdateBoundingBox()
 
 	m_pBBVertices = new VERTEX[8];
 	D3DXVECTOR4 min, max;
-	for(int i = 0; i < m_pSurface1->m_vNum; i++)
+	for(int i = 0; i < m_pSurface1->m_iNumVertices; i++)
 	{
 		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface1->m_pVertices[i].pos.x, 
 									   m_pSurface1->m_pVertices[i].pos.y, 
@@ -152,7 +152,7 @@ HRESULT Scene::UpdateBoundingBox()
 			max.z = temp.z;
 	}
 
-	for(int i = 0; i < m_pSurface2->m_vNum; i++)
+	for(int i = 0; i < m_pSurface2->m_iNumVertices; i++)
 	{
 		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface2->m_pVertices[i].pos.x,
 									   m_pSurface2->m_pVertices[i].pos.y, 
@@ -246,7 +246,7 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 
 	m_pVoronoi->RenderVoronoi(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
 
-	m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
+	//m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
 	
 	m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3D1SRV);
 

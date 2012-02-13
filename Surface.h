@@ -8,10 +8,10 @@ public:
 	Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pSurfaceEffect);
 	~Surface();
 	
-	int m_vNum;
+	int m_iNumVertices;
 	VERTEX *m_pVertices;
 
-	int m_iNum;
+	int m_iNumIndices;
 	unsigned int *m_pIndices;
 
 	D3DXMATRIX m_mModel;

@@ -80,7 +80,7 @@ void Surface::Scale(float fFactor)
 
 void Surface::SetColor(float fR, float fG, float fB)
 {
-	for(int i = 0; i < m_vNum; i++)
+	for(int i = 0; i < m_iNumVertices; i++)
 	{
 		m_pVertices[i].color = D3DXCOLOR(fR, fG, fB, 1.0);
 	}
@@ -141,7 +141,7 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 		m_pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 				
 		//draw
-		m_pd3dImmediateContext->DrawIndexed(36, 0, 0);
+		m_pd3dImmediateContext->DrawIndexed(m_iNumIndices, 0, 0);
 	}
 }
 
@@ -162,7 +162,7 @@ void Surface::Render(ID3DX11EffectTechnique* pTechnique)
 		pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 
 		//draw
-		m_pd3dImmediateContext->DrawIndexed( 36, 0, 0 );
+		m_pd3dImmediateContext->DrawIndexed( m_iNumIndices, 0, 0 );
 	}
 }
 
@@ -182,7 +182,7 @@ HRESULT Surface::InitBuffers()
 	D3D11_BUFFER_DESC vbd;
 	ZeroMemory(&vbd, sizeof(vbd));
 	vbd.Usage = D3D11_USAGE_DYNAMIC;
-	vbd.ByteWidth = sizeof(VERTEX) * m_vNum;
+	vbd.ByteWidth = sizeof(VERTEX) * m_iNumVertices;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	D3D11_SUBRESOURCE_DATA vertexData;
@@ -195,7 +195,7 @@ HRESULT Surface::InitBuffers()
 	D3D11_BUFFER_DESC ibd;
 	ZeroMemory(&ibd, sizeof(ibd));
 	ibd.Usage = D3D11_USAGE_DYNAMIC;
-	ibd.ByteWidth = sizeof(unsigned int) * m_iNum;
+	ibd.ByteWidth = sizeof(unsigned int) * m_iNumIndices;
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	//ibd.MiscFlags = 0;
@@ -226,14 +226,14 @@ void Surface::ReadVectorFile(char *s)
 	while (!stringStartsWith(token, "nb_vertices="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
-	m_vNum = int(atof(token));
+	m_iNumVertices = int(atof(token));
 	while (!stringStartsWith(token, "nb_indices="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
-	m_iNum = int(atof(token));
+	m_iNumIndices = int(atof(token));
 	
-	m_pVertices = new VERTEX[m_vNum];
-	for(int i=0; i < m_vNum; i++)
+	m_pVertices = new VERTEX[m_iNumVertices];
+	for(int i=0; i < m_iNumVertices; i++)
 	{
 		while(!stringStartsWith(buff, "  <vertex "))
 			fgets(buff, 255, F);
@@ -253,8 +253,8 @@ void Surface::ReadVectorFile(char *s)
 		fgets(buff, 255, F);
 	}
 
-	m_pIndices = new unsigned int[m_iNum];
-	for(int i=0; i < m_iNum; i++)
+	m_pIndices = new unsigned int[m_iNumIndices];
+	for(int i=0; i < m_iNumIndices; i++)
 	{
 		while(!stringStartsWith(buff, "  <index "))
 			fgets(buff, 255, F);
@@ -284,7 +284,7 @@ void Surface::ReadVectorFile(char *s)
 	color.b = float(atof(token));
 	fgets(buff, 255, F);
 	
-	for(int i=0; i < m_vNum; i++)
+	for(int i=0; i < m_iNumVertices; i++)
 	{
 		m_pVertices[i].color = color;
 	}

@@ -24,6 +24,12 @@ RasterizerState CullBack
     CullMode = Back;
 };
 
+RasterizerState CullNone
+{
+	MultiSampleEnable = True;
+	CullMode = None;
+};
+
 RasterizerState Wireframe
 {
 	FillMode = WIREFRAME;
@@ -107,6 +113,17 @@ VsWOutput VS_WIREFRAME(VsInput input)
 }
 
 
+//test: geometry shader
+/*[maxvertexcount(3)]
+void TriangleGS( triangle VsOutput input[3], inout TriangleStream<VsOutput> tStream)
+{
+	VsOutput output;
+	for(int v = 0; v < 3; v++)
+	{
+		float3 normal
+	}
+}*/
+
 //--------------------------------------------------------------------------------------
 // Pixel Shaders
 //--------------------------------------------------------------------------------------
@@ -143,7 +160,7 @@ technique10 RenderColorAndDepth
 
 		SetBlendState(AlphaBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetDepthStencilState( WriteDepthTest, 0 );
-        SetRasterizerState( CullBack );
+        SetRasterizerState( CullNone );
     }
 
 	pass
