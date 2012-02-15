@@ -174,16 +174,20 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 	float sliceDepth = (iSliceIndex/(float)iTextureDepth)*zBBDist+vBBMin.z;
 	
 	//Calculate triangle normal
-	float3 v1 = input[2].pos.xyz - input[0].pos.xyz;
-	float3 v2 = input[1].pos.xyz - input[0].pos.xyz;
-	float3 normal = cross(v1, v2);
+	float4 v1 = input[2].pos - input[0].pos;
+	float4 v2 = input[1].pos - input[0].pos;
+	float3 normal = cross(v1.xyz, v2.xyz);
+
+	//assumed, that all 3 vertices have the same color
+	output.color = input[0].color;
+
 
 	//check if normal is not parallel to the slice
 	if(normal.z == 0)
 		return;
 		
 	// check if all points of the triangle have a higher/lower z value as the sliceindex-depth
-	if(input[0].pos.z < sliceDepth && input[1].pos.z < sliceDepth && input[2].pos.z < sliceDepth)
+	if(input[0].pos.z <= sliceDepth && input[1].pos.z <= sliceDepth && input[2].pos.z <= sliceDepth)
 	{
 		//if normal is pointing away from the slice then invert it
 		if(normal.z < 0)
@@ -202,7 +206,6 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 			//distance-normal between point of the triangle and slice
 			float3 normalToPosAtSlice =	normal*distPosToSliceZ;
 			output.pos = float4(input[v].pos.x+normalToPosAtSlice.x, input[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
-			output.color = input[v].color;
 			output.dist = float4(output.pos.z, 0.0, 0.0, 1.0);
 			tStream.Append(output);
 		}
@@ -225,7 +228,6 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 			//distance-normal between point of the triangle and slice
 			float3 normalToPosAtSlice =	normal*distPosToSliceZ;
 			output.pos = float4(input[v].pos.x+normalToPosAtSlice.x, input[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
-			output.color = input[v].color;
 			output.dist = float4(0.0, output.pos.z, 0.0, 1.0);
 			tStream.Append(output);
 		}
@@ -235,12 +237,28 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 		//divide polygon into 2 polygons, divided by the slice
 		//calculate distance function for each polygon
 
-		//for(int v = 0; v < 3; v++)
-		//{
-		//	output.position = input[v].position;
-		//	output.color = input[v].color;
-		//	tStream.Append(output);
-		//}
+		//case 1: the z-value of one point is the same as the depth of the slice
+		//result: 2 triangles
+		for(int v = 0; v < 3; v++)
+		{
+			if(input[v].pos.z == sliceDepth)
+			{
+				float4 v0 = input[v].pos;
+				v1 = input[(v+1)%3].pos;
+				v2 = input[(v+2)%3].pos;
+				float3 v3 = v2.xyz - v1.xyz;
+				v3 /= abs(v3.z);
+				float distToSlice = abs(sliceDepth - v1.z);
+				v3 *= distToSlice;//resulting in new vertex
+
+				//create 2 new polygons with
+				//v0, v1, v3    v0, v2, v3
+			}
+		}
+
+		//case 2: no point has a z-value equal to the slice depth
+		//result: 3 triangles
+
 	}
 	tStream.RestartStrip();
 }

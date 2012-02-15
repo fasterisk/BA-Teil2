@@ -32,9 +32,6 @@
     <ClInclude Include="VolumeRenderer.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Voxelizer.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Voronoi.h">
       <Filter>Headers</Filter>
     </ClInclude>
@@ -52,9 +49,6 @@
     <ClCompile Include="VolumetricDiffusion11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Voxelizer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Voronoi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,9 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="VolumeRenderer.fx">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Voxelizer.fx">
       <Filter>Shaders</Filter>
     </None>
     <None Include="Surface.fx">

@@ -55,22 +55,16 @@ protected:
 	// Voronoi Diagram Renderer
 	Voronoi*				m_pVoronoi;
 
-	// Voxelizer
-	Voxelizer*				m_pVoxelizer;
-
 	// VolumeRenderer
 	VolumeRenderer*			m_pVolumeRenderer;
 
 	// Effects and Techniques
 	ID3DX11Effect*					m_pVolumeRenderEffect;
-	ID3DX11Effect*					m_pVoxelizerEffect;
 	ID3DX11Effect*					m_pSurfaceEffect;
 	ID3DX11Effect*					m_pVoronoiEffect;
 
-	ID3D11Texture3D*				m_pTexture3D;
 	ID3D11Texture3D*				m_pVoronoi3D1;
 	ID3D11Texture3D*				m_pVoronoi3D2;
-	ID3D11ShaderResourceView*		m_pTexture3DSRV;
 	ID3D11ShaderResourceView*		m_pVoronoi3D1SRV;
 	ID3D11ShaderResourceView*		m_pVoronoi3D2SRV;
 

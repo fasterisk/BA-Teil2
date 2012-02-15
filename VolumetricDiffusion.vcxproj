@@ -393,7 +393,6 @@
     <ClInclude Include="Surface.h" />
     <ClInclude Include="VolumeRenderer.h" />
     <ClInclude Include="Voronoi.h" />
-    <ClInclude Include="Voxelizer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp" />
@@ -403,7 +402,6 @@
     </ClCompile>
     <ClCompile Include="VolumetricDiffusion11.cpp" />
     <ClCompile Include="Voronoi.cpp" />
-    <ClCompile Include="Voxelizer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VolumetricDiffusion.rc" />
@@ -412,7 +410,6 @@
     <None Include="Surface.fx" />
     <None Include="VolumeRenderer.fx" />
     <None Include="Voronoi.fx" />
-    <None Include="Voxelizer.fx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

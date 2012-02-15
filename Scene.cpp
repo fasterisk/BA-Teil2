@@ -4,7 +4,6 @@
 
 #include "Surface.h"
 #include "VolumeRenderer.h"
-#include "Voxelizer.h"
 #include "Voronoi.h"
 
 
@@ -14,12 +13,9 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_pd3dImmediateContext = pd3dImmediateContext;
 
 	m_pVolumeRenderEffect = NULL;
-	m_pVoxelizerEffect = NULL;
 	m_pSurfaceEffect = NULL;
-	m_pTexture3D = NULL;
 	m_pVoronoi3D1 = NULL;
 	m_pVoronoi3D2 = NULL;
-	m_pTexture3DSRV = NULL;
 	m_pVoronoi3D1SRV = NULL;
 	m_pVoronoi3D2SRV = NULL;
 	m_pBBVertices = NULL;
@@ -32,10 +28,8 @@ Scene::~Scene()
 	SAFE_RELEASE(m_pd3dImmediateContext);
 
 	SAFE_RELEASE(m_pVolumeRenderEffect);
-	SAFE_RELEASE(m_pVoxelizerEffect);
 	SAFE_RELEASE(m_pSurfaceEffect);
 	SAFE_RELEASE(m_pVoronoiEffect);
-	SAFE_DELETE(m_pVoxelizer);
 	SAFE_DELETE(m_pVoronoi);
 	SAFE_DELETE(m_pVolumeRenderer);
 
@@ -44,10 +38,8 @@ Scene::~Scene()
 	SAFE_DELETE(m_pSurface1);
 	SAFE_DELETE(m_pSurface2);
 	
-	SAFE_RELEASE(m_pTexture3D);
 	SAFE_RELEASE(m_pVoronoi3D1);
 	SAFE_RELEASE(m_pVoronoi3D2);
-	SAFE_RELEASE(m_pTexture3DSRV);
 	SAFE_RELEASE(m_pVoronoi3D1SRV);
 	SAFE_RELEASE(m_pVoronoi3D2SRV);
 }
@@ -66,9 +58,6 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"VolumeRenderer.fx"));
 	V_RETURN(CreateEffect(str, &m_pVolumeRenderEffect));
 
-	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Voxelizer.fx"));
-	V_RETURN(CreateEffect(str, &m_pVoxelizerEffect));
-
 	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Voronoi.fx"));
 	V_RETURN(CreateEffect(str, &m_pVoronoiEffect));
 
@@ -79,9 +68,6 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 
 	// Initialize Voronoi Diagram Renderer
 	m_pVoronoi = new Voronoi(m_pd3dDevice, m_pd3dImmediateContext, m_pVoronoiEffect);
-
-	// Initialize Voxelizer
-	m_pVoxelizer = new Voxelizer(m_pd3dDevice, m_pd3dImmediateContext, m_pVoxelizerEffect);
 
 	// Initialize VolumeRenderer
 	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
@@ -219,7 +205,6 @@ HRESULT Scene::UpdateBoundingBox()
 	
 	V_RETURN(Init3DTextures());
 	V_RETURN(m_pVoronoi->SetDestination(m_pVoronoi3D1, m_pVoronoi3D2));
-	V_RETURN(m_pVoxelizer->SetDestination(m_pTexture3D));
 	V_RETURN(m_pVolumeRenderer->Initialize(iTextureWidth, iTextureHeight, iTextureDepth));
 	return S_OK;
 }
@@ -246,8 +231,6 @@ void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneD
 
 	m_pVoronoi->RenderVoronoi(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
 
-	//m_pVoxelizer->Voxelize(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
-	
 	m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3D1SRV);
 
 	//m_pSurface1->Render(mViewProjection);
@@ -259,10 +242,8 @@ HRESULT Scene::Init3DTextures()
 {
 	HRESULT hr;
 
-	SAFE_RELEASE(m_pTexture3D);
 	SAFE_RELEASE(m_pVoronoi3D1);
 	SAFE_RELEASE(m_pVoronoi3D2);
-	SAFE_RELEASE(m_pTexture3DSRV);
 	SAFE_RELEASE(m_pVoronoi3D1SRV);
 	SAFE_RELEASE(m_pVoronoi3D2SRV);
 
@@ -277,7 +258,6 @@ HRESULT Scene::Init3DTextures()
 	desc.Depth = iTextureDepth;
 	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pTexture3D));
 	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pVoronoi3D1));
 	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pVoronoi3D2));
 
@@ -287,7 +267,6 @@ HRESULT Scene::Init3DTextures()
 	descSRV.Texture3D.MostDetailedMip = 0;
 	descSRV.Texture3D.MipLevels = 1;
 	descSRV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pTexture3D, &descSRV, &m_pTexture3DSRV));
 	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pVoronoi3D1, &descSRV, &m_pVoronoi3D1SRV));
 	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pVoronoi3D2, &descSRV, &m_pVoronoi3D2SRV));
 
