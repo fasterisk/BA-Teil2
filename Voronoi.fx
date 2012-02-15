@@ -253,11 +253,14 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 
 				//create 2 new polygons with
 				//v0, v1, v3    v0, v2, v3
+
+				//calculate distance function of both new triangles
 			}
 		}
 
 		//case 2: no point has a z-value equal to the slice depth
 		//result: 3 triangles
+		//use approach as in case 1
 
 	}
 	tStream.RestartStrip();

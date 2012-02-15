@@ -402,7 +402,6 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 	destTex3DRTVs[0] = m_pDestColorTex3DRTV;
 	destTex3DRTVs[1] = m_pDestDistTex3DRTV;
 	m_pd3dImmediateContext->OMSetRenderTargets(2, destTex3DRTVs, NULL);
-	//m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pDestColorTex3DRTV, NULL);
 	
 
 	//6. Render Flat Textures to 3D Textures
