@@ -34,6 +34,7 @@ protected:
 	HRESULT InitSurfaces();
 	HRESULT Init3DTextures();
 
+	bool initialized;
 
 	// Device
 	ID3D11Device*			m_pd3dDevice;
@@ -68,6 +69,7 @@ protected:
 	ID3D11ShaderResourceView*		m_pVoronoi3D1SRV;
 	ID3D11ShaderResourceView*		m_pVoronoi3D2SRV;
 
+	//Bounding Box vertices
 	VERTEX* m_pBBVertices;
 
 	// Shader and effect creation

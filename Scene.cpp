@@ -18,7 +18,8 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_pVoronoi3D2 = NULL;
 	m_pVoronoi3D1SRV = NULL;
 	m_pVoronoi3D2SRV = NULL;
-	m_pBBVertices = NULL;
+	m_pBBVertices = new VERTEX[8];
+	initialized = false;
 
 }
 
@@ -103,9 +104,6 @@ HRESULT Scene::UpdateBoundingBox()
 {
 	HRESULT hr;
 
-	SAFE_DELETE(m_pBBVertices);
-
-	m_pBBVertices = new VERTEX[8];
 	D3DXVECTOR4 min, max;
 	for(int i = 0; i < m_pSurface1->m_iNumVertices; i++)
 	{
@@ -164,9 +162,16 @@ HRESULT Scene::UpdateBoundingBox()
 			max.z = temp.z;
 	}
 
-	m_vMin = D3DXVECTOR3(min.x, min.y, min.z);
-	m_vMax = D3DXVECTOR3(max.x, max.y, max.z);
+	D3DXVECTOR3 vNewMin(min.x, min.y, min.z);
+	D3DXVECTOR3 vNewMax(max.x, max.y, max.z);
+
+	if(initialized && vNewMin == m_vMin && vNewMax == m_vMax)
+		return S_OK;
+
+	m_vMin = vNewMin;
+	m_vMax = vNewMax;
 	
+
 	m_pBBVertices[0].pos.x = m_vMin.x;
 	m_pBBVertices[0].pos.y = m_vMin.y;
 	m_pBBVertices[0].pos.z = m_vMin.z;
@@ -206,6 +211,10 @@ HRESULT Scene::UpdateBoundingBox()
 	V_RETURN(Init3DTextures());
 	V_RETURN(m_pVoronoi->SetDestination(m_pVoronoi3D1, m_pVoronoi3D2));
 	V_RETURN(m_pVolumeRenderer->Initialize(iTextureWidth, iTextureHeight, iTextureDepth));
+
+	if(!initialized)
+		initialized = true;
+
 	return S_OK;
 }
 
