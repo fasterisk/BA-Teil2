@@ -4,7 +4,8 @@ public:
 	VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect);
 	~VolumeRenderer();
 
-	HRESULT Initialize(int iWidth, int iHeight, int iDepth);
+	HRESULT Initialize();
+	HRESULT Update(int iWidth, int iHeight, int iDepth);
 	HRESULT SetScreenSize(int iWidth, int iHeight);
 
 	void Render(VERTEX* pBBVertices, D3DXVECTOR3 vMin, D3DXVECTOR3 vMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
@@ -55,7 +56,6 @@ private:
 	HRESULT InitBoundingIndicesAndLayout();
 	HRESULT CreateScreenQuad();
 	HRESULT UpdateBoundingVertices(VERTEX* BBVertices);
-	void InitTextureSize(int iWidth, int iHeight, int iDepth);
 	void DrawBoundingBox();
 	void DrawScreenQuad();
 };

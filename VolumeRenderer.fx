@@ -161,22 +161,6 @@ PsOutput PS_BB_POSITION(VsBBOutput input)
 	return output;
 }
 
-PsOutput PS_DIRECTION(VsSQOutput input)
-{
-	PsOutput output;
-	//float2 texC = input.texC.xy /= input.pos.w;
-	//texC.x =  0.5f*texC.x + 0.5f; 
-	//texC.y = -0.5f*texC.y + 0.5f;
-
-	float3 front = FrontTexture.Sample(linearSamplerClamp, input.texC).rgb;
-	float3 back = BackTexture.Sample(linearSamplerClamp, input.texC).rgb;
-
-//	output.color = front;
-//	output.color = float4(front, 1.0f);
-	output.color = float4(abs(back - front), 1.0f);
-	return output;
-}
-
 PsOutput PS_RAYCAST(VsSQOutput input)
 {
 
@@ -239,17 +223,6 @@ technique10 VolumeRendering
 
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullFront);
-		SetDepthStencilState( DisableDepth, 0 );
-	}
-
-	pass Direction
-	{
-		SetVertexShader(CompileShader(vs_4_0, VS_RAYCAST()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_4_0, PS_DIRECTION()));
-
-		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-		SetRasterizerState(CullBack);
 		SetDepthStencilState( DisableDepth, 0 );
 	}
 

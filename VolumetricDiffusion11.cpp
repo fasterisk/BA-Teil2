@@ -20,14 +20,12 @@ D3DXVECTOR3                 g_At = D3DXVECTOR3( 0.0f, 0.0f, 0.0f );
 D3DXVECTOR3                 g_Up = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
 
 // Global variables
-bool						g_useFire = false;;
 int							g_Width = 800;
 int							g_Height = 600;
 float						g_zNear = 0.1f;
 float						g_zFar = 100.0f;
 D3DXMATRIX					g_View;
 D3DXMATRIX					g_Proj;
-float						g_Fovy = D3DX_PI * 0.25f;
 
 ID3D11Texture2D*            g_pSceneDepthTex2D      = NULL;
 ID3D11Texture2D*            g_pSceneDepthTex2DNonMS = NULL;
@@ -477,10 +475,6 @@ HRESULT ReinitWindowSizeDependentRenderTargets(ID3D11Device* pd3dDevice)
     pRTVTex2D->GetDesc(&pRTVTex2DDesc);
     pRTVResource->Release();    
 
-    SAFE_RELEASE(g_pSceneDepthTex2DNonMS);
-    SAFE_RELEASE(g_pSceneDepthTex2D);
-    //SAFE_RELEASE(g_pSceneDepthRTV);
-    SAFE_RELEASE(g_pSceneDepthSRV);
 
     D3D11_TEXTURE2D_DESC desc;
     desc.ArraySize = 1;
@@ -495,41 +489,7 @@ HRESULT ReinitWindowSizeDependentRenderTargets(ID3D11Device* pd3dDevice)
     desc.Format = DXGI_FORMAT_R32_FLOAT;
     V_RETURN(pd3dDevice->CreateTexture2D(&desc,NULL,&g_pSceneDepthTex2D));
 
-    // We need a Non-Multisampled texture2D resource of the same dimensions to read from in shaders
-    if(pRTVTex2DDesc.SampleDesc.Count > 1)
-    {
-        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-        desc.SampleDesc.Count = 1;
-        desc.SampleDesc.Quality = 0;
-        V_RETURN(pd3dDevice->CreateTexture2D(&desc,NULL,&g_pSceneDepthTex2DNonMS));
-    }
-    else
-    {
-        g_pSceneDepthTex2DNonMS = g_pSceneDepthTex2D;
-        g_pSceneDepthTex2DNonMS->AddRef();
-    }
 
-    // Create the render target view for the potentially Multisampled texture2D resource
-    D3D11_RENDER_TARGET_VIEW_DESC descRTV;
-    descRTV.Format = DXGI_FORMAT_R32_FLOAT;
-    if( pRTVTex2DDesc.SampleDesc.Count <= 1 )
-    {
-        descRTV.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-        descRTV.Texture2D.MipSlice = 0;
-    }
-    else
-    {
-        descRTV.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
-    }
-    V_RETURN( pd3dDevice->CreateRenderTargetView( g_pSceneDepthTex2D, &descRTV, &g_pSceneDepthRTV ) );
-
-    // Create a shader resource view for a Non-MS texture
-    D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
-    descSRV.Format = DXGI_FORMAT_R32_FLOAT;
-    descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-    descSRV.Texture2D.MipLevels = 1;
-    descSRV.Texture2D.MostDetailedMip = 0;
-    V_RETURN( pd3dDevice->CreateShaderResourceView(g_pSceneDepthTex2DNonMS, &descSRV, &g_pSceneDepthSRV) );
 
     return S_OK;
 
@@ -587,7 +547,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	D3DXMATRIX mViewProjection;
 	D3DXMatrixMultiply(&mViewProjection, &g_View, &g_Proj);
 	
-	g_pScene->Render(pRTV, g_pSceneDepthRTV, pDSV, mViewProjection);
+	g_pScene->Render(mViewProjection);
 
 	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_HUD.OnRender( fElapsedTime );
@@ -618,8 +578,4 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
 
     SAFE_DELETE(g_pScene);
 
-	SAFE_RELEASE(g_pSceneDepthTex2D);
-	SAFE_RELEASE(g_pSceneDepthTex2DNonMS);
-	SAFE_RELEASE(g_pSceneDepthSRV);
-	//SAFE_RELEASE(g_pSceneDepthRTV);
 }

@@ -41,15 +41,27 @@ VolumeRenderer::~VolumeRenderer()
 	SAFE_RELEASE(m_pSQVertexBuffer);
 }
 
-HRESULT VolumeRenderer::Initialize(int iWidth, int iHeight, int iDepth)
+HRESULT VolumeRenderer::Initialize()
 {
 	HRESULT hr;
 	V_RETURN(InitShader());
 	V_RETURN(InitBoundingIndicesAndLayout());
 	V_RETURN(CreateScreenQuad());
+	return S_OK;
+}
 
-	InitTextureSize(iWidth, iHeight, iDepth);
-
+HRESULT VolumeRenderer::Update(int iWidth, int iHeight, int iDepth)
+{
+	HRESULT hr;
+	
+	float maxSize = (float)max(iWidth, max(iHeight, iDepth));
+	D3DXVECTOR3 vStepSize = D3DXVECTOR3(1.0f / (iWidth * (maxSize/iWidth)),
+										1.0f / (iHeight * (maxSize / iHeight)),
+										1.0f / (iDepth * (maxSize / iDepth)));
+	m_pStepSizeVar->SetFloatVector(vStepSize);
+	int iIterations = (int)maxSize;// * 2.0f;
+	m_pIterationsVar->SetInt(iIterations);
+	
 	return S_OK;
 }
 
@@ -147,14 +159,6 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vMin, D3DXVECTOR3 v
 	m_pBackTextureVar->SetResource(m_pBackSRV);
 	m_pVolumeTextureVar->SetResource(p3DTextureSRV);
 
-	//TEST
-	//ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
-    //ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
-	//m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
-	//m_pVolumeRenderTechnique->GetPassByName("Direction")->Apply(0, m_pd3dImmediateContext);
-	//DrawScreenQuad();
-	//ENDTEST
-
 	//Restore Rendertarget- and Depthstencilview
 	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
@@ -181,17 +185,6 @@ HRESULT VolumeRenderer::InitShader()
 	m_pMaxVar = m_pEffect->GetVariableByName("vBBMax")->AsVector();
 
 	return S_OK;
-}
-
-void VolumeRenderer::InitTextureSize(int iWidth, int iHeight, int iDepth)
-{
-	float maxSize = (float)max(iWidth, max(iHeight, iDepth));
-	D3DXVECTOR3 vStepSize = D3DXVECTOR3(1.0f / (iWidth * (maxSize/iWidth)),
-										1.0f / (iHeight * (maxSize / iHeight)),
-										1.0f / (iDepth * (maxSize / iDepth)));
-	m_pStepSizeVar->SetFloatVector(vStepSize);
-	int iIterations = (int)maxSize;// * 2.0f;
-	m_pIterationsVar->SetInt(iIterations);
 }
 
 HRESULT VolumeRenderer::InitBoundingIndicesAndLayout()
@@ -244,7 +237,7 @@ HRESULT VolumeRenderer::CreateScreenQuad()
 
 	//Create input layout
 	D3DX11_PASS_SHADER_DESC passVsDesc;
-	m_pVolumeRenderTechnique->GetPassByName("Direction")->GetVertexShaderDesc(&passVsDesc);
+	m_pVolumeRenderTechnique->GetPassByName("RayCast")->GetVertexShaderDesc(&passVsDesc);
 	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
 	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
 	const void *vsCodePtr = effectVsDesc.pBytecode;

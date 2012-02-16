@@ -14,7 +14,7 @@ public:
 	HRESULT SetScreenSize(int iWidth, int iHeight);
 	void UpdateTextureResolution(int iMaxRes);
 
-	void Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneDepthRT, ID3D11DepthStencilView* pDSV, D3DXMATRIX mViewProjection);
+	void Render(D3DXMATRIX mViewProjection);
 
 
 	void ChangeControlledSurface();

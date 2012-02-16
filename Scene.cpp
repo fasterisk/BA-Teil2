@@ -69,9 +69,11 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 
 	// Initialize Voronoi Diagram Renderer
 	m_pVoronoi = new Voronoi(m_pd3dDevice, m_pd3dImmediateContext, m_pVoronoiEffect);
+	V_RETURN(m_pVoronoi->Initialize());
 
 	// Initialize VolumeRenderer
 	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
+	V_RETURN(m_pVolumeRenderer->Initialize());
 
 	V_RETURN(InitSurfaces());
 	V_RETURN(UpdateBoundingBox());
@@ -210,7 +212,7 @@ HRESULT Scene::UpdateBoundingBox()
 	
 	V_RETURN(Init3DTextures());
 	V_RETURN(m_pVoronoi->SetDestination(m_pVoronoi3D1, m_pVoronoi3D2));
-	V_RETURN(m_pVolumeRenderer->Initialize(iTextureWidth, iTextureHeight, iTextureDepth));
+	V_RETURN(m_pVolumeRenderer->Update(iTextureWidth, iTextureHeight, iTextureDepth));
 
 	if(!initialized)
 		initialized = true;
@@ -234,7 +236,7 @@ void Scene::UpdateTextureResolution(int iMaxRes)
 	iTextureDepth = int(vDiff.z * iMaxRes + 0.5);
 }
 
-void Scene::Render(ID3D11RenderTargetView* pRTV, ID3D11RenderTargetView* pSceneDepthRTV, ID3D11DepthStencilView* pDSV, D3DXMATRIX mViewProjection)
+void Scene::Render(D3DXMATRIX mViewProjection)
 {
 	UpdateBoundingBox();
 

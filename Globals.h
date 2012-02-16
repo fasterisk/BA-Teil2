@@ -38,7 +38,6 @@ extern float		g_zNear;
 extern float		g_zFar;
 extern D3DXMATRIX	g_View;
 extern D3DXMATRIX	g_Proj;
-extern float        g_Fovy;
 
 #ifndef M_PI
 #define M_PI    3.14159265358979323846f

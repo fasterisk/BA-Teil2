@@ -57,23 +57,28 @@ void Voronoi::Cleanup()
 	SAFE_RELEASE(m_pSlicesVB);
 }
 
-HRESULT Voronoi::SetDestination(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3D *pDestDistTex3D)
-{
-	m_pDestColorTex3D = pDestColorTex3D;
-	m_pDestDistTex3D = pDestDistTex3D;
-
-	return Initialize();
-}
-
 HRESULT Voronoi::Initialize()
 {
-	HRESULT hr(S_OK);
+	HRESULT hr;
 
 	assert(m_pd3dDevice);
 	assert(m_pd3dImmediateContext);
 
 	//Initialize Techniques and Shadervariables
 	V_RETURN(InitShaders());
+}
+
+HRESULT Voronoi::SetDestination(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3D *pDestDistTex3D)
+{
+	m_pDestColorTex3D = pDestColorTex3D;
+	m_pDestDistTex3D = pDestDistTex3D;
+
+	return Update();
+}
+
+HRESULT Voronoi::Update()
+{
+	HRESULT hr(S_OK);
 
 	//Initialize Rendertargets for the 3D Textures -- needs to happen before depth stencil initialization
 	// because m_iTextureWidth etc. are initialized in InitRendertargets3D

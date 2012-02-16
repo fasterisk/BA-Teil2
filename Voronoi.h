@@ -9,6 +9,8 @@ class Voronoi
 public:
 	Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateContext, ID3DX11Effect *pVoronoiEffect);
 	virtual ~Voronoi();
+
+	HRESULT Initialize();
 	
 	HRESULT SetDestination(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3D *pDestDistTex3D);
 
@@ -16,7 +18,7 @@ public:
 
 private:
 	//Methods
-	HRESULT Initialize();
+	HRESULT Update();
 	HRESULT InitFlatTextures();
 	HRESULT InitRendertargets3D();
 	HRESULT InitShaders();
