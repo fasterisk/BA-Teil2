@@ -299,6 +299,11 @@ void Scene::Translate(float fX, float fY, float fZ)
 	m_pControlledSurface->Translate(fX, fY, fZ);
 }
 
+void Scene::Rotate(D3DXVECTOR3 axis, float fFactor)
+{
+	m_pControlledSurface->Rotate(axis, fFactor);
+}
+
 void Scene::RotateX(float fFactor)
 {
 	m_pControlledSurface->RotateX(fFactor);

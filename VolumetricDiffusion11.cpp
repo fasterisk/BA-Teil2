@@ -294,13 +294,17 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 		g_mouseY = iY;
 	}
 
+	const D3DXMATRIX* mView = g_Camera.GetViewMatrix();
+	D3DXVECTOR3 lookAt = D3DXVECTOR3(mView->_13, mView->_23,mView->_33);
+	D3DXVECTOR3 lookRight = D3DXVECTOR3(mView->_11, mView->_21,mView->_31);
+	D3DXVECTOR3 lookUp = D3DXVECTOR3(mView->_12, mView->_22,mView->_32);
 
 	if(g_bRotatesWithMouse)//Rotate&Scale object
 	{
 		if(bLeftDown)
 		{
-			g_pScene->RotateX((g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
-			g_pScene->RotateY((g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
+			g_pScene->Rotate(lookRight, (g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
+			g_pScene->Rotate(lookUp, (g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
 		}
 		
 		if(iWheelDelta>0)
@@ -310,10 +314,7 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	}
 	else//Move object
 	{
-		const D3DXMATRIX* mView = g_Camera.GetViewMatrix();
-		D3DXVECTOR3 lookAt = D3DXVECTOR3(mView->_13, mView->_23,mView->_33);
-		D3DXVECTOR3 lookRight = D3DXVECTOR3(mView->_11, mView->_21,mView->_31);
-		D3DXVECTOR3 lookUp = D3DXVECTOR3(mView->_12, mView->_22,mView->_32);
+		
 
 		if(bLeftDown)
 		{

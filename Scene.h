@@ -19,6 +19,7 @@ public:
 
 	void ChangeControlledSurface();
 	void Translate(float fX, float fY, float fZ);
+	void Rotate(D3DXVECTOR3 axis, float fFactor);
 	void RotateX(float fFactor);
 	void RotateY(float fFactor);
 	void Scale(float fFactor);
