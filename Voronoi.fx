@@ -136,6 +136,15 @@ struct PS_RESOLVE_OUTPUT
 	float4 dist  : SV_Target1;
 };
 
+//--------------------------------------------------------------------------------------
+// Helper Functions
+//--------------------------------------------------------------------------------------
+float4 interpolate(float4 p1, float4 p2, float sliceDepth)
+{
+	float zDist = p2.z - p1.z;
+	float zWeight = (sliceDepth - p1.z)/zDist;
+	return lerp(p1, p2, float4(zWeight, zWeight, zWeight, zWeight));
+}
 
 
 //--------------------------------------------------------------------------------------
@@ -209,6 +218,7 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 			output.dist = float4(output.pos.z, 0.0, 0.0, 1.0);
 			tStream.Append(output);
 		}
+		tStream.RestartStrip();
 	}
 	else if(input[0].pos.z >= sliceDepth && input[1].pos.z >= sliceDepth && input[2].pos.z >= sliceDepth)
 	{
@@ -231,6 +241,7 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 			output.dist = float4(0.0, output.pos.z, 0.0, 1.0);
 			tStream.Append(output);
 		}
+		tStream.RestartStrip();
 	}
 	else
 	{
@@ -239,6 +250,7 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 
 		//case 1: the z-value of one point is the same as the depth of the slice
 		//result: 2 triangles
+		//NOT SURE IF NEEDED
 		for(int v = 0; v < 3; v++)
 		{
 			if(input[v].pos.z == sliceDepth)
@@ -262,8 +274,90 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 		//result: 3 triangles
 		//use approach as in case 1
 
+		//calculate interpolated vectors and create the 3 triangles
+		if(input[0].pos.z < sliceDepth)
+		{
+			//case 2.3
+			if(input[1].pos.z < sliceDepth)
+			{
+				//interpolate between 0 and 2 and between 1 and 2
+				//float zDist02 = input[2].pos.z - input[0].pos.z;
+				//float zDist12 = input[2].pos.z - input[1].pos.z;
+				//float zWeight02 = (sliceDepth - input[0].pos.z)/zDist02;
+				//float zWeight12 = (sliceDepth - input[1].pos.z)/zDist12;
+				//interVec1 = lerp(input[0].pos, input[2].pos, float4(zWeight02, zWeight02, zWeight02, zWeight02));
+				//interVec2 = lerp(input[1].pos, input[2].pos, float4(zWeight12, zWeight12, zWeight12, zWeight12));
+				float4 interVec1 = interpolate(input[0].pos, input[2].pos, sliceDepth);
+				float4 interVec2 = interpolate(input[1].pos, input[2].pos, sliceDepth);
+
+				//triangle 1: 0,1,interVec1
+				//triangle 2: 1,iV1,iV2
+				//triangle 3: 2,iV1,iV2
+
+			}
+			//case 2.2
+			else if(input[2].pos.z < sliceDepth)
+			{
+				//interpolate between 0 and 1 and between 1 and 2
+				float4 interVec1 = interpolate(input[0].pos, input[1].pos, sliceDepth);
+				float4 interVec2 = interpolate(input[1].pos, input[2].pos, sliceDepth);
+
+				//triangle 1: 0,2,iV1
+				//triangle 2: 2,iV1,iV2
+				//triangle 3: 1,iV1,iV2
+			}
+			//case 1.1
+			else
+			{
+				//interpolate between 0 and 1 and between 0 and 2
+				float4 interVec1 = interpolate(input[0].pos, input[1].pos, sliceDepth);
+				float4 interVec2 = interpolate(input[0].pos, input[2].pos, sliceDepth);
+
+				//triangle 1: 1,2,iV2
+				//triangle 2: 1,iv1,iv2
+				//triangle 3: 0,iv1,iv2
+			}
+		}
+		else
+		{
+			//case 1.3
+			if(input[1].pos.z > sliceDepth)
+			{
+				//interpolate between 0 and 2 and between 1 and 2
+				float4 interVec1 = interpolate(input[0].pos, input[2].pos, sliceDepth);
+				float4 interVec2 = interpolate(input[1].pos, input[2].pos, sliceDepth);
+
+				//triangle 1: 0, iv1,iv2
+				//triangle 2: 0,1,iv2
+				//triangle 3: 2, iv1,iv2
+			}
+			//case 1.2
+			else if(input[2].pos.z > sliceDepth)
+			{
+				//interpolate between 0 and 1 and between 1 and 2
+				float4 interVec1 = interpolate(input[0].pos, input[1].pos, sliceDepth);
+				float4 interVec2 = interpolate(input[1].pos, input[2].pos, sliceDepth);
+
+				//triangle 1: 0, iv1, iv2
+				//triangle 2: 0,2,iv2
+				//triangle 3: 1,iv1,iv2
+			}
+			//case 2.1
+			else
+			{
+				//interpolate between 0 and 1 and between 0 and 2
+				float4 interVec1 = interpolate(input[0].pos, input[1].pos, sliceDepth);
+				float4 interVec2 = interpolate(input[0].pos, input[2].pos, sliceDepth);
+
+				//triangle 1: 0,iv1,iv2
+				//triangle 2: 1,2,iv1
+				//triangle 3: 2,iv1,iv2
+			}
+		}
+
+		//calculate distance mesh for all 3 triangles
 	}
-	tStream.RestartStrip();
+	
 }
 
 [maxvertexcount(2)]
