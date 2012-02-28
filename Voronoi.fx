@@ -147,6 +147,44 @@ float4 interpolate(float4 p1, float4 p2, float sliceDepth)
 }
 
 
+void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout TriangleStream<GS_VORONOI_OUTPUT> tStream, float sliceDepth, bool sliceDepthGreater)
+{
+	GS_VORONOI_OUTPUT output;
+	output.color = vertices[0].color;//assumed, that all 3 vertices have the same color
+
+	//Calculate triangle normal
+	float4 v1 = vertices[2].pos - vertices[0].pos;
+	float4 v2 = vertices[1].pos - vertices[0].pos;
+	float3 normal = cross(v1.xyz, v2.xyz);
+
+	//check if normal is not parallel to the slice
+	if(normal.z == 0)
+		return;
+
+	if((sliceDepthGreater && normal.z < 0)||(!sliceDepthGreater && normal.z > 0))
+		normal = -normal;
+	
+
+	//normalize the normal for the z-value, so we can easily
+	//compute the distance-normal vector between the point
+	//and the slice
+	normal /= normal.z;
+	
+	for(int v = 0; v < 3; v++)
+	{
+		//distance of the point to the slice
+		float distPosToSliceZ = sliceDepth - vertices[v].pos.z;
+	
+		//distance-normal between point of the triangle and slice
+		float3 normalToPosAtSlice =	normal*distPosToSliceZ;
+		output.pos = float4(vertices[v].pos.x+normalToPosAtSlice.x, vertices[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
+		output.dist = float4(output.pos.z, 0.0, 0.0, 1.0);
+		tStream.Append(output);
+	}
+	tStream.RestartStrip();
+}
+
+
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
@@ -174,7 +212,9 @@ GS_RESOLVE_INPUT ResolveVS(VS_RESOLVE_INPUT input)
 [maxvertexcount(3)]
 void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VORONOI_OUTPUT> tStream)
 {
-	GS_VORONOI_OUTPUT output;
+	GS_VORONOI_INPUT triangle1[3] = input;
+	
+	float4 v1,v2;
 
 	//z-distance of the bounding box
 	float zBBDist = vBBMax.z - vBBMin.z;
@@ -182,66 +222,15 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 	//Calculate depth of the current slice
 	float sliceDepth = (iSliceIndex/(float)iTextureDepth)*zBBDist+vBBMin.z;
 	
-	//Calculate triangle normal
-	float4 v1 = input[2].pos - input[0].pos;
-	float4 v2 = input[1].pos - input[0].pos;
-	float3 normal = cross(v1.xyz, v2.xyz);
 
-	//assumed, that all 3 vertices have the same color
-	output.color = input[0].color;
-
-
-	//check if normal is not parallel to the slice
-	if(normal.z == 0)
-		return;
-		
 	// check if all points of the triangle have a higher/lower z value as the sliceindex-depth
 	if(input[0].pos.z <= sliceDepth && input[1].pos.z <= sliceDepth && input[2].pos.z <= sliceDepth)
 	{
-		//if normal is pointing away from the slice then invert it
-		if(normal.z < 0)
-			normal = -normal;
-		
-		//normalize the normal for the z-value, so we can easily
-		//compute the distance-normal vector between the point
-		//and the slice
-		normal /= normal.z;
-		
-		for(int v = 0; v < 3; v++)
-		{
-			//distance of the point to the slice
-			float distPosToSliceZ = sliceDepth - input[v].pos.z;
-		
-			//distance-normal between point of the triangle and slice
-			float3 normalToPosAtSlice =	normal*distPosToSliceZ;
-			output.pos = float4(input[v].pos.x+normalToPosAtSlice.x, input[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
-			output.dist = float4(output.pos.z, 0.0, 0.0, 1.0);
-			tStream.Append(output);
-		}
-		tStream.RestartStrip();
+		TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 	}
 	else if(input[0].pos.z >= sliceDepth && input[1].pos.z >= sliceDepth && input[2].pos.z >= sliceDepth)
 	{
-		//if normal is pointing away from the slice then invert it
-		if(normal.z > 0)
-			normal = -normal;
-		
-		normal /= -normal.z;//normal points in negative z-direction so we have to
-							//divide by negative z so we dont change the direction
-							//of the normal
-			
-		for(int v = 0; v < 3; v++)
-		{
-			//distance of the point to the slice
-			float distPosToSliceZ = input[v].pos.z - sliceDepth;
-
-			//distance-normal between point of the triangle and slice
-			float3 normalToPosAtSlice =	normal*distPosToSliceZ;
-			output.pos = float4(input[v].pos.x+normalToPosAtSlice.x, input[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
-			output.dist = float4(0.0, output.pos.z, 0.0, 1.0);
-			tStream.Append(output);
-		}
-		tStream.RestartStrip();
+		TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 	}
 	else
 	{
@@ -258,15 +247,24 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				float4 v0 = input[v].pos;
 				v1 = input[(v+1)%3].pos;
 				v2 = input[(v+2)%3].pos;
-				float3 v3 = v2.xyz - v1.xyz;
+				float4 v3 = v2 - v1;
 				v3 /= abs(v3.z);
 				float distToSlice = abs(sliceDepth - v1.z);
 				v3 *= distToSlice;//resulting in new vertex
+				v3.w = 1.0f;
+				
 
 				//create 2 new polygons with
 				//v0, v1, v3    v0, v2, v3
+				triangle1[0].pos = v0;
+				triangle1[1].pos = v1;
+				triangle1[2].pos = v3;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, v1.z < sliceDepth);
 
-				//calculate distance function of both new triangles
+				triangle1[0].pos = v0;
+				triangle1[1].pos = v2;
+				triangle1[2].pos = v3;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, v2.z < sliceDepth);
 			}
 		}
 
@@ -291,8 +289,20 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				float4 interVec2 = interpolate(input[1].pos, input[2].pos, sliceDepth);
 
 				//triangle 1: 0,1,interVec1
+				triangle1[0].pos = input[0].pos;
+				triangle1[1].pos = input[1].pos;
+				triangle1[2].pos = interVec1;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 				//triangle 2: 1,iV1,iV2
+				triangle1[0].pos = input[1].pos;
+				triangle1[1].pos = interVec1;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 				//triangle 3: 2,iV1,iV2
+				triangle1[0].pos = input[2].pos;
+				triangle1[1].pos = interVec1;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 
 			}
 			//case 2.2
@@ -303,8 +313,20 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				float4 interVec2 = interpolate(input[1].pos, input[2].pos, sliceDepth);
 
 				//triangle 1: 0,2,iV1
+				triangle1[0].pos = input[0].pos;
+				triangle1[1].pos = input[2].pos;
+				triangle1[2].pos = interVec1;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 				//triangle 2: 2,iV1,iV2
+				triangle1[0].pos = input[2].pos;
+				triangle1[1].pos = interVec1;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 				//triangle 3: 1,iV1,iV2
+				triangle1[0].pos = input[1].pos;
+				triangle1[1].pos = interVec1;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 			}
 			//case 1.1
 			else
@@ -314,8 +336,20 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				float4 interVec2 = interpolate(input[0].pos, input[2].pos, sliceDepth);
 
 				//triangle 1: 1,2,iV2
+				triangle1[0].pos = input[1].pos;
+				triangle1[1].pos = input[2].pos;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 				//triangle 2: 1,iv1,iv2
+				triangle1[0].pos = input[1].pos;
+				triangle1[1].pos = interVec1;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 				//triangle 3: 0,iv1,iv2
+				triangle1[0].pos = input[0].pos;
+				triangle1[1].pos = interVec1;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 			}
 		}
 		else
@@ -328,8 +362,20 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				float4 interVec2 = interpolate(input[1].pos, input[2].pos, sliceDepth);
 
 				//triangle 1: 0, iv1,iv2
+				triangle1[0].pos = input[0].pos;
+				triangle1[1].pos = interVec1;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 				//triangle 2: 0,1,iv2
+				triangle1[0].pos = input[0].pos;
+				triangle1[1].pos = input[1].pos;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 				//triangle 3: 2, iv1,iv2
+				triangle1[0].pos = input[2].pos;
+				triangle1[1].pos = interVec1;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 			}
 			//case 1.2
 			else if(input[2].pos.z > sliceDepth)
@@ -339,8 +385,20 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				float4 interVec2 = interpolate(input[1].pos, input[2].pos, sliceDepth);
 
 				//triangle 1: 0, iv1, iv2
+				triangle1[0].pos = input[0].pos;
+				triangle1[1].pos = interVec1;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 				//triangle 2: 0,2,iv2
+				triangle1[0].pos = input[0].pos;
+				triangle1[1].pos = input[2].pos;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 				//triangle 3: 1,iv1,iv2
+				triangle1[0].pos = input[1].pos;
+				triangle1[1].pos = interVec1;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 			}
 			//case 2.1
 			else
@@ -350,12 +408,22 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				float4 interVec2 = interpolate(input[0].pos, input[2].pos, sliceDepth);
 
 				//triangle 1: 0,iv1,iv2
+				triangle1[0].pos = input[0].pos;
+				triangle1[1].pos = interVec1;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 				//triangle 2: 1,2,iv1
+				triangle1[0].pos = input[1].pos;
+				triangle1[1].pos = input[2].pos;
+				triangle1[2].pos = interVec1;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 				//triangle 3: 2,iv1,iv2
+				triangle1[0].pos = input[2].pos;
+				triangle1[1].pos = interVec1;
+				triangle1[2].pos = interVec2;
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 			}
 		}
-
-		//calculate distance mesh for all 3 triangles
 	}
 	
 }
