@@ -1,0 +1,22 @@
+<!DOCTYPE SurfaceXML>
+<surface nb_vertices="8" nb_indices="6" >
+ <vertices_set>
+  <vertex x="-0.5" y="-0.5" z="-0.5" />
+  <vertex x="0.5" y="-0.5" z="-0.5" />
+  <vertex x="0.5" y="0.5" z="-0.5" />
+  <vertex x="-0.5" y="0.5" z="-0.5" />
+  <vertex x="0.5" y="-0.5" z="0.5" />
+  <vertex x="-0.5" y="-0.5" z="0.5" />
+  <vertex x="0.5" y="0.5" z="0.5" />
+  <vertex x="-0.5" y="0.5" z="0.5" />
+ </vertices_set>
+ <indices_set>
+  <index value="0" />
+  <index value="2" />
+  <index value="1" /> 
+  <index value="0" />
+  <index value="3" />
+  <index value="2" />
+ </indices_set>
+ <color r="0.0f" g="0.0f" b="0.0f" />
+</surface>

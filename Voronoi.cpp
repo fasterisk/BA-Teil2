@@ -344,10 +344,16 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 
 	D3DXMATRIX orth, model1Orth, model2Orth;
 
+	pSurface1->RotateY(M_PI);
+	pSurface2->RotateY(M_PI);
+
 	// generate orth. matrix with bounding parameters
 	D3DXMatrixOrthoOffCenterLH(&orth, vBBMin.x, vBBMax.x, vBBMin.y, vBBMax.y, vBBMin.z, vBBMax.z);
 	D3DXMatrixMultiply(&model1Orth, &pSurface1->m_mModel, &orth);
 	D3DXMatrixMultiply(&model2Orth, &pSurface2->m_mModel, &orth);
+
+	pSurface1->RotateY(-M_PI);
+	pSurface2->RotateY(-M_PI);
 
 	//set bounding box parameters
 	D3DXVECTOR4 vBBMinOrth, vBBMaxOrth, vBBMinMaxDistOrth;
@@ -370,9 +376,9 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 
 
 	int x, y;
-	//int sliceIndex = 64;//choose a slice in the middle of the texture to check if a single slice is calculated the right way
-	for(int sliceIndex = 0; sliceIndex < m_iTextureDepth; sliceIndex++)
-	{
+	int sliceIndex = 64;//choose a slice in the middle of the texture to check if a single slice is calculated the right way
+	//for(int sliceIndex = 0; sliceIndex < m_iTextureDepth; sliceIndex++)
+	//{
 		// compute x and y coordinates for the TOP-LEFT corner of the slice in the flat 3D texture
 		x = (sliceIndex % m_cols) * m_iTextureWidth;
 		y = (sliceIndex / m_cols) * m_iTextureHeight;
@@ -396,7 +402,7 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 		m_pModelViewProjectionVar->SetMatrix(model2Orth);
 		pSurface2->Render(m_pVoronoiDiagramTechnique);
 
-	}
+	//}
 	
 	//4. Set Flat Textures as Variables in Voronoi Shader
 	V_RETURN(m_pFlatColorTex2DSRVar->SetResource(m_pFlatColorTexSRV));

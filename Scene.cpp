@@ -88,12 +88,12 @@ HRESULT Scene::InitSurfaces()
 
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface1->Initialize("Media\\surface1.xml"));
+	V_RETURN(m_pSurface1->Initialize("Media\\surface4.xml"));
     m_pSurface1->SetColor(0.0, 0.0, 1.0);
 
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface2->Initialize("Media\\surface1.xml"));
+	V_RETURN(m_pSurface2->Initialize("Media\\surface4.xml"));
 	m_pSurface2->SetColor(0.0, 1.0, 0.0);
 	m_pSurface2->Scale(0.5);
 
@@ -244,8 +244,8 @@ void Scene::Render(D3DXMATRIX mViewProjection)
 
 	m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3D1SRV);
 
-	//m_pSurface1->Render(mViewProjection);
-	//m_pSurface2->Render(mViewProjection);
+	m_pSurface1->Render(mViewProjection);
+	m_pSurface2->Render(mViewProjection);
 }	
 
 
