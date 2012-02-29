@@ -293,16 +293,16 @@ HRESULT Voronoi::InitSlices()
 		vertexIndex = z * SLICEQUAD_VERTEX_COUNT;
 
 		sliceVerticesTemp[0].pos = D3DXVECTOR3(-1.0f, 1.0f, 0.5f);
-		sliceVerticesTemp[0].tex = D3DXVECTOR3(x1, y1, float(z));
+		sliceVerticesTemp[0].tex = D3DXVECTOR3(x1, y2, float(z));
 
 		sliceVerticesTemp[1].pos = D3DXVECTOR3(-1.0f, -1.0f, 0.5f);
-		sliceVerticesTemp[1].tex = D3DXVECTOR3(x1, y2, float(z));
+		sliceVerticesTemp[1].tex = D3DXVECTOR3(x1, y1, float(z));
         
         sliceVerticesTemp[2].pos = D3DXVECTOR3(1.0f, -1.0f, 0.5f);
-		sliceVerticesTemp[2].tex = D3DXVECTOR3(x2, y2, float(z));
+		sliceVerticesTemp[2].tex = D3DXVECTOR3(x2, y1, float(z));
         
         sliceVerticesTemp[3].pos = D3DXVECTOR3(1.0f, 1.0f, 0.5f);
-		sliceVerticesTemp[3].tex = D3DXVECTOR3(x2, y1, float(z));
+		sliceVerticesTemp[3].tex = D3DXVECTOR3(x2, y2, float(z));
 
 		sliceVertices[vertexIndex+0] = sliceVerticesTemp[0];
 		sliceVertices[vertexIndex+1] = sliceVerticesTemp[1];
@@ -344,16 +344,10 @@ HRESULT Voronoi::RenderVoronoi(Surface *pSurface1, Surface *pSurface2, D3DXVECTO
 
 	D3DXMATRIX orth, model1Orth, model2Orth;
 
-	pSurface1->RotateY(M_PI);
-	pSurface2->RotateY(M_PI);
-
 	// generate orth. matrix with bounding parameters
 	D3DXMatrixOrthoOffCenterLH(&orth, vBBMin.x, vBBMax.x, vBBMin.y, vBBMax.y, vBBMin.z, vBBMax.z);
 	D3DXMatrixMultiply(&model1Orth, &pSurface1->m_mModel, &orth);
 	D3DXMatrixMultiply(&model2Orth, &pSurface2->m_mModel, &orth);
-
-	pSurface1->RotateY(-M_PI);
-	pSurface2->RotateY(-M_PI);
 
 	//set bounding box parameters
 	D3DXVECTOR4 vBBMinOrth, vBBMaxOrth, vBBMinMaxDistOrth;
