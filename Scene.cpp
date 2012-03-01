@@ -302,8 +302,9 @@ HRESULT Scene::ChangeRenderingToOneSlice(int iSliceIndex)
 {
 	HRESULT hr;
 	assert(m_pVoronoi != NULL);
-	V_RETURN(m_pVoronoi->ChangeRenderingToOneSlice(iSliceIndex));
+	m_pVoronoi->ChangeRenderingToOneSlice(iSliceIndex);
 	V_RETURN(m_pVolumeRenderer->SetAlpha(1.0f));
+	initialized = false;
 	return S_OK;
 }
 
@@ -311,8 +312,9 @@ HRESULT Scene::ChangeRenderingToAllSlices()
 {
 	HRESULT hr;
 	assert(m_pVoronoi != NULL);
-	V_RETURN(m_pVoronoi->ChangeRenderingToAllSlices());
+	m_pVoronoi->ChangeRenderingToAllSlices();
 	V_RETURN(m_pVolumeRenderer->SetAlpha(0.01f));
+	initialized = false;
 	return S_OK;
 }
 

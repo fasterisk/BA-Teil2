@@ -88,21 +88,15 @@ void Voronoi::SetSurfaces(Surface *pSurface1, Surface *pSurface2)
 	m_pSurface2 = pSurface2;
 }
 
-HRESULT Voronoi::ChangeRenderingToOneSlice(int iSliceIndex)
+void Voronoi::ChangeRenderingToOneSlice(int iSliceIndex)
 {
-	HRESULT hr;
 	m_bDrawAllSlices = false;
 	m_iCurrentSlice = iSliceIndex;
-	V_RETURN(InitFlatTextures());
-	return S_OK;
 }
 
-HRESULT Voronoi::ChangeRenderingToAllSlices()
+void Voronoi::ChangeRenderingToAllSlices()
 {
-	HRESULT hr;
 	m_bDrawAllSlices = true;
-	V_RETURN(InitFlatTextures());
-	return S_OK;
 }
 
 HRESULT Voronoi::Update()

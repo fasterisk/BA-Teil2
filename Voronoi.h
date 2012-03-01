@@ -14,8 +14,8 @@ public:
 	
 	HRESULT SetDestination(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3D *pDestDistTex3D);
 	void SetSurfaces(Surface *pSurface1, Surface *pSurface2);
-	HRESULT ChangeRenderingToOneSlice(int iSliceIndex);
-	HRESULT ChangeRenderingToAllSlices();
+	void ChangeRenderingToOneSlice(int iSliceIndex);
+	void ChangeRenderingToAllSlices();
 
 	HRESULT RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax);
 
