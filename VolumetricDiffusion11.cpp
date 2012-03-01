@@ -418,7 +418,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			break;
 		case IDC_SLICEINDEX_SLIDER:
 			g_bBlockMouseDragging = true;
-			g_iSliceIndex = int((g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->GetValue()/100.0f)*g_iTextureDepth + 0.5);
+			g_iSliceIndex = int((g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->GetValue()/100.0f)*(g_iTextureDepth-1) + 0.5);
 			StringCchPrintf( sz, 100, L"Sliceindex: %d", g_iSliceIndex);
 			g_SampleUI.GetStatic( IDC_SLICEINDEX_STATIC )->SetText( sz );
 			g_pScene->ChangeRenderingToOneSlice(g_iSliceIndex);
