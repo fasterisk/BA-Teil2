@@ -118,6 +118,13 @@ HRESULT VolumeRenderer::SetScreenSize(int iWidth, int iHeight)
 	return S_OK;
 }
 
+HRESULT VolumeRenderer::SetAlpha(float fAlpha)
+{
+	HRESULT hr;
+	V_RETURN(m_fAlphaVar->SetFloat(fAlpha));
+	return S_OK;
+}
+
 void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vMin, D3DXVECTOR3 vMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV)
 {
 	m_pMinVar->SetFloatVector(vMin);
@@ -183,6 +190,7 @@ HRESULT VolumeRenderer::InitShader()
 	m_pIterationsVar = m_pEffect->GetVariableByName("iIterations")->AsScalar();
 	m_pMinVar = m_pEffect->GetVariableByName("vBBMin")->AsVector();
 	m_pMaxVar = m_pEffect->GetVariableByName("vBBMax")->AsVector();
+	m_fAlphaVar = m_pEffect->GetVariableByName("fAlpha")->AsScalar();
 
 	return S_OK;
 }

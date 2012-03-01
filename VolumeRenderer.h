@@ -7,6 +7,7 @@ public:
 	HRESULT Initialize();
 	HRESULT Update(int iWidth, int iHeight, int iDepth);
 	HRESULT SetScreenSize(int iWidth, int iHeight);
+	HRESULT SetAlpha(float fAlpha);
 
 	void Render(VERTEX* pBBVertices, D3DXVECTOR3 vMin, D3DXVECTOR3 vMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
 
@@ -30,6 +31,7 @@ private:
 	ID3DX11EffectVectorVariable*			m_pMaxVar;
     
 	ID3DX11EffectScalarVariable*			m_pIterationsVar;
+	ID3DX11EffectScalarVariable*			m_fAlphaVar;
 
 	//Screen size
 	int m_iWidth;

@@ -18,6 +18,8 @@ public:
 
 
 	void ChangeControlledSurface();
+	HRESULT ChangeRenderingToOneSlice(int iSliceIndex);
+	HRESULT ChangeRenderingToAllSlices();
 	void Translate(float fX, float fY, float fZ);
 	void Rotate(D3DXVECTOR3 axis, float fFactor);
 	void RotateX(float fFactor);

@@ -47,6 +47,7 @@ int							g_iTextureHeight = 128;
 int							g_iTextureDepth = 128;
 int							g_iTextureMaximum = 128;
 bool						g_bBlockMouseDragging = false;
+int							g_iSliceIndex = 64;
 
 // Texthelper
 CDXUTTextHelper*            g_pTxtHelper = NULL;
@@ -68,6 +69,11 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_TEXTRES_DEPTH_STATIC	11
 #define IDC_TEXTRES_MAX_STATIC		12
 #define IDC_TEXTRES_MAX_SLIDER		13
+#define IDC_SLICES					14
+#define IDC_ALL_SLICES				15
+#define IDC_ONE_SLICE				16
+#define IDC_SLICEINDEX_STATIC		17
+#define IDC_SLICEINDEX_SLIDER		18
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -161,6 +167,17 @@ void InitApp()
     StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
 	g_SampleUI.AddStatic( IDC_TEXTRES_MAX_STATIC, sz, 0, iY += 24, 100, 22 );
 	g_SampleUI.AddSlider( IDC_TEXTRES_MAX_SLIDER, 0, iY += 20, 130, 22, 64, 256, 128);
+
+	g_SampleUI.AddRadioButton( IDC_ALL_SLICES, IDC_SLICES, L"Draw All Slices", 0, iY += 40, 170, 30);
+	g_SampleUI.AddRadioButton( IDC_ONE_SLICE, IDC_SLICES, L"Draw One Slice", 0, iY += 26, 170, 30);
+	g_SampleUI.GetRadioButton( IDC_ALL_SLICES )->SetChecked(true);
+
+	StringCchPrintf( sz, 100, L"Sliceindex: %d", g_iSliceIndex);
+	g_SampleUI.AddStatic(IDC_SLICEINDEX_STATIC, sz, 0, iY+=30, 100, 22);
+	g_SampleUI.AddSlider( IDC_SLICEINDEX_SLIDER, 0, iY+=20, 130, 22);
+	g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
+	g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+	g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetEnabled(false);
 
 	// Setup the camera's view parameters
     D3DXVECTOR3 vecEye( 0.0f, 0.0f, -4.0f );
@@ -379,12 +396,32 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_bCameraActive = true;
 			break;
 		case IDC_TEXTRES_MAX_SLIDER:
+			g_bBlockMouseDragging = true;
 			g_iTextureMaximum = g_SampleUI.GetSlider(IDC_TEXTRES_MAX_SLIDER)->GetValue();
 			WCHAR sz[100];
 			StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
             g_SampleUI.GetStatic( IDC_TEXTRES_MAX_STATIC )->SetText( sz );
-			g_bBlockMouseDragging = true;
 			g_pScene->UpdateTextureResolution(g_iTextureMaximum);
+			break;
+		case IDC_ALL_SLICES:
+			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
+			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetEnabled(false);
+			g_pScene->ChangeRenderingToAllSlices();
+			break;
+		case IDC_ONE_SLICE:
+			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(true);
+			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(true);
+			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetEnabled(true);
+			g_iSliceIndex = int((g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->GetValue()/100.0f)*g_iTextureDepth + 0.5);
+			g_pScene->ChangeRenderingToOneSlice(g_iSliceIndex);
+			break;
+		case IDC_SLICEINDEX_SLIDER:
+			g_bBlockMouseDragging = true;
+			g_iSliceIndex = int((g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->GetValue()/100.0f)*g_iTextureDepth + 0.5);
+			StringCchPrintf( sz, 100, L"Sliceindex: %d", g_iSliceIndex);
+			g_SampleUI.GetStatic( IDC_SLICEINDEX_STATIC )->SetText( sz );
+			g_pScene->ChangeRenderingToOneSlice(g_iSliceIndex);
 			break;
     }
 

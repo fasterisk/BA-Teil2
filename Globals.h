@@ -32,17 +32,6 @@
 #include <stdio.h>
 #include <iostream>
 
-extern int			g_Width;
-extern int			g_Height;
-extern float		g_zNear;
-extern float		g_zFar;
-extern D3DXMATRIX	g_View;
-extern D3DXMATRIX	g_Proj;
-
-#ifndef M_PI
-#define M_PI    3.14159265358979323846f
-#endif
-
 struct SCREENQUAD_VERTEX
 {
 	D3DXVECTOR3 pos;

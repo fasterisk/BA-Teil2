@@ -66,16 +66,20 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	iTextureHeight = iTexHeight;
 	iTextureDepth = iTexDepth;
 
+	// Initialize Surfaces
+	V_RETURN(InitSurfaces());
 
 	// Initialize Voronoi Diagram Renderer
 	m_pVoronoi = new Voronoi(m_pd3dDevice, m_pd3dImmediateContext, m_pVoronoiEffect);
 	V_RETURN(m_pVoronoi->Initialize());
+	m_pVoronoi->SetSurfaces(m_pSurface1, m_pSurface2);
 
 	// Initialize VolumeRenderer
 	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
 	V_RETURN(m_pVolumeRenderer->Initialize());
+	V_RETURN(m_pVolumeRenderer->SetAlpha(0.01f));
 
-	V_RETURN(InitSurfaces());
+	
 	V_RETURN(UpdateBoundingBox());
 
 
@@ -240,7 +244,7 @@ void Scene::Render(D3DXMATRIX mViewProjection)
 {
 	UpdateBoundingBox();
 
-	m_pVoronoi->RenderVoronoi(m_pSurface1, m_pSurface2, m_vMin, m_vMax);
+	m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
 
 	m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3D1SRV);
 
@@ -292,6 +296,24 @@ void Scene::ChangeControlledSurface()
 		m_pControlledSurface = m_pSurface1;
 
 	m_bSurface1IsControlled = !m_bSurface1IsControlled;
+}
+
+HRESULT Scene::ChangeRenderingToOneSlice(int iSliceIndex)
+{
+	HRESULT hr;
+	assert(m_pVoronoi != NULL);
+	V_RETURN(m_pVoronoi->ChangeRenderingToOneSlice(iSliceIndex));
+	V_RETURN(m_pVolumeRenderer->SetAlpha(1.0f));
+	return S_OK;
+}
+
+HRESULT Scene::ChangeRenderingToAllSlices()
+{
+	HRESULT hr;
+	assert(m_pVoronoi != NULL);
+	V_RETURN(m_pVoronoi->ChangeRenderingToAllSlices());
+	V_RETURN(m_pVolumeRenderer->SetAlpha(0.01f));
+	return S_OK;
 }
 
 void Scene::Translate(float fX, float fY, float fZ)
