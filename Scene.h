@@ -14,7 +14,7 @@ public:
 	HRESULT SetScreenSize(int iWidth, int iHeight);
 	void UpdateTextureResolution(int iMaxRes);
 
-	void Render(D3DXMATRIX mViewProjection);
+	void Render(D3DXMATRIX mViewProjection, bool bShowSurfaces);
 
 
 	void ChangeControlledSurface();

@@ -240,7 +240,7 @@ void Scene::UpdateTextureResolution(int iMaxRes)
 	iTextureDepth = int(vDiff.z * iMaxRes + 0.5);
 }
 
-void Scene::Render(D3DXMATRIX mViewProjection)
+void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 {
 	UpdateBoundingBox();
 
@@ -248,8 +248,11 @@ void Scene::Render(D3DXMATRIX mViewProjection)
 
 	m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3D1SRV);
 
-	m_pSurface1->Render(mViewProjection);
-	m_pSurface2->Render(mViewProjection);
+	if(bShowSurfaces)
+	{
+		m_pSurface1->Render(mViewProjection);
+		m_pSurface2->Render(mViewProjection);
+	}
 }	
 
 

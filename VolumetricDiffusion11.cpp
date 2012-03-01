@@ -48,6 +48,7 @@ int							g_iTextureDepth = 128;
 int							g_iTextureMaximum = 128;
 bool						g_bBlockMouseDragging = false;
 int							g_iSliceIndex = 64;
+bool						g_bShowSurfaces = false;
 
 // Texthelper
 CDXUTTextHelper*            g_pTxtHelper = NULL;
@@ -74,6 +75,7 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_ONE_SLICE				16
 #define IDC_SLICEINDEX_STATIC		17
 #define IDC_SLICEINDEX_SLIDER		18
+#define IDC_SHOW_SURFACES			19
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -153,9 +155,9 @@ void InitApp()
 
     g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
 	g_SampleUI.AddButton( IDC_CHANGE_CONTROL, L"Change contr. surface", 0, iY, 170, 30);
-	g_SampleUI.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 40, 170, 30);
-	g_SampleUI.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 26, 170, 30);
-	g_SampleUI.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 26, 170, 30);
+	g_SampleUI.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 40, 170, 22);
+	g_SampleUI.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 26, 170, 22);
+	g_SampleUI.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 26, 170, 22);
 	g_SampleUI.GetRadioButton( IDC_ROTATE )->SetChecked(true);
 	
 	StringCchPrintf( sz, 100, L"Texture Width: %d", g_iTextureWidth ); 
@@ -168,8 +170,10 @@ void InitApp()
 	g_SampleUI.AddStatic( IDC_TEXTRES_MAX_STATIC, sz, 0, iY += 24, 100, 22 );
 	g_SampleUI.AddSlider( IDC_TEXTRES_MAX_SLIDER, 0, iY += 20, 130, 22, 64, 256, 128);
 
-	g_SampleUI.AddRadioButton( IDC_ALL_SLICES, IDC_SLICES, L"Draw All Slices", 0, iY += 40, 170, 30);
-	g_SampleUI.AddRadioButton( IDC_ONE_SLICE, IDC_SLICES, L"Draw One Slice", 0, iY += 26, 170, 30);
+	g_SampleUI.AddCheckBox(IDC_SHOW_SURFACES, L"Show Surfaces", 0, iY+=40, 170, 22);
+
+	g_SampleUI.AddRadioButton( IDC_ALL_SLICES, IDC_SLICES, L"Draw All Slices", 0, iY += 40, 170, 22);
+	g_SampleUI.AddRadioButton( IDC_ONE_SLICE, IDC_SLICES, L"Draw One Slice", 0, iY += 26, 170, 22);
 	g_SampleUI.GetRadioButton( IDC_ALL_SLICES )->SetChecked(true);
 
 	StringCchPrintf( sz, 100, L"Sliceindex: %d", g_iSliceIndex);
@@ -423,6 +427,9 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetStatic( IDC_SLICEINDEX_STATIC )->SetText( sz );
 			g_pScene->ChangeRenderingToOneSlice(g_iSliceIndex);
 			break;
+		case IDC_SHOW_SURFACES:
+			g_bShowSurfaces = !g_bShowSurfaces;
+			break;
     }
 
 }
@@ -585,7 +592,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	D3DXMATRIX mViewProjection;
 	D3DXMatrixMultiply(&mViewProjection, &g_View, &g_Proj);
 	
-	g_pScene->Render(mViewProjection);
+	g_pScene->Render(mViewProjection, g_bShowSurfaces);
 
 	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_HUD.OnRender( fElapsedTime );
