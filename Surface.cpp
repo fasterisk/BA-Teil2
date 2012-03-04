@@ -10,7 +10,6 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 	m_pSurfaceEffect = pSurfaceEffect;
 
 	m_pVertexBuffer = NULL;
-	m_pIndexBuffer = NULL;
 
 	D3DXMatrixIdentity(&m_mModel);
 	D3DXMatrixIdentity(&m_mRot);
@@ -24,14 +23,10 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 Surface::~Surface()
 {
 	SAFE_DELETE(m_pVertices);
-	SAFE_DELETE(m_pIndices);
 
 	SAFE_RELEASE(m_pInputLayout);
 
 	SAFE_RELEASE(m_pVertexBuffer);
-	SAFE_RELEASE(m_pIndexBuffer);
-
-	
 }
 
 void Surface::Translate(float fX, float fY, float fZ)
@@ -117,7 +112,8 @@ HRESULT Surface::Initialize(char* s)
 	D3D11_INPUT_ELEMENT_DESC layout[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
 	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pInputLayout));
@@ -136,7 +132,6 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 	UINT offset = 0;
 	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
 	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
-	m_pd3dImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
 	
@@ -149,7 +144,7 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 		m_pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 				
 		//draw
-		m_pd3dImmediateContext->DrawIndexed(m_iNumIndices, 0, 0);
+		m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
 	}
 }
 
@@ -158,7 +153,6 @@ void Surface::Render(ID3DX11EffectTechnique* pTechnique)
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
 	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
-	m_pd3dImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	D3DX11_TECHNIQUE_DESC techDesc;
@@ -170,7 +164,7 @@ void Surface::Render(ID3DX11EffectTechnique* pTechnique)
 		pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 
 		//draw
-		m_pd3dImmediateContext->DrawIndexed( m_iNumIndices, 0, 0 );
+		m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
 	}
 }
 
@@ -184,7 +178,6 @@ HRESULT Surface::InitBuffers()
 	HRESULT hr;
 
 	SAFE_RELEASE(m_pVertexBuffer);
-	SAFE_RELEASE(m_pIndexBuffer);
 
 	//Create Vertex buffer
 	D3D11_BUFFER_DESC vbd;
@@ -198,21 +191,6 @@ HRESULT Surface::InitBuffers()
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 	V_RETURN(m_pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pVertexBuffer));
-
-	//Create Index buffer
-	D3D11_BUFFER_DESC ibd;
-	ZeroMemory(&ibd, sizeof(ibd));
-	ibd.Usage = D3D11_USAGE_DYNAMIC;
-	ibd.ByteWidth = sizeof(unsigned int) * m_iNumIndices;
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	//ibd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA indexData;
-	indexData.pSysMem = m_pIndices;
-	indexData.SysMemPitch = 0;
-	indexData.SysMemSlicePitch = 0;
-	V_RETURN(m_pd3dDevice->CreateBuffer(&ibd, &indexData, &m_pIndexBuffer));
-
 
 	return S_OK;
 }
@@ -235,10 +213,6 @@ void Surface::ReadVectorFile(char *s)
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
 	m_iNumVertices = int(atof(token));
-	while (!stringStartsWith(token, "nb_indices="))
-		token = strtok(NULL, " \"\t");
-	token = strtok(NULL, " \"\t");
-	m_iNumIndices = int(atof(token));
 	
 	m_pVertices = new VERTEX[m_iNumVertices];
 	for(int i=0; i < m_iNumVertices; i++)
@@ -261,16 +235,24 @@ void Surface::ReadVectorFile(char *s)
 		fgets(buff, 255, F);
 	}
 
-	m_pIndices = new unsigned int[m_iNumIndices];
-	for(int i=0; i < m_iNumIndices; i++)
+	for(int i=0; i < m_iNumVertices; i++)
 	{
-		while(!stringStartsWith(buff, "  <index "))
+		while(!stringStartsWith(buff, "  <normal "))
 			fgets(buff, 255, F);
 		token = strtok(buff, " \"\t");
-		while (!stringStartsWith(token, "value="))
+		while (!stringStartsWith(token, "x="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pIndices[i] = unsigned int(atof(token));
+		m_pVertices[i].normal.x = float(atof(token));
+		while (!stringStartsWith(token, "y="))
+			token = strtok(NULL, " \"\t");
+		token = strtok(NULL, " \"\t");
+		m_pVertices[i].normal.y = float(atof(token));
+		while (!stringStartsWith(token, "z="))
+				token = strtok(NULL, " \"\t");
+		token = strtok(NULL, " \"\t");
+		m_pVertices[i].normal.z = float(atof(token));
+		fgets(buff, 255, F);
 		
 	}
 

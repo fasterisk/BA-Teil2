@@ -47,6 +47,7 @@ struct SLICE_SCREENQUAD_VERTEX
 struct VERTEX
 {
 	D3DXVECTOR3 pos;
+	D3DXVECTOR3 normal;
 	D3DXCOLOR color;
 };
 

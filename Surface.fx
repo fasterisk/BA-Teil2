@@ -63,6 +63,7 @@ matrix    ModelViewProjectionMatrix;
 struct VsInput
 {
     float3 Pos      : POSITION;
+	float3 Normal	: NORMAL;
     float4 Color    : COLOR;
 };
 

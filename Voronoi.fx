@@ -88,6 +88,7 @@ DepthStencilState DSS_Disabled
 struct VS_VORONOI_INPUT
 {
 	float3 pos		: POSITION;
+	float3 normal	: NORMAL;
 	float4 color	: COLOR;
 };
 
@@ -153,9 +154,9 @@ void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout 
 	output.color = vertices[0].color;//assumed, that all 3 vertices have the same color
 
 	//Calculate triangle normal
-	float4 v1 = vertices[2].pos - vertices[0].pos;
-	float4 v2 = vertices[1].pos - vertices[0].pos;
-	float3 normal = cross(v1.xyz, v2.xyz);
+	float3 v1 = normalize(vertices[2].pos.xyz - vertices[0].pos.xyz);
+	float3 v2 = normalize(vertices[1].pos.xyz - vertices[0].pos.xyz);
+	float3 normal = cross(v1, v2);
 
 	//check if normal is not parallel to the slice
 	if(normal.z == 0)
@@ -163,22 +164,22 @@ void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout 
 
 	if((sliceDepthGreater && normal.z < 0)||(!sliceDepthGreater && normal.z > 0))
 		normal = -normal;
-	
 
 	//normalize the normal for the z-value, so we can easily
 	//compute the distance-normal vector between the point
 	//and the slice
-	normal /= normal.z;
+	normal /= abs(normal.z);
 	
 	for(int v = 0; v < 3; v++)
 	{
 		//distance of the point to the slice
-		float distPosToSliceZ = sliceDepth - vertices[v].pos.z;
+		float distPosToSliceZ = abs(sliceDepth - vertices[v].pos.z);
 	
 		//distance-normal between point of the triangle and slice
 		float3 normalToPosAtSlice =	normal*distPosToSliceZ;
 		output.pos = float4(vertices[v].pos.x+normalToPosAtSlice.x, vertices[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
-		output.dist = float4(output.pos.z, 0.0, 0.0, 1.0);
+
+		output.dist = float4(normal.xyz, 1.0f);
 		tStream.Append(output);
 	}
 	tStream.RestartStrip();
@@ -214,8 +215,6 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 {
 	GS_VORONOI_INPUT triangle1[3] = input;
 	
-	float4 v1,v2;
-
 	//z-distance of the bounding box
 	float zBBDist = vBBMax.z - vBBMin.z;
 
@@ -245,8 +244,8 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 			if(input[v].pos.z == sliceDepth)
 			{
 				float4 v0 = input[v].pos;
-				v1 = input[(v+1)%3].pos;
-				v2 = input[(v+2)%3].pos;
+				float4 v1 = input[(v+1)%3].pos;
+				float4 v2 = input[(v+2)%3].pos;
 				float4 v3 = v2 - v1;
 				v3 /= abs(v3.z);
 				float distToSlice = abs(sliceDepth - v1.z);

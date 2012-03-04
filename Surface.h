@@ -10,9 +10,7 @@ public:
 	
 	int m_iNumVertices;
 	VERTEX *m_pVertices;
-
-	int m_iNumIndices;
-	unsigned int *m_pIndices;
+	
 
 	D3DXMATRIX m_mModel;
 
@@ -42,7 +40,6 @@ protected:
 	ID3DX11EffectMatrixVariable		*m_pModelViewProjectionVar;
 
 	ID3D11Buffer* m_pVertexBuffer;
-	ID3D11Buffer* m_pIndexBuffer;
 
 	D3DXMATRIX m_mRot;
 	D3DXMATRIX m_mTrans;
