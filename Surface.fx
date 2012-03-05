@@ -56,7 +56,8 @@ BlendState NoBlending
 };
 
 
-matrix    ModelViewProjectionMatrix;
+matrix	ModelViewProjectionMatrix;
+matrix	NormalMatrix;
 
 //--------------------------------------------------------------------------------------
 
@@ -71,8 +72,8 @@ struct VsInput
 struct VsOutput
 {
 	float4 Pos		: SV_POSITION;
+	float3 Normal	: NORMAL;
 	float4 Color	: COLOR;
-    float  Depth   : TEXCOORD0;
 };
 
 struct VsWOutput
@@ -83,7 +84,6 @@ struct VsWOutput
 struct PsOutput
 {
     float4 Color    : SV_Target0;
-    float  Depth    : SV_Target1;
 };
 
 struct PsWOutput
@@ -95,13 +95,13 @@ struct PsWOutput
 // Vertex Shaders
 //--------------------------------------------------------------------------------------
 
-VsOutput VS_COLOR_AND_DEPTH(VsInput input)
+VsOutput VS_COLOR(VsInput input)
 {
     VsOutput output;
 
     output.Pos = mul(float4(input.Pos, 1.0f), ModelViewProjectionMatrix);
+	output.Normal = mul(input.Normal, (float3x3)NormalMatrix);
 	output.Color = input.Color;
-    output.Depth = output.Pos.z;
 
     return output;
 }
@@ -114,27 +114,50 @@ VsWOutput VS_WIREFRAME(VsInput input)
 }
 
 
-//test: geometry shader
-/*[maxvertexcount(3)]
-void TriangleGS( triangle VsOutput input[3], inout TriangleStream<VsOutput> tStream)
+VsOutput VS_NORMAL(VsInput input)
 {
 	VsOutput output;
-	for(int v = 0; v < 3; v++)
-	{
-		float3 normal
-	}
-}*/
+	output.Pos = float4(input.Pos, 1.0f);//mul(float4(input.Pos, 1.0f), ModelViewProjectionMatrix);
+	output.Normal =  input.Normal;//mul(input.Normal, (float3x3)NormalMatrix);
+	output.Color = input.Color;
+	return output;
+}
+
+//--------------------------------------------------------------------------------------
+// Geometry Shaders
+//--------------------------------------------------------------------------------------
+[maxvertexcount(4)]
+void GS_NORMAL( line VsOutput input[2], inout LineStream<VsOutput> tStream)
+{
+	VsOutput output;
+	output.Pos = mul(input[0].Pos, ModelViewProjectionMatrix);
+	output.Color = input[0].Color;
+	output.Normal = mul(input[0].Normal, (float3x3)NormalMatrix);
+	tStream.Append(output);
+	
+	output.Pos = mul(float4(input[0].Pos.xyz + input[0].Normal.xyz, 1.0f), ModelViewProjectionMatrix);
+	tStream.Append(output);
+	tStream.RestartStrip();
+	
+	output.Pos = mul(input[1].Pos, ModelViewProjectionMatrix);
+	output.Color = input[1].Color;
+	output.Normal = mul(input[1].Normal, (float3x3)NormalMatrix);
+	tStream.Append(output);
+	
+	output.Pos = mul(float4(input[1].Pos.xyz + input[1].Normal.xyz, 1.0f), ModelViewProjectionMatrix);
+	tStream.Append(output);
+	tStream.RestartStrip();
+}
 
 //--------------------------------------------------------------------------------------
 // Pixel Shaders
 //--------------------------------------------------------------------------------------
 
 
-PsOutput PS_COLOR_AND_DEPTH( VsOutput input )
+PsOutput PS_COLOR( VsOutput input )
 {
     PsOutput output;
     output.Color = input.Color;
-    output.Depth = input.Depth;
 
 	output.Color.a = 0.5f;
     return output;
@@ -147,20 +170,28 @@ PsWOutput PS_WIREFRAME(VsWOutput input)
 	return output;
 }
 
+PsOutput PS_NORMAL(VsOutput input)
+{
+	PsOutput output;
+	output.Color = float4(abs(input.Normal), 1.0f);
+	return output;
+}
+
+
 //--------------------------------------------------------------------------------------
 // Techniques
 //--------------------------------------------------------------------------------------
 
-technique10 RenderColorAndDepth
+technique10 RenderColor
 {     
     pass
     {
-        SetVertexShader( CompileShader( vs_4_0, VS_COLOR_AND_DEPTH() ) );
+        SetVertexShader( CompileShader( vs_4_0, VS_COLOR() ) );
         SetGeometryShader(NULL);
-        SetPixelShader( CompileShader( ps_4_0, PS_COLOR_AND_DEPTH() ) );
+        SetPixelShader( CompileShader( ps_4_0, PS_COLOR() ) );
 
 		SetBlendState(AlphaBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetDepthStencilState( WriteDepthTest, 0 );
+        SetDepthStencilState( EnableDepth, 0 );
         SetRasterizerState( CullNone );
     }
 
@@ -172,5 +203,18 @@ technique10 RenderColorAndDepth
 
 		SetDepthStencilState( EnableDepth, 0);
 		SetRasterizerState(Wireframe);
+	}
+}
+
+technique10 RenderNormals
+{
+	pass
+	{
+		SetVertexShader(CompileShader(vs_4_0, VS_NORMAL()));
+		SetGeometryShader(CompileShader(gs_4_0, GS_NORMAL()));
+		SetPixelShader(CompileShader(ps_4_0, PS_NORMAL()));
+
+		SetDepthStencilState( EnableDepth, 0);
+		SetRasterizerState(CullNone);
 	}
 }

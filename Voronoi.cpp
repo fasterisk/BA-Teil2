@@ -236,6 +236,7 @@ HRESULT Voronoi::InitShaders()
 	m_pFlatTo3DTexTechnique		= m_pVoronoiEffect->GetTechniqueByName("Flat2DTextureTo3D");
 
 	m_pModelViewProjectionVar	= m_pVoronoiEffect->GetVariableByName("ModelViewProjectionMatrix")->AsMatrix();
+	m_pNormalMatrixVar			= m_pVoronoiEffect->GetVariableByName("NormalMatrix")->AsMatrix();
 	m_pSliceIndexVar			= m_pVoronoiEffect->GetVariableByName("iSliceIndex")->AsScalar();
 	m_pTextureDepthVar			= m_pVoronoiEffect->GetVariableByName("iTextureDepth")->AsScalar();
 	m_pBBMinVar					= m_pVoronoiEffect->GetVariableByName("vBBMin")->AsVector();
@@ -380,6 +381,23 @@ HRESULT Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 
 	assert(vBBMinOrth);
 	assert(vBBMaxOrth);
+
+	//Compute NormalMatrix for both surfaces
+	D3DXMATRIX mModel1_3x3 = D3DXMATRIX(m_pSurface1->m_mModel._11, m_pSurface1->m_mModel._12, m_pSurface1->m_mModel._13, 0.0f, 
+									  m_pSurface1->m_mModel._21, m_pSurface1->m_mModel._22, m_pSurface1->m_mModel._23, 0.0f, 
+									  m_pSurface1->m_mModel._31, m_pSurface1->m_mModel._32, m_pSurface1->m_mModel._33, 0.0f, 
+									  0.0f, 0.0f, 0.0f, 1.0f);
+	D3DXMATRIX mModel1_3x3Inv, mNormalMatrix1;
+	D3DXMatrixInverse(&mModel1_3x3Inv, NULL, &mModel1_3x3);
+	D3DXMatrixTranspose(&mNormalMatrix1, &mModel1_3x3Inv);
+
+	D3DXMATRIX mModel2_3x3 = D3DXMATRIX(m_pSurface2->m_mModel._11, m_pSurface2->m_mModel._12, m_pSurface2->m_mModel._13, 0.0f, 
+									  m_pSurface2->m_mModel._21, m_pSurface2->m_mModel._22, m_pSurface2->m_mModel._23, 0.0f, 
+									  m_pSurface2->m_mModel._31, m_pSurface2->m_mModel._32, m_pSurface2->m_mModel._33, 0.0f, 
+									  0.0f, 0.0f, 0.0f, 1.0f);
+	D3DXMATRIX mModel2_3x3Inv, mNormalMatrix2;
+	D3DXMatrixInverse(&mModel2_3x3Inv, NULL, &mModel2_3x3);
+	D3DXMatrixTranspose(&mNormalMatrix2, &mModel2_3x3Inv);
 	
 	//1. Set Variables needed for Voronoi Diagram Computation
 	m_pBBMinVar->SetFloatVector(vBBMinOrth);
@@ -398,13 +416,13 @@ HRESULT Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 	{
 		for(int sliceIndex = 0; sliceIndex < m_iTextureDepth; sliceIndex++)
 		{
-			V_RETURN(RenderToFlatTexture(model1Orth, model2Orth, sliceIndex));
+			V_RETURN(RenderToFlatTexture(model1Orth, model2Orth, mNormalMatrix1, mNormalMatrix2, sliceIndex));
 		}
 
 	}
 	else
 	{
-		V_RETURN(RenderToFlatTexture(model1Orth, model2Orth, m_iCurrentSlice));
+		V_RETURN(RenderToFlatTexture(model1Orth, model2Orth, mNormalMatrix1, mNormalMatrix2, m_iCurrentSlice));
 	}
 
 	
@@ -439,7 +457,7 @@ HRESULT Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 	return S_OK;
 }
 
-HRESULT Voronoi::RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2Orth, int iSliceIndex)
+HRESULT Voronoi::RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2Orth, D3DXMATRIX mNormalMatrix1, D3DXMATRIX mNormalMatrix2, int iSliceIndex)
 {
 	HRESULT hr;
 	
@@ -460,8 +478,10 @@ HRESULT Voronoi::RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2O
 		
 	//3. Render to flat textures
 	m_pModelViewProjectionVar->SetMatrix(mModel1Orth);
+	m_pNormalMatrixVar->SetMatrix(mNormalMatrix1);
 	m_pSurface1->Render(m_pVoronoiDiagramTechnique);
 	m_pModelViewProjectionVar->SetMatrix(mModel2Orth);
+	m_pNormalMatrixVar->SetMatrix(mNormalMatrix2);
 	m_pSurface2->Render(m_pVoronoiDiagramTechnique);
 	
 	return S_OK;

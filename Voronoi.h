@@ -28,7 +28,7 @@ private:
 	HRESULT InitSlices();
 	void DrawSlices();
 
-	HRESULT RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2Orth, int iSliceIndex);
+	HRESULT RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2Orth, D3DXMATRIX mNormalMatrix1, D3DXMATRIX mNormalMatrix2, int iSliceIndex);
 
 	void Cleanup();
 
@@ -58,6 +58,7 @@ private:
 
 	//Shader variables
 	ID3DX11EffectMatrixVariable				*m_pModelViewProjectionVar;
+	ID3DX11EffectMatrixVariable				*m_pNormalMatrixVar;
 
 	ID3DX11EffectScalarVariable				*m_pSliceIndexVar;
 	ID3DX11EffectScalarVariable				*m_pTextureDepthVar;

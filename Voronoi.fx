@@ -2,7 +2,9 @@
 // Variables
 //--------------------------------------------------------------------------------------
 
-matrix    ModelViewProjectionMatrix;
+matrix ModelViewProjectionMatrix;
+matrix NormalMatrix;
+
 Texture2D flatColorTexture;
 Texture2D flatDistTexture;
 
@@ -95,6 +97,7 @@ struct VS_VORONOI_INPUT
 struct GS_VORONOI_INPUT
 {
 	float4 pos		: POSITION;
+	float3 normal	: NORMAL;
 	float4 color	: COLOR;
 };
 
@@ -153,10 +156,7 @@ void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout 
 	GS_VORONOI_OUTPUT output;
 	output.color = vertices[0].color;//assumed, that all 3 vertices have the same color
 
-	//Calculate triangle normal
-	float3 v1 = normalize(vertices[2].pos.xyz - vertices[0].pos.xyz);
-	float3 v2 = normalize(vertices[1].pos.xyz - vertices[0].pos.xyz);
-	float3 normal = cross(v1, v2);
+	float3 normal = vertices[0].normal;
 
 	//check if normal is not parallel to the slice
 	if(normal.z == 0)
@@ -194,6 +194,7 @@ GS_VORONOI_INPUT VoronoiVS(VS_VORONOI_INPUT input)
 {
 	GS_VORONOI_INPUT output;
 	output.pos = mul(float4(input.pos, 1.0f), ModelViewProjectionMatrix);
+	output.normal = mul(input.normal, (float3x3)NormalMatrix);
 	output.color = input.color;
 	return output;
 }
@@ -210,7 +211,7 @@ GS_RESOLVE_INPUT ResolveVS(VS_RESOLVE_INPUT input)
 // Geometry Shader
 //--------------------------------------------------------------------------------------
 
-[maxvertexcount(3)]
+[maxvertexcount(9)]
 void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VORONOI_OUTPUT> tStream)
 {
 	GS_VORONOI_INPUT triangle1[3] = input;

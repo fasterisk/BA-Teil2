@@ -99,8 +99,10 @@ HRESULT Surface::Initialize(char* s)
 
 	InitBuffers();
 
-	m_pTechnique = m_pSurfaceEffect->GetTechniqueByName("RenderColorAndDepth");
+	m_pTechnique = m_pSurfaceEffect->GetTechniqueByName("RenderColor");
+	m_pNormalTechnique = m_pSurfaceEffect->GetTechniqueByName("RenderNormals");
 	m_pModelViewProjectionVar = m_pSurfaceEffect->GetVariableByName("ModelViewProjectionMatrix")->AsMatrix();
+	m_pNormalMatrixVar = m_pSurfaceEffect->GetVariableByName("NormalMatrix")->AsMatrix();
 
 	D3DX11_PASS_SHADER_DESC passVsDesc;
 	m_pTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
@@ -163,6 +165,37 @@ void Surface::Render(ID3DX11EffectTechnique* pTechnique)
 		//apply technique
 		pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 
+		//draw
+		m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
+	}
+}
+
+void Surface::RenderNormals(D3DXMATRIX mViewProjection)
+{
+	D3DXMATRIX mModelViewProjection = m_mModel * mViewProjection;
+	D3DXMATRIX mModel3x3 = D3DXMATRIX(m_mModel._11, m_mModel._12, m_mModel._13, 0.0f, m_mModel._21, m_mModel._22, m_mModel._23, 0.0f, m_mModel._31, m_mModel._32, m_mModel._33, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	D3DXMATRIX mModel3x3Inv, mNormalMatrix;
+	D3DXMatrixInverse(&mModel3x3Inv, NULL, &mModel3x3);
+	D3DXMatrixTranspose(&mNormalMatrix, &mModel3x3Inv);
+
+	m_pModelViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&mModelViewProjection));
+	m_pNormalMatrixVar->SetMatrix(reinterpret_cast<float*>(&mNormalMatrix));
+
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	
+	
+	D3DX11_TECHNIQUE_DESC techDesc;
+	m_pNormalTechnique->GetDesc(&techDesc);
+
+	for( UINT p = 0; p < techDesc.Passes; ++p )
+	{
+		//apply technique
+		m_pNormalTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
+				
 		//draw
 		m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
 	}

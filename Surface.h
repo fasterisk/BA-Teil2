@@ -28,6 +28,7 @@ public:
 	HRESULT Initialize(char *s);
 	void Render(D3DXMATRIX mViewProjection);
 	void Render(ID3DX11EffectTechnique* pTechnique);
+	void RenderNormals(D3DXMATRIX mViewProjection);
 
 protected:
 
@@ -36,8 +37,10 @@ protected:
 	ID3DX11Effect*					m_pSurfaceEffect;
 	ID3DX11EffectTechnique*			m_pTechnique;
 	ID3D11InputLayout*				m_pInputLayout;
+	ID3DX11EffectTechnique*			m_pNormalTechnique;
 
 	ID3DX11EffectMatrixVariable		*m_pModelViewProjectionVar;
+	ID3DX11EffectMatrixVariable		*m_pNormalMatrixVar;
 
 	ID3D11Buffer* m_pVertexBuffer;
 

@@ -252,6 +252,8 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 	{
 		m_pSurface1->Render(mViewProjection);
 		m_pSurface2->Render(mViewProjection);
+		//m_pSurface1->RenderNormals(mViewProjection);
+		//m_pSurface2->RenderNormals(mViewProjection);
 	}
 }	
 

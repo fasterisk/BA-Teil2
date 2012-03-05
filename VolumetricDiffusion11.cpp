@@ -588,9 +588,8 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	// UPDATE GLOBAL VARIABLES FOR VOLUME RENDERING
 	g_View = *g_Camera.GetViewMatrix();
 	g_Proj = *g_Camera.GetProjMatrix();
-	
-	D3DXMATRIX mViewProjection;
-	D3DXMatrixMultiply(&mViewProjection, &g_View, &g_Proj);
+
+	D3DXMATRIX mViewProjection = g_View * g_Proj;
 	
 	g_pScene->Render(mViewProjection, g_bShowSurfaces);
 
