@@ -155,8 +155,8 @@ void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout 
 {
 	GS_VORONOI_OUTPUT output;
 	output.color = vertices[0].color;//assumed, that all 3 vertices have the same color
-
-	float3 normal = vertices[0].normal;
+	
+	float3 normal = normalize(vertices[0].normal);
 
 	//check if normal is not parallel to the slice
 	if(normal.z == 0)
@@ -232,7 +232,7 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 	{
 		TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 	}
-	else
+	/*else
 	{
 		//divide polygon into 2 polygons, divided by the slice
 		//calculate distance function for each polygon
@@ -424,7 +424,7 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 			}
 		}
-	}
+	}*/
 	
 }
 

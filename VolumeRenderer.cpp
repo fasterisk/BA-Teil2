@@ -162,21 +162,28 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vMin, D3DXVECTOR3 v
 	m_pVolumeRenderTechnique->GetPassByName("BoundingBoxBack")->Apply(0, m_pd3dImmediateContext);
 	DrawBoundingBox();
 
-	m_pFrontTextureVar->SetResource(m_pFrontSRV);
-	m_pBackTextureVar->SetResource(m_pBackSRV);
-	m_pVolumeTextureVar->SetResource(p3DTextureSRV);
+	
 
 	//Restore Rendertarget- and Depthstencilview
 	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
 	m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
 
+	m_pFrontTextureVar->SetResource(m_pFrontSRV);
+	m_pBackTextureVar->SetResource(m_pBackSRV);
+	m_pVolumeTextureVar->SetResource(p3DTextureSRV);
+
 	m_pVolumeRenderTechnique->GetPassByName("RayCast")->Apply(0, m_pd3dImmediateContext);
+	
 	DrawScreenQuad();
 
 	//Draw wireframe boundingbox
 	m_pVolumeRenderTechnique->GetPassByName("Wireframe")->Apply(0, m_pd3dImmediateContext);
 	DrawBoundingBox();
+
+	m_pFrontTextureVar->SetResource(NULL);
+	m_pBackTextureVar->SetResource(NULL);
+	m_pVolumeTextureVar->SetResource(NULL);//doesnt work.. reason unknown
 }
 
 HRESULT VolumeRenderer::InitShader()
