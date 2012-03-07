@@ -232,7 +232,7 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 	{
 		TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 	}
-	/*else
+	else
 	{
 		//divide polygon into 2 polygons, divided by the slice
 		//calculate distance function for each polygon
@@ -424,7 +424,7 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
 			}
 		}
-	}*/
+	}
 	
 }
 

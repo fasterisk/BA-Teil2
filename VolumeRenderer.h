@@ -9,7 +9,7 @@ public:
 	HRESULT SetScreenSize(int iWidth, int iHeight);
 	HRESULT SetAlpha(float fAlpha);
 
-	void Render(VERTEX* pBBVertices, D3DXVECTOR3 vMin, D3DXVECTOR3 vMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
+	void Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
 
 private:
 	// Device
@@ -27,9 +27,9 @@ private:
 	ID3DX11EffectShaderResourceVariable*	m_pVolumeTextureVar;
 
 	ID3DX11EffectVectorVariable*			m_pStepSizeVar;
-	ID3DX11EffectVectorVariable*			m_pMinVar;
-	ID3DX11EffectVectorVariable*			m_pMaxVar;
-    
+	ID3DX11EffectVectorVariable*			m_pBBMinVar;
+	ID3DX11EffectVectorVariable*			m_pBBMaxVar;
+
 	ID3DX11EffectScalarVariable*			m_pIterationsVar;
 	ID3DX11EffectScalarVariable*			m_fAlphaVar;
 

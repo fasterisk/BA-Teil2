@@ -168,10 +168,10 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 
 	PsOutput output;
 
-	float3 front = FrontTexture.Sample(linearSamplerClamp, input.texC).rgb;
-	float3 back = BackTexture.Sample(linearSamplerClamp, input.texC).rgb;
+	float3 front = FrontTexture.Sample(linearSamplerBorder, input.texC).rgb;
+	float3 back = BackTexture.Sample(linearSamplerBorder, input.texC).rgb;
     
-    float3 dir = back - front;
+    float3 dir = normalize(back - front);
     float4 pos = float4(front, 0);
     
     output.color = float4(0, 0, 0, 0);
@@ -197,6 +197,7 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
 			break;
     }
+	//output.color = float4(dir, 1.0f);
     return output;
 }
 

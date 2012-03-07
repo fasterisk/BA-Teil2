@@ -52,13 +52,11 @@ HRESULT VolumeRenderer::Initialize()
 
 HRESULT VolumeRenderer::Update(int iWidth, int iHeight, int iDepth)
 {
-	HRESULT hr;
-	
 	float maxSize = (float)max(iWidth, max(iHeight, iDepth));
 	D3DXVECTOR3 vStepSize = D3DXVECTOR3(1.0f / (iWidth * (maxSize/iWidth)),
 										1.0f / (iHeight * (maxSize / iHeight)),
 										1.0f / (iDepth * (maxSize / iDepth)));
-	m_pStepSizeVar->SetFloatVector(vStepSize);
+	m_pStepSizeVar->SetFloatVector(vStepSize * 2.0f);
 	int iIterations = (int)maxSize;// * 2.0f;
 	m_pIterationsVar->SetInt(iIterations);
 	
@@ -125,11 +123,11 @@ HRESULT VolumeRenderer::SetAlpha(float fAlpha)
 	return S_OK;
 }
 
-void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vMin, D3DXVECTOR3 vMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV)
+void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV)
 {
-	m_pMinVar->SetFloatVector(vMin);
-	m_pMaxVar->SetFloatVector(vMax);
-
+	m_pBBMinVar->SetFloatVector(vBBMin);
+	m_pBBMaxVar->SetFloatVector(vBBMax);
+	
 	//Update vertex buffer for boundingbox
 	UpdateBoundingVertices(pBBVertices);
 
@@ -195,8 +193,8 @@ HRESULT VolumeRenderer::InitShader()
 	m_pVolumeTextureVar = m_pEffect->GetVariableByName("VolumeTexture")->AsShaderResource();
 	m_pStepSizeVar = m_pEffect->GetVariableByName("vStepSize")->AsVector();
 	m_pIterationsVar = m_pEffect->GetVariableByName("iIterations")->AsScalar();
-	m_pMinVar = m_pEffect->GetVariableByName("vBBMin")->AsVector();
-	m_pMaxVar = m_pEffect->GetVariableByName("vBBMax")->AsVector();
+	m_pBBMinVar = m_pEffect->GetVariableByName("vBBMin")->AsVector();
+	m_pBBMaxVar = m_pEffect->GetVariableByName("vBBMax")->AsVector();
 	m_fAlphaVar = m_pEffect->GetVariableByName("fAlpha")->AsScalar();
 
 	return S_OK;
