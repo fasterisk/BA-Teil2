@@ -1,28 +1,14 @@
 <!DOCTYPE SurfaceXML>
-<surface nb_vertices="8" nb_indices="12" >
+<surface nb_vertices="3">
  <vertices_set>
-  <vertex x="-0.5" y="-0.5" z="-0.5" />
-  <vertex x="0.5" y="-0.5" z="-0.5" />
-  <vertex x="0.5" y="0.5" z="-0.5" />
-  <vertex x="-0.5" y="0.5" z="-0.5" />
-  <vertex x="0.5" y="-0.5" z="0.5" />
-  <vertex x="-0.5" y="-0.5" z="0.5" />
-  <vertex x="0.5" y="0.5" z="0.5" />
-  <vertex x="-0.5" y="0.5" z="0.5" />
+  <vertex x="-1.0" y="-1.0" z="-1.0" />
+  <vertex x="1.0" y="-1.0" z="-1.0" />
+  <vertex x="-1.0" y="1.0" z="-1.0" />
  </vertices_set>
- <indices_set>
-  <index value="0" />
-  <index value="2" />
-  <index value="1" /> 
-  <index value="0" />
-  <index value="3" />
-  <index value="2" />
-  <index value="5" />
-  <index value="4" />
-  <index value="6" />
-  <index value="5" />
-  <index value="6" />
-  <index value="7" />
- </indices_set>
- <color r="0.0f" g="0.0f" b="0.0f" />
+ <normals_set>
+  <normal x="0.0" y="0.0" z="-1.0" />
+  <normal x="0.0" y="0.0" z="-1.0" />
+  <normal x="0.0" y="0.0" z="-1.0" />
+ </normals_set>
+ <color r="1.0f" g="1.0f" b="1.0f" />
 </surface>

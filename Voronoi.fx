@@ -234,43 +234,9 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 	}
 	else
 	{
-		//divide polygon into 2 polygons, divided by the slice
+		//divide triangle into 3 triangle, divided by the slice
 		//calculate distance function for each polygon
 
-		//case 1: the z-value of one point is the same as the depth of the slice
-		//result: 2 triangles
-		//NOT SURE IF NEEDED
-		for(int v = 0; v < 3; v++)
-		{
-			if(input[v].pos.z == sliceDepth)
-			{
-				float4 v0 = input[v].pos;
-				float4 v1 = input[(v+1)%3].pos;
-				float4 v2 = input[(v+2)%3].pos;
-				float4 v3 = v2 - v1;
-				v3 /= abs(v3.z);
-				float distToSlice = abs(sliceDepth - v1.z);
-				v3 *= distToSlice;//resulting in new vertex
-				v3.w = 1.0f;
-				
-
-				//create 2 new polygons with
-				//v0, v1, v3    v0, v2, v3
-				triangle1[0].pos = v0;
-				triangle1[1].pos = v1;
-				triangle1[2].pos = v3;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, v1.z < sliceDepth);
-
-				triangle1[0].pos = v0;
-				triangle1[1].pos = v2;
-				triangle1[2].pos = v3;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, v2.z < sliceDepth);
-			}
-		}
-
-		//case 2: no point has a z-value equal to the slice depth
-		//result: 3 triangles
-		//use approach as in case 1
 
 		//calculate interpolated vectors and create the 3 triangles
 		if(input[0].pos.z < sliceDepth)
@@ -278,13 +244,6 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 			//case 2.3
 			if(input[1].pos.z < sliceDepth)
 			{
-				//interpolate between 0 and 2 and between 1 and 2
-				//float zDist02 = input[2].pos.z - input[0].pos.z;
-				//float zDist12 = input[2].pos.z - input[1].pos.z;
-				//float zWeight02 = (sliceDepth - input[0].pos.z)/zDist02;
-				//float zWeight12 = (sliceDepth - input[1].pos.z)/zDist12;
-				//interVec1 = lerp(input[0].pos, input[2].pos, float4(zWeight02, zWeight02, zWeight02, zWeight02));
-				//interVec2 = lerp(input[1].pos, input[2].pos, float4(zWeight12, zWeight12, zWeight12, zWeight12));
 				float4 interVec1 = interpolate(input[0].pos, input[2].pos, sliceDepth);
 				float4 interVec2 = interpolate(input[1].pos, input[2].pos, sliceDepth);
 
@@ -292,41 +251,40 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				triangle1[0].pos = input[0].pos;
 				triangle1[1].pos = input[1].pos;
 				triangle1[2].pos = interVec1;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 				//triangle 2: 1,iV1,iV2
 				triangle1[0].pos = input[1].pos;
 				triangle1[1].pos = interVec1;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 				//triangle 3: 2,iV1,iV2
 				triangle1[0].pos = input[2].pos;
 				triangle1[1].pos = interVec1;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
-
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);		
 			}
 			//case 2.2
 			else if(input[2].pos.z < sliceDepth)
 			{
 				//interpolate between 0 and 1 and between 1 and 2
 				float4 interVec1 = interpolate(input[0].pos, input[1].pos, sliceDepth);
-				float4 interVec2 = interpolate(input[1].pos, input[2].pos, sliceDepth);
+				float4 interVec2 = interpolate(input[2].pos, input[1].pos, sliceDepth);
 
 				//triangle 1: 0,2,iV1
 				triangle1[0].pos = input[0].pos;
 				triangle1[1].pos = input[2].pos;
 				triangle1[2].pos = interVec1;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 				//triangle 2: 2,iV1,iV2
 				triangle1[0].pos = input[2].pos;
 				triangle1[1].pos = interVec1;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 				//triangle 3: 1,iV1,iV2
 				triangle1[0].pos = input[1].pos;
 				triangle1[1].pos = interVec1;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 			}
 			//case 1.1
 			else
@@ -339,17 +297,17 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				triangle1[0].pos = input[1].pos;
 				triangle1[1].pos = input[2].pos;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 				//triangle 2: 1,iv1,iv2
 				triangle1[0].pos = input[1].pos;
 				triangle1[1].pos = interVec1;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 				//triangle 3: 0,iv1,iv2
 				triangle1[0].pos = input[0].pos;
 				triangle1[1].pos = interVec1;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 			}
 		}
 		else
@@ -365,17 +323,17 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				triangle1[0].pos = input[0].pos;
 				triangle1[1].pos = interVec1;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 				//triangle 2: 0,1,iv2
 				triangle1[0].pos = input[0].pos;
 				triangle1[1].pos = input[1].pos;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 				//triangle 3: 2, iv1,iv2
 				triangle1[0].pos = input[2].pos;
 				triangle1[1].pos = interVec1;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 			}
 			//case 1.2
 			else if(input[2].pos.z > sliceDepth)
@@ -388,17 +346,17 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				triangle1[0].pos = input[0].pos;
 				triangle1[1].pos = interVec1;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 				//triangle 2: 0,2,iv2
 				triangle1[0].pos = input[0].pos;
 				triangle1[1].pos = input[2].pos;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 				//triangle 3: 1,iv1,iv2
 				triangle1[0].pos = input[1].pos;
 				triangle1[1].pos = interVec1;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 			}
 			//case 2.1
 			else
@@ -411,17 +369,17 @@ void TriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VOR
 				triangle1[0].pos = input[0].pos;
 				triangle1[1].pos = interVec1;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 				//triangle 2: 1,2,iv1
 				triangle1[0].pos = input[1].pos;
 				triangle1[1].pos = input[2].pos;
 				triangle1[2].pos = interVec1;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 				//triangle 3: 2,iv1,iv2
 				triangle1[0].pos = input[2].pos;
 				triangle1[1].pos = interVec1;
 				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, triangle1[0].pos < sliceDepth);
+				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 			}
 		}
 	}

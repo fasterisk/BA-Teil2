@@ -1,68 +1,20 @@
 <!DOCTYPE SurfaceXML>
-<surface nb_vertices="24" nb_indices="36" >
+<surface nb_vertices="6">
  <vertices_set>
-  <vertex x="-0.5" y="-0.5" z="-0.5" />
-  <vertex x="0.5" y="-0.5" z="-0.5" />
-  <vertex x="0.5" y="0.5" z="-0.5" />
-  <vertex x="-0.5" y="0.5" z="-0.5" />
-  <vertex x="-0.5" y="-0.5" z="-0.5" />
-  <vertex x="0.5" y="-0.5" z="-0.5" />
-  <vertex x="0.5" y="-0.5" z="0.5" />
-  <vertex x="-0.5" y="-0.5" z="0.5" />
-  <vertex x="0.5" y="-0.5" z="-0.5" />
-  <vertex x="0.5" y="0.5" z="-0.5" />
-  <vertex x="0.5" y="0.5" z="0.5" />
-  <vertex x="0.5" y="-0.5" z="0.5" />
-  <vertex x="0.5" y="0.5" z="-0.5" />
-  <vertex x="-0.5" y="0.5" z="-0.5" />
-  <vertex x="-0.5" y="0.5" z="0.5" />
-  <vertex x="0.5" y="0.5" z="0.5" />
-  <vertex x="-0.5" y="0.5" z="-0.5" />
-  <vertex x="-0.5" y="-0.5" z="-0.5" />
-  <vertex x="-0.5" y="-0.5" z="0.5" />
-  <vertex x="-0.5" y="0.5" z="0.5" />
-  <vertex x="-0.5" y="-0.5" z="0.5" />
-  <vertex x="0.5" y="-0.5" z="0.5" />
-  <vertex x="0.5" y="0.5" z="0.5" />
-  <vertex x="-0.5" y="0.5" z="0.5" />
+  <vertex x="-1.0" y="-1.0" z="-1.0" />
+  <vertex x="1.0" y="-1.0" z="-1.0" />
+  <vertex x="-1.0" y="1.0" z="-1.0" />
+  <vertex x="1.0" y="-1.0" z="-1.0" />
+  <vertex x="1.0" y="1.0" z="-1.0" />
+  <vertex x="-1.0" y="1.0" z="-1.0" />
  </vertices_set>
- <indices_set>
-  <index value="0" />
-  <index value="2" />
-  <index value="1" />
-  <index value="0" />
-  <index value="3" />
-  <index value="2" />
-  <index value="4" />
-  <index value="5" />
-  <index value="6" />
-  <index value="4" />
-  <index value="6" />
-  <index value="7" />
-  <index value="8" />
-  <index value="9" />
-  <index value="10" />
-  <index value="8" />
-  <index value="10" />
-  <index value="11" />
-  <index value="12" />
-  <index value="13" />
-  <index value="14" />
-  <index value="12" />
-  <index value="14" />
-  <index value="15" />
-  <index value="16" />
-  <index value="17" />
-  <index value="18" />
-  <index value="16" />
-  <index value="18" />
-  <index value="19" />
-  <index value="20" />
-  <index value="21" />
-  <index value="22" />
-  <index value="20" />
-  <index value="22" />
-  <index value="23" />
- </indices_set>
+ <normals_set>
+  <normal x="0.0" y="0.0" z="-1.0" />
+  <normal x="0.0" y="0.0" z="-1.0" />
+  <normal x="0.0" y="0.0" z="-1.0" />
+  <normal x="0.0" y="0.0" z="-1.0" />
+  <normal x="0.0" y="0.0" z="-1.0" />
+  <normal x="0.0" y="0.0" z="-1.0" />
+ </normals_set>
  <color r="1.0f" g="1.0f" b="1.0f" />
 </surface>
