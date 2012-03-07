@@ -177,7 +177,7 @@ void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout 
 	
 		//distance-normal between point of the triangle and slice
 		float3 normalToPosAtSlice =	normal*distPosToSliceZ;
-		output.pos = float4(vertices[v].pos.x+normalToPosAtSlice.x, vertices[v].pos.y+normalToPosAtSlice.y,  length(normalToPosAtSlice), 1.0f);
+		output.pos = float4(vertices[v].pos.x+normalToPosAtSlice.x*2, vertices[v].pos.y+normalToPosAtSlice.y*2,  length(normalToPosAtSlice), 1.0f);
 
 		output.dist = float4(normal.xyz, 1.0f);
 		tStream.Append(output);
