@@ -40,14 +40,14 @@ RasterizerState CullBack
 
 RasterizerState CullNone
 {
-    MultiSampleEnable = False;
+    MultiSampleEnable = True;
     CullMode = None;
 };
 
 RasterizerState RasterizerWireframe
 {
 	FillMode = WIREFRAME;
-	CullMode = None;
+	CullMode = Back;
 };
 
 BlendState AlphaBlending

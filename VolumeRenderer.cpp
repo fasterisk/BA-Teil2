@@ -57,7 +57,7 @@ HRESULT VolumeRenderer::Update(int iWidth, int iHeight, int iDepth)
 										1.0f / (iHeight * (maxSize / iHeight)),
 										1.0f / (iDepth * (maxSize / iDepth)));
 	m_pStepSizeVar->SetFloatVector(vStepSize * 2.0f);
-	int iIterations = (int)maxSize;// * 2.0f;
+	int iIterations = (int)maxSize;
 	m_pIterationsVar->SetInt(iIterations);
 	
 	return S_OK;

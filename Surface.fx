@@ -18,6 +18,23 @@ DepthStencilState EnableDepth
     DepthFunc = LESS_EQUAL;
 };
 
+DepthStencilState DisableDepth
+{
+    DepthEnable = FALSE;
+    DepthWriteMask = ZERO;
+    
+    //stencil
+    //StencilEnable = FALSE;
+    //StencilReadMask = 0x00;
+    //StencilWriteMask = 0x00;
+};
+
+RasterizerState CullFront
+{
+	MultiSampleEnable = True;
+	CullMode = Front;
+};
+
 RasterizerState CullBack
 {
     MultiSampleEnable = True;
@@ -159,7 +176,7 @@ PsOutput PS_COLOR( VsOutput input )
     PsOutput output;
     output.Color = input.Color;
 
-	output.Color.a = 0.5f;
+	output.Color.a = 0.1f;
     return output;
 }
 
@@ -191,8 +208,8 @@ technique10 RenderColor
         SetPixelShader( CompileShader( ps_4_0, PS_COLOR() ) );
 
 		SetBlendState(AlphaBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetDepthStencilState( EnableDepth, 0 );
-        SetRasterizerState( CullNone );
+        SetDepthStencilState( DisableDepth, 0 );
+        SetRasterizerState(CullNone);
     }
 
 	pass
@@ -215,6 +232,6 @@ technique10 RenderNormals
 		SetPixelShader(CompileShader(ps_4_0, PS_NORMAL()));
 
 		SetDepthStencilState( EnableDepth, 0);
-		SetRasterizerState(CullNone);
+		SetRasterizerState(CullBack);
 	}
 }

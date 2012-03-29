@@ -187,7 +187,6 @@ void InitApp()
 	g_SampleUI.AddSlider( IDC_SLICEINDEX_SLIDER, 0, iY+=20, 130, 22);
 	g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
 	g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
-	g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetEnabled(false);
 
 	// Setup the camera's view parameters
     D3DXVECTOR3 vecEye( 0.0f, 0.0f, -4.0f );
@@ -401,6 +400,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
 			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+			g_pScene->SetRenderVoronoi(false);
 			break;
 		case IDC_MOVE:
 			g_bRotatesWithMouse = false;
@@ -409,6 +409,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
 			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+			g_pScene->SetRenderVoronoi(false);
 			break;
 		case IDC_CAMERA:
 			g_bCameraActive = true;
@@ -453,6 +454,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			}
 			g_bCameraActive = true;
 			g_SampleUI.GetRadioButton(IDC_CAMERA)->SetChecked(true);
+			g_pScene->GenerateVoronoi();
 			break;
     }
 

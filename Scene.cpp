@@ -20,6 +20,8 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_pVoronoi3D2SRV = NULL;
 	m_pBBVertices = new VERTEX[8];
 	initialized = false;
+	m_bRenderVoronoi = false;
+	m_bGenerateVoronoi = false;
 
 }
 
@@ -173,7 +175,7 @@ HRESULT Scene::UpdateBoundingBox()
 
 	if(initialized && vNewMin == m_vMin && vNewMax == m_vMax)
 		return S_OK;
-
+		
 	m_vMin = vNewMin;
 	m_vMax = vNewMax;
 	
@@ -246,16 +248,23 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 {
 	UpdateBoundingBox();
 
-	m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
+	if(m_bGenerateVoronoi)
+	{
+		m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
+		m_bGenerateVoronoi = false;
+	}
 
-	m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3D1SRV);
+	if(m_bRenderVoronoi)
+	{
+		m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3D1SRV);
+	}
 
 	if(bShowSurfaces)
 	{
 		m_pSurface1->Render(mViewProjection);
 		m_pSurface2->Render(mViewProjection);
-		m_pSurface1->RenderNormals(mViewProjection);
-		m_pSurface2->RenderNormals(mViewProjection);
+		//m_pSurface1->RenderNormals(mViewProjection);
+		//m_pSurface2->RenderNormals(mViewProjection);
 	}
 }	
 
@@ -312,6 +321,7 @@ HRESULT Scene::ChangeRenderingToOneSlice(int iSliceIndex)
 	m_pVoronoi->ChangeRenderingToOneSlice(iSliceIndex);
 	V_RETURN(m_pVolumeRenderer->SetAlpha(1.0f));
 	initialized = false;
+	m_bGenerateVoronoi = true;
 	return S_OK;
 }
 
@@ -322,6 +332,7 @@ HRESULT Scene::ChangeRenderingToAllSlices()
 	m_pVoronoi->ChangeRenderingToAllSlices();
 	V_RETURN(m_pVolumeRenderer->SetAlpha(0.01f));
 	initialized = false;
+	m_bGenerateVoronoi = true;
 	return S_OK;
 }
 
@@ -348,6 +359,17 @@ void Scene::RotateY(float fFactor)
 void Scene::Scale(float fFactor)
 {
 	m_pControlledSurface->Scale(fFactor);
+}
+
+void Scene::GenerateVoronoi()
+{
+	m_bGenerateVoronoi = true;
+	m_bRenderVoronoi = true;
+}
+
+void Scene::SetRenderVoronoi(bool bRenderVoronoi)
+{
+	m_bRenderVoronoi = bRenderVoronoi;
 }
 
 

@@ -30,6 +30,8 @@ public:
 	int GetTextureHeight()	{return iTextureHeight;}
 	int GetTextureDepth()	{return iTextureDepth;}
 
+	void GenerateVoronoi();
+	void SetRenderVoronoi(bool bRenderVoronoi);
 
 	HRESULT UpdateBoundingBox();
 
@@ -38,6 +40,8 @@ protected:
 	HRESULT Init3DTextures();
 
 	bool initialized;
+	bool m_bGenerateVoronoi;
+	bool m_bRenderVoronoi;
 
 	// Device
 	ID3D11Device*			m_pd3dDevice;
