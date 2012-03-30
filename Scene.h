@@ -20,18 +20,18 @@ public:
 	void ChangeControlledSurface();
 	HRESULT ChangeRenderingToOneSlice(int iSliceIndex);
 	HRESULT ChangeRenderingToAllSlices();
-	void Translate(float fX, float fY, float fZ);
-	void Rotate(D3DXVECTOR3 axis, float fFactor);
-	void RotateX(float fFactor);
-	void RotateY(float fFactor);
-	void Scale(float fFactor);
+	void TranslateCurrentSurface(float fX, float fY, float fZ);
+	void RotateCurrentSurface(D3DXVECTOR3 axis, float fFactor);
+	void RotateXCurrentSurface(float fFactor);
+	void RotateYCurrentSurface(float fFactor);
+	void ScaleCurrentSurface(float fFactor);
 
 	int GetTextureWidth()	{return iTextureWidth;}
 	int GetTextureHeight()	{return iTextureHeight;}
 	int GetTextureDepth()	{return iTextureDepth;}
 
 	void GenerateVoronoi();
-	void SetRenderVoronoi(bool bRenderVoronoi);
+	void Render3DTexture(bool bRender);
 
 	HRESULT UpdateBoundingBox();
 
@@ -41,7 +41,7 @@ protected:
 
 	bool initialized;
 	bool m_bGenerateVoronoi;
-	bool m_bRenderVoronoi;
+	bool m_bRender3DTexture;
 
 	// Device
 	ID3D11Device*			m_pd3dDevice;

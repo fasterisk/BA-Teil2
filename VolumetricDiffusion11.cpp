@@ -329,14 +329,14 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	{
 		if(bLeftDown)
 		{
-			g_pScene->Rotate(lookRight, (g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
-			g_pScene->Rotate(lookUp, (g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
+			g_pScene->RotateCurrentSurface(lookRight, (g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
+			g_pScene->RotateCurrentSurface(lookUp, (g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
 		}
 		
 		if(iWheelDelta>0)
-			g_pScene->Scale(1.02f);
+			g_pScene->ScaleCurrentSurface(1.02f);
 		else if(iWheelDelta<0)
-			g_pScene->Scale(0.98f);
+			g_pScene->ScaleCurrentSurface(0.98f);
 	}
 	else//Move object
 	{
@@ -344,14 +344,14 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 
 		if(bLeftDown)
 		{
-			g_pScene->Translate(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
-			g_pScene->Translate(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
+			g_pScene->TranslateCurrentSurface(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
+			g_pScene->TranslateCurrentSurface(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
 		}
 
 		if(iWheelDelta>0)
-			g_pScene->Translate(100*lookAt.x, 100*lookAt.y, 100*lookAt.z);
+			g_pScene->TranslateCurrentSurface(100*lookAt.x, 100*lookAt.y, 100*lookAt.z);
 		else if(iWheelDelta<0)
-			g_pScene->Translate(-100*lookAt.x, -100*lookAt.y, -100*lookAt.z);
+			g_pScene->TranslateCurrentSurface(-100*lookAt.x, -100*lookAt.y, -100*lookAt.z);
 	}
 
 	g_mouseX = iX;
@@ -400,7 +400,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
 			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
-			g_pScene->SetRenderVoronoi(false);
+			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_MOVE:
 			g_bRotatesWithMouse = false;
@@ -409,7 +409,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
 			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
-			g_pScene->SetRenderVoronoi(false);
+			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_CAMERA:
 			g_bCameraActive = true;
