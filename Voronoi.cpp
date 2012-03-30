@@ -482,11 +482,11 @@ HRESULT Voronoi::RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2O
 	// Render to flat textures
 	m_pModelViewProjectionVar->SetMatrix(mModel1Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix1);
-	m_pSurface1->Render(m_pVoronoiDiagramTechnique);
+	m_pSurface1->RenderVoronoi(m_pVoronoiDiagramTechnique);
 
 	m_pModelViewProjectionVar->SetMatrix(mModel2Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix2);
-	m_pSurface2->Render(m_pVoronoiDiagramTechnique);
+	m_pSurface2->RenderVoronoi(m_pVoronoiDiagramTechnique);
 	
 	return S_OK;
 }

@@ -28,6 +28,7 @@ public:
 	HRESULT Initialize(char *s);
 	void Render(D3DXMATRIX mViewProjection);
 	void Render(ID3DX11EffectTechnique* pTechnique);
+	void RenderVoronoi(ID3DX11EffectTechnique* pTechnique);
 	void RenderNormals(D3DXMATRIX mViewProjection);
 
 protected:

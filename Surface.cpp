@@ -170,6 +170,28 @@ void Surface::Render(ID3DX11EffectTechnique* pTechnique)
 	}
 }
 
+void Surface::RenderVoronoi(ID3DX11EffectTechnique* pTechnique)
+{
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//apply triangle technique & draw
+	//pTechnique->GetPassByName("Triangle")->Apply( 0, m_pd3dImmediateContext);
+	//m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
+	
+	//apply line technique & draw
+	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	pTechnique->GetPassByName("Edge")->Apply( 0, m_pd3dImmediateContext);
+	m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
+
+	//apply point technique & draw
+	/*m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	pTechnique->GetPassByName("Point")->Apply( 0, m_pd3dImmediateContext);
+	m_pd3dImmediateContext->Draw(m_iNumVertices, 0);*/
+}
+
 void Surface::RenderNormals(D3DXMATRIX mViewProjection)
 {
 	D3DXMATRIX mModelViewProjection = m_mModel * mViewProjection;

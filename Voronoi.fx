@@ -150,7 +150,7 @@ float4 interpolate(float4 p1, float4 p2, float sliceDepth)
 }
 
 
-void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout TriangleStream<GS_VORONOI_OUTPUT> tStream, float sliceDepth, bool sliceDepthGreater)
+void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout TriangleStream<GS_VORONOI_OUTPUT> tStream, float sliceDepth, bool bSliceDepthGreater)
 {
 	GS_VORONOI_OUTPUT output;
 	output.color = vertices[0].color;//assumed, that all 3 vertices have the same color
@@ -161,7 +161,7 @@ void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout 
 	if(normal.z == 0)
 		return;
 
-	if((sliceDepthGreater && normal.z < 0)||(!sliceDepthGreater && normal.z > 0))
+	if((bSliceDepthGreater && normal.z < 0)||(!bSliceDepthGreater && normal.z > 0))
 		normal = -normal;
 
 	//normalize the normal for the z-value, so we can easily
@@ -182,6 +182,89 @@ void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout 
 		tStream.Append(output);
 	}
 	tStream.RestartStrip();
+}
+
+void EdgeProjectOntoSlice(line GS_VORONOI_INPUT edge[2], inout TriangleStream<GS_VORONOI_OUTPUT> tStream, float fSliceDepth, bool bSliceDepthGreater)
+{
+	float3 a;
+
+	GS_VORONOI_INPUT vec1 = edge[0];
+	GS_VORONOI_INPUT vec2 = edge[1];
+
+	vec1.pos /= vec1.pos.w;
+	vec2.pos /= vec2.pos.w;
+
+	if(vec1.pos.z == vec2.pos.z)
+	{
+		//TODO
+	}
+	else if(vec1.pos.z < vec2.pos.z)
+	{
+		if(bSliceDepthGreater)
+			a = vec1.pos.xyz - vec2.pos.xyz;
+		else
+			a = vec2.pos.xyz - vec1.pos.xyz;
+		
+	}
+	else if(vec1.pos.z > vec2.pos.z)
+	{
+		if(bSliceDepthGreater)
+			a = vec2.pos.xyz - vec1.pos.xyz;
+		else
+			a = vec1.pos.xyz - vec2.pos.xyz;
+	}
+
+
+	float3 b = float3(a.x, a.y, 0);
+
+	float3 b_a = dot(a,b)/dot(a,a)*a;
+
+	float3 normalToSlice = b - b_a;
+	normalToSlice /= abs(normalToSlice.z);
+
+	//project edge to the slice
+	float dist1 = abs(vec1.pos.z - fSliceDepth);
+	float dist2 = abs(vec2.pos.z - fSliceDepth);
+
+	float3 newVec1 = vec1.pos.xyz + normalToSlice*dist1;
+	float3 newVec2 = vec2.pos.xyz + normalToSlice*dist2;
+
+	float3 newEdge = newVec2 - newVec1;
+	float3 nL = normalize(float3(-newEdge.y, newEdge.x, 0.0));
+	float3 nR = normalize(float3(newEdge.y, -newEdge.x, 0.0));
+
+	float3 vec1L, vec2L, vec1R, vec2R;
+	vec1L = vec1.pos.xyz + 3 * nL;
+	vec2L = vec2.pos.xyz + 3 * nL;
+	vec1R = vec1.pos.xyz + 3 * nR;
+	vec2R = vec2.pos.xyz + 3 * nR;
+
+
+	GS_VORONOI_OUTPUT output;
+	output.color = vec1.color;
+	output.dist = vec1.color;
+	output.pos = float4(vec2L.xyz, 1.0f);
+	tStream.Append(output);
+	output.pos = float4(vec1L.xyz, 1.0f);
+	tStream.Append(output);
+	output.pos = float4(vec1R.xyz, 1.0f);
+	tStream.Append(output);
+	output.pos = float4(vec2R.xyz, 1.0f);
+	tStream.Append(output);
+	output.pos = float4(vec1R.xyz, 1.0f);
+	tStream.Append(output);
+	output.pos = float4(vec2L.xyz, 1.0f);
+	tStream.Append(output);
+	tStream.RestartStrip();
+
+
+
+	// draw triangles as distance function normal to the edge, z-value of every pixel is then calculated 
+	// in the pixel shader
+	// give the edge coordinates through input parameters to the pixel shader
+	// check which point is the higher one, so that my algorithm works; 
+	// if they have the same z-value, it gets simple and i dont have to apply my algorithm
+
 }
 
 
@@ -388,26 +471,25 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 [maxvertexcount(2)]
 void VoronoiEdgeGS( line GS_VORONOI_INPUT input[2], inout TriangleStream<GS_VORONOI_OUTPUT> tStream)
 {
-	// Slice index as per frame variable
+	//z-distance of the bounding box
+	float zBBDist = vBBMax.z - vBBMin.z;
 
-	GS_VORONOI_OUTPUT output;
+	//Calculate depth of the current slice
+	float sliceDepth = (iSliceIndex/(float)iTextureDepth)*zBBDist+vBBMin.z;
 
-	/*for(int v = 0; v < 2; v++)
+	if(input[0].pos.z <= sliceDepth && input[1].pos.z <= sliceDepth)
 	{
-		output.pos = input[v].pos;
-		output.color = input[v].color;
-	}*/
+		EdgeProjectOntoSlice(input, tStream, sliceDepth, true);
+	}
+	else if(input[0].pos.z >= sliceDepth && input[1].pos.z >= sliceDepth)
+	{
+		EdgeProjectOntoSlice(input, tStream, sliceDepth, false);
+	}
+	else// case when slice divides edge in 2 parts
+	{
+		//TODO
+	}
 
-	
-
-
-
-
-
-	// draw triangles as distance function normal to the edge, z-value of every pixel is then calculated 
-	// in the pixel shader
-	// give the edge coordinates through input parameters to the pixel shader
-	tStream.RestartStrip();
 }
 
 [maxvertexcount(1)]
@@ -480,7 +562,7 @@ PS_RESOLVE_OUTPUT ResolvePS(GS_RESOLVE_OUTPUT input)
 
 technique10 GenerateVoronoiDiagram
 {
-	pass P1
+	pass Triangle
 	{
 		SetVertexShader(CompileShader(vs_4_0, VoronoiVS()));
 		SetGeometryShader(CompileShader(gs_4_0, VoronoiTriangleGS()));
@@ -489,14 +571,16 @@ technique10 GenerateVoronoiDiagram
         SetBlendState( BS_NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetDepthStencilState( EnableDepth, 0 );
 	}
-	/*pass P2
+	pass Edge
 	{
 		SetVertexShader(CompileShader(vs_4_0, VoronoiVS()));
-		SetGeometryShader(CompileShader(gs_4_0, EdgeGS()));
-		SetPixelShader(CompileShader(ps_4_0, VoronoiPS()));
-		//TODO: set states
+		SetGeometryShader(CompileShader(gs_4_0, VoronoiEdgeGS()));
+		SetPixelShader(CompileShader(ps_4_0, VoronoiEdgePS()));
+		SetRasterizerState( RS_CullDisabled );
+        SetBlendState( BS_NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
+        SetDepthStencilState( EnableDepth, 0 );
 	}
-	pass P3
+	/*pass Point
 	{
 		SetVertexShader(CompileShader(vs_4_0, VoronoiVS()));
 		SetGeometryShader(CompileShader(gs_4_0, VertexGS()));
