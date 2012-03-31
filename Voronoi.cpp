@@ -238,7 +238,7 @@ HRESULT Voronoi::InitShaders()
 	m_pModelViewProjectionVar	= m_pVoronoiEffect->GetVariableByName("ModelViewProjectionMatrix")->AsMatrix();
 	m_pNormalMatrixVar			= m_pVoronoiEffect->GetVariableByName("NormalMatrix")->AsMatrix();
 	m_pSliceIndexVar			= m_pVoronoiEffect->GetVariableByName("iSliceIndex")->AsScalar();
-	m_pTextureDepthVar			= m_pVoronoiEffect->GetVariableByName("iTextureDepth")->AsScalar();
+	m_pTextureSizeVar			= m_pVoronoiEffect->GetVariableByName("vTextureSize")->AsVector();
 	m_pBBMinVar					= m_pVoronoiEffect->GetVariableByName("vBBMin")->AsVector();
 	m_pBBMaxVar					= m_pVoronoiEffect->GetVariableByName("vBBMax")->AsVector();
 	m_pFlatColorTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatColorTexture")->AsShaderResource();
@@ -247,7 +247,7 @@ HRESULT Voronoi::InitShaders()
 	assert(m_pVoronoiDiagramTechnique);
 	assert(m_pModelViewProjectionVar);
 	assert(m_pSliceIndexVar);
-	assert(m_pTextureDepthVar);
+	assert(m_pTextureSizeVar);
 	assert(m_pBBMinVar);
 	assert(m_pBBMaxVar);
 	assert(m_pFlatColorTex2DSRVar);
@@ -402,7 +402,7 @@ HRESULT Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 	// Set Variables needed for Voronoi Diagram Computation
 	m_pBBMinVar->SetFloatVector(vBBMinOrth);
 	m_pBBMaxVar->SetFloatVector(vBBMaxOrth);
-	m_pTextureDepthVar->SetFloat((float)m_iTextureDepth);
+	m_pTextureSizeVar->SetFloatVector(D3DXVECTOR3((float)m_iTextureWidth, (float)m_iTextureHeight, (float)m_iTextureDepth));
 
 	// Set Flat Textures as Rendertargets
 	ID3D11RenderTargetView* destFlatTex2DRTVs[2];

@@ -182,14 +182,12 @@ void Surface::RenderVoronoi(ID3DX11EffectTechnique* pTechnique)
 	//m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
 	
 	//apply line technique & draw
-	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	pTechnique->GetPassByName("Edge")->Apply( 0, m_pd3dImmediateContext);
 	m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
 
 	//apply point technique & draw
-	/*m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-	pTechnique->GetPassByName("Point")->Apply( 0, m_pd3dImmediateContext);
-	m_pd3dImmediateContext->Draw(m_iNumVertices, 0);*/
+	//pTechnique->GetPassByName("Point")->Apply( 0, m_pd3dImmediateContext);
+	//m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
 }
 
 void Surface::RenderNormals(D3DXMATRIX mViewProjection)

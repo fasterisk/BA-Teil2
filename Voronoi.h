@@ -61,8 +61,8 @@ private:
 	ID3DX11EffectMatrixVariable				*m_pNormalMatrixVar;
 
 	ID3DX11EffectScalarVariable				*m_pSliceIndexVar;
-	ID3DX11EffectScalarVariable				*m_pTextureDepthVar;
 
+	ID3DX11EffectVectorVariable				*m_pTextureSizeVar;
 	ID3DX11EffectVectorVariable				*m_pBBMinVar;
 	ID3DX11EffectVectorVariable				*m_pBBMaxVar;
 
