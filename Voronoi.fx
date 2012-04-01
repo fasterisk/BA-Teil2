@@ -290,24 +290,6 @@ void EdgeProjectOntoSlice(GS_EDGE_VORONOI_INPUT vec1, GS_EDGE_VORONOI_INPUT vec2
 	output.pos = float4(vec2L.xy, 0.0f, 1.0f);
 	tStream.Append(output);
 	tStream.RestartStrip();
-	
-	/*
-	output.pos = float4(newVec1.xy, 0.0f, 1.0f);
-	output.color = vec1.color;
-	output.dist = vec1.color;
-	tStream.Append(output);
-	output.pos = float4(newVec2.xy, 0.0f, 1.0f);
-	output.color = vec2.color;
-	output.dist = vec2.color;
-	tStream.Append(output);
-	tStream.RestartStrip();
-	*/
-
-	// draw triangles as distance function normal to the edge, z-value of every pixel is then calculated 
-	// in the pixel shader
-	// give the edge coordinates through input parameters to the pixel shader
-	// check which point is the higher one, so that my algorithm works; 
-	// if they have the same z-value, it gets simple and i dont have to apply my algorithm
 
 }
 
@@ -534,8 +516,8 @@ void VoronoiEdgeGS( triangle GS_EDGE_VORONOI_INPUT input[3], inout TriangleStrea
 
 	for(int i = 0; i < 1; i++)//3; i++)
 	{
-		GS_VORONOI_INPUT vec1 = input[i];
-		GS_VORONOI_INPUT vec2 = input[(i+1)%3];
+		GS_EDGE_VORONOI_INPUT vec1 = input[i];
+		GS_EDGE_VORONOI_INPUT vec2 = input[(i+1)%3];
 	
 		if(vec1.pos.z <= sliceDepth && vec2.pos.z <= sliceDepth)
 		{
@@ -547,16 +529,27 @@ void VoronoiEdgeGS( triangle GS_EDGE_VORONOI_INPUT input[3], inout TriangleStrea
 		}
 		else// case when slice divides edge in 2 parts
 		{
-			// following is just for testing purposes - NOT FINAL
-			/*output.pos = vec1.pos;
-			output.color = vec1.color;
-			output.dist = vec1.color;
-			tStream.Append(output);
-			output.pos = vec2.pos;
-			output.color = vec2.color;
-			output.dist = vec2.color;
-			tStream.Append(output);
-			tStream.RestartStrip();*/
+			GS_EDGE_VORONOI_INPUT interVec;
+			interVec.pos = interpolate(vec1.pos, vec2.pos, sliceDepth);
+			interVec.color = vec1.color;
+
+			float zDist = vec2.pos.z - vec1.pos.z;
+			float zWeight = (sliceDepth - vec1.pos.z)/zDist;
+			interVec.pos2 = lerp(vec1.pos2, vec2.pos2, float3(zWeight, zWeight, zWeight));
+			
+			
+
+			if(vec1.pos.z < sliceDepth)
+			{
+				EdgeProjectOntoSlice(vec1, interVec, tStream, sliceDepth, true);
+				EdgeProjectOntoSlice(vec2, interVec, tStream, sliceDepth, false);
+				
+			}
+			else
+			{
+				EdgeProjectOntoSlice(vec1, interVec, tStream, sliceDepth, false);
+				EdgeProjectOntoSlice(vec2, interVec, tStream, sliceDepth, true);
+			}
 		}
 	}
 
