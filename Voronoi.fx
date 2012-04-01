@@ -203,46 +203,33 @@ void EdgeProjectOntoSlice(GS_EDGE_VORONOI_INPUT vec1, GS_EDGE_VORONOI_INPUT vec2
 
 	if(vec1.pos.z == vec2.pos.z)
 	{
-		/*float3 newEdge = vec2.pos.xyz - vec1.pos.xyz;
+		float3 edge = mul((vec1.pos2 - vec2.pos2), (float3x3)NormalMatrix);
 
-		float3 nL = float3(-newEdge.y, newEdge.x, 0.0);
-		float3 nR = float3(newEdge.y, -newEdge.x, 0.0);
+		float3 nL = normalize(float3(-edge.y, edge.x, 0.0));
+		float3 nR = normalize(float3(edge.y, -edge.x, 0.0));
 
 		float3 vec1L, vec2L, vec1R, vec2R;
 		vec1L = vec1.pos.xyz + 3 * nL;
 		vec2L = vec2.pos.xyz + 3 * nL;
 		vec1R = vec1.pos.xyz + 3 * nR;
 		vec2R = vec2.pos.xyz + 3 * nR;
-	
-		
-		output.color = vec1.color;
-		output.dist = vec1.color;
-		output.pos = float4(vec2L.xy, 2.0f, 1.0f);
-		tStream.Append(output);
-		output.pos = float4(vec1L.xy, 2.0f, 1.0f);
-		tStream.Append(output);
-		output.pos = float4(vec1R.xy, 2.0f, 1.0f);
-		tStream.Append(output);
-		output.pos = float4(vec2R.xy, 2.0f, 1.0f);
-		tStream.Append(output);
-		output.pos = float4(vec1R.xy, 2.0f, 1.0f);
-		tStream.Append(output);
-		output.pos = float4(vec2L.xy, 2.0f, 1.0f);
-		tStream.Append(output);
-		tStream.RestartStrip();
-		return;
-		*/
-		output.pos = vec1.pos;
-		output.color = vec1.color;
-		output.dist = vec1.color;
-		tStream.Append(output);
-		output.pos = vec2.pos;
-		output.color = vec2.color;
-		output.dist = vec2.color;
-		tStream.Append(output);
-		tStream.RestartStrip();
-		return;
 
+		output.color = vec1.color;
+		output.dist = vec1.color;
+		output.pos = float4(vec2L.xy, 0.0f, 1.0f);
+		tStream.Append(output);
+		output.pos = float4(vec1L.xy, 0.0f, 1.0f);
+		tStream.Append(output);
+		output.pos = float4(vec1R.xy, 0.0f, 1.0f);
+		tStream.Append(output);
+		output.pos = float4(vec2R.xy, 0.0f, 1.0f);
+		tStream.Append(output);
+		output.pos = float4(vec1R.xy, 0.0f, 1.0f);
+		tStream.Append(output);
+		output.pos = float4(vec2L.xy, 0.0f, 1.0f);
+		tStream.Append(output);
+		tStream.RestartStrip();
+		return;
 	}
 	else if(vec1.pos.z < vec2.pos.z)
 	{
