@@ -191,7 +191,7 @@ void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout 
 	tStream.RestartStrip();
 }
 
-void EdgeProjectOntoSlice(GS_EDGE_VORONOI_INPUT vec1, GS_EDGE_VORONOI_INPUT vec2, inout LineStream<GS_VORONOI_OUTPUT> tStream, float fSliceDepth, bool bSliceDepthGreater)
+void EdgeProjectOntoSlice(GS_EDGE_VORONOI_INPUT vec1, GS_EDGE_VORONOI_INPUT vec2, inout TriangleStream<GS_VORONOI_OUTPUT> tStream, float fSliceDepth, bool bSliceDepthGreater)
 {
 	
 	GS_VORONOI_OUTPUT output;
@@ -250,7 +250,6 @@ void EdgeProjectOntoSlice(GS_EDGE_VORONOI_INPUT vec1, GS_EDGE_VORONOI_INPUT vec2
 			a = vec1.pos2 - vec2.pos2;
 		else
 			a = vec2.pos2 - vec1.pos2;
-		
 	}
 	else if(vec1.pos.z > vec2.pos.z)
 	{
@@ -277,34 +276,35 @@ void EdgeProjectOntoSlice(GS_EDGE_VORONOI_INPUT vec1, GS_EDGE_VORONOI_INPUT vec2
 	float3 newVec1 = vec1.pos.xyz + normalToSlice*dist1*2;
 	float3 newVec2 = vec2.pos.xyz + normalToSlice*dist2*2;
 
-	/*float3 newEdge = newVec2 - newVec1;
-	float3 nL = float3(-newEdge.y, newEdge.x, 0.0);
-	float3 nR = float3(newEdge.y, -newEdge.x, 0.0);
+
+	float3 newEdge = newVec2 - newVec1;
+	float3 nL = normalize(float3(-newEdge.y, newEdge.x, 0.0));
+	float3 nR = normalize(float3(newEdge.y, -newEdge.x, 0.0));
 
 	float3 vec1L, vec2L, vec1R, vec2R;
-	vec1L = vec1.pos.xyz + 3 * nL;
-	vec2L = vec2.pos.xyz + 3 * nL;
-	vec1R = vec1.pos.xyz + 3 * nR;
-	vec2R = vec2.pos.xyz + 3 * nR;
+	vec1L = newVec1 + 3 * nL;
+	vec2L = newVec2 + 3 * nL;
+	vec1R = newVec1 + 3 * nR;
+	vec2R = newVec2 + 3 * nR;
 
 
 	output.color = vec1.color;
 	output.dist = vec1.color;
-	output.pos = float4(vec2L.xy, 2.0f, 1.0f);
+	output.pos = float4(vec2L.xy, 0.0f, 1.0f);
 	tStream.Append(output);
-	output.pos = float4(vec1L.xy, 2.0f, 1.0f);
+	output.pos = float4(vec1L.xy, 0.0f, 1.0f);
 	tStream.Append(output);
-	output.pos = float4(vec1R.xy, 2.0f, 1.0f);
+	output.pos = float4(vec1R.xy, 0.0f, 1.0f);
 	tStream.Append(output);
-	output.pos = float4(vec2R.xy, 2.0f, 1.0f);
+	output.pos = float4(vec2R.xy, 0.0f, 1.0f);
 	tStream.Append(output);
-	output.pos = float4(vec1R.xy, 2.0f, 1.0f);
+	output.pos = float4(vec1R.xy, 0.0f, 1.0f);
 	tStream.Append(output);
-	output.pos = float4(vec2L.xy, 2.0f, 1.0f);
+	output.pos = float4(vec2L.xy, 0.0f, 1.0f);
 	tStream.Append(output);
 	tStream.RestartStrip();
-	*/
-
+	
+	/*
 	output.pos = float4(newVec1.xy, 0.0f, 1.0f);
 	output.color = vec1.color;
 	output.dist = vec1.color;
@@ -314,7 +314,7 @@ void EdgeProjectOntoSlice(GS_EDGE_VORONOI_INPUT vec1, GS_EDGE_VORONOI_INPUT vec2
 	output.dist = vec2.color;
 	tStream.Append(output);
 	tStream.RestartStrip();
-
+	*/
 
 	// draw triangles as distance function normal to the edge, z-value of every pixel is then calculated 
 	// in the pixel shader
@@ -535,7 +535,7 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 }
 
 [maxvertexcount(18)]
-void VoronoiEdgeGS( triangle GS_EDGE_VORONOI_INPUT input[3], inout LineStream<GS_VORONOI_OUTPUT> tStream)
+void VoronoiEdgeGS( triangle GS_EDGE_VORONOI_INPUT input[3], inout TriangleStream<GS_VORONOI_OUTPUT> tStream)
 {
 	//z-distance of the bounding box
 	float zBBDist = vBBMax.z - vBBMin.z;
