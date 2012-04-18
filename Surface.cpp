@@ -9,7 +9,8 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 	m_pd3dImmediateContext = pd3dImmediateContext;
 	m_pSurfaceEffect = pSurfaceEffect;
 
-	m_pVertexBuffer = NULL;
+	m_pTriangleVertexBuffer = NULL;
+	m_pEdgeVertexBuffer = NULL;
 
 	D3DXMatrixIdentity(&m_mModel);
 	D3DXMatrixIdentity(&m_mRot);
@@ -22,11 +23,13 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 
 Surface::~Surface()
 {
-	SAFE_DELETE(m_pVertices);
+	SAFE_DELETE(m_pTriangleVertices);
+	SAFE_DELETE(m_pEdgeVertices);
 
 	SAFE_RELEASE(m_pInputLayout);
 
-	SAFE_RELEASE(m_pVertexBuffer);
+	SAFE_RELEASE(m_pTriangleVertexBuffer);
+	SAFE_RELEASE(m_pEdgeVertexBuffer);
 }
 
 void Surface::Translate(float fX, float fY, float fZ)
@@ -83,9 +86,13 @@ void Surface::Scale(float fFactor)
 
 void Surface::SetColor(float fR, float fG, float fB)
 {
-	for(int i = 0; i < m_iNumVertices; i++)
+	for(int i = 0; i < m_iNumTriangleVertices; i++)
 	{
-		m_pVertices[i].color = D3DXCOLOR(fR, fG, fB, 1.0);
+		m_pTriangleVertices[i].color = D3DXCOLOR(fR, fG, fB, 1.0);
+	}
+	for(int i=0; i < m_iNumEdgeVertices; i++)
+	{
+		m_pEdgeVertices[i].color = D3DXCOLOR(fR, fG, fB, 1.0);
 	}
 
 	InitBuffers();
@@ -133,7 +140,7 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
 	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pTriangleVertexBuffer, &stride, &offset);
 	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
 	
@@ -146,7 +153,7 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 		m_pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 				
 		//draw
-		m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
+		m_pd3dImmediateContext->Draw(m_iNumTriangleVertices, 0);
 	}
 }
 
@@ -154,7 +161,7 @@ void Surface::Render(ID3DX11EffectTechnique* pTechnique)
 {
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pTriangleVertexBuffer, &stride, &offset);
 	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	D3DX11_TECHNIQUE_DESC techDesc;
@@ -166,7 +173,7 @@ void Surface::Render(ID3DX11EffectTechnique* pTechnique)
 		pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 
 		//draw
-		m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
+		m_pd3dImmediateContext->Draw(m_iNumTriangleVertices, 0);
 	}
 }
 
@@ -174,20 +181,23 @@ void Surface::RenderVoronoi(ID3DX11EffectTechnique* pTechnique)
 {
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pTriangleVertexBuffer, &stride, &offset);
 	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//apply triangle technique & draw
 	//pTechnique->GetPassByName("Triangle")->Apply( 0, m_pd3dImmediateContext);
-	//m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
+	//m_pd3dImmediateContext->Draw(m_iNumTriangleVertices, 0);
 	
-	//apply line technique & draw
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pEdgeVertexBuffer, &stride, &offset);
+	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	//apply edge technique & draw
 	pTechnique->GetPassByName("Edge")->Apply( 0, m_pd3dImmediateContext);
-	m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
+	m_pd3dImmediateContext->Draw(m_iNumEdgeVertices, 0);
 
 	//apply point technique & draw
 	//pTechnique->GetPassByName("Point")->Apply( 0, m_pd3dImmediateContext);
-	//m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
+	//m_pd3dImmediateContext->Draw(m_iNumTriangleVertices, 0);
 }
 
 void Surface::RenderNormals(D3DXMATRIX mViewProjection)
@@ -204,7 +214,7 @@ void Surface::RenderNormals(D3DXMATRIX mViewProjection)
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
 	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pTriangleVertexBuffer, &stride, &offset);
 	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	
 	
@@ -217,7 +227,7 @@ void Surface::RenderNormals(D3DXMATRIX mViewProjection)
 		m_pNormalTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 				
 		//draw
-		m_pd3dImmediateContext->Draw(m_iNumVertices, 0);
+		m_pd3dImmediateContext->Draw(m_iNumTriangleVertices, 0);
 	}
 }
 
@@ -230,20 +240,34 @@ HRESULT Surface::InitBuffers()
 {
 	HRESULT hr;
 
-	SAFE_RELEASE(m_pVertexBuffer);
+	SAFE_RELEASE(m_pTriangleVertexBuffer);
+	SAFE_RELEASE(m_pEdgeVertexBuffer);
 
-	//Create Vertex buffer
-	D3D11_BUFFER_DESC vbd;
-	ZeroMemory(&vbd, sizeof(vbd));
-	vbd.Usage = D3D11_USAGE_DYNAMIC;
-	vbd.ByteWidth = sizeof(VERTEX) * m_iNumVertices;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	D3D11_SUBRESOURCE_DATA vertexData;
-	vertexData.pSysMem = m_pVertices;
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
-	V_RETURN(m_pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pVertexBuffer));
+	//Create Triangle Vertex buffer
+	D3D11_BUFFER_DESC tvbd;
+	ZeroMemory(&tvbd, sizeof(tvbd));
+	tvbd.Usage = D3D11_USAGE_DYNAMIC;
+	tvbd.ByteWidth = sizeof(VERTEX) * m_iNumTriangleVertices;
+	tvbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	tvbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	D3D11_SUBRESOURCE_DATA triangleVertexData;
+	triangleVertexData.pSysMem = m_pTriangleVertices;
+	triangleVertexData.SysMemPitch = 0;
+	triangleVertexData.SysMemSlicePitch = 0;
+	V_RETURN(m_pd3dDevice->CreateBuffer(&tvbd, &triangleVertexData, &m_pTriangleVertexBuffer));
+
+	//Create Edge Vertex Buffer
+	D3D11_BUFFER_DESC evbd;
+	ZeroMemory(&evbd, sizeof(evbd));
+	evbd.Usage = D3D11_USAGE_DYNAMIC;
+	evbd.ByteWidth = sizeof(VERTEX) * m_iNumEdgeVertices;
+	evbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	evbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	D3D11_SUBRESOURCE_DATA edgeVertexData;
+	edgeVertexData.pSysMem = m_pEdgeVertices;
+	edgeVertexData.SysMemPitch = 0;
+	edgeVertexData.SysMemSlicePitch = 0;
+	V_RETURN(m_pd3dDevice->CreateBuffer(&evbd, &edgeVertexData, &m_pEdgeVertexBuffer));
 
 	return S_OK;
 }
@@ -265,10 +289,12 @@ void Surface::ReadVectorFile(char *s)
 	while (!stringStartsWith(token, "nb_vertices="))
 		token = strtok(NULL, " \"\t");
 	token = strtok(NULL, " \"\t");
-	m_iNumVertices = int(atof(token));
+	m_iNumTriangleVertices = int(atof(token));
+	m_iNumEdgeVertices = m_iNumTriangleVertices*2;
 	
-	m_pVertices = new VERTEX[m_iNumVertices];
-	for(int i=0; i < m_iNumVertices; i++)
+	m_pTriangleVertices = new VERTEX[m_iNumTriangleVertices];
+	m_pEdgeVertices = new VERTEX[m_iNumEdgeVertices];
+	for(int i=0; i < m_iNumTriangleVertices; i++)
 	{
 		while(!stringStartsWith(buff, "  <vertex "))
 			fgets(buff, 255, F);
@@ -276,19 +302,39 @@ void Surface::ReadVectorFile(char *s)
 		while (!stringStartsWith(token, "x="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].pos.x = float(atof(token));
+		m_pTriangleVertices[i].pos.x = float(atof(token));
 		while (!stringStartsWith(token, "y="))
 			token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].pos.y = float(atof(token));
+		m_pTriangleVertices[i].pos.y = float(atof(token));
 		while (!stringStartsWith(token, "z="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].pos.z = float(atof(token));
+		m_pTriangleVertices[i].pos.z = float(atof(token));
 		fgets(buff, 255, F);
+
+		if((i%3)-2 == 0 && i > 1)
+		{
+			m_pEdgeVertices[(i+1)*2-6].pos = m_pTriangleVertices[i-2].pos;
+			m_pEdgeVertices[(i+1)*2-5].pos = m_pTriangleVertices[i-1].pos;
+			m_pEdgeVertices[(i+1)*2-4].pos = m_pTriangleVertices[i-1].pos;
+			m_pEdgeVertices[(i+1)*2-3].pos = m_pTriangleVertices[i].pos;
+			m_pEdgeVertices[(i+1)*2-2].pos = m_pTriangleVertices[i].pos;
+			m_pEdgeVertices[(i+1)*2-1].pos = m_pTriangleVertices[i-2].pos;
+
+			D3DXVECTOR3 a = m_pTriangleVertices[i-2].pos;
+			D3DXVECTOR3 b = m_pTriangleVertices[i-1].pos;
+			D3DXVECTOR3 c = m_pTriangleVertices[i-1].pos;
+			D3DXVECTOR3 d = m_pTriangleVertices[i].pos;
+			D3DXVECTOR3 e = m_pTriangleVertices[i].pos;
+			D3DXVECTOR3 f = m_pTriangleVertices[i-2].pos;
+
+			int ooo = 1 + 1;
+
+		}
 	}
 
-	for(int i=0; i < m_iNumVertices; i++)
+	for(int i=0; i < m_iNumTriangleVertices; i++)
 	{
 		while(!stringStartsWith(buff, "  <normal "))
 			fgets(buff, 255, F);
@@ -296,16 +342,26 @@ void Surface::ReadVectorFile(char *s)
 		while (!stringStartsWith(token, "x="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].normal.x = float(atof(token));
+		m_pTriangleVertices[i].normal.x = float(atof(token));
 		while (!stringStartsWith(token, "y="))
 			token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].normal.y = float(atof(token));
+		m_pTriangleVertices[i].normal.y = float(atof(token));
 		while (!stringStartsWith(token, "z="))
 				token = strtok(NULL, " \"\t");
 		token = strtok(NULL, " \"\t");
-		m_pVertices[i].normal.z = float(atof(token));
+		m_pTriangleVertices[i].normal.z = float(atof(token));
 		fgets(buff, 255, F);
+
+		if((i%3)-2 == 0 && i > 1)
+		{
+			m_pEdgeVertices[(i+1)*2-6].normal = m_pTriangleVertices[i-2].normal;
+			m_pEdgeVertices[(i+1)*2-5].normal = m_pTriangleVertices[i-1].normal;
+			m_pEdgeVertices[(i+1)*2-4].normal = m_pTriangleVertices[i-1].normal;
+			m_pEdgeVertices[(i+1)*2-3].normal = m_pTriangleVertices[i].normal;
+			m_pEdgeVertices[(i+1)*2-2].normal = m_pTriangleVertices[i].normal;
+			m_pEdgeVertices[(i+1)*2-1].normal = m_pTriangleVertices[i-2].normal;
+		}
 		
 	}
 
@@ -327,9 +383,14 @@ void Surface::ReadVectorFile(char *s)
 	color.b = float(atof(token));
 	fgets(buff, 255, F);
 	
-	for(int i=0; i < m_iNumVertices; i++)
+	for(int i=0; i < m_iNumTriangleVertices; i++)
 	{
-		m_pVertices[i].color = color;
+		m_pTriangleVertices[i].color = color;
+	}
+
+	for(int i=0; i < m_iNumEdgeVertices; i++)
+	{
+		m_pEdgeVertices[i].color = color;
 	}
 	
 	fclose(F);

@@ -8,8 +8,10 @@ public:
 	Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pSurfaceEffect);
 	~Surface();
 	
-	int m_iNumVertices;
-	VERTEX *m_pVertices;
+	int m_iNumTriangleVertices;
+	int m_iNumEdgeVertices;
+	VERTEX *m_pTriangleVertices;
+	VERTEX *m_pEdgeVertices;
 	
 
 	D3DXMATRIX m_mModel;
@@ -43,7 +45,8 @@ protected:
 	ID3DX11EffectMatrixVariable		*m_pModelViewProjectionVar;
 	ID3DX11EffectMatrixVariable		*m_pNormalMatrixVar;
 
-	ID3D11Buffer* m_pVertexBuffer;
+	ID3D11Buffer* m_pTriangleVertexBuffer;
+	ID3D11Buffer* m_pEdgeVertexBuffer;
 
 	D3DXMATRIX m_mRot;
 	D3DXMATRIX m_mTrans;

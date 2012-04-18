@@ -113,11 +113,11 @@ HRESULT Scene::UpdateBoundingBox()
 	HRESULT hr;
 
 	D3DXVECTOR4 min, max;
-	for(int i = 0; i < m_pSurface1->m_iNumVertices; i++)
+	for(int i = 0; i < m_pSurface1->m_iNumTriangleVertices; i++)
 	{
-		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface1->m_pVertices[i].pos.x, 
-									   m_pSurface1->m_pVertices[i].pos.y, 
-									   m_pSurface1->m_pVertices[i].pos.z, 
+		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface1->m_pTriangleVertices[i].pos.x, 
+									   m_pSurface1->m_pTriangleVertices[i].pos.y, 
+									   m_pSurface1->m_pTriangleVertices[i].pos.z, 
 									   1.0);
 		D3DXVECTOR4 mul;
 		D3DXVec4Transform(&mul, &temp, &m_pSurface1->m_mModel);
@@ -144,11 +144,11 @@ HRESULT Scene::UpdateBoundingBox()
 			max.z = temp.z;
 	}
 
-	for(int i = 0; i < m_pSurface2->m_iNumVertices; i++)
+	for(int i = 0; i < m_pSurface2->m_iNumTriangleVertices; i++)
 	{
-		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface2->m_pVertices[i].pos.x,
-									   m_pSurface2->m_pVertices[i].pos.y, 
-									   m_pSurface2->m_pVertices[i].pos.z,
+		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface2->m_pTriangleVertices[i].pos.x,
+									   m_pSurface2->m_pTriangleVertices[i].pos.y, 
+									   m_pSurface2->m_pTriangleVertices[i].pos.z,
 									   1.0f);
 		D3DXVECTOR4 mul;
 		D3DXVec4Transform(&mul, &temp, &m_pSurface2->m_mModel);

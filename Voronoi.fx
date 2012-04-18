@@ -351,10 +351,12 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 	}
 	else
 	{
+		//if normal is parallel to the slice we have to do something - TODO
+
+
 		//divide triangle into 3 triangle, divided by the slice
 		//calculate distance function for each polygon
-
-
+		
 		//calculate interpolated vectors and create the 3 triangles
 		if(input[0].pos.z < sliceDepth)
 		{
@@ -504,7 +506,7 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 }
 
 [maxvertexcount(18)]
-void VoronoiEdgeGS( triangle GS_EDGE_VORONOI_INPUT input[3], inout TriangleStream<GS_VORONOI_OUTPUT> tStream)
+void VoronoiEdgeGS(line GS_EDGE_VORONOI_INPUT input[2], inout TriangleStream<GS_VORONOI_OUTPUT> tStream)
 {
 	//z-distance of the bounding box
 	float zBBDist = vBBMax.z - vBBMin.z;
@@ -514,10 +516,12 @@ void VoronoiEdgeGS( triangle GS_EDGE_VORONOI_INPUT input[3], inout TriangleStrea
 
 	GS_VORONOI_OUTPUT output;
 
-	for(int i = 0; i < 1; i++)//3; i++)
-	{
-		GS_EDGE_VORONOI_INPUT vec1 = input[i];
-		GS_EDGE_VORONOI_INPUT vec2 = input[(i+1)%3];
+	//for(int i = 0; i < 3; i++)
+	//{
+		//GS_EDGE_VORONOI_INPUT vec1 = input[i];
+		//GS_EDGE_VORONOI_INPUT vec2 = input[(i+1)%3];
+		GS_EDGE_VORONOI_INPUT vec1 = input[0];
+		GS_EDGE_VORONOI_INPUT vec2 = input[1];
 	
 		if(vec1.pos.z <= sliceDepth && vec2.pos.z <= sliceDepth)
 		{
@@ -537,8 +541,6 @@ void VoronoiEdgeGS( triangle GS_EDGE_VORONOI_INPUT input[3], inout TriangleStrea
 			float zWeight = (sliceDepth - vec1.pos.z)/zDist;
 			interVec.pos2 = lerp(vec1.pos2, vec2.pos2, float3(zWeight, zWeight, zWeight));
 			
-			
-
 			if(vec1.pos.z < sliceDepth)
 			{
 				EdgeProjectOntoSlice(vec1, interVec, tStream, sliceDepth, true);
@@ -551,7 +553,7 @@ void VoronoiEdgeGS( triangle GS_EDGE_VORONOI_INPUT input[3], inout TriangleStrea
 				EdgeProjectOntoSlice(vec2, interVec, tStream, sliceDepth, true);
 			}
 		}
-	}
+	//}
 
 }
 
@@ -565,6 +567,8 @@ void VoronoiVertexGS( point GS_VORONOI_INPUT input[1], inout TriangleStream<GS_V
 	output.color = input[0].color;
 	tStream.Append(output);
 	// calculate/look up distance function
+
+
 
 	tStream.RestartStrip();
 }
