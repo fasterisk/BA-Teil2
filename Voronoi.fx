@@ -161,10 +161,10 @@ void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout 
 {
 	GS_VORONOI_OUTPUT output;
 	output.color = vertices[0].color;//assumed, that all 3 vertices have the same color
+	output.dist = float4(1.0f, 0.0f, 0.0f, 1.0f);//for testing
 	
 	float3 normal = normalize(vertices[0].normal);
 
-	//check if normal is not parallel to the slice
 	if(normal.z == 0)
 		return;
 
@@ -188,6 +188,52 @@ void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout 
 		output.dist = float4(normal.xyz, 1.0f);
 		tStream.Append(output);
 	}
+	tStream.RestartStrip();
+}
+
+void TriangleCalcDistanceAndAppendNormalParallel(GS_VORONOI_INPUT interVec1, GS_VORONOI_INPUT interVec2, inout TriangleStream<GS_VORONOI_OUTPUT> tStream)
+{
+	GS_VORONOI_OUTPUT output;
+	output.color = interVec1.color;
+	output.dist = interVec1.color;
+
+	float3 nL = normalize(interVec1.normal);
+	float3 nR = -nL;
+	
+	float3 vec1L, vec2L, vec1R, vec2R;
+	vec1L = interVec1.pos.xyz + 3 * nL;
+	vec2L = interVec2.pos.xyz + 3 * nL;
+	vec1R = interVec1.pos.xyz + 3 * nR;
+	vec2R = interVec2.pos.xyz + 3 * nR;
+	
+	output.pos = float4(vec2L.xy, 3*length(nL), 1.0f);
+	tStream.Append(output);
+	output.pos = float4(vec1L.xy, 3*length(nL), 1.0f);
+	tStream.Append(output);
+	output.pos = float4(interVec1.pos.xy, 0.0f, 1.0f);
+	tStream.Append(output);
+	tStream.RestartStrip();
+	output.pos = float4(vec2L.xy, 3*length(nL), 1.0f);
+	tStream.Append(output);
+	output.pos = float4(interVec1.pos.xy, 0.0f, 1.0f);
+	tStream.Append(output);
+	output.pos = float4(interVec2.pos.xy, 0.0f, 1.0f);
+	tStream.Append(output);
+	tStream.RestartStrip();
+	
+	output.pos = float4(interVec2.pos.xy, 0.0f, 1.0f);
+	tStream.Append(output);
+	output.pos = float4(interVec1.pos.xy, 0.0f, 1.0f);
+	tStream.Append(output);
+	output.pos = float4(vec1R.xy, 3*length(nR), 1.0f);
+	tStream.Append(output);
+	tStream.RestartStrip();
+	output.pos = float4(interVec2.pos.xy, 0.0f, 1.0f);
+	tStream.Append(output);
+	output.pos = float4(vec1R.xy, 3*length(nR), 1.0f);
+	tStream.Append(output);
+	output.pos = float4(vec2R.xy, 3*length(nR), 1.0f);
+	tStream.Append(output);
 	tStream.RestartStrip();
 }
 
@@ -328,10 +374,11 @@ GS_RESOLVE_INPUT ResolveVS(VS_RESOLVE_INPUT input)
 // Geometry Shader
 //--------------------------------------------------------------------------------------
 
-[maxvertexcount(9)]
+[maxvertexcount(12)]
 void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VORONOI_OUTPUT> tStream)
 {
 	GS_VORONOI_INPUT triangle1[3] = input;
+
 	
 	//z-distance of the bounding box
 	float zBBDist = vBBMax.z - vBBMin.z;
@@ -351,11 +398,11 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 	}
 	else
 	{
-		//if normal is parallel to the slice we have to do something - TODO
-
-
 		//divide triangle into 3 triangle, divided by the slice
 		//calculate distance function for each polygon
+
+		GS_VORONOI_INPUT interVec1 = input[0];
+		GS_VORONOI_INPUT interVec2 = input[0];
 		
 		//calculate interpolated vectors and create the 3 triangles
 		if(input[0].pos.z < sliceDepth)
@@ -363,70 +410,91 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 			//case 2.3
 			if(input[1].pos.z < sliceDepth)
 			{
-				float4 interVec1 = interpolate(input[0].pos, input[2].pos, sliceDepth);
-				float4 interVec2 = interpolate(input[1].pos, input[2].pos, sliceDepth);
+				interVec1.pos = interpolate(input[0].pos, input[2].pos, sliceDepth);
+				interVec2.pos = interpolate(input[1].pos, input[2].pos, sliceDepth);
 
-				//triangle 1: 0,1,interVec1
-				triangle1[0].pos = input[0].pos;
-				triangle1[1].pos = input[1].pos;
-				triangle1[2].pos = interVec1;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
-				//triangle 2: 1,iV1,iV2
-				triangle1[0].pos = input[1].pos;
-				triangle1[1].pos = interVec1;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
-				//triangle 3: 2,iV1,iV2
-				triangle1[0].pos = input[2].pos;
-				triangle1[1].pos = interVec1;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);		
+				if(input[0].normal.z == 0)
+				{
+					TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
+				}
+				else
+				{
+					//triangle 1: 0,1,interVec1
+					triangle1[0].pos = input[0].pos;
+					triangle1[1].pos = input[1].pos;
+					triangle1[2].pos = interVec1.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
+					//triangle 2: 1,iV1,iV2
+					triangle1[0].pos = input[1].pos;
+					triangle1[1].pos = interVec1.pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
+					//triangle 3: 2,iV1,iV2
+					triangle1[0].pos = input[2].pos;
+					triangle1[1].pos = interVec1.pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
+				}
 			}
 			//case 2.2
 			else if(input[2].pos.z < sliceDepth)
 			{
 				//interpolate between 0 and 1 and between 1 and 2
-				float4 interVec1 = interpolate(input[0].pos, input[1].pos, sliceDepth);
-				float4 interVec2 = interpolate(input[2].pos, input[1].pos, sliceDepth);
+				interVec1.pos = interpolate(input[0].pos, input[1].pos, sliceDepth);
+				interVec2.pos = interpolate(input[2].pos, input[1].pos, sliceDepth);
 
-				//triangle 1: 0,2,iV1
-				triangle1[0].pos = input[0].pos;
-				triangle1[1].pos = input[2].pos;
-				triangle1[2].pos = interVec1;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
-				//triangle 2: 2,iV1,iV2
-				triangle1[0].pos = input[2].pos;
-				triangle1[1].pos = interVec1;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
-				//triangle 3: 1,iV1,iV2
-				triangle1[0].pos = input[1].pos;
-				triangle1[1].pos = interVec1;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
+				if(input[0].normal.z == 0)
+				{
+					TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
+				}
+				else
+				{
+					//triangle 1: 0,2,iV1
+					triangle1[0].pos = input[0].pos;
+					triangle1[1].pos = input[2].pos;
+					triangle1[2].pos = interVec1.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
+					//triangle 2: 2,iV1,iV2
+					triangle1[0].pos = input[2].pos;
+					triangle1[1].pos = interVec1.pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
+					//triangle 3: 1,iV1,iV2
+					triangle1[0].pos = input[1].pos;
+					triangle1[1].pos = interVec1.pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
+				}
 			}
 			//case 1.1
 			else
 			{
 				//interpolate between 0 and 1 and between 0 and 2
-				float4 interVec1 = interpolate(input[0].pos, input[1].pos, sliceDepth);
-				float4 interVec2 = interpolate(input[0].pos, input[2].pos, sliceDepth);
+				interVec1.pos = interpolate(input[0].pos, input[1].pos, sliceDepth);
+				interVec2.pos = interpolate(input[0].pos, input[2].pos, sliceDepth);
 
-				//triangle 1: 1,2,iV2
-				triangle1[0].pos = input[1].pos;
-				triangle1[1].pos = input[2].pos;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
-				//triangle 2: 1,iv1,iv2
-				triangle1[0].pos = input[1].pos;
-				triangle1[1].pos = interVec1;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
-				//triangle 3: 0,iv1,iv2
-				triangle1[0].pos = input[0].pos;
-				triangle1[1].pos = interVec1;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
+				if(input[0].normal.z == 0) 
+				{
+					TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
+				}
+				else
+				{
+					//triangle 1: 1,2,iV2
+					triangle1[0].pos = input[1].pos;
+					triangle1[1].pos = input[2].pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
+					//triangle 2: 1,iv1,iv2
+					triangle1[0].pos = input[1].pos;
+					triangle1[1].pos = interVec1.pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
+					//triangle 3: 0,iv1,iv2
+					triangle1[0].pos = input[0].pos;
+					triangle1[1].pos = interVec1.pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
+				}
 			}
 		}
 		else
@@ -435,70 +503,91 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 			if(input[1].pos.z > sliceDepth)
 			{
 				//interpolate between 0 and 2 and between 1 and 2
-				float4 interVec1 = interpolate(input[0].pos, input[2].pos, sliceDepth);
-				float4 interVec2 = interpolate(input[1].pos, input[2].pos, sliceDepth);
+				interVec1.pos = interpolate(input[0].pos, input[2].pos, sliceDepth);
+				interVec2.pos = interpolate(input[1].pos, input[2].pos, sliceDepth);
 
-				//triangle 1: 0, iv1,iv2
-				triangle1[0].pos = input[0].pos;
-				triangle1[1].pos = interVec1;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
-				//triangle 2: 0,1,iv2
-				triangle1[0].pos = input[0].pos;
-				triangle1[1].pos = input[1].pos;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
-				//triangle 3: 2, iv1,iv2
-				triangle1[0].pos = input[2].pos;
-				triangle1[1].pos = interVec1;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
+				if(input[0].normal.z == 0)
+				{
+					TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
+				}
+				else
+				{
+					//triangle 1: 0, iv1,iv2
+					triangle1[0].pos = input[0].pos;
+					triangle1[1].pos = interVec1.pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
+					//triangle 2: 0,1,iv2
+					triangle1[0].pos = input[0].pos;
+					triangle1[1].pos = input[1].pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
+					//triangle 3: 2, iv1,iv2
+					triangle1[0].pos = input[2].pos;
+					triangle1[1].pos = interVec1.pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
+				}
 			}
 			//case 1.2
 			else if(input[2].pos.z > sliceDepth)
 			{
 				//interpolate between 0 and 1 and between 1 and 2
-				float4 interVec1 = interpolate(input[0].pos, input[1].pos, sliceDepth);
-				float4 interVec2 = interpolate(input[1].pos, input[2].pos, sliceDepth);
+				interVec1.pos = interpolate(input[0].pos, input[1].pos, sliceDepth);
+				interVec2.pos = interpolate(input[1].pos, input[2].pos, sliceDepth);
 
-				//triangle 1: 0, iv1, iv2
-				triangle1[0].pos = input[0].pos;
-				triangle1[1].pos = interVec1;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
-				//triangle 2: 0,2,iv2
-				triangle1[0].pos = input[0].pos;
-				triangle1[1].pos = input[2].pos;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
-				//triangle 3: 1,iv1,iv2
-				triangle1[0].pos = input[1].pos;
-				triangle1[1].pos = interVec1;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
+				if(input[0].normal.z == 0)
+				{
+					TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
+				}
+				else
+				{
+					//triangle 1: 0, iv1, iv2
+					triangle1[0].pos = input[0].pos;
+					triangle1[1].pos = interVec1.pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
+					//triangle 2: 0,2,iv2
+					triangle1[0].pos = input[0].pos;
+					triangle1[1].pos = input[2].pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
+					//triangle 3: 1,iv1,iv2
+					triangle1[0].pos = input[1].pos;
+					triangle1[1].pos = interVec1.pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
+				}
 			}
 			//case 2.1
 			else
 			{
 				//interpolate between 0 and 1 and between 0 and 2
-				float4 interVec1 = interpolate(input[0].pos, input[1].pos, sliceDepth);
-				float4 interVec2 = interpolate(input[0].pos, input[2].pos, sliceDepth);
+				interVec1.pos = interpolate(input[0].pos, input[1].pos, sliceDepth);
+				interVec2.pos = interpolate(input[0].pos, input[2].pos, sliceDepth);
 
-				//triangle 1: 0,iv1,iv2
-				triangle1[0].pos = input[0].pos;
-				triangle1[1].pos = interVec1;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
-				//triangle 2: 1,2,iv1
-				triangle1[0].pos = input[1].pos;
-				triangle1[1].pos = input[2].pos;
-				triangle1[2].pos = interVec1;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
-				//triangle 3: 2,iv1,iv2
-				triangle1[0].pos = input[2].pos;
-				triangle1[1].pos = interVec1;
-				triangle1[2].pos = interVec2;
-				TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
+				if(input[0].normal.z == 0) 
+				{
+					TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
+				}
+				else
+				{
+					//triangle 1: 0,iv1,iv2
+					triangle1[0].pos = input[0].pos;
+					triangle1[1].pos = interVec1.pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
+					//triangle 2: 1,2,iv1
+					triangle1[0].pos = input[1].pos;
+					triangle1[1].pos = input[2].pos;
+					triangle1[2].pos = interVec1.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
+					//triangle 3: 2,iv1,iv2
+					triangle1[0].pos = input[2].pos;
+					triangle1[1].pos = interVec1.pos;
+					triangle1[2].pos = interVec2.pos;
+					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
+				}
 			}
 		}
 	}
@@ -516,45 +605,38 @@ void VoronoiEdgeGS(line GS_EDGE_VORONOI_INPUT input[2], inout TriangleStream<GS_
 
 	GS_VORONOI_OUTPUT output;
 
-	//for(int i = 0; i < 3; i++)
-	//{
-		//GS_EDGE_VORONOI_INPUT vec1 = input[i];
-		//GS_EDGE_VORONOI_INPUT vec2 = input[(i+1)%3];
-		GS_EDGE_VORONOI_INPUT vec1 = input[0];
-		GS_EDGE_VORONOI_INPUT vec2 = input[1];
+	GS_EDGE_VORONOI_INPUT vec1 = input[0];
+	GS_EDGE_VORONOI_INPUT vec2 = input[1];
 	
-		if(vec1.pos.z <= sliceDepth && vec2.pos.z <= sliceDepth)
+	if(vec1.pos.z <= sliceDepth && vec2.pos.z <= sliceDepth)
+	{
+		EdgeProjectOntoSlice(vec1, vec2, tStream, sliceDepth, true);
+	}
+	else if(vec1.pos.z >= sliceDepth && vec2.pos.z >= sliceDepth)
+	{
+		EdgeProjectOntoSlice(vec1, vec2, tStream, sliceDepth, false);
+	}
+	else// case when slice divides edge in 2 parts
+	{
+		GS_EDGE_VORONOI_INPUT interVec;
+		interVec.pos = interpolate(vec1.pos, vec2.pos, sliceDepth);
+		interVec.color = vec1.color;
+		
+		float zDist = vec2.pos.z - vec1.pos.z;
+		float zWeight = (sliceDepth - vec1.pos.z)/zDist;
+		interVec.pos2 = lerp(vec1.pos2, vec2.pos2, float3(zWeight, zWeight, zWeight));
+		
+		if(vec1.pos.z < sliceDepth)
 		{
-			EdgeProjectOntoSlice(vec1, vec2, tStream, sliceDepth, true);
+			EdgeProjectOntoSlice(vec1, interVec, tStream, sliceDepth, true);
+			EdgeProjectOntoSlice(vec2, interVec, tStream, sliceDepth, false);	
 		}
-		else if(vec1.pos.z >= sliceDepth && vec2.pos.z >= sliceDepth)
+		else
 		{
-			EdgeProjectOntoSlice(vec1, vec2, tStream, sliceDepth, false);
+			EdgeProjectOntoSlice(vec1, interVec, tStream, sliceDepth, false);
+			EdgeProjectOntoSlice(vec2, interVec, tStream, sliceDepth, true);
 		}
-		else// case when slice divides edge in 2 parts
-		{
-			GS_EDGE_VORONOI_INPUT interVec;
-			interVec.pos = interpolate(vec1.pos, vec2.pos, sliceDepth);
-			interVec.color = vec1.color;
-
-			float zDist = vec2.pos.z - vec1.pos.z;
-			float zWeight = (sliceDepth - vec1.pos.z)/zDist;
-			interVec.pos2 = lerp(vec1.pos2, vec2.pos2, float3(zWeight, zWeight, zWeight));
-			
-			if(vec1.pos.z < sliceDepth)
-			{
-				EdgeProjectOntoSlice(vec1, interVec, tStream, sliceDepth, true);
-				EdgeProjectOntoSlice(vec2, interVec, tStream, sliceDepth, false);
-				
-			}
-			else
-			{
-				EdgeProjectOntoSlice(vec1, interVec, tStream, sliceDepth, false);
-				EdgeProjectOntoSlice(vec2, interVec, tStream, sliceDepth, true);
-			}
-		}
-	//}
-
+	}
 }
 
 [maxvertexcount(1)]

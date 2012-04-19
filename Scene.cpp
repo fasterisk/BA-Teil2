@@ -94,12 +94,12 @@ HRESULT Scene::InitSurfaces()
 
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface1->Initialize("Media\\surface3.xml"));
+	V_RETURN(m_pSurface1->Initialize("Media\\surface1.xml"));
     m_pSurface1->SetColor(0.0, 0.0, 1.0);
 
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface2->Initialize("Media\\surface3.xml"));
+	V_RETURN(m_pSurface2->Initialize("Media\\surface1.xml"));
 	m_pSurface2->SetColor(0.0, 1.0, 0.0);
 	m_pSurface2->Scale(0.5);
 

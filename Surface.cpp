@@ -181,19 +181,18 @@ void Surface::RenderVoronoi(ID3DX11EffectTechnique* pTechnique)
 {
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pTriangleVertexBuffer, &stride, &offset);
-	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//apply triangle technique & draw
-	//pTechnique->GetPassByName("Triangle")->Apply( 0, m_pd3dImmediateContext);
-	//m_pd3dImmediateContext->Draw(m_iNumTriangleVertices, 0);
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pTriangleVertexBuffer, &stride, &offset);
+	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pTechnique->GetPassByName("Triangle")->Apply( 0, m_pd3dImmediateContext);
+	m_pd3dImmediateContext->Draw(m_iNumTriangleVertices, 0);
 	
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pEdgeVertexBuffer, &stride, &offset);
-	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-
 	//apply edge technique & draw
-	pTechnique->GetPassByName("Edge")->Apply( 0, m_pd3dImmediateContext);
-	m_pd3dImmediateContext->Draw(m_iNumEdgeVertices, 0);
+	//m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pEdgeVertexBuffer, &stride, &offset);
+	//m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	//pTechnique->GetPassByName("Edge")->Apply( 0, m_pd3dImmediateContext);
+	//m_pd3dImmediateContext->Draw(m_iNumEdgeVertices, 0);
 
 	//apply point technique & draw
 	//pTechnique->GetPassByName("Point")->Apply( 0, m_pd3dImmediateContext);
