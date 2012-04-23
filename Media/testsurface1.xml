@@ -1,0 +1,20 @@
+<!DOCTYPE SurfaceXML>
+<surface nb_vertices="6">
+ <vertices_set>
+  <vertex x="-1.0" y="-1.0" z="0.0" />
+  <vertex x="-1.0" y="1.0" z="0.0" />
+  <vertex x="1.0" y="-1.0" z="0.0" />
+  <vertex x="1.0" y="-1.0" z="0.0" />
+  <vertex x="-1.0" y="1.0" z="0.0" />
+  <vertex x="1.0" y="1.0" z="0.0" />
+ </vertices_set>
+ <normals_set>
+  <normal x="0.0" y="0.0" z="1.0" />
+  <normal x="0.0" y="0.0" z="1.0" />
+  <normal x="0.0" y="0.0" z="1.0" />
+  <normal x="0.0" y="0.0" z="1.0" />
+  <normal x="0.0" y="0.0" z="1.0" />
+  <normal x="0.0" y="0.0" z="1.0" />
+ </normals_set>
+ <color r="1.0f" g="1.0f" b="1.0f" />
+</surface>
