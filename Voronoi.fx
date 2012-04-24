@@ -114,6 +114,7 @@ struct GS_TRIANGLE_VORONOI_OUTPUT
 struct GS_EDGE_VORONOI_INPUT
 {
 	float4 pos		: POSITION;
+	float3 normal	: NORMAL;
 	float3 pos2		: TEXTURE0;
 	float4 color	: COLOR;
 };
@@ -344,7 +345,7 @@ void EdgeProjectOntoSlice(GS_EDGE_VORONOI_OUTPUT output, GS_EDGE_VORONOI_INPUT v
 	a = mul(a, (float3x3)NormalMatrix);
 
 	//case if edge points only in z-direction and you can not map it to a slice
-	/*if(a.x == 0 && a.y == 0)
+	if(a.x == 0 && a.y == 0)
 	{
 		output.pos = float4(-1.0f, -1.0f, fSliceDepth, 1.0f);
 		output.pos2 = output.pos;
@@ -366,7 +367,7 @@ void EdgeProjectOntoSlice(GS_EDGE_VORONOI_OUTPUT output, GS_EDGE_VORONOI_INPUT v
 		output.pos2 = output.pos;
 		tStream.Append(output);
 		tStream.RestartStrip();
-	}*/
+	}
 
 	float3 b = float3(a.x, a.y, 0);
 
@@ -439,6 +440,7 @@ GS_EDGE_VORONOI_INPUT VoronoiEdgeVS(VS_VORONOI_INPUT input)
 {
 	GS_EDGE_VORONOI_INPUT output;
 	output.pos = mul(float4(input.pos, 1.0f), ModelViewProjectionMatrix);
+	output.normal = mul(input.normal, (float3x3)NormalMatrix);
 	output.pos2 = input.pos;
 	output.color = input.color;
 	return output;
@@ -709,10 +711,16 @@ void VoronoiEdgeGS(line GS_EDGE_VORONOI_INPUT input[2], inout TriangleStream<GS_
 
 	if(vec1.pos.z <= sliceDepth && vec2.pos.z <= sliceDepth)
 	{
+		if(vec1.normal.z == 0)
+			return;
+
 		EdgeProjectOntoSlice(output, vec1, vec2, tStream, sliceDepth, true);
 	}
 	else if(vec1.pos.z >= sliceDepth && vec2.pos.z >= sliceDepth)
 	{
+		if(vec1.normal.z == 0)
+			return;
+
 		EdgeProjectOntoSlice(output, vec1, vec2, tStream, sliceDepth, false);
 	}
 	else// case when slice divides edge in 2 parts
@@ -812,14 +820,14 @@ PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 	float dist = abs(normal.x*vertex.x + normal.y*vertex.y + normal.z*vertex.z - d);
 	output.depth = dist/10;
 	
-	if(dist >= 0.25 && dist <= 0.5)
+	/*if(dist >= 0.25 && dist <= 0.5)
 	{
 		output.color = float4(1.0, 0.0f, 0.0f, 1.0f);
 	}
 	else
 	{
 		output.color = float4(0.0f, 1.0f, 0.0f, 1.0f);
-	}
+	}*/
 	return output;
 }
 
@@ -843,18 +851,17 @@ PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 	float3 b = v2 - v1;// gerade: g = a + t*b
 	float3 upper = cross(b, p-a);
 	float dist = length(upper)/length(b);
-	//dist /= 3;
 	
-	if(dist >= 0.25 && dist <= 0.75)
+	/*if(dist >= 0.25 && dist <= 0.75)
 	{
 		output.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
 	}
 	else
 	{
 		output.color = float4(0.0f, 1.0f, 0.0f, 1.0f);
-	}
+	}*/
 
-	output.depth = 0;//dist/10;
+	output.depth = dist/10;
 
 	return output;
 }
@@ -864,7 +871,26 @@ PS_VORONOI_OUTPUT VoronoiVertexPS(GS_VERTEX_VORONOI_OUTPUT input)
 	PS_VORONOI_OUTPUT output;
 	output.color = input.color;
 	output.dist = input.dist;
-	output.depth = length(input.pos2.xyz - input.vertex.xyz)/10;
+
+	float3 tex = normalize(vTextureSize);
+
+	float3 pixelpos = input.pos2.xyz * tex;
+	float3 vertex = input.vertex.xyz * tex;
+	pixelpos.z = pixelpos.z * 2 - 1;
+	vertex.z = vertex.z * 2 - 1;
+
+	float dist = length(pixelpos - vertex);
+	output.depth = dist/10;
+
+	/*if(dist >= 0.25 && dist <= 0.5)
+	{
+		output.color = float4(1.0, 0.0f, 0.0f, 1.0f);
+	}
+	else
+	{
+		output.color = float4(0.0f, 1.0f, 0.0f, 1.0f);
+	}*/
+
 	return output;
 }
 
