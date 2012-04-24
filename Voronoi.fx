@@ -472,10 +472,18 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 	// check if all points of the triangle have a higher/lower z value as the sliceindex-depth
 	if(input[0].pos.z <= sliceDepth && input[1].pos.z <= sliceDepth && input[2].pos.z <= sliceDepth)
 	{
+		if(input[0].normal.z == 0)
+			return;
+
+		//return;//DEBUG
 		TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 	}
 	else if(input[0].pos.z >= sliceDepth && input[1].pos.z >= sliceDepth && input[2].pos.z >= sliceDepth)
 	{
+		if(input[0].normal.z == 0)
+			return;
+
+		//return;//DEBUG
 		TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 	}
 	else
@@ -497,10 +505,12 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 
 				if(input[0].normal.z == 0)
 				{
-					//TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
+					TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
 				}
 				else
 				{
+					//return;//DEBUG
+
 					//triangle 1: 0,1,interVec1
 					triangle1[0].pos = input[0].pos;
 					triangle1[1].pos = input[1].pos;
@@ -527,10 +537,12 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 
 				if(input[0].normal.z == 0)
 				{
-					//TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
+					TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
 				}
 				else
 				{
+					//return;//DEBUG
+
 					//triangle 1: 0,2,iV1
 					triangle1[0].pos = input[0].pos;
 					triangle1[1].pos = input[2].pos;
@@ -557,10 +569,13 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 
 				if(input[0].normal.z == 0) 
 				{
-					//TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
+					TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
+					return;
 				}
 				else
 				{
+					//return;//DEBUG
+
 					//triangle 1: 1,2,iV2
 					triangle1[0].pos = input[1].pos;
 					triangle1[1].pos = input[2].pos;
@@ -590,10 +605,12 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 
 				if(input[0].normal.z == 0)
 				{
-					//TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
+					TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
 				}
 				else
 				{
+					//return;//DEBUG
+
 					//triangle 1: 0, iv1,iv2
 					triangle1[0].pos = input[0].pos;
 					triangle1[1].pos = interVec1.pos;
@@ -620,10 +637,12 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 
 				if(input[0].normal.z == 0)
 				{
-					//TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
+					TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
 				}
 				else
 				{
+					//return;//DEBUG
+
 					//triangle 1: 0, iv1, iv2
 					triangle1[0].pos = input[0].pos;
 					triangle1[1].pos = interVec1.pos;
@@ -650,10 +669,12 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 
 				if(input[0].normal.z == 0) 
 				{
-					//TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
+					TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
 				}
 				else
 				{
+					//return;//DEBUG
+
 					//triangle 1: 0,iv1,iv2
 					triangle1[0].pos = input[0].pos;
 					triangle1[1].pos = interVec1.pos;
@@ -790,10 +811,11 @@ PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 
 
 	float dist = normal.x*input.pos2.x + normal.y*input.pos2.y + normal.z*input.pos2.z - d;
-	output.depth = dist/10;
-	/*if(input.pos.z >= 0.25 && input.pos.z <= 0.75)
+	output.depth = abs(dist)/10;
+	
+	/*if(dist < 0.0)
 	{
-		output.color = float4(input.pos.z, 0.0f, 0.0f, 1.0f);
+		output.color = float4(1.0, 0.0f, 0.0f, 1.0f);
 	}
 	else
 	{
