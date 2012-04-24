@@ -472,17 +472,11 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 	// check if all points of the triangle have a higher/lower z value as the sliceindex-depth
 	if(input[0].pos.z <= sliceDepth && input[1].pos.z <= sliceDepth && input[2].pos.z <= sliceDepth)
 	{
-		if(input[0].normal.z == 0)
-			return;
-
 		//return;//DEBUG
 		TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 	}
 	else if(input[0].pos.z >= sliceDepth && input[1].pos.z >= sliceDepth && input[2].pos.z >= sliceDepth)
 	{
-		if(input[0].normal.z == 0)
-			return;
-
 		//return;//DEBUG
 		TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 	}
@@ -570,7 +564,6 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 				if(input[0].normal.z == 0) 
 				{
 					TriangleCalcDistanceAndAppendNormalParallel(interVec1, interVec2, tStream);
-					return;
 				}
 				else
 				{
@@ -804,23 +797,29 @@ PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 	output.color = input.color;
 	output.dist = input.dist;
 
-	float3 normal = input.normal;
-	float3 punktaufebene = input.trianglepoint.xyz;
+	float3 tex = normalize(vTextureSize);
+
+	float3 normal = normalize(input.normal);
+	float3 punktaufebene = input.trianglepoint.xyz*tex;
+	float3 vertex = input.pos2.xyz * tex;
+
+	punktaufebene.z = punktaufebene.z*2 - 1;
+	vertex.z = vertex.z*2 - 1;
 
 	float d = normal.x*punktaufebene.x + normal.y*punktaufebene.y + normal.z*punktaufebene.z;
 
 
-	float dist = normal.x*input.pos2.x + normal.y*input.pos2.y + normal.z*input.pos2.z - d;
-	output.depth = abs(dist)/10;
+	float dist = abs(normal.x*vertex.x + normal.y*vertex.y + normal.z*vertex.z - d);
+	output.depth = dist/10;
 	
-	/*if(dist < 0.0)
+	if(dist >= 0.25 && dist <= 0.5)
 	{
 		output.color = float4(1.0, 0.0f, 0.0f, 1.0f);
 	}
 	else
 	{
 		output.color = float4(0.0f, 1.0f, 0.0f, 1.0f);
-	}*/
+	}
 	return output;
 }
 
@@ -830,13 +829,15 @@ PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 	output.color = input.color;
 	output.dist = input.dist;
 
-	float3 v1 = input.vec1.xyz;
-	float3 v2 = input.vec2.xyz;
-	float3 p = input.pos2.xyz;
+	float3 tex = normalize(vTextureSize);
 
-	//v1.z = v1.z*2 - 1;
-	//v2.z = v2.z*2 - 1;
-	//p.z = p.z*2 - 1;
+	float3 v1 = input.vec1.xyz * tex;
+	float3 v2 = input.vec2.xyz * tex;
+	float3 p = input.pos2.xyz * tex;
+
+	v1.z = v1.z*2 - 1;
+	v2.z = v2.z*2 - 1;
+	p.z = p.z*2 - 1;
 	
 	float3 a = v1;
 	float3 b = v2 - v1;// gerade: g = a + t*b
@@ -844,16 +845,16 @@ PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 	float dist = length(upper)/length(b);
 	//dist /= 3;
 	
-	/*if(dist >= 0.25 && input.pos.z <= 0.75)
+	if(dist >= 0.25 && dist <= 0.75)
 	{
-		output.color = float4(dist, 0.0f, 0.0f, 1.0f);
+		output.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
 	}
 	else
 	{
 		output.color = float4(0.0f, 1.0f, 0.0f, 1.0f);
-	}*/
+	}
 
-	output.depth = dist/10;
+	output.depth = 0;//dist/10;
 
 	return output;
 }
