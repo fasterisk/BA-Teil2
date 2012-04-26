@@ -421,6 +421,11 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
             g_SampleUI.GetStatic( IDC_TEXTRES_MAX_STATIC )->SetText( sz );
 			g_pScene->UpdateTextureResolution(g_iTextureMaximum);
+			g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
+			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
+			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
+			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_ALL_SLICES:
 			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);

@@ -56,8 +56,8 @@ HRESULT VolumeRenderer::Update(int iWidth, int iHeight, int iDepth)
 	D3DXVECTOR3 vStepSize = D3DXVECTOR3(1.0f / (iWidth * (maxSize/iWidth)),
 										1.0f / (iHeight * (maxSize / iHeight)),
 										1.0f / (iDepth * (maxSize / iDepth)));
-	m_pStepSizeVar->SetFloatVector(vStepSize * 2.0f);
-	int iIterations = (int)maxSize;
+	m_pStepSizeVar->SetFloatVector(vStepSize * (1/maxSize+2));
+	int iIterations = (int)maxSize * 2.0f;
 	m_pIterationsVar->SetInt(iIterations);
 	
 	return S_OK;
