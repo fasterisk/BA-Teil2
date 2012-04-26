@@ -58,11 +58,11 @@ HRESULT VolumeRenderer::Update(int iWidth, int iHeight, int iDepth)
 	D3DXVECTOR3 vStepSize = D3DXVECTOR3(1.0f / (iWidth * (maxSize/iWidth)),
 										1.0f / (iHeight * (maxSize / iHeight)),
 										1.0f / (iDepth * (maxSize / iDepth)));
-	//if(m_bAllSlices)
+	if(m_bAllSlices)
 		m_pStepSizeVar->SetFloatVector(vStepSize * (1/maxSize+3));
-	//else
-	//	m_pStepSizeVar->SetFloatVector(vStepSize);
-	int iIterations = (int)maxSize;// * 2.0f;
+	else
+		m_pStepSizeVar->SetFloatVector(vStepSize);
+	int iIterations = (int)maxSize * 2.0f;
 	m_pIterationsVar->SetInt(iIterations);
 	
 	return S_OK;
