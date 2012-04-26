@@ -79,7 +79,7 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	// Initialize VolumeRenderer
 	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
 	V_RETURN(m_pVolumeRenderer->Initialize());
-	V_RETURN(m_pVolumeRenderer->SetAlpha(0.01f));
+	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(0.01f, true));
 
 	
 	V_RETURN(UpdateBoundingBox());
@@ -96,11 +96,7 @@ HRESULT Scene::InitSurfaces()
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
 	V_RETURN(m_pSurface1->Initialize("Media\\surface1.xml"));
     m_pSurface1->SetColor(0.0, 0.0, 1.0);
-	//m_pSurface1->Translate(0.0, 0.0, 1.0);
-	/*V_RETURN(m_pSurface1->Initialize("Media\\surface4.xml"));
-    m_pSurface1->SetColor(0.0, 0.0, 1.0);
-	m_pSurface1->Translate(-1.5, 0.0, 0.0);*/
-
+	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
 	V_RETURN(m_pSurface2->Initialize("Media\\surface1.xml"));
@@ -249,27 +245,6 @@ void Scene::UpdateTextureResolution(int iMaxRes)
 
 void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 {
-	/*testsurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	testsurface1->Initialize("Media\\testsurface1.xml");
-	testsurface1->SetColor(1.0, 0.0, 0.0);
-	testsurface1->Translate(0.0, 0.0, m_pSurface1->m_mModel.m[3][2]-1.45);
-
-	testsurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	testsurface2->Initialize("Media\\testsurface1.xml");
-	testsurface2->SetColor(1.0, 0.0, 0.0);
-	testsurface2->Translate(0.0, 0.0, 1.0);
-
-	testsurface3 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	testsurface3->Initialize("Media\\testsurface2.xml");
-	testsurface3->SetColor(1.0, 0.0, 0.0);
-	testsurface3->Translate(m_vMin.z, 0.0, 0.0);
-
-	testsurface4 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	testsurface4->Initialize("Media\\testsurface2.xml");
-	testsurface4->SetColor(1.0, 0.0, 0.0);
-	testsurface4->Translate(m_vMax.z, 0.0, 0.0);*/
-
-
 	UpdateBoundingBox();
 
 	if(m_bGenerateVoronoi)
@@ -289,15 +264,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		m_pSurface2->Render(mViewProjection);
 		//m_pSurface1->RenderNormals(mViewProjection);
 		//m_pSurface2->RenderNormals(mViewProjection);
-	//	testsurface1->Render(mViewProjection);
-	//	testsurface2->Render(mViewProjection);
-	//	testsurface3->Render(mViewProjection);
-	//	testsurface4->Render(mViewProjection);
 	}
-	/*SAFE_DELETE(testsurface1);
-	SAFE_DELETE(testsurface2);
-	SAFE_DELETE(testsurface3);
-	SAFE_DELETE(testsurface4);*/
 }	
 
 
@@ -351,7 +318,7 @@ HRESULT Scene::ChangeRenderingToOneSlice(int iSliceIndex)
 	HRESULT hr;
 	assert(m_pVoronoi != NULL);
 	m_pVoronoi->ChangeRenderingToOneSlice(iSliceIndex);
-	V_RETURN(m_pVolumeRenderer->SetAlpha(1.0f));
+	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(1.0f, false));
 	initialized = false;
 	m_bGenerateVoronoi = true;
 	return S_OK;
@@ -362,7 +329,7 @@ HRESULT Scene::ChangeRenderingToAllSlices()
 	HRESULT hr;
 	assert(m_pVoronoi != NULL);
 	m_pVoronoi->ChangeRenderingToAllSlices();
-	V_RETURN(m_pVolumeRenderer->SetAlpha(0.01f));
+	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(0.01f, true));
 	initialized = false;
 	m_bGenerateVoronoi = true;
 	return S_OK;

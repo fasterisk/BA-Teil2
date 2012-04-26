@@ -7,7 +7,7 @@ public:
 	HRESULT Initialize();
 	HRESULT Update(int iWidth, int iHeight, int iDepth);
 	HRESULT SetScreenSize(int iWidth, int iHeight);
-	HRESULT SetAlpha(float fAlpha);
+	HRESULT ChangeSliceRenderingParameters(float fAlpha, bool bAllSlices);
 
 	void Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
 
@@ -36,6 +36,9 @@ private:
 	//Screen size
 	int m_iWidth;
 	int m_iHeight;
+
+	//Boolean for checking if all slices are rendered or only one
+	bool m_bAllSlices;
 
 	//Bounding Box
 	ID3D11Buffer*			m_pBBVertexBuffer;

@@ -53,12 +53,6 @@ protected:
 	Surface*	m_pControlledSurface;
 	bool		m_bSurface1IsControlled;
 
-	// test surfaces
-	Surface*	testsurface1;
-	Surface*	testsurface2;
-	Surface*	testsurface3;
-	Surface*	testsurface4;
-
 	int iTextureWidth;
 	int iTextureHeight;
 	int iTextureDepth;
