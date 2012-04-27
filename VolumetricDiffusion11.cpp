@@ -537,11 +537,15 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
     g_Camera.SetWindow( pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height );
     g_Camera.SetButtonMasks( MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_LEFT_BUTTON );
 
+	g_Width = pBackBufferSurfaceDesc->Width;
+	g_Height = pBackBufferSurfaceDesc->Height;
+	g_pScene->SetScreenSize(g_Width, g_Height);
+
     g_HUD.SetLocation( pBackBufferSurfaceDesc->Width - 170, 0 );
     g_HUD.SetSize( 170, 170 );
     g_SampleUI.SetLocation( pBackBufferSurfaceDesc->Width - 170, 100 );
     g_SampleUI.SetSize( 170, 300 );
-
+	
 	V_RETURN(ReinitWindowSizeDependentRenderTargets(pd3dDevice));
 
     return S_OK;
