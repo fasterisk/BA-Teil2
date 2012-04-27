@@ -187,8 +187,8 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 		output.color = output.color + src;
 		
 		//break from the loop when alpha gets high enough
-		if(output.color.a >= .99f)
-			break;	
+	//	if(output.color.a >= .95f)
+	//		break;	
 		
 		//advance the current position
 		pos.xyz += Step;

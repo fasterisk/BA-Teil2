@@ -22,8 +22,6 @@ VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd
 
 	m_pSQInputLayout = NULL;
 	m_pSQVertexBuffer = NULL;
-
-	m_bAllSlices = true;
 }
 
 VolumeRenderer::~VolumeRenderer()
@@ -55,14 +53,13 @@ HRESULT VolumeRenderer::Initialize()
 HRESULT VolumeRenderer::Update(int iWidth, int iHeight, int iDepth)
 {
 	float maxSize = (float)max(iWidth, max(iHeight, iDepth));
-	D3DXVECTOR3 vStepSize = D3DXVECTOR3(1.0f / (iWidth * (maxSize/iWidth)),
+
+	D3DXVECTOR3 vStepSize = D3DXVECTOR3(1.0f / (iWidth  * (maxSize / iWidth)),
 										1.0f / (iHeight * (maxSize / iHeight)),
-										1.0f / (iDepth * (maxSize / iDepth)));
-	if(m_bAllSlices)
-		m_pStepSizeVar->SetFloatVector(vStepSize * (1/maxSize+3));
-	else
-		m_pStepSizeVar->SetFloatVector(vStepSize);
-	int iIterations = (int)maxSize * 2.0f;
+										1.0f / (iDepth  * (maxSize / iDepth)));
+	m_pStepSizeVar->SetFloatVector(vStepSize);
+
+	int iIterations = (int)maxSize * 2;
 	m_pIterationsVar->SetInt(iIterations);
 	
 	return S_OK;
@@ -121,11 +118,10 @@ HRESULT VolumeRenderer::SetScreenSize(int iWidth, int iHeight)
 	return S_OK;
 }
 
-HRESULT VolumeRenderer::ChangeSliceRenderingParameters(float fAlpha, bool bAllSlices)
+HRESULT VolumeRenderer::ChangeSliceRenderingParameters(float fAlpha)
 {
 	HRESULT hr;
 	V_RETURN(m_fAlphaVar->SetFloat(fAlpha));
-	m_bAllSlices = bAllSlices;
 	return S_OK;
 }
 

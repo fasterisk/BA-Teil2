@@ -79,7 +79,7 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	// Initialize VolumeRenderer
 	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
 	V_RETURN(m_pVolumeRenderer->Initialize());
-	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(0.01f, true));
+	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(0.01f));
 
 	
 	V_RETURN(UpdateBoundingBox());
@@ -323,7 +323,7 @@ HRESULT Scene::ChangeRenderingToOneSlice(int iSliceIndex)
 	HRESULT hr;
 	assert(m_pVoronoi != NULL);
 	m_pVoronoi->ChangeRenderingToOneSlice(iSliceIndex);
-	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(1.0f, false));
+	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(1.0f));
 	initialized = false;
 	m_bGenerateVoronoi = true;
 	return S_OK;
@@ -334,7 +334,7 @@ HRESULT Scene::ChangeRenderingToAllSlices()
 	HRESULT hr;
 	assert(m_pVoronoi != NULL);
 	m_pVoronoi->ChangeRenderingToAllSlices();
-	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(0.01f, true));
+	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(0.01f));
 	initialized = false;
 	m_bGenerateVoronoi = true;
 	return S_OK;

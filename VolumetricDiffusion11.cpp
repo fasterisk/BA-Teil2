@@ -543,7 +543,7 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 
     g_HUD.SetLocation( pBackBufferSurfaceDesc->Width - 170, 0 );
     g_HUD.SetSize( 170, 170 );
-    g_SampleUI.SetLocation( pBackBufferSurfaceDesc->Width - 170, 100 );
+    g_SampleUI.SetLocation( g_Width - 170, 100 );
     g_SampleUI.SetSize( 170, 300 );
 	
 	V_RETURN(ReinitWindowSizeDependentRenderTargets(pd3dDevice));
