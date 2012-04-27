@@ -49,6 +49,7 @@ int							g_iTextureMaximum = 128;
 bool						g_bBlockMouseDragging = false;
 int							g_iSliceIndex = 64;
 bool						g_bShowSurfaces = true;
+float						g_fIsoValue = 0.5f;
 
 // Texthelper
 CDXUTTextHelper*            g_pTxtHelper = NULL;
@@ -77,6 +78,8 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_SLICEINDEX_SLIDER		18
 #define IDC_SHOW_SURFACES			19
 #define IDC_VORONOI					20
+#define IDC_ISO_SLIDER				21
+#define IDC_ISO_STATIC				22
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -171,19 +174,23 @@ void InitApp()
 	g_SampleUI.AddStatic( IDC_TEXTRES_MAX_STATIC, sz, 0, iY += 24, 100, 22 );
 	g_SampleUI.AddSlider( IDC_TEXTRES_MAX_SLIDER, 0, iY += 20, 130, 22, 64, 256, 128);
 
-	g_SampleUI.AddCheckBox(IDC_SHOW_SURFACES, L"Show Surfaces", 0, iY+=40, 170, 22);
+	g_SampleUI.AddCheckBox(IDC_SHOW_SURFACES, L"Show Surfaces", 0, iY+=36, 170, 22);
 	g_SampleUI.GetCheckBox(IDC_SHOW_SURFACES)->SetChecked(true);
 
-	g_SampleUI.AddButton(IDC_VORONOI, L"Voronoi!", 0, iY+=40, 170, 30);
+	g_SampleUI.AddButton(IDC_VORONOI, L"Voronoi!", 0, iY+=36, 170, 30);
 
-	g_SampleUI.AddRadioButton( IDC_ALL_SLICES, IDC_SLICES, L"Draw All Slices", 0, iY += 40, 170, 22);
+	StringCchPrintf( sz, 100, L"IsoValue: %.2f", g_fIsoValue);
+	g_SampleUI.AddStatic(IDC_ISO_STATIC, sz, 0, iY += 36, 100, 22);
+	g_SampleUI.AddSlider(IDC_ISO_SLIDER, 0, iY+=20, 130, 22);
+
+	g_SampleUI.AddRadioButton( IDC_ALL_SLICES, IDC_SLICES, L"Draw All Slices", 0, iY += 26, 170, 22);
 	g_SampleUI.AddRadioButton( IDC_ONE_SLICE, IDC_SLICES, L"Draw One Slice", 0, iY += 26, 170, 22);
 	g_SampleUI.GetRadioButton( IDC_ALL_SLICES )->SetChecked(true);
 	g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
 	g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
 
 	StringCchPrintf( sz, 100, L"Sliceindex: %d", g_iSliceIndex);
-	g_SampleUI.AddStatic(IDC_SLICEINDEX_STATIC, sz, 0, iY+=30, 100, 22);
+	g_SampleUI.AddStatic(IDC_SLICEINDEX_STATIC, sz, 0, iY+=26, 100, 22);
 	g_SampleUI.AddSlider( IDC_SLICEINDEX_SLIDER, 0, iY+=20, 130, 22);
 	g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
 	g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
@@ -461,6 +468,13 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetRadioButton(IDC_CAMERA)->SetChecked(true);
 			g_pScene->GenerateVoronoi();
 			break;
+		case IDC_ISO_SLIDER:
+			g_bBlockMouseDragging = true;
+			g_fIsoValue = g_SampleUI.GetSlider(IDC_ISO_SLIDER)->GetValue()/100.0f;
+			StringCchPrintf( sz, 100, L"IsoValue: %.2f", g_fIsoValue);
+			g_SampleUI.GetStatic( IDC_ISO_STATIC )->SetText( sz );
+			g_pScene->ChangeIsoValue(g_fIsoValue);
+			g_pScene->Render3DTexture(false);
     }
 
 }

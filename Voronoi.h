@@ -16,6 +16,7 @@ public:
 	void SetSurfaces(Surface *pSurface1, Surface *pSurface2);
 	void ChangeRenderingToOneSlice(int iSliceIndex);
 	void ChangeRenderingToAllSlices();
+	void ChangeIsoValue(float fIsoValue);
 
 	HRESULT RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax);
 
@@ -61,6 +62,7 @@ private:
 	ID3DX11EffectMatrixVariable				*m_pNormalMatrixVar;
 
 	ID3DX11EffectScalarVariable				*m_pSliceIndexVar;
+	ID3DX11EffectScalarVariable				*m_pIsoValueVar;
 
 	ID3DX11EffectVectorVariable				*m_pTextureSizeVar;
 	ID3DX11EffectVectorVariable				*m_pBBMinVar;
@@ -86,6 +88,8 @@ private:
 	int							m_iTextureWidth;
 	int							m_iTextureHeight;
 	int							m_iTextureDepth;
+
+	float						m_fIsoValue;
 
 
 };

@@ -16,6 +16,7 @@ public:
 
 	void Render(D3DXMATRIX mViewProjection, bool bShowSurfaces);
 
+	void ChangeIsoValue(float fIsoValue);
 
 	void ChangeControlledSurface();
 	HRESULT ChangeRenderingToOneSlice(int iSliceIndex);

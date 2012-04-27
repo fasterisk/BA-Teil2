@@ -303,6 +303,11 @@ HRESULT Scene::Init3DTextures()
 	return S_OK;
 }
 
+void Scene::ChangeIsoValue(float fIsoValue)
+{
+	m_pVoronoi->ChangeIsoValue(fIsoValue);
+}
+
 void Scene::ChangeControlledSurface()
 {
 	if(m_bSurface1IsControlled)

@@ -13,6 +13,7 @@ float4 vBBMax;
 
 int iSliceIndex;
 float3 vTextureSize;
+float fIsoValue;
 
 //--------------------------------------------------------------------------------------
 // Sampler
@@ -817,7 +818,7 @@ PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 	float d = normal.x*punktaufebene.x + normal.y*punktaufebene.y + normal.z*punktaufebene.z;
 
 
-	float dist = abs(normal.x*vertex.x + normal.y*vertex.y + normal.z*vertex.z - d);
+	float dist = abs(normal.x*vertex.x + normal.y*vertex.y + normal.z*vertex.z - d) * fIsoValue;
 	output.depth = dist/10;
 	
 	/*if(dist >= 0.25 && dist <= 0.5)
@@ -850,7 +851,7 @@ PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 	float3 a = v1;
 	float3 b = v2 - v1;// gerade: g = a + t*b
 	float3 upper = cross(b, p-a);
-	float dist = length(upper)/length(b);
+	float dist = length(upper)/length(b)*fIsoValue;
 	
 	/*if(dist >= 0.25 && dist <= 0.75)
 	{
@@ -879,7 +880,7 @@ PS_VORONOI_OUTPUT VoronoiVertexPS(GS_VERTEX_VORONOI_OUTPUT input)
 	pixelpos.z = pixelpos.z * 2 - 1;
 	vertex.z = vertex.z * 2 - 1;
 
-	float dist = length(pixelpos - vertex);
+	float dist = length(pixelpos - vertex)*fIsoValue;
 	output.depth = dist/10;
 
 	/*if(dist >= 0.25 && dist <= 0.5)
