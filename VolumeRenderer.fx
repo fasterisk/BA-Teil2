@@ -24,6 +24,7 @@ DepthStencilState DisableDepth
 {
     DepthEnable = FALSE;
     DepthWriteMask = ZERO;
+	StencilEnable = FALSE;
 };
 
 RasterizerState CullFront
@@ -110,13 +111,13 @@ struct VsBBOutput
 struct VsSQInput
 {
 	float3 pos : POSITION;
-	float2 texC : TEXCOORD;
+//	float2 texC : TEXCOORD;
 };
 
 struct VsSQOutput
 {
 	float4 pos : SV_POSITION;
-	float2 texC : TEXCOORD;
+	float4 pos2 : TEXCOORD;
 };
 
 struct PsOutput
@@ -139,8 +140,8 @@ VsBBOutput VS_BB_POSITION(VsBBInput input)
 VsSQOutput VS_RAYCAST(VsSQInput input)
 {
 	VsSQOutput output;
-	output.pos = float4(input.pos, 1.0f);
-	output.texC = input.texC;
+	output.pos = mul(float4(input.pos, 1.0f), WorldViewProjection);
+	output.pos2 = output.pos;
 	return output;
 }
 
@@ -165,13 +166,20 @@ PsOutput PS_BB_POSITION(VsBBOutput input)
 
 PsOutput PS_RAYCAST(VsSQOutput input)
 {
-
 	PsOutput output;
-
-	float3 front = FrontTexture.Sample(linearSamplerBorder, input.texC).rgb;
-	float3 back = BackTexture.Sample(linearSamplerBorder, input.texC).rgb;
+	float2 texC = input.pos2.xy /= input.pos2.w;
+    texC.x =  0.5f*texC.x + 0.5f;
+    texC.y = -0.5f*texC.y + 0.5f;
+	float3 front = FrontTexture.Sample(linearSamplerBorder, texC).rgb;
+	float3 back = BackTexture.Sample(linearSamplerBorder, texC).rgb;
     
+	//output.color = float4(front, 1.0f);
+	//return output;
+
+
     float3 dir = normalize(back - front);
+	
+	
     float4 pos = float4(front, 0);
     
     output.color = float4(0, 0, 0, 0);
@@ -186,10 +194,6 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 		
 		output.color = output.color + src;
 		
-		//break from the loop when alpha gets high enough
-	//	if(output.color.a >= .95f)
-	//		break;	
-		
 		//advance the current position
 		pos.xyz += Step;
 		
@@ -198,6 +202,8 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 			break;
     }
 	//output.color = float4(dir, 1.0f);
+//	output.color.a = 1.0f;
+	//output.color = float4(0.0f, 1.0f, 0.0f, 1.0f);
     return output;
 }
 
@@ -235,7 +241,7 @@ technique10 VolumeRendering
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_RAYCAST()));
 
-		SetBlendState(AlphaBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullBack);
 		SetDepthStencilState( DisableDepth, 0 );
 	}

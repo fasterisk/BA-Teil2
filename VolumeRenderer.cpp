@@ -133,7 +133,7 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3
 	//Update vertex buffer for boundingbox
 	UpdateBoundingVertices(pBBVertices);
 
-	float color[4] = {0, 0, 0, 0 };
+	float clearColor[4] = {0, 0, 0, 1};
 
 	//Update shader variables
 	m_pWorldViewProjectionVar->SetMatrix(mWorldViewProjection);
@@ -148,16 +148,18 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3
 	rtViewport.Height = float(m_iHeight);
 	m_pd3dImmediateContext->RSSetViewports(1, &rtViewport);
 
+
+
 	
 
 	//Render frontfaces of boundingbox
-	m_pd3dImmediateContext->ClearRenderTargetView(m_pFrontRTV, color);
+	m_pd3dImmediateContext->ClearRenderTargetView(m_pFrontRTV, clearColor);
 	m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pFrontRTV, NULL);
 	m_pVolumeRenderTechnique->GetPassByName("BoundingBoxFront")->Apply(0, m_pd3dImmediateContext);
 	DrawBoundingBox();
 
 	//Render backfaces of boundingbox
-	m_pd3dImmediateContext->ClearRenderTargetView(m_pBackRTV, color);
+	m_pd3dImmediateContext->ClearRenderTargetView(m_pBackRTV, clearColor);
 	m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pBackRTV, NULL);
 	m_pVolumeRenderTechnique->GetPassByName("BoundingBoxBack")->Apply(0, m_pd3dImmediateContext);
 	DrawBoundingBox();
@@ -174,8 +176,7 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3
 	m_pVolumeTextureVar->SetResource(p3DTextureSRV);
 
 	m_pVolumeRenderTechnique->GetPassByName("RayCast")->Apply(0, m_pd3dImmediateContext);
-	
-	DrawScreenQuad();
+	DrawBoundingBox();
 
 	//Draw wireframe boundingbox
 	m_pVolumeRenderTechnique->GetPassByName("Wireframe")->Apply(0, m_pd3dImmediateContext);
