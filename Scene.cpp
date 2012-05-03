@@ -14,10 +14,14 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 
 	m_pVolumeRenderEffect = NULL;
 	m_pSurfaceEffect = NULL;
-	m_pVoronoi3D1 = NULL;
-	m_pVoronoi3D2 = NULL;
-	m_pVoronoi3D1SRV = NULL;
-	m_pVoronoi3D2SRV = NULL;
+	m_pVoronoi3DTex = NULL;
+	m_pColor3DTex1 = NULL;
+	m_pColor3DTex2 = NULL;
+	m_pDist3DTex = NULL;
+	m_pVoronoi3DTexSRV = NULL;
+	m_pColor3DTex1SRV = NULL;
+	m_pColor3DTex2SRV = NULL;
+	m_pDist3DTexSRV = NULL;
 	m_pBBVertices = new VERTEX[8];
 	initialized = false;
 	m_bRender3DTexture = false;
@@ -41,10 +45,14 @@ Scene::~Scene()
 	SAFE_DELETE(m_pSurface1);
 	SAFE_DELETE(m_pSurface2);
 	
-	SAFE_RELEASE(m_pVoronoi3D1);
-	SAFE_RELEASE(m_pVoronoi3D2);
-	SAFE_RELEASE(m_pVoronoi3D1SRV);
-	SAFE_RELEASE(m_pVoronoi3D2SRV);
+	SAFE_RELEASE(m_pVoronoi3DTex);
+	SAFE_RELEASE(m_pColor3DTex1);
+	SAFE_RELEASE(m_pColor3DTex2);
+	SAFE_RELEASE(m_pDist3DTex);
+	SAFE_RELEASE(m_pVoronoi3DTexSRV);
+	SAFE_RELEASE(m_pColor3DTex1SRV);
+	SAFE_RELEASE(m_pColor3DTex2SRV);
+	SAFE_RELEASE(m_pDist3DTexSRV);
 }
 
 
@@ -217,7 +225,7 @@ HRESULT Scene::UpdateBoundingBox()
 	iTextureDepth = int(vDiff.z * previousMax + 0.5);
 	
 	V_RETURN(Init3DTextures());
-	V_RETURN(m_pVoronoi->SetDestination(m_pVoronoi3D1, m_pVoronoi3D2));
+	V_RETURN(m_pVoronoi->SetDestination(m_pVoronoi3DTex, m_pDist3DTex));
 	V_RETURN(m_pVolumeRenderer->Update(iTextureWidth, iTextureHeight, iTextureDepth));
 
 	initialized = true;
@@ -255,7 +263,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 
 	if(m_bRender3DTexture)
 	{
-		m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3D1SRV);
+		m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pDist3DTexSRV);
 	}
 
 	if(bShowSurfaces)
@@ -272,10 +280,14 @@ HRESULT Scene::Init3DTextures()
 {
 	HRESULT hr;
 
-	SAFE_RELEASE(m_pVoronoi3D1);
-	SAFE_RELEASE(m_pVoronoi3D2);
-	SAFE_RELEASE(m_pVoronoi3D1SRV);
-	SAFE_RELEASE(m_pVoronoi3D2SRV);
+	SAFE_RELEASE(m_pVoronoi3DTex);
+	SAFE_RELEASE(m_pColor3DTex1);
+	SAFE_RELEASE(m_pColor3DTex2);
+	SAFE_RELEASE(m_pDist3DTex);
+	SAFE_RELEASE(m_pVoronoi3DTexSRV);
+	SAFE_RELEASE(m_pColor3DTex1SRV);
+	SAFE_RELEASE(m_pColor3DTex2SRV);
+	SAFE_RELEASE(m_pDist3DTexSRV);
 
 	D3D11_TEXTURE3D_DESC desc;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
@@ -288,8 +300,10 @@ HRESULT Scene::Init3DTextures()
 	desc.Depth = iTextureDepth;
 	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pVoronoi3D1));
-	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pVoronoi3D2));
+	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pVoronoi3DTex));
+	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pColor3DTex1));
+	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pColor3DTex2));
+	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pDist3DTex));
 
 	//create the shader resource views
 	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
@@ -297,8 +311,11 @@ HRESULT Scene::Init3DTextures()
 	descSRV.Texture3D.MostDetailedMip = 0;
 	descSRV.Texture3D.MipLevels = 1;
 	descSRV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pVoronoi3D1, &descSRV, &m_pVoronoi3D1SRV));
-	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pVoronoi3D2, &descSRV, &m_pVoronoi3D2SRV));
+
+	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pVoronoi3DTex, &descSRV, &m_pVoronoi3DTexSRV));
+	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pColor3DTex1, &descSRV, &m_pColor3DTex1SRV));
+	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pColor3DTex2, &descSRV, &m_pColor3DTex2SRV));
+	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pDist3DTex, &descSRV, &m_pDist3DTexSRV));
 
 	return S_OK;
 }

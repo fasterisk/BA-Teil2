@@ -23,7 +23,6 @@ Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateCon
 
 	m_bDrawAllSlices = true;
 	m_iCurrentSlice = 64;
-	m_fIsoValue = 0.5f;
 
 	m_pFlatColorTex = NULL;
 	m_pFlatColorTexRTV = NULL;
@@ -244,7 +243,6 @@ HRESULT Voronoi::InitShaders()
 	m_pModelViewProjectionVar	= m_pVoronoiEffect->GetVariableByName("ModelViewProjectionMatrix")->AsMatrix();
 	m_pNormalMatrixVar			= m_pVoronoiEffect->GetVariableByName("NormalMatrix")->AsMatrix();
 	m_pSliceIndexVar			= m_pVoronoiEffect->GetVariableByName("iSliceIndex")->AsScalar();
-	m_pIsoValueVar				= m_pVoronoiEffect->GetVariableByName("fIsoValue")->AsScalar();
 	m_pTextureSizeVar			= m_pVoronoiEffect->GetVariableByName("vTextureSize")->AsVector();
 	m_pBBMinVar					= m_pVoronoiEffect->GetVariableByName("vBBMin")->AsVector();
 	m_pBBMaxVar					= m_pVoronoiEffect->GetVariableByName("vBBMax")->AsVector();
@@ -487,12 +485,10 @@ HRESULT Voronoi::RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2O
 	V_RETURN(m_pSliceIndexVar->SetInt(iSliceIndex));
 
 	// Render to flat textures
-	V_RETURN(m_pIsoValueVar->SetFloat(m_fIsoValue));
 	m_pModelViewProjectionVar->SetMatrix(mModel1Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix1);
 	m_pSurface1->RenderVoronoi(m_pVoronoiDiagramTechnique);
 
-	V_RETURN(m_pIsoValueVar->SetFloat(1-m_fIsoValue));
 	m_pModelViewProjectionVar->SetMatrix(mModel2Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix2);
 	m_pSurface2->RenderVoronoi(m_pVoronoiDiagramTechnique);

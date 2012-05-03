@@ -72,10 +72,14 @@ protected:
 	ID3DX11Effect*					m_pSurfaceEffect;
 	ID3DX11Effect*					m_pVoronoiEffect;
 
-	ID3D11Texture3D*				m_pVoronoi3D1;
-	ID3D11Texture3D*				m_pVoronoi3D2;
-	ID3D11ShaderResourceView*		m_pVoronoi3D1SRV;
-	ID3D11ShaderResourceView*		m_pVoronoi3D2SRV;
+	ID3D11Texture3D*				m_pVoronoi3DTex;
+	ID3D11Texture3D*				m_pColor3DTex1;
+	ID3D11Texture3D*				m_pColor3DTex2;
+	ID3D11Texture3D*				m_pDist3DTex;
+	ID3D11ShaderResourceView*		m_pVoronoi3DTexSRV;
+	ID3D11ShaderResourceView*		m_pColor3DTex1SRV;
+	ID3D11ShaderResourceView*		m_pColor3DTex2SRV;
+	ID3D11ShaderResourceView*		m_pDist3DTexSRV;
 
 	//Bounding Box vertices
 	VERTEX* m_pBBVertices;
