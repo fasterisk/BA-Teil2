@@ -387,6 +387,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Diffusion.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
@@ -395,6 +396,7 @@
     <ClInclude Include="Voronoi.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Diffusion.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="VolumeRenderer.cpp">

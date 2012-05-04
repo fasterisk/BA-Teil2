@@ -35,6 +35,9 @@
     <ClInclude Include="Voronoi.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Diffusion.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -50,6 +53,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Voronoi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Diffusion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
