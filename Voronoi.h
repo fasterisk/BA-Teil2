@@ -16,7 +16,6 @@ public:
 	void SetSurfaces(Surface *pSurface1, Surface *pSurface2);
 	void ChangeRenderingToOneSlice(int iSliceIndex);
 	void ChangeRenderingToAllSlices();
-	void ChangeIsoValue(float fIsoValue);
 
 	HRESULT RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax);
 

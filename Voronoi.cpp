@@ -99,11 +99,6 @@ void Voronoi::ChangeRenderingToAllSlices()
 	m_bDrawAllSlices = true;
 }
 
-void Voronoi::ChangeIsoValue(float fIsoValue)
-{
-	m_fIsoValue = fIsoValue;
-}
-
 HRESULT Voronoi::Update()
 {
 	HRESULT hr(S_OK);
@@ -309,8 +304,6 @@ HRESULT Voronoi::InitSlices()
 	float x1, y1, x2, y2;
 	int vertexIndex = 0;
 
-	//WARNING: DIRTY BUGFIX... if z = 0 then an error occurs... dunno why yet.
-	//probably error of volumerenderer, first slice of the 3d texture has to stay empty
 	for(int z = 0; z < m_iTextureDepth; z++)
 	{
 		row = z / m_cols;

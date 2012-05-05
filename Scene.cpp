@@ -263,7 +263,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 
 	if(m_bRender3DTexture)
 	{
-		m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pDist3DTexSRV);
+		m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);
 	}
 
 	if(bShowSurfaces)
@@ -322,7 +322,6 @@ HRESULT Scene::Init3DTextures()
 
 void Scene::ChangeIsoValue(float fIsoValue)
 {
-	m_pVoronoi->ChangeIsoValue(fIsoValue);
 }
 
 void Scene::ChangeControlledSurface()

@@ -10,16 +10,15 @@ public:
 	Diffusion(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateContext, ID3DX11Effect *pDiffusionEffect);
 	virtual ~Diffusion();
 
-	HRESULT Initialize();
+	HRESULT Initialize(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3D *pDestDistTex3D);
 	
-	HRESULT SetDestinationTextures(ID3D11Texture3D *pDestColorTex3D1, ID3D11Texture3D *pDestColorTex3D2);
 	void ChangeIsoValue(float fIsoValue);
 
+	HRESULT Update(int iTextureWidth, int iTextureHeight, int iTextureDepth, float fIsoValue);
 	HRESULT RenderDiffusion(int iDiffusionSteps);
 
 private:
 	//Methods
-	HRESULT Update();
 	HRESULT InitRendertargets3D();
 	HRESULT InitShaders();
 	HRESULT InitSlices();
@@ -37,6 +36,11 @@ private:
 	ID3D11Buffer                *m_pSlicesVB;
 
 	//Textures, RTVs and DSV
+	ID3D11Texture3D				*m_pColorTex3D1;
+	ID3D11Texture3D				*m_pColorTex3D2;
+
+	ID3D11RenderTargetView		*m_pColorTex3D1RTV;
+	ID3D11RenderTargetView		*m_pColorTex3D2RTV;
 	
 	int							m_iTextureWidth;
 	int							m_iTextureHeight;
