@@ -3,6 +3,7 @@ class Voxelizer;
 class VolumeRenderer;
 class TextureGrid;
 class Voronoi;
+class Diffusion;
 
 class Scene {
 public:
@@ -64,12 +65,16 @@ protected:
 	// Voronoi Diagram Renderer
 	Voronoi*				m_pVoronoi;
 
+	// Diffusion Renderer
+	Diffusion*				m_pDiffusion;
+
 	// VolumeRenderer
 	VolumeRenderer*			m_pVolumeRenderer;
 
 	// Effects and Techniques
 	ID3DX11Effect*					m_pVolumeRenderEffect;
 	ID3DX11Effect*					m_pSurfaceEffect;
+	ID3DX11Effect*					m_pDiffusionEffect;
 	ID3DX11Effect*					m_pVoronoiEffect;
 
 	ID3D11Texture3D*				m_pVoronoi3DTex;
@@ -80,6 +85,8 @@ protected:
 	ID3D11ShaderResourceView*		m_pColor3DTex1SRV;
 	ID3D11ShaderResourceView*		m_pColor3DTex2SRV;
 	ID3D11ShaderResourceView*		m_pDist3DTexSRV;
+
+	ID3D11ShaderResourceView*		m_pCurrentDiffusionSRV;
 
 	//Bounding Box vertices
 	VERTEX* m_pBBVertices;

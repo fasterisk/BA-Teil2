@@ -74,5 +74,8 @@
     <None Include="Voronoi.fx">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Diffusion.fx">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

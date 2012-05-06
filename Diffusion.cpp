@@ -10,16 +10,19 @@ Diffusion::Diffusion(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediat
 	m_pInputLayout = NULL;
 	m_pSlicesVB = NULL;
 
-	m_pColorTex3D1 = NULL;
-	m_pColorTex3D2 = NULL;
-	m_pColorTex3D1RTV = NULL;
-	m_pColorTex3D2RTV = NULL;
+	m_pColor3DTextures[0] = NULL;
+	m_pColor3DTextures[1] = NULL;
+	m_pColor3DTexturesRTV[0] = NULL;
+	m_pColor3DTexturesRTV[1] = NULL;
+	m_pColor3DTexturesSRV[0] = NULL;
+	m_pColor3DTexturesSRV[1] = NULL;
 
 	m_iTextureWidth = 0;
 	m_iTextureHeight = 0;
 	m_iTextureDepth = 0;
 
 	m_fIsoValue = 0.5f;
+	m_iDiffTex = 0;
 }
 
 Diffusion::~Diffusion()
@@ -31,78 +34,80 @@ void Diffusion::Cleanup()
 {
 	SAFE_RELEASE(m_pInputLayout);
 	SAFE_RELEASE(m_pSlicesVB);
+
+	SAFE_RELEASE(m_pColor3DTexturesRTV[0]);
+	SAFE_RELEASE(m_pColor3DTexturesRTV[1]);
 }
 
-HRESULT Diffusion::Initialize(ID3D11Texture3D *pColorTex3D1, ID3D11Texture3D *pColorTex3D2)
+HRESULT Diffusion::Initialize(ID3D11Texture3D *pColorTex3D1,
+							  ID3D11Texture3D *pColorTex3D2,
+							  ID3D11ShaderResourceView* pColor3DTex1SRV, 
+							  ID3D11ShaderResourceView* pColor3DTex2SRV,
+							  int iTextureWidth, int iTextureHeight, int iTextureDepth, float fIsoValue)
 {
 	HRESULT hr;
-
-	assert(m_pd3dDevice);
-	assert(m_pd3dImmediateContext);
-	assert(pColorTex3D1);
-	assert(pColorTex3D2);
-
-	m_pColorTex3D1 = pColorTex3D1;
-	m_pColorTex3D2 = pColorTex3D2;
-
-	V_RETURN(InitRendertargets3D());
-
-	//Initialize Slices
-	V_RETURN(InitSlices());
-
-	//Initialize Techniques and Shadervariables
-	V_RETURN(InitShaders());
-}
-
-
-HRESULT Diffusion::Update(int iTextureWidth, int iTextureHeight, int iTextureDepth, float fIsoValue)
-{
-	HRESULT hr(S_OK);
 
 	m_iTextureWidth = iTextureWidth;
 	m_iTextureHeight = iTextureHeight;
 	m_iTextureDepth = iTextureDepth;
 	m_fIsoValue = fIsoValue;
 
-	//Initialize Rendertargets for the 3D Textures -- needs to happen before depth stencil initialization
-	// because m_iTextureWidth etc. are initialized in InitRendertargets3D
-	V_RETURN(InitRendertargets3D());
+	assert(m_pd3dDevice);
+	assert(m_pd3dImmediateContext);
+	assert(pColorTex3D1);
+	assert(pColorTex3D2);
+	assert(pColor3DTex1SRV);
+	assert(pColor3DTex2SRV);
+
+	m_pColor3DTextures[0] = pColorTex3D1;
+	m_pColor3DTextures[1] = pColorTex3D2;
+	m_pColor3DTexturesSRV[0] = pColor3DTex1SRV;
+	m_pColor3DTexturesSRV[1] = pColor3DTex2SRV;
+
+	assert(m_pColor3DTextures[0]);
+	assert(m_pColor3DTextures[1]);
+	
+	//Initialize Techniques and Shadervariables
+	V_RETURN(InitShaders());
+
+	//Initialize RTVs
+	V_RETURN(Init3DRTVs());
 
 	//Initialize Slices
 	V_RETURN(InitSlices());
-	
-	return S_OK;
+
 }
 
-HRESULT Diffusion::InitRendertargets3D()
+HRESULT Diffusion::Init3DRTVs()
 {
 	HRESULT hr;
 
-	assert(m_pColorTex3D1 != NULL);
-	assert(m_pColorTex3D2 != NULL);
+	assert(m_pColor3DTextures[0]);
+	assert(m_pColor3DTextures[1]);
 
-	SAFE_RELEASE(m_pColorTex3D1);
-	SAFE_RELEASE(m_pColorTex3D2);
+	SAFE_RELEASE(m_pColor3DTexturesRTV[0]);
+	SAFE_RELEASE(m_pColor3DTexturesRTV[1]);
 
+	//create RTVs
 	D3D11_TEXTURE3D_DESC descColorTex3D1;
-	m_pColorTex3D1->GetDesc(&descColorTex3D1);
+	m_pColor3DTextures[0]->GetDesc(&descColorTex3D1);
 	D3D11_RENDER_TARGET_VIEW_DESC descCT3D1RTV;
 	descCT3D1RTV.Format = descColorTex3D1.Format;
 	descCT3D1RTV.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE3D;
 	descCT3D1RTV.Texture3D.MipSlice = 0;
 	descCT3D1RTV.Texture3D.FirstWSlice = 0;
 	descCT3D1RTV.Texture3D.WSize = descColorTex3D1.Depth;
-	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pColorTex3D1, &descCT3D1RTV, &m_pColorTex3D1RTV));
+	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pColor3DTextures[0], &descCT3D1RTV, &m_pColor3DTexturesRTV[0]));
 
 	D3D11_TEXTURE3D_DESC descColorTex3D2;
-	m_pColorTex3D2->GetDesc(&descColorTex3D2);
+	m_pColor3DTextures[1]->GetDesc(&descColorTex3D2);
 	D3D11_RENDER_TARGET_VIEW_DESC descCT3D2RTV;
 	descCT3D2RTV.Format = descColorTex3D2.Format;
 	descCT3D2RTV.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE3D;
 	descCT3D2RTV.Texture3D.MipSlice = 0;
 	descCT3D2RTV.Texture3D.FirstWSlice = 0;
 	descCT3D2RTV.Texture3D.WSize = descColorTex3D2.Depth;
-	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pColorTex3D2, &descCT3D2RTV, &m_pColorTex3D2RTV));
+	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pColor3DTextures[1], &descCT3D2RTV, &m_pColor3DTexturesRTV[1]));
 
 	return S_OK;
 }
@@ -115,45 +120,20 @@ HRESULT Diffusion::InitShaders()
 	SAFE_RELEASE(m_pInputLayout);
 
 	// Get Technique and variables
-	/*m_pVoronoiDiagramTechnique	= m_pDiffusionEffect->GetTechniqueByName("GenerateVoronoiDiagram");
-	m_pFlatTo3DTexTechnique		= m_pDiffusionEffect->GetTechniqueByName("Flat2DTextureTo3D");
+	m_pDiffusionTechnique	= m_pDiffusionEffect->GetTechniqueByName("Diffusion");
 
-	m_pModelViewProjectionVar	= m_pDiffusionEffect->GetVariableByName("ModelViewProjectionMatrix")->AsMatrix();
-	m_pNormalMatrixVar			= m_pDiffusionEffect->GetVariableByName("NormalMatrix")->AsMatrix();
-	m_pSliceIndexVar			= m_pDiffusionEffect->GetVariableByName("iSliceIndex")->AsScalar();
-	m_pIsoValueVar				= m_pDiffusionEffect->GetVariableByName("fIsoValue")->AsScalar();
-	m_pTextureSizeVar			= m_pDiffusionEffect->GetVariableByName("vTextureSize")->AsVector();
-	m_pBBMinVar					= m_pDiffusionEffect->GetVariableByName("vBBMin")->AsVector();
-	m_pBBMaxVar					= m_pDiffusionEffect->GetVariableByName("vBBMax")->AsVector();
-	m_pFlatColorTex2DSRVar		= m_pDiffusionEffect->GetVariableByName("flatColorTexture")->AsShaderResource();
-	m_pFlatDistTex2DSRVar		= m_pDiffusionEffect->GetVariableByName("flatDistTexture")->AsShaderResource();
+	m_pColor3DTexSRVar		= m_pDiffusionEffect->GetVariableByName("ColorTexture")->AsShaderResource();
+	m_pDist3DTexSRVar		= m_pDiffusionEffect->GetVariableByName("DistTexture")->AsShaderResource();
+	m_pIsoValueVar			= m_pDiffusionEffect->GetVariableByName("fIsoValue")->AsScalar();
+	m_pTextureSizeVar		= m_pDiffusionEffect->GetVariableByName("vTextureSize")->AsVector();
+	m_pPolySizeVar			= m_pDiffusionEffect->GetVariableByName("fPolySize")->AsScalar();
 
-	assert(m_pVoronoiDiagramTechnique);
-	assert(m_pModelViewProjectionVar);
-	assert(m_pSliceIndexVar);
+	assert(m_pDiffusionTechnique);
+	assert(m_pColor3DTexSRVar);
+	assert(m_pDist3DTexSRVar);
 	assert(m_pTextureSizeVar);
-	assert(m_pBBMinVar);
-	assert(m_pBBMaxVar);
-	assert(m_pFlatColorTex2DSRVar);
-	assert(m_pFlatDistTex2DSRVar);
+	assert(m_pIsoValueVar);
 
-	//Create InputLayout
-	D3DX11_PASS_SHADER_DESC passVsDesc;
-	m_pVoronoiDiagramTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
-	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
-	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
-	const void *vsCodePtr = effectVsDesc.pBytecode;
-	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
-
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	};
-
-	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pInputLayout));
-	*/
 	return S_OK;
 }
 
@@ -165,18 +145,18 @@ HRESULT Diffusion::InitSlices()
 	SAFE_RELEASE(m_pSlicesVB);
 
 	//Create full-screen quad input layout
-	/*const D3D11_INPUT_ELEMENT_DESC slicesLayout[] = 
+	const D3D11_INPUT_ELEMENT_DESC inputLayout[] = 
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 	D3DX11_PASS_SHADER_DESC passVsDesc;
-	m_pFlatTo3DTexTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
+	m_pDiffusionTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
 	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
 	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
 	const void *vsCodePtr = effectVsDesc.pBytecode;
 	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
-	V_RETURN(m_pd3dDevice->CreateInputLayout(slicesLayout, _countof(slicesLayout), vsCodePtr, vsCodeLen, &m_pSlicesLayout));
+	V_RETURN(m_pd3dDevice->CreateInputLayout(inputLayout, _countof(inputLayout), vsCodePtr, vsCodeLen, &m_pInputLayout));
 
 
 #define SLICEQUAD_VERTEX_COUNT 6
@@ -184,32 +164,23 @@ HRESULT Diffusion::InitSlices()
     // and with homogenous coordinates to cover a fullscreen quad
 	SLICE_SCREENQUAD_VERTEX* sliceVertices = new SLICE_SCREENQUAD_VERTEX[SLICEQUAD_VERTEX_COUNT*m_iTextureDepth];
 	SLICE_SCREENQUAD_VERTEX sliceVerticesTemp[4];
-	int row, col;
-	float x1, y1, x2, y2;
 	int vertexIndex = 0;
 
 	for(int z = 0; z < m_iTextureDepth; z++)
 	{
-		row = z / m_cols;
-		col = z % m_cols;
-		x1 = float(col)/m_cols;
-		y1 = float(row)/m_rows;
-		x2 = float(col+1)/m_cols;
-		y2 = float(row+1)/m_rows;
-		
 		vertexIndex = z * SLICEQUAD_VERTEX_COUNT;
 
 		sliceVerticesTemp[0].pos = D3DXVECTOR3(-1.0f, 1.0f, 0.5f);
-		sliceVerticesTemp[0].tex = D3DXVECTOR3(x1, y2, float(z));
+		sliceVerticesTemp[0].tex = D3DXVECTOR3(0.0f, 0.0f, float(z));
 
 		sliceVerticesTemp[1].pos = D3DXVECTOR3(-1.0f, -1.0f, 0.5f);
-		sliceVerticesTemp[1].tex = D3DXVECTOR3(x1, y1, float(z));
+		sliceVerticesTemp[1].tex = D3DXVECTOR3(0.0f, 1.0f, float(z));
         
         sliceVerticesTemp[2].pos = D3DXVECTOR3(1.0f, -1.0f, 0.5f);
-		sliceVerticesTemp[2].tex = D3DXVECTOR3(x2, y1, float(z));
+		sliceVerticesTemp[2].tex = D3DXVECTOR3(1.0f, 1.0f, float(z));
         
         sliceVerticesTemp[3].pos = D3DXVECTOR3(1.0f, 1.0f, 0.5f);
-		sliceVerticesTemp[3].tex = D3DXVECTOR3(x2, y2, float(z));
+		sliceVerticesTemp[3].tex = D3DXVECTOR3(1.0f, 0.0f, float(z));
 
 		sliceVertices[vertexIndex+0] = sliceVerticesTemp[0];
 		sliceVertices[vertexIndex+1] = sliceVerticesTemp[1];
@@ -234,11 +205,13 @@ HRESULT Diffusion::InitSlices()
 	V_RETURN(m_pd3dDevice->CreateBuffer(&vbDesc, &initialData, &m_pSlicesVB));
 
 	delete[] sliceVertices;
-	*/
+	
 	return S_OK;
 }
 
-HRESULT Diffusion::RenderDiffusion(int iDiffusionSteps)
+ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* pVoronoi3DTextureSRV, 
+								   ID3D11ShaderResourceView* pDist3DTextureSRV, 
+								   int iDiffusionSteps)
 {
 	HRESULT hr(S_OK);
 
@@ -249,13 +222,46 @@ HRESULT Diffusion::RenderDiffusion(int iDiffusionSteps)
 	D3D11_VIEWPORT pViewports[100];
 	m_pd3dImmediateContext->RSGetViewports( &NumViewports, &pViewports[0]);
 
-	//TODO DRAWING
+
+	hr = m_pTextureSizeVar->SetFloatVector(D3DXVECTOR3((float)m_iTextureWidth, (float)m_iTextureHeight, (float)m_iTextureDepth));
+	assert(hr == S_OK);
+	
+	hr = m_pIsoValueVar->SetFloat(m_fIsoValue);
+	assert(hr == S_OK);
+
+
+	for(int i = 0; i < iDiffusionSteps; i++)
+	{
+		hr = m_pPolySizeVar->SetFloat(1.0 - (float)(i)/(float)iDiffusionSteps);
+		assert(hr == S_OK);
+
+		if(i == 0)
+		{
+			m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pColor3DTexturesRTV[m_iDiffTex], NULL);
+			hr = m_pColor3DTexSRVar->SetResource(pVoronoi3DTextureSRV);
+			assert(hr == S_OK);
+			hr = m_pDist3DTexSRVar->SetResource(pDist3DTextureSRV);
+			assert(hr == S_OK);
+		}
+		else
+		{
+			m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pColor3DTexturesRTV[1-m_iDiffTex], NULL);
+			hr = m_pColor3DTexSRVar->SetResource(m_pColor3DTexturesSRV[m_iDiffTex]);
+			assert(hr == S_OK);
+			hr = m_pDist3DTexSRVar->SetResource(pDist3DTextureSRV);
+			assert(hr == S_OK);
+			m_iDiffTex = 1-m_iDiffTex;
+		}
+		
+		DrawSlices();
+	}
+
 	
 	//restore old render targets
 	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
 	m_pd3dImmediateContext->RSSetViewports( NumViewports, &pViewports[0]);
 
-	return S_OK;
+	return m_pColor3DTexturesSRV[m_iDiffTex];
 }
 
 
@@ -264,13 +270,13 @@ void Diffusion::DrawSlices()
 	assert(m_pInputLayout);
 	assert(m_pSlicesVB);
 
-	/*UINT strides = sizeof(SLICE_SCREENQUAD_VERTEX);
+	UINT strides = sizeof(SLICE_SCREENQUAD_VERTEX);
 	UINT offsets = 0;
 
 	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
 	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pSlicesVB, &strides, &offsets);
 	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	m_pd3dImmediateContext->Draw(SLICEQUAD_VERTEX_COUNT*m_iTextureDepth, 0);*/
+	m_pd3dImmediateContext->Draw(SLICEQUAD_VERTEX_COUNT*m_iTextureDepth, 0);
 }
 

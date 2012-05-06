@@ -409,6 +409,7 @@
     <ResourceCompile Include="VolumetricDiffusion.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Diffusion.fx" />
     <None Include="Surface.fx" />
     <None Include="VolumeRenderer.fx" />
     <None Include="Voronoi.fx" />

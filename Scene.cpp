@@ -5,6 +5,7 @@
 #include "Surface.h"
 #include "VolumeRenderer.h"
 #include "Voronoi.h"
+#include "Diffusion.h"
 
 
 Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext)
@@ -13,6 +14,8 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_pd3dImmediateContext = pd3dImmediateContext;
 
 	m_pVolumeRenderEffect = NULL;
+	m_pDiffusionEffect = NULL;
+	m_pVoronoiEffect = NULL;
 	m_pSurfaceEffect = NULL;
 	m_pVoronoi3DTex = NULL;
 	m_pColor3DTex1 = NULL;
@@ -27,6 +30,10 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_bRender3DTexture = false;
 	m_bGenerateVoronoi = false;
 
+	m_pVoronoi = NULL;
+	m_pDiffusion = NULL;
+	m_pVolumeRenderer = NULL;
+
 }
 
 Scene::~Scene()
@@ -37,7 +44,9 @@ Scene::~Scene()
 	SAFE_RELEASE(m_pVolumeRenderEffect);
 	SAFE_RELEASE(m_pSurfaceEffect);
 	SAFE_RELEASE(m_pVoronoiEffect);
+	SAFE_RELEASE(m_pDiffusionEffect);
 	SAFE_DELETE(m_pVoronoi);
+	SAFE_DELETE(m_pDiffusion);
 	SAFE_DELETE(m_pVolumeRenderer);
 
 	SAFE_DELETE(m_pBBVertices);
@@ -72,6 +81,9 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Voronoi.fx"));
 	V_RETURN(CreateEffect(str, &m_pVoronoiEffect));
 
+	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Diffusion.fx"));
+	V_RETURN(CreateEffect(str, &m_pDiffusionEffect));
+
 	iTextureWidth = iTexWidth;
 	iTextureHeight = iTexHeight;
 	iTextureDepth = iTexDepth;
@@ -84,6 +96,9 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(m_pVoronoi->Initialize());
 	m_pVoronoi->SetSurfaces(m_pSurface1, m_pSurface2);
 
+	// Initialize Diffusion Renderer
+	m_pDiffusion = new Diffusion(m_pd3dDevice, m_pd3dImmediateContext, m_pDiffusionEffect);
+
 	// Initialize VolumeRenderer
 	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
 	V_RETURN(m_pVolumeRenderer->Initialize());
@@ -91,7 +106,6 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 
 	
 	V_RETURN(UpdateBoundingBox());
-
 
 	return S_OK;
 }
@@ -228,6 +242,15 @@ HRESULT Scene::UpdateBoundingBox()
 	V_RETURN(m_pVoronoi->SetDestination(m_pVoronoi3DTex, m_pDist3DTex));
 	V_RETURN(m_pVolumeRenderer->Update(iTextureWidth, iTextureHeight, iTextureDepth));
 
+	V_RETURN(m_pDiffusion->Initialize(m_pColor3DTex1, 
+									  m_pColor3DTex2, 
+									  m_pColor3DTex1SRV, 
+									  m_pColor3DTex2SRV, 
+									  iTextureWidth, 
+									  iTextureHeight, 
+									  iTextureDepth, 
+									  0.5f));
+
 	initialized = true;
 
 	return S_OK;
@@ -259,11 +282,14 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 	{
 		m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
 		m_bGenerateVoronoi = false;
+
+		m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, 1);
 	}
+
 
 	if(m_bRender3DTexture)
 	{
-		m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);
+		m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
 	}
 
 	if(bShowSurfaces)

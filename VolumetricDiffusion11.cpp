@@ -469,6 +469,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_pScene->GenerateVoronoi();
 			break;
 		case IDC_ISO_SLIDER:
+			break;
 			/*g_bBlockMouseDragging = true;
 			g_fIsoValue = g_SampleUI.GetSlider(IDC_ISO_SLIDER)->GetValue()/100.0f;
 			StringCchPrintf( sz, 100, L"IsoValue: %.2f", g_fIsoValue);
