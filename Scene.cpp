@@ -117,12 +117,12 @@ HRESULT Scene::InitSurfaces()
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
 	V_RETURN(m_pSurface1->Initialize("Media\\surface1.xml"));
-    m_pSurface1->SetColor(0.0, 0.0, 1.0);
+    m_pSurface1->SetColor(0.0, 0.0, 0.0);
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
 	V_RETURN(m_pSurface2->Initialize("Media\\surface1.xml"));
-	m_pSurface2->SetColor(0.0, 1.0, 0.0);
+	m_pSurface2->SetColor(1.0, 1.0, 1.0);
 	m_pSurface2->Scale(0.5);
 
 	m_pControlledSurface = m_pSurface1;
@@ -283,7 +283,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
 		m_bGenerateVoronoi = false;
 
-		m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, 1);
+		m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, 8);
 	}
 
 

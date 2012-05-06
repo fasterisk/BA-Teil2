@@ -237,33 +237,34 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 	D3D11_RECT scissorRect2 = { 0, 0, m_iTextureWidth, m_iTextureHeight};
 	m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect2);
 
-	/*for(int i = 0; i < iDiffusionSteps; i++)
+	for(int i = 0; i < iDiffusionSteps; i++)
 	{
 		hr = m_pPolySizeVar->SetFloat(1.0 - (float)(i)/(float)iDiffusionSteps);
 		assert(hr == S_OK);
 
 		if(i == 0)
-		{*/
+		{
 			m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pColor3DTexturesRTV[m_iDiffTex], NULL);
 			hr = m_pColor3DTexSRVar->SetResource(pVoronoi3DTextureSRV);
 			assert(hr == S_OK);
 			hr = m_pDist3DTexSRVar->SetResource(pDist3DTextureSRV);
 			assert(hr == S_OK);
-	/*	}
+		}
 		else
 		{
-			m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pColor3DTexturesRTV[1-m_iDiffTex], NULL);
-			hr = m_pColor3DTexSRVar->SetResource(m_pColor3DTexturesSRV[m_iDiffTex]);
+			m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pColor3DTexturesRTV[m_iDiffTex], NULL);
+			hr = m_pColor3DTexSRVar->SetResource(m_pColor3DTexturesSRV[1-m_iDiffTex]);
 			assert(hr == S_OK);
 			hr = m_pDist3DTexSRVar->SetResource(pDist3DTextureSRV);
 			assert(hr == S_OK);
-			m_iDiffTex = 1-m_iDiffTex;
 		}
-		*/
+
+		m_iDiffTex = 1-m_iDiffTex;
+
 		hr = m_pDiffusionTechnique->GetPassByIndex(0)->Apply(0, m_pd3dImmediateContext);
 		assert(hr == S_OK);
 		DrawSlices();
-	//}
+	}
 
 	hr = m_pColor3DTexSRVar->SetResource(NULL);
 	assert(hr == S_OK);
@@ -274,7 +275,7 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
 	m_pd3dImmediateContext->RSSetViewports( NumViewports, &pViewports[0]);
 
-	return m_pColor3DTexturesSRV[m_iDiffTex];
+	return m_pColor3DTexturesSRV[1-m_iDiffTex];
 }
 
 
