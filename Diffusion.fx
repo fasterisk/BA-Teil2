@@ -64,7 +64,8 @@ struct GS_DIFFUSION_INPUT
 struct GS_DIFFUSION_OUTPUT
 {
 	float4 pos		: SV_Position;
-	float3 tex		: TEXCOORD;
+	float3 tex		: TEXCOORD0;
+	float4 pos2		: TEXCOORD1;
 	uint RTIndex	: SV_RenderTargetArrayIndex;
 };
 
@@ -99,6 +100,7 @@ void DiffusionGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_D
 	for(int v = 0; v < 3; v++)
 	{
 		output.pos = input[v].pos;
+		output.pos2 = input[v].pos;
 		output.tex = input[v].tex;
 		tStream.Append(output);
 	}
@@ -113,7 +115,7 @@ void DiffusionGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_D
 PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 {
 	PS_DIFFUSION_OUTPUT output;
-	float3 tex = float3(input.tex.xy, input.tex.z / (vTextureSize.z - 1));
+	float3 tex = float3(input.tex.xy, input.tex.z / (128 - 1));
 	/*float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerBorder, input.tex, 0).x;
 	float kernel = rawKernel*vTextureSize.x;
 	kernel *= fPolySize;
@@ -135,8 +137,7 @@ PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 	output.color += ColorTexture.SampleLevel(linearSamplerBorder, input.tex+float3(0, kernel/vTextureSize.z, 0), 0);
 	
 	output.color /= 4;*/
-	output.color = ColorTexture.Sample(linearSamplerBorder, tex);
-	//output.color = float4(tex, 1.0f);
+	output.color = ColorTexture.SampleLevel(linearSamplerBorder, tex, 0);
 	return output;
 }
 

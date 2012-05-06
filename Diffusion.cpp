@@ -171,16 +171,16 @@ HRESULT Diffusion::InitSlices()
 		vertexIndex = z * SLICEQUAD_VERTEX_COUNT;
 
 		sliceVerticesTemp[0].pos = D3DXVECTOR3(-1.0f, 1.0f, 0.5f);
-		sliceVerticesTemp[0].tex = D3DXVECTOR3(0.0f, 1.0f, float(z));
+		sliceVerticesTemp[0].tex = D3DXVECTOR3(0.0f, 0.0f, float(z));
 
 		sliceVerticesTemp[1].pos = D3DXVECTOR3(-1.0f, -1.0f, 0.5f);
-		sliceVerticesTemp[1].tex = D3DXVECTOR3(0.0f, 0.0f, float(z));
+		sliceVerticesTemp[1].tex = D3DXVECTOR3(0.0f, 1.0f, float(z));
         
         sliceVerticesTemp[2].pos = D3DXVECTOR3(1.0f, -1.0f, 0.5f);
-		sliceVerticesTemp[2].tex = D3DXVECTOR3(1.0f, 0.0f, float(z));
+		sliceVerticesTemp[2].tex = D3DXVECTOR3(1.0f, 1.0f, float(z));
         
         sliceVerticesTemp[3].pos = D3DXVECTOR3(1.0f, 1.0f, 0.5f);
-		sliceVerticesTemp[3].tex = D3DXVECTOR3(1.0f, 1.0f, float(z));
+		sliceVerticesTemp[3].tex = D3DXVECTOR3(1.0f, 0.0f, float(z));
 
 		sliceVertices[vertexIndex+0] = sliceVerticesTemp[0];
 		sliceVertices[vertexIndex+1] = sliceVerticesTemp[1];
@@ -229,8 +229,7 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 	hr = m_pIsoValueVar->SetFloat(m_fIsoValue);
 	assert(hr == S_OK);
 
-	hr = m_pDiffusionTechnique->GetPassByIndex(0)->Apply(0, m_pd3dImmediateContext);
-	assert(hr == S_OK);
+	
 
 	// Set viewport and scissor to match the size of a single slice 
 	D3D11_VIEWPORT viewport2 = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight), 0.0f, 1.0f };
@@ -261,6 +260,8 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 			m_iDiffTex = 1-m_iDiffTex;
 		}
 		*/
+		hr = m_pDiffusionTechnique->GetPassByIndex(0)->Apply(0, m_pd3dImmediateContext);
+		assert(hr == S_OK);
 		DrawSlices();
 	//}
 
