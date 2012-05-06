@@ -117,7 +117,7 @@ PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 	PS_DIFFUSION_OUTPUT output;
 	float3 tex = float3(input.tex.xy, input.tex.z / (vTextureSize.z - 1));
 
-	float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerBorder, tex, 0).x*3;
+	float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerBorder, tex, 0).x;
 	float kernel = rawKernel*vTextureSize.x;
 	kernel *= fPolySize;
 	kernel -= 0.5;
@@ -134,8 +134,8 @@ PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 	kernel *= fPolySize;
 	kernel -= 0.5;
 	kernel = max(0,kernel);
-	output.color += ColorTexture.SampleLevel(linearSamplerBorder, tex+float3(0,-kernel/vTextureSize.z, 0), 0);
-	output.color += ColorTexture.SampleLevel(linearSamplerBorder, tex+float3(0, kernel/vTextureSize.z, 0), 0);
+	output.color += ColorTexture.SampleLevel(linearSamplerBorder, tex+float3(0, 0, -kernel/vTextureSize.z), 0);
+	output.color += ColorTexture.SampleLevel(linearSamplerBorder, tex+float3(0, 0, kernel/vTextureSize.z), 0);
 	
 	output.color /= 6;
 	//output.color = ColorTexture.SampleLevel(linearSamplerBorder, tex, 0);
