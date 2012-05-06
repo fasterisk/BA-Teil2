@@ -95,7 +95,7 @@ GS_DIFFUSION_INPUT DiffusionVS(VS_DIFFUSION_INPUT input)
 void DiffusionGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_DIFFUSION_OUTPUT> tStream)
 {
 	GS_DIFFUSION_OUTPUT output;
-	output.RTIndex = input[0].tex.z;
+	output.RTIndex = (uint)input[0].tex.z;
 	for(int v = 0; v < 3; v++)
 	{
 		output.pos = input[v].pos;
@@ -112,9 +112,9 @@ void DiffusionGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_D
 
 PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 {
-	PS_DIFFUSION_OUTPUT output; 
-	input.tex.z /= vTextureSize.z;
-	float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerBorder, input.tex, 0).x;
+	PS_DIFFUSION_OUTPUT output;
+	float3 tex = float3(input.tex.xy, input.tex.z / (vTextureSize.z - 1));
+	/*float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerBorder, input.tex, 0).x;
 	float kernel = rawKernel*vTextureSize.x;
 	kernel *= fPolySize;
 	kernel -= 0.5;
@@ -134,7 +134,9 @@ PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 	output.color += ColorTexture.SampleLevel(linearSamplerBorder, input.tex+float3(0,-kernel/vTextureSize.z, 0), 0);
 	output.color += ColorTexture.SampleLevel(linearSamplerBorder, input.tex+float3(0, kernel/vTextureSize.z, 0), 0);
 	
-	output.color /= 4;
+	output.color /= 4;*/
+	output.color = ColorTexture.Sample(linearSamplerBorder, tex);
+	//output.color = float4(tex, 1.0f);
 	return output;
 }
 
