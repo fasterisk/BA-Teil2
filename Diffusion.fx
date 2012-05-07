@@ -169,6 +169,24 @@ PS_DIFFUSION_OUTPUT OneSlicePS(GS_DIFFUSION_OUTPUT input)
 	return output;
 }
 
+PS_DIFFUSION_OUTPUT IsoSurfacePS(GS_DIFFUSION_OUTPUT input)
+{
+	PS_DIFFUSION_OUTPUT output;
+	
+	float3 tex = float3(input.tex.xy, input.tex.z / (vTextureSize.z - 1));
+	output.color = ColorTexture.SampleLevel(linearSamplerBorder, tex, 0);
+	
+	if(output.color.x >= fIsoValue)
+	{
+		output.color = float4(1.0, 1.0, 1.0, 1.0f);
+	}
+	else
+	{
+		output.color = float4(0.0, 0.0, 0.0, 0.0f);
+	}
+
+	return output;
+}
 
 
 //--------------------------------------------------------------------------------------
@@ -193,6 +211,16 @@ technique10 Diffusion
 		SetVertexShader(CompileShader(vs_4_0, DiffusionVS()));
 		SetGeometryShader(CompileShader(gs_4_0, OneSliceGS()));
 		SetPixelShader(CompileShader(ps_4_0, OneSlicePS()));
+		SetRasterizerState( CullNone );
+        SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
+        SetDepthStencilState( DisableDepth, 0 );
+	}
+
+	pass RenderIsoSurface
+	{
+		SetVertexShader(CompileShader(vs_4_0, DiffusionVS()));
+		SetGeometryShader(CompileShader(gs_4_0, DiffusionGS()));
+		SetPixelShader(CompileShader(ps_4_0, IsoSurfacePS()));
 		SetRasterizerState( CullNone );
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetDepthStencilState( DisableDepth, 0 );

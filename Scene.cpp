@@ -29,6 +29,7 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	initialized = false;
 	m_bRender3DTexture = false;
 	m_bGenerateVoronoi = false;
+	m_bRenderIsoSurface = true;
 
 	m_pVoronoi = NULL;
 	m_pDiffusion = NULL;
@@ -291,14 +292,30 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 
 	if(m_bRender3DTexture)
 	{
+		if(m_bRenderIsoSurface)
+		{
+			m_pIsoSurfaceSRV = m_pDiffusion->RenderIsoSurface(m_pCurrentDiffusionSRV);
+		}
+
 		if(m_bDrawAllSlices == false)
 		{
-			m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pCurrentDiffusionSRV);
+			if(m_bRenderIsoSurface)
+				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pIsoSurfaceSRV);
+			else
+				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pCurrentDiffusionSRV);
+			
 			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pOneSliceDiffusionSRV);
 		}
 		else
 		{
-			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
+			if(m_bRenderIsoSurface)
+			{
+				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pIsoSurfaceSRV);
+			}
+			else
+			{
+				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
+			}
 		}
 	}
 
@@ -358,6 +375,7 @@ HRESULT Scene::Init3DTextures()
 
 void Scene::ChangeIsoValue(float fIsoValue)
 {
+	m_pDiffusion->ChangeIsoValue(fIsoValue);
 }
 
 void Scene::ChangeControlledSurface()

@@ -44,6 +44,7 @@ protected:
 	bool initialized;
 	bool m_bGenerateVoronoi;
 	bool m_bRender3DTexture;
+	bool m_bRenderIsoSurface;
 
 	// Device
 	ID3D11Device*			m_pd3dDevice;
@@ -59,8 +60,8 @@ protected:
 	int iTextureHeight;
 	int iTextureDepth;
 
-	bool						m_bDrawAllSlices;
-	int							m_iCurrentSlice;
+	bool	m_bDrawAllSlices;
+	int		m_iCurrentSlice;
 
 	D3DXVECTOR3 m_vMin;
 	D3DXVECTOR3 m_vMax;
@@ -91,6 +92,7 @@ protected:
 
 	ID3D11ShaderResourceView*		m_pCurrentDiffusionSRV;
 	ID3D11ShaderResourceView*		m_pOneSliceDiffusionSRV;
+	ID3D11ShaderResourceView*		m_pIsoSurfaceSRV;
 
 	//Bounding Box vertices
 	VERTEX* m_pBBVertices;

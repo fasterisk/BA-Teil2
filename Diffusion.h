@@ -23,6 +23,7 @@ public:
 											  int iDiffusionSteps);
 
 	ID3D11ShaderResourceView* GetOneDiffusionSlice(int iSliceIndex, ID3D11ShaderResourceView* pCurrentDiffusionSRV);
+	ID3D11ShaderResourceView* RenderIsoSurface(ID3D11ShaderResourceView* pCurrentDiffusionSRV);
 
 private:
 	//Methods
@@ -51,6 +52,11 @@ private:
 	ID3D11Texture3D				*m_pOneSliceTexture;
 	ID3D11RenderTargetView		*m_pOneSliceTextureRTV;
 	ID3D11ShaderResourceView	*m_pOneSliceTextureSRV;
+
+	//IsoSurface Texture, RTV and SRV
+	ID3D11Texture3D				*m_pIsoSurfaceTexture;
+	ID3D11RenderTargetView		*m_pIsoSurfaceTextureRTV;
+	ID3D11ShaderResourceView	*m_pIsoSurfaceTextureSRV;
 
 
 	ID3DX11EffectShaderResourceVariable		*m_pColor3DTexSRVar;
