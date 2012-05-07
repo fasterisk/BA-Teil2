@@ -21,9 +21,6 @@ Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateCon
 	m_pSurface1 = NULL;
 	m_pSurface2 = NULL;
 
-	m_bDrawAllSlices = true;
-	m_iCurrentSlice = 64;
-
 	m_pFlatColorTex = NULL;
 	m_pFlatColorTexRTV = NULL;
 	m_pFlatColorTexSRV = NULL;
@@ -88,16 +85,7 @@ void Voronoi::SetSurfaces(Surface *pSurface1, Surface *pSurface2)
 	m_pSurface2 = pSurface2;
 }
 
-void Voronoi::ChangeRenderingToOneSlice(int iSliceIndex)
-{
-	m_bDrawAllSlices = false;
-	m_iCurrentSlice = iSliceIndex;
-}
 
-void Voronoi::ChangeRenderingToAllSlices()
-{
-	m_bDrawAllSlices = true;
-}
 
 HRESULT Voronoi::Update()
 {
@@ -411,18 +399,10 @@ HRESULT Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
 
 
-	//Render To Flat Textures, either all or only one slice
-	if(m_bDrawAllSlices)
+	//Render To Flat Texture
+	for(int iSliceIndex = 0; iSliceIndex < m_iTextureDepth; iSliceIndex++)
 	{
-		for(int sliceIndex = 0; sliceIndex < m_iTextureDepth; sliceIndex++)
-		{
-			V_RETURN(RenderToFlatTexture(model1Orth, model2Orth, mNormalMatrix1, mNormalMatrix2, sliceIndex));
-		}
-
-	}
-	else
-	{
-		V_RETURN(RenderToFlatTexture(model1Orth, model2Orth, mNormalMatrix1, mNormalMatrix2, m_iCurrentSlice));
+		V_RETURN(RenderToFlatTexture(model1Orth, model2Orth, mNormalMatrix1, mNormalMatrix2, iSliceIndex));
 	}
 
 	

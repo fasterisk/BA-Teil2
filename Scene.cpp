@@ -33,7 +33,9 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_pVoronoi = NULL;
 	m_pDiffusion = NULL;
 	m_pVolumeRenderer = NULL;
-
+	
+	m_bDrawAllSlices = true;
+	m_iCurrentSlice = 64;
 }
 
 Scene::~Scene()
@@ -284,8 +286,9 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		m_bGenerateVoronoi = false;
 
 		m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, 8);
+		if(m_bDrawAllSlices == false)
+			m_pCurrentDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice);
 	}
-
 
 	if(m_bRender3DTexture)
 	{
@@ -363,22 +366,19 @@ void Scene::ChangeControlledSurface()
 HRESULT Scene::ChangeRenderingToOneSlice(int iSliceIndex)
 {
 	HRESULT hr;
-	assert(m_pVoronoi != NULL);
-	m_pVoronoi->ChangeRenderingToOneSlice(iSliceIndex);
+	m_bDrawAllSlices = false;
+	m_iCurrentSlice = iSliceIndex;
 	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(1.0f));
 	initialized = false;
-	m_bGenerateVoronoi = true;
 	return S_OK;
 }
 
 HRESULT Scene::ChangeRenderingToAllSlices()
 {
 	HRESULT hr;
-	assert(m_pVoronoi != NULL);
-	m_pVoronoi->ChangeRenderingToAllSlices();
+	m_bDrawAllSlices = true;
 	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(0.01f));
 	initialized = false;
-	m_bGenerateVoronoi = true;
 	return S_OK;
 }
 

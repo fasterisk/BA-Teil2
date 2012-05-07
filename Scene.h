@@ -59,6 +59,9 @@ protected:
 	int iTextureHeight;
 	int iTextureDepth;
 
+	bool						m_bDrawAllSlices;
+	int							m_iCurrentSlice;
+
 	D3DXVECTOR3 m_vMin;
 	D3DXVECTOR3 m_vMax;
 

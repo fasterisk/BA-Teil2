@@ -22,6 +22,8 @@ public:
 										      ID3D11ShaderResourceView* pDist3DTextureSRV, 
 											  int iDiffusionSteps);
 
+	ID3D11ShaderResourceView* GetOneDiffusionSlice(int iSliceIndex);
+
 private:
 	//Methods
 	HRESULT Init3DRTVs();
@@ -40,16 +42,23 @@ private:
 	ID3D11InputLayout			*m_pInputLayout;
 	ID3D11Buffer                *m_pSlicesVB;
 
-	//Textures, RTVs and DSV
+	//Textures, RTVs and SRV
 	ID3D11Texture3D				*m_pColor3DTextures[2];
 	ID3D11RenderTargetView		*m_pColor3DTexturesRTV[2];
 	ID3D11ShaderResourceView	*m_pColor3DTexturesSRV[2];
+
+	//One Slice Texture, RTV and SRV
+	ID3D11Texture3D				*m_pOneSliceTexture;
+	ID3D11RenderTargetView		*m_pOneSliceTextureRTV;
+	ID3D11ShaderResourceView	*m_pOneSliceTextureSRV;
+
 
 	ID3DX11EffectShaderResourceVariable		*m_pColor3DTexSRVar;
 	ID3DX11EffectShaderResourceVariable		*m_pDist3DTexSRVar;
 
 	ID3DX11EffectScalarVariable				*m_pIsoValueVar;
 	ID3DX11EffectScalarVariable				*m_pPolySizeVar;
+	ID3DX11EffectScalarVariable				*m_pSliceIndexVar;
 
 	ID3DX11EffectVectorVariable				*m_pTextureSizeVar;
 	
@@ -59,6 +68,8 @@ private:
 
 	float						m_fIsoValue;
 	int							m_iDiffTex;
+
+
 
 };
 

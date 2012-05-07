@@ -14,8 +14,7 @@ public:
 	
 	HRESULT SetDestination(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3D *pDestDistTex3D);
 	void SetSurfaces(Surface *pSurface1, Surface *pSurface2);
-	void ChangeRenderingToOneSlice(int iSliceIndex);
-	void ChangeRenderingToAllSlices();
+
 
 	HRESULT RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax);
 
@@ -52,9 +51,6 @@ private:
 	//  for flat 3D texture
     int                         m_cols;
     int                         m_rows;
-
-	bool						m_bDrawAllSlices;
-	int							m_iCurrentSlice;
 
 	//Shader variables
 	ID3DX11EffectMatrixVariable				*m_pModelViewProjectionVar;

@@ -8,6 +8,7 @@ Texture3D DistTexture;
 float3 vTextureSize;
 float fIsoValue;
 float fPolySize;
+int iSliceIndex;
 
 //--------------------------------------------------------------------------------------
 // Sampler
@@ -65,7 +66,6 @@ struct GS_DIFFUSION_OUTPUT
 {
 	float4 pos		: SV_Position;
 	float3 tex		: TEXCOORD0;
-	float4 pos2		: TEXCOORD1;
 	uint RTIndex	: SV_RenderTargetArrayIndex;
 };
 
@@ -100,7 +100,20 @@ void DiffusionGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_D
 	for(int v = 0; v < 3; v++)
 	{
 		output.pos = input[v].pos;
-		output.pos2 = input[v].pos;
+		output.tex = input[v].tex;
+		tStream.Append(output);
+	}
+	tStream.RestartStrip();
+}
+
+[maxvertexcount(3)]
+void OneSliceGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_DIFFUSION_OUTPUT> tStream)
+{
+	GS_DIFFUSION_OUTPUT output;
+	output.RTIndex = (uint)input[0].tex.z;
+	for(int v = 0; v < 3; v++)
+	{
+		output.pos = input[v].pos;
 		output.tex = input[v].tex;
 		tStream.Append(output);
 	}
@@ -117,7 +130,7 @@ PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 	PS_DIFFUSION_OUTPUT output;
 	float3 tex = float3(input.tex.xy, input.tex.z / (vTextureSize.z - 1));
 
-	float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerBorder, tex, 0).x;
+	float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerBorder, tex, 0).x*3;
 	float kernel = rawKernel*vTextureSize.x;
 	kernel *= fPolySize;
 	kernel -= 0.5;
@@ -138,9 +151,25 @@ PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 	output.color += ColorTexture.SampleLevel(linearSamplerBorder, tex+float3(0, 0, kernel/vTextureSize.z), 0);
 	
 	output.color /= 6;
-	//output.color = ColorTexture.SampleLevel(linearSamplerBorder, tex, 0);
 	return output;
 }
+
+PS_DIFFUSION_OUTPUT OneSlicePS(GS_DIFFUSION_OUTPUT input)
+{
+	PS_DIFFUSION_OUTPUT output;
+	if(input.tex.z == iSliceIndex)
+	{
+		float3 tex = float3(input.tex.xy, input.tex.z / (vTextureSize.z - 1));
+		output.color = ColorTexture.SampleLevel(linearSamplerBorder, tex, 0);
+	}
+	else
+	{
+		output.color = float4(0,0,0,0);
+	}
+	return output;
+}
+
+
 
 //--------------------------------------------------------------------------------------
 // Techniques
@@ -154,6 +183,16 @@ technique10 Diffusion
 		SetVertexShader(CompileShader(vs_4_0, DiffusionVS()));
 		SetGeometryShader(CompileShader(gs_4_0, DiffusionGS()));
 		SetPixelShader(CompileShader(ps_4_0, DiffusionPS()));
+		SetRasterizerState( CullNone );
+        SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
+        SetDepthStencilState( DisableDepth, 0 );
+	}
+
+	pass RenderOneSlice
+	{
+		SetVertexShader(CompileShader(vs_4_0, DiffusionVS()));
+		SetGeometryShader(CompileShader(gs_4_0, OneSliceGS()));
+		SetPixelShader(CompileShader(ps_4_0, OneSlicePS()));
 		SetRasterizerState( CullNone );
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetDepthStencilState( DisableDepth, 0 );
