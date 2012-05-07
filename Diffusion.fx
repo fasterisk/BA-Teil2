@@ -130,7 +130,7 @@ PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 	PS_DIFFUSION_OUTPUT output;
 	float3 tex = float3(input.tex.xy, input.tex.z / (vTextureSize.z - 1));
 
-	float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerBorder, tex, 0).x*3;
+	float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerBorder, tex, 0).x;
 	float kernel = rawKernel*vTextureSize.x;
 	kernel *= fPolySize;
 	kernel -= 0.5;

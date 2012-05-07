@@ -20,6 +20,7 @@ public:
 	void ChangeIsoValue(float fIsoValue);
 
 	void ChangeControlledSurface();
+	void ChangeIsoBehaviour();
 	HRESULT ChangeRenderingToOneSlice(int iSliceIndex);
 	HRESULT ChangeRenderingToAllSlices();
 	void TranslateCurrentSurface(float fX, float fY, float fZ);

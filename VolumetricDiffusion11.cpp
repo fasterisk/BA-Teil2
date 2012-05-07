@@ -9,7 +9,6 @@
 CDXUTDialogResourceManager  g_DialogResourceManager; // manager for shared resources of dialogs
 CModelViewerCamera          g_Camera;               // A model viewing camera
 CD3DSettingsDlg             g_D3DSettingsDlg;       // Device settings dialog
-CDXUTDialog                 g_HUD;                  // manages the 3D   
 CDXUTDialog                 g_SampleUI;             // dialog for sample specific controls
 
 // Scene
@@ -77,9 +76,10 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_SLICEINDEX_STATIC		17
 #define IDC_SLICEINDEX_SLIDER		18
 #define IDC_SHOW_SURFACES			19
-#define IDC_VORONOI					20
+#define IDC_DIFFUSION				20
 #define IDC_ISO_SLIDER				21
-#define IDC_ISO_STATIC				22
+#define IDC_ISO_SLIDER_STATIC		22
+#define IDC_ISO_CHECK				23
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -147,17 +147,11 @@ void InitApp()
 {
     // Initialize dialogs
     g_D3DSettingsDlg.Init( &g_DialogResourceManager );
-    g_HUD.Init( &g_DialogResourceManager );
     g_SampleUI.Init( &g_DialogResourceManager );
 
-    g_HUD.SetCallback( OnGUIEvent ); int iY = 10;
-    g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 0, iY, 170, 23 );
-    g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 0, iY += 26, 170, 23, VK_F3 );
-    g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 0, iY += 26, 170, 23, VK_F2 );
-	
 	WCHAR sz[100];
 
-    g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
+    g_SampleUI.SetCallback( OnGUIEvent ); int iY = 10;
 	g_SampleUI.AddButton( IDC_CHANGE_CONTROL, L"Change contr. surface", 0, iY, 170, 30);
 	g_SampleUI.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 40, 170, 22);
 	g_SampleUI.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 26, 170, 22);
@@ -177,13 +171,9 @@ void InitApp()
 	g_SampleUI.AddCheckBox(IDC_SHOW_SURFACES, L"Show Surfaces", 0, iY+=36, 170, 22);
 	g_SampleUI.GetCheckBox(IDC_SHOW_SURFACES)->SetChecked(true);
 
-	g_SampleUI.AddButton(IDC_VORONOI, L"Diffuse!", 0, iY+=36, 170, 30);
+	g_SampleUI.AddButton(IDC_DIFFUSION, L"Diffuse!", 0, iY+=36, 170, 30);
 
-	StringCchPrintf( sz, 100, L"IsoValue: %.2f", g_fIsoValue);
-	g_SampleUI.AddStatic(IDC_ISO_STATIC, sz, 0, iY += 36, 100, 22);
-	g_SampleUI.AddSlider(IDC_ISO_SLIDER, 0, iY+=20, 130, 22);
-
-	g_SampleUI.AddRadioButton( IDC_ALL_SLICES, IDC_SLICES, L"Draw All Slices", 0, iY += 26, 170, 22);
+	g_SampleUI.AddRadioButton( IDC_ALL_SLICES, IDC_SLICES, L"Draw All Slices", 0, iY += 36, 170, 22);
 	g_SampleUI.AddRadioButton( IDC_ONE_SLICE, IDC_SLICES, L"Draw One Slice", 0, iY += 26, 170, 22);
 	g_SampleUI.GetRadioButton( IDC_ALL_SLICES )->SetChecked(true);
 	g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
@@ -194,6 +184,16 @@ void InitApp()
 	g_SampleUI.AddSlider( IDC_SLICEINDEX_SLIDER, 0, iY+=20, 130, 22);
 	g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
 	g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+
+	g_SampleUI.AddCheckBox(IDC_ISO_CHECK, L"Show Isosurface", 0, iY+=36, 170, 22);
+	g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetChecked(false);
+	g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
+
+	StringCchPrintf( sz, 100, L"IsoValue: %.2f", g_fIsoValue);
+	g_SampleUI.AddStatic(IDC_ISO_SLIDER_STATIC, sz, 0, iY += 26, 100, 22);
+	g_SampleUI.AddSlider(IDC_ISO_SLIDER, 0, iY+=20, 130, 22);
+	g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
+	g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 
 	// Setup the camera's view parameters
     D3DXVECTOR3 vecEye( 0.0f, 0.0f, -4.0f );
@@ -272,9 +272,6 @@ LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bo
     }
 
     // Give the dialogs a chance to handle the message first
-    *pbNoFurtherProcessing = g_HUD.MsgProc( hWnd, uMsg, wParam, lParam );
-    if( *pbNoFurtherProcessing )
-        return 0;
     *pbNoFurtherProcessing = g_SampleUI.MsgProc( hWnd, uMsg, wParam, lParam );
     if( *pbNoFurtherProcessing )
         return 0;
@@ -386,17 +383,6 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 {
     switch( nControlID )
     {
-        case IDC_TOGGLEFULLSCREEN:
-            DXUTToggleFullScreen(); 
-			break;
-        case IDC_TOGGLEREF:
-            DXUTToggleREF(); 
-			break;
-        case IDC_CHANGEDEVICE:
-            g_D3DSettingsDlg.SetActive( !g_D3DSettingsDlg.IsActive() ); 
-			break;
-		
-		// Custom app controls
 		case IDC_CHANGE_CONTROL:
 			g_pScene->ChangeControlledSurface();
 			break;
@@ -407,6 +393,9 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
 			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+			g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
+			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
+			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_MOVE:
@@ -416,6 +405,9 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
 			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+			g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
+			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
+			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_CAMERA:
@@ -432,6 +424,9 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
 			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+			g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
+			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
+			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_ALL_SLICES:
@@ -455,10 +450,13 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 		case IDC_SHOW_SURFACES:
 			g_bShowSurfaces = !g_bShowSurfaces;
 			break;
-		case IDC_VORONOI:
+		case IDC_DIFFUSION:
 			g_bShowSurfaces = true;
 			g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(true);
 			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(true);
+			g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(true);
+			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(true);
+			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(true);
 			if(g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->GetChecked())
 			{
 				g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(true);
@@ -468,11 +466,14 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetRadioButton(IDC_CAMERA)->SetChecked(true);
 			g_pScene->GenerateVoronoi();
 			break;
+		case IDC_ISO_CHECK:
+			g_pScene->ChangeIsoBehaviour();
+			break;
 		case IDC_ISO_SLIDER:
 			g_bBlockMouseDragging = true;
 			g_fIsoValue = g_SampleUI.GetSlider(IDC_ISO_SLIDER)->GetValue()/100.0f;
 			StringCchPrintf( sz, 100, L"IsoValue: %.2f", g_fIsoValue);
-			g_SampleUI.GetStatic( IDC_ISO_STATIC )->SetText( sz );
+			g_SampleUI.GetStatic( IDC_ISO_SLIDER_STATIC )->SetText( sz );
 			g_pScene->ChangeIsoValue(g_fIsoValue);
 			break;
     }
@@ -541,9 +542,7 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 	g_Height = pBackBufferSurfaceDesc->Height;
 	g_pScene->SetScreenSize(g_Width, g_Height);
 
-    g_HUD.SetLocation( pBackBufferSurfaceDesc->Width - 170, 0 );
-    g_HUD.SetSize( 170, 170 );
-    g_SampleUI.SetLocation( g_Width - 170, 100 );
+    g_SampleUI.SetLocation( g_Width - 170, 0 );
     g_SampleUI.SetSize( 170, 300 );
 	
 	V_RETURN(ReinitWindowSizeDependentRenderTargets(pd3dDevice));
@@ -643,7 +642,6 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 	g_pScene->Render(mViewProjection, g_bShowSurfaces);
 
 	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
-    g_HUD.OnRender( fElapsedTime );
     g_SampleUI.OnRender( fElapsedTime );
     RenderText();
     DXUT_EndPerfEvent();

@@ -809,8 +809,7 @@ PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 
 
 	float dist = normal.x*vertex.x + normal.y*vertex.y + normal.z*vertex.z - d;
-	float finaldist = abs(dist)/3;
-	output.depth = finaldist;
+	output.depth = abs(dist)/3;
 	
 	float3 distdir = float3(0,0,0);
 	if(dist > 0)
@@ -818,7 +817,7 @@ PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 	else
 		distdir = -normal;
 
-	output.distdir = float4(finaldist, 0.0f, 0.0f, 1.0f);
+	output.distdir = float4(abs(dist), 0.0f, 0.0f, 1.0f);
 
 	return output;
 }
@@ -844,10 +843,10 @@ PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 	float dist = length(upper)/length(b);
 	
 
-	float finaldist = dist/3;
-	output.depth = finaldist;
+	output.depth = dist/3;
 	float3 distdir = normalize(cross(b, upper));
-	output.distdir = float4(finaldist, 0.0f, 0.0f, 1.0f);
+	
+	output.distdir = float4(dist, 0.0f, 0.0f, 1.0f);
 
 	return output;
 }
@@ -865,10 +864,11 @@ PS_VORONOI_OUTPUT VoronoiVertexPS(GS_VERTEX_VORONOI_OUTPUT input)
 	pixelpos.z = pixelpos.z * 2 - 1;
 	vertex.z = vertex.z * 2 - 1;
 
-	float finaldist = length(pixelpos - vertex)/3;
-	output.depth = finaldist;
+	float dist = length(pixelpos - vertex);
+	output.depth = dist/3;
 	float3 distdir = normalize(pixelpos-vertex);
-	output.distdir = float4(finaldist, 0.0f, 0.0f, 1.0f);
+
+	output.distdir = float4(dist, 0.0f, 0.0f, 1.0f);
 
 	return output;
 }

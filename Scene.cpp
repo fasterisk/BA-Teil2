@@ -29,7 +29,7 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	initialized = false;
 	m_bRender3DTexture = false;
 	m_bGenerateVoronoi = false;
-	m_bRenderIsoSurface = true;
+	m_bRenderIsoSurface = false;
 
 	m_pVoronoi = NULL;
 	m_pDiffusion = NULL;
@@ -286,7 +286,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
 		m_bGenerateVoronoi = false;
 
-		m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, 8);
+		m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, 20);
 		
 	}
 
@@ -376,6 +376,11 @@ HRESULT Scene::Init3DTextures()
 void Scene::ChangeIsoValue(float fIsoValue)
 {
 	m_pDiffusion->ChangeIsoValue(fIsoValue);
+}
+
+void Scene::ChangeIsoBehaviour()
+{
+	m_bRenderIsoSurface = !m_bRenderIsoSurface;
 }
 
 void Scene::ChangeControlledSurface()
