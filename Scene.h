@@ -18,7 +18,7 @@ public:
 	void Render(D3DXMATRIX mViewProjection, bool bShowSurfaces);
 
 	void ChangeIsoValue(float fIsoValue);
-
+	void ChangeDiffusionSteps(int iDiffusionSteps);
 	void ChangeControlledSurface();
 	void ChangeIsoBehaviour();
 	HRESULT ChangeRenderingToOneSlice(int iSliceIndex);
@@ -63,6 +63,7 @@ protected:
 
 	bool	m_bDrawAllSlices;
 	int		m_iCurrentSlice;
+	int		m_iDiffusionSteps;
 
 	D3DXVECTOR3 m_vMin;
 	D3DXVECTOR3 m_vMax;

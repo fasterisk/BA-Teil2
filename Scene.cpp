@@ -37,6 +37,7 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	
 	m_bDrawAllSlices = true;
 	m_iCurrentSlice = 64;
+	m_iDiffusionSteps = 8;
 }
 
 Scene::~Scene()
@@ -286,7 +287,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
 		m_bGenerateVoronoi = false;
 
-		m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, 20);
+		m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, m_iDiffusionSteps);
 		
 	}
 
@@ -381,6 +382,11 @@ void Scene::ChangeIsoValue(float fIsoValue)
 void Scene::ChangeIsoBehaviour()
 {
 	m_bRenderIsoSurface = !m_bRenderIsoSurface;
+}
+
+void Scene::ChangeDiffusionSteps(int iDiffusionSteps)
+{
+	m_iDiffusionSteps = iDiffusionSteps;
 }
 
 void Scene::ChangeControlledSurface()

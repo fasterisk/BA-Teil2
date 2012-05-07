@@ -49,6 +49,7 @@ bool						g_bBlockMouseDragging = false;
 int							g_iSliceIndex = 64;
 bool						g_bShowSurfaces = true;
 float						g_fIsoValue = 0.5f;
+int							g_iDiffusionSteps = 8;
 
 // Texthelper
 CDXUTTextHelper*            g_pTxtHelper = NULL;
@@ -80,6 +81,8 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_ISO_SLIDER				21
 #define IDC_ISO_SLIDER_STATIC		22
 #define IDC_ISO_CHECK				23
+#define IDC_DIFFSTEPS_STATIC		24
+#define IDC_DIFFSTEPS_SLIDER		25
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -172,6 +175,10 @@ void InitApp()
 	g_SampleUI.GetCheckBox(IDC_SHOW_SURFACES)->SetChecked(true);
 
 	g_SampleUI.AddButton(IDC_DIFFUSION, L"Diffuse!", 0, iY+=36, 170, 30);
+
+	StringCchPrintf( sz, 100, L"Steps: %d", g_iDiffusionSteps);
+	g_SampleUI.AddStatic(IDC_DIFFSTEPS_STATIC, sz, 0, iY += 36, 100, 22);
+	g_SampleUI.AddSlider(IDC_DIFFSTEPS_SLIDER, 0, iY+=20, 130, 22, 1, 20, 8);
 
 	g_SampleUI.AddRadioButton( IDC_ALL_SLICES, IDC_SLICES, L"Draw All Slices", 0, iY += 36, 170, 22);
 	g_SampleUI.AddRadioButton( IDC_ONE_SLICE, IDC_SLICES, L"Draw One Slice", 0, iY += 26, 170, 22);
@@ -465,6 +472,14 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_bCameraActive = true;
 			g_SampleUI.GetRadioButton(IDC_CAMERA)->SetChecked(true);
 			g_pScene->GenerateVoronoi();
+			break;
+		case IDC_DIFFSTEPS_SLIDER:
+			g_bBlockMouseDragging = true;
+			g_iDiffusionSteps = g_SampleUI.GetSlider(IDC_DIFFSTEPS_SLIDER)->GetValue();
+			StringCchPrintf(sz, 100, L"Steps: %d", g_iDiffusionSteps);
+			g_SampleUI.GetStatic(IDC_DIFFSTEPS_STATIC)->SetText(sz);
+			g_pScene->ChangeDiffusionSteps(g_iDiffusionSteps);
+			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_ISO_CHECK:
 			g_pScene->ChangeIsoBehaviour();
