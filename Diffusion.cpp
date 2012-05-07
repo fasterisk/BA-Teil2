@@ -364,6 +364,9 @@ ID3D11ShaderResourceView* Diffusion::GetOneDiffusionSlice(int iSliceIndex, ID3D1
 	assert(hr == S_OK);	
 		
 	DrawSlices();
+
+	hr = m_pColor3DTexSRVar->SetResource(NULL);
+	assert(hr == S_OK);
 	
 	//restore old render targets
 	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
@@ -435,8 +438,11 @@ ID3D11ShaderResourceView* Diffusion::RenderIsoSurface(ID3D11ShaderResourceView* 
 
 	hr = m_pDiffusionTechnique->GetPassByName("RenderIsoSurface")->Apply(0, m_pd3dImmediateContext);
 	assert(hr == S_OK);	
-		
+	
 	DrawSlices();
+
+	hr = m_pColor3DTexSRVar->SetResource(NULL);
+	assert(hr == S_OK);
 	
 	//restore old render targets
 	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );

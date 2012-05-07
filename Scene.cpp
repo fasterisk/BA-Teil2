@@ -394,7 +394,6 @@ HRESULT Scene::ChangeRenderingToOneSlice(int iSliceIndex)
 	m_bDrawAllSlices = false;
 	m_iCurrentSlice = iSliceIndex;
 	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(1.0f));
-	initialized = false;
 	return S_OK;
 }
 
@@ -403,7 +402,6 @@ HRESULT Scene::ChangeRenderingToAllSlices()
 	HRESULT hr;
 	m_bDrawAllSlices = true;
 	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(0.01f));
-	initialized = false;
 	return S_OK;
 }
 

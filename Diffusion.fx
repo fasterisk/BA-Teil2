@@ -164,7 +164,7 @@ PS_DIFFUSION_OUTPUT OneSlicePS(GS_DIFFUSION_OUTPUT input)
 	}
 	else
 	{
-		output.color = float4(0,0,0,0);
+		output.color = float4(0.0f,0.0f,0.0f,1.0f);
 	}
 	return output;
 }
@@ -178,11 +178,11 @@ PS_DIFFUSION_OUTPUT IsoSurfacePS(GS_DIFFUSION_OUTPUT input)
 	
 	if(output.color.x >= fIsoValue)
 	{
-		output.color = float4(1.0, 1.0, 1.0, 1.0f);
+		output.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	else
 	{
-		output.color = float4(0.0, 0.0, 0.0, 0.0f);
+		output.color = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 
 	return output;
