@@ -22,7 +22,7 @@ public:
 										      ID3D11ShaderResourceView* pDist3DTextureSRV, 
 											  int iDiffusionSteps);
 
-	ID3D11ShaderResourceView* GetOneDiffusionSlice(int iSliceIndex);
+	ID3D11ShaderResourceView* GetOneDiffusionSlice(int iSliceIndex, ID3D11ShaderResourceView* pCurrentDiffusionSRV);
 
 private:
 	//Methods

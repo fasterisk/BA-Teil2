@@ -17,6 +17,10 @@ Diffusion::Diffusion(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediat
 	m_pColor3DTexturesSRV[0] = NULL;
 	m_pColor3DTexturesSRV[1] = NULL;
 
+	m_pOneSliceTexture = NULL;
+	m_pOneSliceTextureRTV = NULL;
+	m_pOneSliceTextureSRV = NULL;
+
 	m_iTextureWidth = 0;
 	m_iTextureHeight = 0;
 	m_iTextureDepth = 0;
@@ -283,7 +287,7 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 	return m_pColor3DTexturesSRV[1-m_iDiffTex];
 }
 
-ID3D11ShaderResourceView* Diffusion::GetOneDiffusionSlice(int iSliceIndex)
+ID3D11ShaderResourceView* Diffusion::GetOneDiffusionSlice(int iSliceIndex, ID3D11ShaderResourceView* pCurrentDiffusionSRV)
 {
 	HRESULT hr(S_OK);
 
@@ -299,6 +303,10 @@ ID3D11ShaderResourceView* Diffusion::GetOneDiffusionSlice(int iSliceIndex)
     m_pd3dImmediateContext->RSSetViewports(1, &viewport2);
 	D3D11_RECT scissorRect2 = { 0, 0, m_iTextureWidth, m_iTextureHeight};
 	m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect2);
+
+	SAFE_RELEASE(m_pOneSliceTexture);
+	SAFE_RELEASE(m_pOneSliceTextureRTV);
+	SAFE_RELEASE(m_pOneSliceTextureSRV);
 
 	//create empty 3D Texture
 	D3D11_TEXTURE3D_DESC desc;
@@ -334,7 +342,7 @@ ID3D11ShaderResourceView* Diffusion::GetOneDiffusionSlice(int iSliceIndex)
 	assert(hr == S_OK);
 
 	m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pOneSliceTextureRTV, NULL);
-	hr = m_pColor3DTexSRVar->SetResource(m_pColor3DTexturesSRV[1-m_iDiffTex]);
+	hr = m_pColor3DTexSRVar->SetResource(pCurrentDiffusionSRV);
 	assert(hr == S_OK);
 	
 	hr = m_pSliceIndexVar->SetFloat(iSliceIndex);

@@ -177,7 +177,7 @@ void InitApp()
 	g_SampleUI.AddCheckBox(IDC_SHOW_SURFACES, L"Show Surfaces", 0, iY+=36, 170, 22);
 	g_SampleUI.GetCheckBox(IDC_SHOW_SURFACES)->SetChecked(true);
 
-	g_SampleUI.AddButton(IDC_VORONOI, L"Voronoi!", 0, iY+=36, 170, 30);
+	g_SampleUI.AddButton(IDC_VORONOI, L"Diffuse!", 0, iY+=36, 170, 30);
 
 	StringCchPrintf( sz, 100, L"IsoValue: %.2f", g_fIsoValue);
 	g_SampleUI.AddStatic(IDC_ISO_STATIC, sz, 0, iY += 36, 100, 22);

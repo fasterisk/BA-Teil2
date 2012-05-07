@@ -90,6 +90,7 @@ protected:
 	ID3D11ShaderResourceView*		m_pDist3DTexSRV;
 
 	ID3D11ShaderResourceView*		m_pCurrentDiffusionSRV;
+	ID3D11ShaderResourceView*		m_pOneSliceDiffusionSRV;
 
 	//Bounding Box vertices
 	VERTEX* m_pBBVertices;

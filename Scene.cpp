@@ -286,13 +286,20 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		m_bGenerateVoronoi = false;
 
 		m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, 8);
-		if(m_bDrawAllSlices == false)
-			m_pCurrentDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice);
+		
 	}
 
 	if(m_bRender3DTexture)
 	{
-		m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
+		if(m_bDrawAllSlices == false)
+		{
+			m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pCurrentDiffusionSRV);
+			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pOneSliceDiffusionSRV);
+		}
+		else
+		{
+			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
+		}
 	}
 
 	if(bShowSurfaces)
