@@ -178,13 +178,17 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3
 	m_pVolumeRenderTechnique->GetPassByName("RayCast")->Apply(0, m_pd3dImmediateContext);
 	DrawBoundingBox();
 
+	//unbind textures
+	m_pFrontTextureVar->SetResource(NULL);
+	m_pBackTextureVar->SetResource(NULL);
+	m_pVolumeTextureVar->SetResource(NULL);
+	m_pVolumeRenderTechnique->GetPassByName("RayCast")->Apply(0, m_pd3dImmediateContext);
+
 	//Draw wireframe boundingbox
 	m_pVolumeRenderTechnique->GetPassByName("Wireframe")->Apply(0, m_pd3dImmediateContext);
 	DrawBoundingBox();
 
-	m_pFrontTextureVar->SetResource(0);
-	m_pBackTextureVar->SetResource(0);
-	m_pVolumeTextureVar->SetResource(0);//doesnt work.. reason unknown
+	
 }
 
 HRESULT VolumeRenderer::InitShader()

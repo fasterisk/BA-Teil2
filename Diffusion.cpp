@@ -272,12 +272,15 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 		assert(hr == S_OK);
 		
 		DrawSlices();
-	}
 
-	hr = m_pColor3DTexSRVar->SetResource(NULL);
-	assert(hr == S_OK);
-	hr = m_pDist3DTexSRVar->SetResource(NULL);
-	assert(hr == S_OK);
+		//unbind textures and apply pass again to confirm this
+		hr = m_pColor3DTexSRVar->SetResource(NULL);
+		assert(hr == S_OK);
+		hr = m_pDist3DTexSRVar->SetResource(NULL);
+		assert(hr == S_OK);
+		hr = m_pDiffusionTechnique->GetPassByName("DiffuseTexture")->Apply(0, m_pd3dImmediateContext);
+		assert(hr == S_OK);
+	}
 
 	return m_pColor3DTexturesSRV[1-m_iDiffTex];
 }
