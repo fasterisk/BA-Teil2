@@ -238,10 +238,10 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 {
 	HRESULT hr(S_OK);
 
-	
-
-
 	hr = m_pTextureSizeVar->SetFloatVector(D3DXVECTOR3((float)m_iTextureWidth, (float)m_iTextureHeight, (float)m_iTextureDepth));
+	assert(hr == S_OK);
+
+	hr = m_pDist3DTexSRVar->SetResource(pDist3DTextureSRV);
 	assert(hr == S_OK);
 	
 	for(int i = 0; i < iDiffusionSteps; i++)
@@ -254,15 +254,11 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 			m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pColor3DTexturesRTV[m_iDiffTex], NULL);
 			hr = m_pColor3DTexSRVar->SetResource(pVoronoi3DTextureSRV);
 			assert(hr == S_OK);
-			hr = m_pDist3DTexSRVar->SetResource(pDist3DTextureSRV);
-			assert(hr == S_OK);
 		}
 		else
 		{
 			m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pColor3DTexturesRTV[m_iDiffTex], NULL);
 			hr = m_pColor3DTexSRVar->SetResource(m_pColor3DTexturesSRV[1-m_iDiffTex]);
-			assert(hr == S_OK);
-			hr = m_pDist3DTexSRVar->SetResource(pDist3DTextureSRV);
 			assert(hr == S_OK);
 		}
 
@@ -275,8 +271,6 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 
 		//unbind textures and apply pass again to confirm this
 		hr = m_pColor3DTexSRVar->SetResource(NULL);
-		assert(hr == S_OK);
-		hr = m_pDist3DTexSRVar->SetResource(NULL);
 		assert(hr == S_OK);
 		hr = m_pDiffusionTechnique->GetPassByName("DiffuseTexture")->Apply(0, m_pd3dImmediateContext);
 		assert(hr == S_OK);
