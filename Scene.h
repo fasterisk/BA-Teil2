@@ -64,6 +64,7 @@ protected:
 	bool	m_bDrawAllSlices;
 	int		m_iCurrentSlice;
 	int		m_iDiffusionSteps;
+	float	m_fIsoValue;
 
 	D3DXVECTOR3 m_vMin;
 	D3DXVECTOR3 m_vMax;

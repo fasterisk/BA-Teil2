@@ -136,7 +136,10 @@ void OneSliceGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_DI
 PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 {
 	PS_DIFFUSION_OUTPUT output;
-	float3 tex = float3(input.tex.xy, input.tex.z / float(vTextureSize.z - 1));
+	float3 tex = float3(input.tex.xy, input.tex.z/(vTextureSize.z-1));
+	float diffvalue1 = 1 + 1/vTextureSize.z;
+	float diffvalue2 = (1 - 1/diffvalue1) / 2;
+	tex.z = (tex.z / diffvalue1) + diffvalue2;
 
 	float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerClamp, tex, 0).x;
 	float kernel = rawKernel*vTextureSize.x;
@@ -167,8 +170,8 @@ PS_DIFFUSION_OUTPUT OneSlicePS(GS_DIFFUSION_OUTPUT input)
 	PS_DIFFUSION_OUTPUT output;
 	if(input.tex.z == iSliceIndex)
 	{
-		float3 tex = float3(input.tex.xy, input.tex.z / (vTextureSize.z - 1));
-		output.color = ColorTexture.SampleLevel(linearSamplerClamp, tex, 0);
+		float3 tex = float3(input.tex.xy, input.tex.z/(vTextureSize.z-1));
+		output.color = ColorTexture.SampleLevel(linearSamplerClamp, input.tex, 0);
 	}
 	else
 	{
@@ -180,8 +183,8 @@ PS_DIFFUSION_OUTPUT OneSlicePS(GS_DIFFUSION_OUTPUT input)
 PS_DIFFUSION_OUTPUT IsoSurfacePS(GS_DIFFUSION_OUTPUT input)
 {
 	PS_DIFFUSION_OUTPUT output;
-	
-	float3 tex = float3(input.tex.xy, input.tex.z / (vTextureSize.z - 1));
+
+	float3 tex = float3(input.tex.xy, input.tex.z/(vTextureSize.z-1));
 	output.color = ColorTexture.SampleLevel(linearSamplerClamp, tex, 0);
 	
 	if(output.color.x >= fIsoValue)

@@ -38,6 +38,7 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_bDrawAllSlices = true;
 	m_iCurrentSlice = 64;
 	m_iDiffusionSteps = 8;
+	m_fIsoValue = 0.5f;
 }
 
 Scene::~Scene()
@@ -253,7 +254,7 @@ HRESULT Scene::UpdateBoundingBox()
 									  iTextureWidth, 
 									  iTextureHeight, 
 									  iTextureDepth, 
-									  0.5f));
+									  m_fIsoValue));
 
 	initialized = true;
 
@@ -376,6 +377,7 @@ HRESULT Scene::Init3DTextures()
 
 void Scene::ChangeIsoValue(float fIsoValue)
 {
+	m_fIsoValue = fIsoValue;
 	m_pDiffusion->ChangeIsoValue(fIsoValue);
 }
 
