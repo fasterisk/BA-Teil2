@@ -238,25 +238,12 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 {
 	HRESULT hr(S_OK);
 
-	//store the old render targets and viewports
-    ID3D11RenderTargetView* pOldRTV = DXUTGetD3D11RenderTargetView();
-    ID3D11DepthStencilView* pOldDSV = DXUTGetD3D11DepthStencilView();
-	UINT NumViewports = 1;
-	D3D11_VIEWPORT pViewports[100];
-	m_pd3dImmediateContext->RSGetViewports( &NumViewports, &pViewports[0]);
+	
 
 
 	hr = m_pTextureSizeVar->SetFloatVector(D3DXVECTOR3((float)m_iTextureWidth, (float)m_iTextureHeight, (float)m_iTextureDepth));
 	assert(hr == S_OK);
 	
-	
-
-	// Set viewport and scissor to match the size of a single slice 
-	D3D11_VIEWPORT viewport2 = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight), 0.0f, 1.0f };
-    m_pd3dImmediateContext->RSSetViewports(1, &viewport2);
-	D3D11_RECT scissorRect2 = { 0, 0, m_iTextureWidth, m_iTextureHeight};
-	m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect2);
-
 	for(int i = 0; i < iDiffusionSteps; i++)
 	{
 		hr = m_pPolySizeVar->SetFloat(1.0 - (float)(i)/(float)iDiffusionSteps);
@@ -292,29 +279,12 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 	hr = m_pDist3DTexSRVar->SetResource(NULL);
 	assert(hr == S_OK);
 
-	//restore old render targets
-	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
-	m_pd3dImmediateContext->RSSetViewports( NumViewports, &pViewports[0]);
-
 	return m_pColor3DTexturesSRV[1-m_iDiffTex];
 }
 
 ID3D11ShaderResourceView* Diffusion::GetOneDiffusionSlice(int iSliceIndex, ID3D11ShaderResourceView* pCurrentDiffusionSRV)
 {
 	HRESULT hr(S_OK);
-
-	//store the old render targets and viewports
-    ID3D11RenderTargetView* pOldRTV = DXUTGetD3D11RenderTargetView();
-    ID3D11DepthStencilView* pOldDSV = DXUTGetD3D11DepthStencilView();
-	UINT NumViewports = 1;
-	D3D11_VIEWPORT pViewports[100];
-	m_pd3dImmediateContext->RSGetViewports( &NumViewports, &pViewports[0]);
-
-	// Set viewport and scissor to match the size of a single slice 
-	D3D11_VIEWPORT viewport2 = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight), 0.0f, 1.0f };
-    m_pd3dImmediateContext->RSSetViewports(1, &viewport2);
-	D3D11_RECT scissorRect2 = { 0, 0, m_iTextureWidth, m_iTextureHeight};
-	m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect2);
 
 	SAFE_RELEASE(m_pOneSliceTexture);
 	SAFE_RELEASE(m_pOneSliceTextureRTV);
@@ -368,29 +338,12 @@ ID3D11ShaderResourceView* Diffusion::GetOneDiffusionSlice(int iSliceIndex, ID3D1
 	hr = m_pColor3DTexSRVar->SetResource(NULL);
 	assert(hr == S_OK);
 	
-	//restore old render targets
-	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
-	m_pd3dImmediateContext->RSSetViewports( NumViewports, &pViewports[0]);
-
 	return m_pOneSliceTextureSRV;
 }
 
 ID3D11ShaderResourceView* Diffusion::RenderIsoSurface(ID3D11ShaderResourceView* pCurrentDiffusionSRV)
 {
 	HRESULT hr(S_OK);
-
-	//store the old render targets and viewports
-    ID3D11RenderTargetView* pOldRTV = DXUTGetD3D11RenderTargetView();
-    ID3D11DepthStencilView* pOldDSV = DXUTGetD3D11DepthStencilView();
-	UINT NumViewports = 1;
-	D3D11_VIEWPORT pViewports[100];
-	m_pd3dImmediateContext->RSGetViewports( &NumViewports, &pViewports[0]);
-
-	// Set viewport and scissor to match the size of a single slice 
-	D3D11_VIEWPORT viewport2 = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight), 0.0f, 1.0f };
-    m_pd3dImmediateContext->RSSetViewports(1, &viewport2);
-	D3D11_RECT scissorRect2 = { 0, 0, m_iTextureWidth, m_iTextureHeight};
-	m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect2);
 
 	SAFE_RELEASE(m_pIsoSurfaceTexture);
 	SAFE_RELEASE(m_pIsoSurfaceTextureRTV);
@@ -444,10 +397,6 @@ ID3D11ShaderResourceView* Diffusion::RenderIsoSurface(ID3D11ShaderResourceView* 
 	hr = m_pColor3DTexSRVar->SetResource(NULL);
 	assert(hr == S_OK);
 	
-	//restore old render targets
-	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
-	m_pd3dImmediateContext->RSSetViewports( NumViewports, &pViewports[0]);
-
 	return m_pIsoSurfaceTextureSRV;
 }
 
@@ -456,6 +405,19 @@ void Diffusion::DrawSlices()
 	assert(m_pInputLayout);
 	assert(m_pSlicesVB);
 
+	//store the old render targets and viewports
+    ID3D11RenderTargetView* pOldRTV = DXUTGetD3D11RenderTargetView();
+    ID3D11DepthStencilView* pOldDSV = DXUTGetD3D11DepthStencilView();
+	UINT NumViewports = 1;
+	D3D11_VIEWPORT pViewports[100];
+	m_pd3dImmediateContext->RSGetViewports( &NumViewports, &pViewports[0]);
+
+	// Set viewport and scissor to match the size of a single slice 
+	D3D11_VIEWPORT viewport = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight), 0.0f, 1.0f };
+    m_pd3dImmediateContext->RSSetViewports(1, &viewport);
+	D3D11_RECT scissorRect = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight)};
+	m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect);
+
 	UINT strides = sizeof(SLICE_SCREENQUAD_VERTEX);
 	UINT offsets = 0;
 
@@ -463,5 +425,13 @@ void Diffusion::DrawSlices()
 	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pSlicesVB, &strides, &offsets);
 	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	m_pd3dImmediateContext->Draw(SLICEQUAD_VERTEX_COUNT*m_iTextureDepth, 0);
+	for(int i = 0; i < m_iTextureDepth; i++)
+	{
+		m_pSliceIndexVar->SetInt(i);
+		m_pd3dImmediateContext->Draw(SLICEQUAD_VERTEX_COUNT, SLICEQUAD_VERTEX_COUNT*i);
+	}
+
+	//restore old render targets
+	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
+	m_pd3dImmediateContext->RSSetViewports( NumViewports, &pViewports[0]);
 }

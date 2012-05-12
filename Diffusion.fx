@@ -136,7 +136,7 @@ void OneSliceGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_DI
 PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 {
 	PS_DIFFUSION_OUTPUT output;
-	float3 tex = float3(input.tex.xy, input.tex.z / (vTextureSize.z - 1));
+	float3 tex = float3(input.tex.xy, input.tex.z / float(vTextureSize.z - 1));
 
 	float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerBorder, tex, 0).x;
 	float kernel = rawKernel*vTextureSize.x;
