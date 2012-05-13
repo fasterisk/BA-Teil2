@@ -62,18 +62,21 @@ struct VS_DIFFUSION_INPUT
 {
 	float3 pos		: POSITION;
 	float3 tex		: TEXCOORD;
+	int sliceindex : SLICEINDEX;
 };
 
 struct GS_DIFFUSION_INPUT
 {
 	float4 pos		: POSITION;
 	float3 tex		: TEXCOORD;
+	int sliceindex : SLICEINDEX;
 };
 
 struct GS_DIFFUSION_OUTPUT
 {
 	float4 pos		: SV_Position;
 	float3 tex		: TEXCOORD0;
+	int sliceindex : SLICEINDEX;
 	uint RTIndex	: SV_RenderTargetArrayIndex;
 };
 
@@ -92,6 +95,7 @@ GS_DIFFUSION_INPUT DiffusionVS(VS_DIFFUSION_INPUT input)
 	GS_DIFFUSION_INPUT output;
 	output.pos = float4(input.pos, 1.0f);
 	output.tex = input.tex;
+	output.sliceindex = input.sliceindex;
 	return output;
 }
 
@@ -104,11 +108,12 @@ GS_DIFFUSION_INPUT DiffusionVS(VS_DIFFUSION_INPUT input)
 void DiffusionGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_DIFFUSION_OUTPUT> tStream)
 {
 	GS_DIFFUSION_OUTPUT output;
-	output.RTIndex = (uint)input[0].tex.z;
+	output.RTIndex = (uint)input[0].sliceindex;//input[0].tex.z;
 	for(int v = 0; v < 3; v++)
 	{
 		output.pos = input[v].pos;
 		output.tex = input[v].tex;
+		output.sliceindex = input[v].sliceindex;
 		tStream.Append(output);
 	}
 	tStream.RestartStrip();
@@ -118,11 +123,12 @@ void DiffusionGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_D
 void OneSliceGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_DIFFUSION_OUTPUT> tStream)
 {
 	GS_DIFFUSION_OUTPUT output;
-	output.RTIndex = (uint)input[0].tex.z;
+	output.RTIndex = (uint)input[0].sliceindex;//input[0].tex.z;
 	for(int v = 0; v < 3; v++)
 	{
 		output.pos = input[v].pos;
 		output.tex = input[v].tex;
+		output.sliceindex = input[v].sliceindex;
 		tStream.Append(output);
 	}
 	tStream.RestartStrip();
@@ -136,7 +142,7 @@ void OneSliceGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_DI
 PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 {
 	PS_DIFFUSION_OUTPUT output;
-	float3 tex = float3(input.tex.xy, input.tex.z/(vTextureSize.z-1));
+	float3 tex = input.tex;//float3(input.tex.xy, input.tex.z/(vTextureSize.z-1));
 	float diffvalue1 = 1 + 1/vTextureSize.z;
 	float diffvalue2 = (1 - 1/diffvalue1) / 2;
 	tex.z = (tex.z / diffvalue1) + diffvalue2;
@@ -168,9 +174,8 @@ PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 PS_DIFFUSION_OUTPUT OneSlicePS(GS_DIFFUSION_OUTPUT input)
 {
 	PS_DIFFUSION_OUTPUT output;
-	if(input.tex.z == iSliceIndex)
+	if(input.sliceindex == iSliceIndex)
 	{
-		float3 tex = float3(input.tex.xy, input.tex.z/(vTextureSize.z-1));
 		output.color = ColorTexture.SampleLevel(linearSamplerClamp, input.tex, 0);
 	}
 	else
@@ -184,8 +189,7 @@ PS_DIFFUSION_OUTPUT IsoSurfacePS(GS_DIFFUSION_OUTPUT input)
 {
 	PS_DIFFUSION_OUTPUT output;
 
-	float3 tex = float3(input.tex.xy, input.tex.z/(vTextureSize.z-1));
-	output.color = ColorTexture.SampleLevel(linearSamplerClamp, tex, 0);
+	output.color = ColorTexture.SampleLevel(linearSamplerClamp, input.tex, 0);
 	
 	if(output.color.x >= fIsoValue)
 	{

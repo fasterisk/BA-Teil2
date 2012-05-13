@@ -51,6 +51,13 @@ struct VERTEX
 	D3DXCOLOR color;
 };
 
+struct DIFFUSION_VERTEX
+{
+	D3DXVECTOR3 pos;
+	D3DXVECTOR3 tex;
+	int sliceindex;
+};
+
 
 #define WIDEN( w ) WIDEN2( w )
 #define WIDEN2( w )	L ##w

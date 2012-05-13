@@ -166,7 +166,8 @@ HRESULT Diffusion::InitSlices()
 	const D3D11_INPUT_ELEMENT_DESC inputLayout[] = 
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"SLICEINDEX", 0, DXGI_FORMAT_R8_UINT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 	D3DX11_PASS_SHADER_DESC passVsDesc;
 	m_pDiffusionTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
@@ -177,28 +178,32 @@ HRESULT Diffusion::InitSlices()
 	V_RETURN(m_pd3dDevice->CreateInputLayout(inputLayout, _countof(inputLayout), vsCodePtr, vsCodeLen, &m_pInputLayout));
 
 
-#define SLICEQUAD_VERTEX_COUNT 6
+#define VERTEXCOUNT 6
 	// Create a vertex buffers of quads, one per slice, with texcoords to lookup from a flat 3D texture
     // and with homogenous coordinates to cover a fullscreen quad
-	SLICE_SCREENQUAD_VERTEX* sliceVertices = new SLICE_SCREENQUAD_VERTEX[SLICEQUAD_VERTEX_COUNT*m_iTextureDepth];
-	SLICE_SCREENQUAD_VERTEX sliceVerticesTemp[4];
+	DIFFUSION_VERTEX* sliceVertices = new DIFFUSION_VERTEX[VERTEXCOUNT*m_iTextureDepth];
+	DIFFUSION_VERTEX sliceVerticesTemp[4];
 	int vertexIndex = 0;
 
 	for(int z = 0; z < m_iTextureDepth; z++)
 	{
-		vertexIndex = z * SLICEQUAD_VERTEX_COUNT;
+		vertexIndex = z * VERTEXCOUNT;
 
 		sliceVerticesTemp[0].pos = D3DXVECTOR3(-1.0f, 1.0f, 0.5f);
-		sliceVerticesTemp[0].tex = D3DXVECTOR3(0.0f, 0.0f, float(z));
+		sliceVerticesTemp[0].tex = D3DXVECTOR3(0.0f, 0.0f, float(z)/float(m_iTextureDepth-1));
+		sliceVerticesTemp[0].sliceindex = z;
 
 		sliceVerticesTemp[1].pos = D3DXVECTOR3(-1.0f, -1.0f, 0.5f);
-		sliceVerticesTemp[1].tex = D3DXVECTOR3(0.0f, 1.0f, float(z));
-        
+		sliceVerticesTemp[1].tex = D3DXVECTOR3(0.0f, 1.0f, float(z)/float(m_iTextureDepth-1));
+		sliceVerticesTemp[1].sliceindex = z;
+
         sliceVerticesTemp[2].pos = D3DXVECTOR3(1.0f, -1.0f, 0.5f);
-		sliceVerticesTemp[2].tex = D3DXVECTOR3(1.0f, 1.0f, float(z));
+		sliceVerticesTemp[2].tex = D3DXVECTOR3(1.0f, 1.0f, float(z)/float(m_iTextureDepth-1));
+		sliceVerticesTemp[2].sliceindex = z;
         
         sliceVerticesTemp[3].pos = D3DXVECTOR3(1.0f, 1.0f, 0.5f);
-		sliceVerticesTemp[3].tex = D3DXVECTOR3(1.0f, 0.0f, float(z));
+		sliceVerticesTemp[3].tex = D3DXVECTOR3(1.0f, 0.0f, float(z)/float(m_iTextureDepth-1));
+		sliceVerticesTemp[3].sliceindex = z;
 
 		sliceVertices[vertexIndex+0] = sliceVerticesTemp[0];
 		sliceVertices[vertexIndex+1] = sliceVerticesTemp[1];
@@ -210,7 +215,7 @@ HRESULT Diffusion::InitSlices()
 	}
 
 	D3D11_BUFFER_DESC vbDesc;
-	vbDesc.ByteWidth = SLICEQUAD_VERTEX_COUNT*m_iTextureDepth*sizeof(SLICE_SCREENQUAD_VERTEX);
+	vbDesc.ByteWidth = VERTEXCOUNT*m_iTextureDepth*sizeof(DIFFUSION_VERTEX);
 	vbDesc.Usage = D3D11_USAGE_DEFAULT;
 	vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbDesc.CPUAccessFlags = 0;
@@ -415,7 +420,7 @@ void Diffusion::DrawSlices()
 	D3D11_RECT scissorRect = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight)};
 	m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect);
 
-	UINT strides = sizeof(SLICE_SCREENQUAD_VERTEX);
+	UINT strides = sizeof(DIFFUSION_VERTEX);
 	UINT offsets = 0;
 
 	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
@@ -425,7 +430,7 @@ void Diffusion::DrawSlices()
 	for(int i = 0; i < m_iTextureDepth; i++)
 	{
 		m_pSliceIndexVar->SetInt(i);
-		m_pd3dImmediateContext->Draw(SLICEQUAD_VERTEX_COUNT, SLICEQUAD_VERTEX_COUNT*i);
+		m_pd3dImmediateContext->Draw(VERTEXCOUNT, VERTEXCOUNT*i);
 	}
 
 	//restore old render targets
