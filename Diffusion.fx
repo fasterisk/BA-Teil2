@@ -14,18 +14,9 @@ int iSliceIndex;
 // Sampler
 //--------------------------------------------------------------------------------------
 
-SamplerState linearSamplerBorder
-{
-	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = Border;				// border sampling in U
-    AddressV = Border;				// border sampling in V
-	AddressW = Border;				// border sampling in W
-    BorderColor = float4(0,0,0,0);	// outside of border should be black
-};
-
 SamplerState linearSamplerClamp
 {
-	Filter = MIN_MAG_MIP_LINEAR;
+	Filter = MIN_MAG_MIP_POINT;
 	AddressU = Clamp;				// border sampling in U
     AddressV = Clamp;				// border sampling in V
 	AddressW = Clamp;				// border sampling in W
@@ -108,7 +99,7 @@ GS_DIFFUSION_INPUT DiffusionVS(VS_DIFFUSION_INPUT input)
 void DiffusionGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_DIFFUSION_OUTPUT> tStream)
 {
 	GS_DIFFUSION_OUTPUT output;
-	output.RTIndex = (uint)input[0].sliceindex;//input[0].tex.z;
+	output.RTIndex = (uint)input[0].sliceindex;
 	for(int v = 0; v < 3; v++)
 	{
 		output.pos = input[v].pos;
@@ -123,7 +114,7 @@ void DiffusionGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_D
 void OneSliceGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_DIFFUSION_OUTPUT> tStream)
 {
 	GS_DIFFUSION_OUTPUT output;
-	output.RTIndex = (uint)input[0].sliceindex;//input[0].tex.z;
+	output.RTIndex = (uint)input[0].sliceindex;
 	for(int v = 0; v < 3; v++)
 	{
 		output.pos = input[v].pos;
@@ -142,30 +133,26 @@ void OneSliceGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_DI
 PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 {
 	PS_DIFFUSION_OUTPUT output;
-	float3 tex = input.tex;//float3(input.tex.xy, input.tex.z/(vTextureSize.z-1));
-	float diffvalue1 = 1 + 1/vTextureSize.z;
-	float diffvalue2 = (1 - 1/diffvalue1) / 2;
-	tex.z = (tex.z / diffvalue1) + diffvalue2;
 
-	float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerClamp, tex, 0).x;
+	float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerClamp, input.tex, 0).x;
 	float kernel = rawKernel*vTextureSize.x;
 	kernel *= fPolySize;
 	kernel -= 0.5;
 	kernel = max(0,kernel);
-	output.color = ColorTexture.SampleLevel(linearSamplerClamp, tex+float3(-kernel/vTextureSize.x,0,0), 0);
-	output.color += ColorTexture.SampleLevel(linearSamplerClamp, tex+float3( kernel/vTextureSize.x,0,0), 0);
+	output.color = ColorTexture.SampleLevel(linearSamplerClamp, input.tex+float3(-kernel/vTextureSize.x,0,0), 0);
+	output.color += ColorTexture.SampleLevel(linearSamplerClamp, input.tex+float3( kernel/vTextureSize.x,0,0), 0);
 	kernel = rawKernel*vTextureSize.y;
 	kernel *= fPolySize;
 	kernel -= 0.5;
 	kernel = max(0,kernel);
-	output.color += ColorTexture.SampleLevel(linearSamplerClamp, tex+float3(0,-kernel/vTextureSize.y, 0), 0);
-	output.color += ColorTexture.SampleLevel(linearSamplerClamp, tex+float3(0, kernel/vTextureSize.y, 0), 0);
+	output.color += ColorTexture.SampleLevel(linearSamplerClamp, input.tex+float3(0,-kernel/vTextureSize.y, 0), 0);
+	output.color += ColorTexture.SampleLevel(linearSamplerClamp, input.tex+float3(0, kernel/vTextureSize.y, 0), 0);
 	kernel = rawKernel*vTextureSize.z;
 	kernel *= fPolySize;
 	kernel -= 0.5;
 	kernel = max(0,kernel);
-	output.color += ColorTexture.SampleLevel(linearSamplerClamp, tex+float3(0, 0, -kernel/vTextureSize.z), 0);
-	output.color += ColorTexture.SampleLevel(linearSamplerClamp, tex+float3(0, 0, kernel/vTextureSize.z), 0);
+	output.color += ColorTexture.SampleLevel(linearSamplerClamp, input.tex+float3(0, 0, -kernel/vTextureSize.z), 0);
+	output.color += ColorTexture.SampleLevel(linearSamplerClamp, input.tex+float3(0, 0, kernel/vTextureSize.z), 0);
 	
 	output.color /= 6;
 	return output;
