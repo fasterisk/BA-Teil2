@@ -1,16 +1,3 @@
-DepthStencilState WriteDepthTest
-{
-    // depth
-    DepthWriteMask = ALL;
-    DepthEnable = true;
-    DepthFunc = Less;
-
-    //stencil
-    StencilEnable = false;
-    StencilReadMask = 0xFF;
-    StencilWriteMask = 0x00;
-};
-
 DepthStencilState EnableDepth
 {
     DepthEnable = TRUE;
@@ -22,23 +9,6 @@ DepthStencilState DisableDepth
 {
     DepthEnable = FALSE;
     DepthWriteMask = ZERO;
-    
-    //stencil
-    //StencilEnable = FALSE;
-    //StencilReadMask = 0x00;
-    //StencilWriteMask = 0x00;
-};
-
-RasterizerState CullFront
-{
-	MultiSampleEnable = True;
-	CullMode = Front;
-};
-
-RasterizerState CullBack
-{
-    MultiSampleEnable = True;
-    CullMode = Back;
 };
 
 RasterizerState CullNone
@@ -65,16 +35,20 @@ BlendState AlphaBlending
     RenderTargetWriteMask[0] = 0x0F;
 };
 
-BlendState NoBlending
+SamplerState textureSampler
 {
-    AlphaToCoverageEnable = FALSE;
-    BlendEnable[0] = FALSE;
-    RenderTargetWriteMask[0] = 0x0F;
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = Wrap;
+	AddressV = Wrap;
+	AddressW = Wrap;
+	BorderColor = float4(0,0,0,0);
 };
 
 
 matrix	ModelViewProjectionMatrix;
 matrix	NormalMatrix;
+
+Texture2D SurfaceTexture;
 
 //--------------------------------------------------------------------------------------
 
@@ -82,7 +56,7 @@ struct VsInput
 {
     float3 Pos      : POSITION;
 	float3 Normal	: NORMAL;
-    float4 Color    : COLOR;
+    float2 TexCoord : TEXCOORD0;
 };
 
 
@@ -90,7 +64,7 @@ struct VsOutput
 {
 	float4 Pos		: SV_POSITION;
 	float3 Normal	: NORMAL;
-	float4 Color	: COLOR;
+	float2 TexCoord	: TEXCOORD0;
 };
 
 struct VsWOutput
@@ -118,7 +92,7 @@ VsOutput VS_COLOR(VsInput input)
 
     output.Pos = mul(float4(input.Pos, 1.0f), ModelViewProjectionMatrix);
 	output.Normal = mul(input.Normal, (float3x3)NormalMatrix);
-	output.Color = input.Color;
+	output.TexCoord = input.TexCoord;
 
     return output;
 }
@@ -131,41 +105,6 @@ VsWOutput VS_WIREFRAME(VsInput input)
 }
 
 
-VsOutput VS_NORMAL(VsInput input)
-{
-	VsOutput output;
-	output.Pos = float4(input.Pos, 1.0f);//mul(float4(input.Pos, 1.0f), ModelViewProjectionMatrix);
-	output.Normal =  input.Normal;//mul(input.Normal, (float3x3)NormalMatrix);
-	output.Color = input.Color;
-	return output;
-}
-
-//--------------------------------------------------------------------------------------
-// Geometry Shaders
-//--------------------------------------------------------------------------------------
-[maxvertexcount(4)]
-void GS_NORMAL( line VsOutput input[2], inout LineStream<VsOutput> tStream)
-{
-	VsOutput output;
-	output.Pos = mul(input[0].Pos, ModelViewProjectionMatrix);
-	output.Color = input[0].Color;
-	output.Normal = mul(input[0].Normal, (float3x3)NormalMatrix);
-	tStream.Append(output);
-	
-	output.Pos = mul(float4(input[0].Pos.xyz + input[0].Normal.xyz, 1.0f), ModelViewProjectionMatrix);
-	tStream.Append(output);
-	tStream.RestartStrip();
-	
-	output.Pos = mul(input[1].Pos, ModelViewProjectionMatrix);
-	output.Color = input[1].Color;
-	output.Normal = mul(input[1].Normal, (float3x3)NormalMatrix);
-	tStream.Append(output);
-	
-	output.Pos = mul(float4(input[1].Pos.xyz + input[1].Normal.xyz, 1.0f), ModelViewProjectionMatrix);
-	tStream.Append(output);
-	tStream.RestartStrip();
-}
-
 //--------------------------------------------------------------------------------------
 // Pixel Shaders
 //--------------------------------------------------------------------------------------
@@ -174,7 +113,7 @@ void GS_NORMAL( line VsOutput input[2], inout LineStream<VsOutput> tStream)
 PsOutput PS_COLOR( VsOutput input )
 {
     PsOutput output;
-    output.Color = input.Color;
+    output.Color = SurfaceTexture.Sample(textureSampler, input.TexCoord);
 
 	output.Color.a = 0.1f;
     return output;
@@ -186,14 +125,6 @@ PsWOutput PS_WIREFRAME(VsWOutput input)
 	output.Color = float4(0.0, 1.0, 0.0, 1.0);
 	return output;
 }
-
-PsOutput PS_NORMAL(VsOutput input)
-{
-	PsOutput output;
-	output.Color = float4(abs(input.Normal), 1.0f);
-	return output;
-}
-
 
 //--------------------------------------------------------------------------------------
 // Techniques
@@ -220,18 +151,5 @@ technique10 RenderColor
 
 		SetDepthStencilState( EnableDepth, 0);
 		SetRasterizerState(Wireframe);
-	}
-}
-
-technique10 RenderNormals
-{
-	pass
-	{
-		SetVertexShader(CompileShader(vs_4_0, VS_NORMAL()));
-		SetGeometryShader(CompileShader(gs_4_0, GS_NORMAL()));
-		SetPixelShader(CompileShader(ps_4_0, PS_NORMAL()));
-
-		SetDepthStencilState( EnableDepth, 0);
-		SetRasterizerState(CullBack);
 	}
 }

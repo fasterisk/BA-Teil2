@@ -77,5 +77,11 @@
     <None Include="Diffusion.fx">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="BasicHLSL11_PS.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="BasicHLSL11_VS.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -28,10 +28,11 @@ public:
 	void RotateXCurrentSurface(float fFactor);
 	void RotateYCurrentSurface(float fFactor);
 	void ScaleCurrentSurface(float fFactor);
+	HRESULT ChangeCurrentSurfaceMesh(LPWSTR lsFileName);
 
-	int GetTextureWidth()	{return iTextureWidth;}
-	int GetTextureHeight()	{return iTextureHeight;}
-	int GetTextureDepth()	{return iTextureDepth;}
+	int GetTextureWidth()	{return m_iTextureWidth;}
+	int GetTextureHeight()	{return m_iTextureHeight;}
+	int GetTextureDepth()	{return m_iTextureDepth;}
 
 	void GenerateVoronoi();
 	void Render3DTexture(bool bRender);
@@ -57,9 +58,9 @@ protected:
 	Surface*	m_pControlledSurface;
 	bool		m_bSurface1IsControlled;
 
-	int iTextureWidth;
-	int iTextureHeight;
-	int iTextureDepth;
+	int m_iTextureWidth;
+	int m_iTextureHeight;
+	int m_iTextureDepth;
 
 	bool	m_bDrawAllSlices;
 	int		m_iCurrentSlice;

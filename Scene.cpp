@@ -31,6 +31,10 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_bGenerateVoronoi = false;
 	m_bRenderIsoSurface = false;
 
+	m_iTextureWidth = 128;
+	m_iTextureHeight = 128;
+	m_iTextureDepth = 128;
+
 	m_pVoronoi = NULL;
 	m_pDiffusion = NULL;
 	m_pVolumeRenderer = NULL;
@@ -89,9 +93,9 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Diffusion.fx"));
 	V_RETURN(CreateEffect(str, &m_pDiffusionEffect));
 
-	iTextureWidth = iTexWidth;
-	iTextureHeight = iTexHeight;
-	iTextureDepth = iTexDepth;
+	m_iTextureWidth = iTexWidth;
+	m_iTextureHeight = iTexHeight;
+	m_iTextureDepth = iTexDepth;
 
 	// Initialize Surfaces
 	V_RETURN(InitSurfaces());
@@ -110,7 +114,7 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(0.01f));
 
 	
-	V_RETURN(UpdateBoundingBox());
+	//V_RETURN(UpdateBoundingBox());
 
 	return S_OK;
 }
@@ -238,22 +242,22 @@ HRESULT Scene::UpdateBoundingBox()
 	float fMaxDiff = max(vDiff.x, max(vDiff.y, vDiff.z));
 	vDiff /= fMaxDiff;
 
-	int previousMax = max(iTextureWidth, max(iTextureHeight, iTextureDepth));
-	iTextureWidth = int(vDiff.x * previousMax + 0.5);
-	iTextureHeight = int(vDiff.y * previousMax + 0.5);
-	iTextureDepth = int(vDiff.z * previousMax + 0.5);
+	int previousMax = max(m_iTextureWidth, max(m_iTextureHeight, m_iTextureDepth));
+	m_iTextureWidth = int(vDiff.x * previousMax + 0.5);
+	m_iTextureHeight = int(vDiff.y * previousMax + 0.5);
+	m_iTextureDepth = int(vDiff.z * previousMax + 0.5);
 	
 	V_RETURN(Init3DTextures());
 	V_RETURN(m_pVoronoi->SetDestination(m_pVoronoi3DTex, m_pDist3DTex));
-	V_RETURN(m_pVolumeRenderer->Update(iTextureWidth, iTextureHeight, iTextureDepth));
+	V_RETURN(m_pVolumeRenderer->Update(m_iTextureWidth, m_iTextureHeight, m_iTextureDepth));
 
 	V_RETURN(m_pDiffusion->Initialize(m_pColor3DTex1, 
 									  m_pColor3DTex2, 
 									  m_pColor3DTex1SRV, 
 									  m_pColor3DTex2SRV, 
-									  iTextureWidth, 
-									  iTextureHeight, 
-									  iTextureDepth, 
+									  m_iTextureWidth, 
+									  m_iTextureHeight, 
+									  m_iTextureDepth, 
 									  m_fIsoValue));
 
 	initialized = true;
@@ -272,18 +276,18 @@ void Scene::UpdateTextureResolution(int iMaxRes)
 	float fMaxDiff = max(vDiff.x, max(vDiff.y, vDiff.z));
 	vDiff /= fMaxDiff;
 
-	iTextureWidth = int(vDiff.x * iMaxRes + 0.5);
-	iTextureHeight = int(vDiff.y * iMaxRes + 0.5);
-	iTextureDepth = int(vDiff.z * iMaxRes + 0.5);
+	m_iTextureWidth = int(vDiff.x * iMaxRes + 0.5);
+	m_iTextureHeight = int(vDiff.y * iMaxRes + 0.5);
+	m_iTextureDepth = int(vDiff.z * iMaxRes + 0.5);
 
 	initialized = false;
 }
 
 void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 {
-	UpdateBoundingBox();
+	//UpdateBoundingBox();
 
-	if(m_bGenerateVoronoi)
+	/*if(m_bGenerateVoronoi)
 	{
 		m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
 		m_bGenerateVoronoi = false;
@@ -320,7 +324,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 			}
 		}
 	}
-
+	*/
 	if(bShowSurfaces)
 	{
 		m_pSurface1->Render(mViewProjection);
@@ -350,9 +354,9 @@ HRESULT Scene::Init3DTextures()
 	desc.MipLevels = 1;
 	desc.MiscFlags = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.Width = iTextureWidth;
-	desc.Height = iTextureHeight;
-	desc.Depth = iTextureDepth;
+	desc.Width = m_iTextureWidth;
+	desc.Height = m_iTextureHeight;
+	desc.Depth = m_iTextureDepth;
 	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
 	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pVoronoi3DTex));
@@ -441,6 +445,13 @@ void Scene::RotateYCurrentSurface(float fFactor)
 void Scene::ScaleCurrentSurface(float fFactor)
 {
 	m_pControlledSurface->Scale(fFactor);
+}
+
+HRESULT Scene::ChangeCurrentSurfaceMesh(LPWSTR lsFileName)
+{
+	HRESULT hr(S_OK);
+	V_RETURN(m_pControlledSurface->LoadMesh(lsFileName));
+	return hr;
 }
 
 void Scene::GenerateVoronoi()

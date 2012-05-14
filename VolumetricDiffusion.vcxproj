@@ -409,6 +409,8 @@
     <ResourceCompile Include="VolumetricDiffusion.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="BasicHLSL11_PS.hlsl" />
+    <None Include="BasicHLSL11_VS.hlsl" />
     <None Include="Diffusion.fx" />
     <None Include="Surface.fx" />
     <None Include="VolumeRenderer.fx" />

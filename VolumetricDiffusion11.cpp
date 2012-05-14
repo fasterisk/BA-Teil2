@@ -23,7 +23,7 @@ D3DXVECTOR3                 g_Up = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
 int							g_Width = 800;
 int							g_Height = 600;
 float						g_zNear = 0.1f;
-float						g_zFar = 100.0f;
+float						g_zFar = 10000.0f;
 D3DXMATRIX					g_View;
 D3DXMATRIX					g_Proj;
 
@@ -53,6 +53,7 @@ int							g_iSliceIndex = 64;
 bool						g_bShowSurfaces = true;
 float						g_fIsoValue = 0.5f;
 int							g_iDiffusionSteps = 8;
+bool						g_bSurface1IsControlled = true;
 
 // Texthelper
 CDXUTTextHelper*            g_pTxtHelper = NULL;
@@ -158,13 +159,13 @@ void InitApp()
 
     g_SampleUI.SetCallback( OnGUIEvent ); int iY = 10;
 	g_SampleUI.AddButton(IDC_LOAD_SURFACE, L"Load Surface...", 0, iY, 170, 30);
-	g_SampleUI.AddButton( IDC_CHANGE_CONTROL, L"Change contr. surface", 0, iY += 40, 170, 30);
+	g_SampleUI.AddButton( IDC_CHANGE_CONTROL, L"Current: Surface 1", 0, iY += 40, 170, 30);
 	g_SampleUI.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 40, 170, 22);
 	g_SampleUI.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 26, 170, 22);
 	g_SampleUI.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 26, 170, 22);
 	g_SampleUI.GetRadioButton( IDC_ROTATE )->SetChecked(true);
 	
-	StringCchPrintf( sz, 100, L"Size: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
+	StringCchPrintf( sz, 100, L"TexSize: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
 	g_SampleUI.AddStatic( IDC_TEXTRES_STATIC, sz, 0, iY += 35, 100, 22 );
     StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
 	g_SampleUI.AddStatic( IDC_TEXTRES_MAX_STATIC, sz, 0, iY += 24, 100, 22 );
@@ -202,7 +203,7 @@ void InitApp()
 	g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 
 	// Setup the camera's view parameters
-    D3DXVECTOR3 vecEye( 0.0f, 0.0f, -4.0f );
+    D3DXVECTOR3 vecEye( 0.0f, 0.0f, -40.0f );
     D3DXVECTOR3 vecAt ( 0.0f, 0.0f, 0.0f );
     g_Camera.SetViewParams( &vecEye, &vecAt );
 }
@@ -381,6 +382,8 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 //--------------------------------------------------------------------------------------
 void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, void* pUserContext )
 {
+	WCHAR sz[100];
+	HRESULT hr;
     switch( nControlID )
     {
 		case IDC_LOAD_SURFACE:
@@ -392,7 +395,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			ofn.lpstrFile = szFile ;
 			ofn.lpstrFile[0] = '\0';
 			ofn.nMaxFile = sizeof( szFile );
-			ofn.lpstrFilter = L"All\0*.*\0Text\0*.TXT\0";
+			ofn.lpstrFilter = L"SDKMesh\0*.sdkmesh\0All\0*.*\0";
 			ofn.nFilterIndex =1;
 			ofn.lpstrFileTitle = NULL ;
 			ofn.nMaxFileTitle = 0 ;
@@ -400,10 +403,24 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
 			GetOpenFileName( &ofn );
 	
-			// Now simply display the file name 
-			MessageBox ( NULL , ofn.lpstrFile , L"File Name" , MB_OK);
+			// load the surface mesh into the current surface
+			hr = g_pScene->ChangeCurrentSurfaceMesh(ofn.lpstrFile);
+			if(hr == S_OK)
+			{
+				MessageBox ( NULL , L"OK", L"File Name" , MB_OK);
+			}
+			else
+			{
+				MessageBox ( NULL , L"FAILED", L"File Name" , MB_OK);
+			}
 			break;
 		case IDC_CHANGE_CONTROL:
+			g_bSurface1IsControlled = !g_bSurface1IsControlled;
+			if(g_bSurface1IsControlled)
+				StringCchPrintf( sz, 100, L"Current: Surface 1");
+			else
+				StringCchPrintf( sz, 100, L"Current: Surface 2");
+			g_SampleUI.GetButton(IDC_CHANGE_CONTROL)->SetText(sz);
 			g_pScene->ChangeControlledSurface();
 			break;
 		case IDC_ROTATE:
@@ -436,14 +453,13 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 		case IDC_TEXTRES_MAX_SLIDER:
 			g_bBlockMouseDragging = true;
 			g_iTextureMaximum = g_SampleUI.GetSlider(IDC_TEXTRES_MAX_SLIDER)->GetValue();
-			WCHAR sz[100];
 			StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
             g_SampleUI.GetStatic( IDC_TEXTRES_MAX_STATIC )->SetText( sz );
 			g_pScene->UpdateTextureResolution(g_iTextureMaximum);
 			g_iTextureWidth = g_pScene->GetTextureWidth();
 			g_iTextureHeight = g_pScene->GetTextureHeight();
 			g_iTextureDepth = g_pScene->GetTextureDepth();
-			StringCchPrintf( sz, 100, L"Size: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
+			StringCchPrintf( sz, 100, L"TexSize: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
 			g_SampleUI.GetStatic(IDC_TEXTRES_STATIC)->SetText(sz);
 			
 			g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
