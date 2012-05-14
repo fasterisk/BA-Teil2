@@ -58,8 +58,6 @@ protected:
 
 	CDXUTSDKMesh	m_pSurfaceMesh;
 
-	HRESULT InitBuffers();
-	void ReadVectorFile(char *s);
 
 	//TEST TEST TEST TEST
 	CDXUTSDKMesh                g_Mesh11;
