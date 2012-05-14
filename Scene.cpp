@@ -114,7 +114,7 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(0.01f));
 
 	
-	//V_RETURN(UpdateBoundingBox());
+	V_RETURN(UpdateBoundingBox());
 
 	return S_OK;
 }
@@ -125,13 +125,11 @@ HRESULT Scene::InitSurfaces()
 
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface1->Initialize("Media\\surface1.xml"));
-    m_pSurface1->SetColor(0.0, 0.0, 0.0);
+	V_RETURN(m_pSurface1->Initialize(L"Media\\meshes\\blackholeroom.sdkmesh"));
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface2->Initialize("Media\\surface1.xml"));
-	m_pSurface2->SetColor(1.0, 1.0, 1.0);
+	V_RETURN(m_pSurface2->Initialize(L"Media\\meshes\\blackhole.sdkmesh"));
 	m_pSurface2->Scale(0.5);
 
 	m_pControlledSurface = m_pSurface1;
@@ -143,7 +141,7 @@ HRESULT Scene::UpdateBoundingBox()
 {
 	HRESULT hr;
 
-	D3DXVECTOR4 min, max;
+	/*D3DXVECTOR4 min, max;
 	for(int i = 0; i < m_pSurface1->m_iNumTriangleVertices; i++)
 	{
 		D3DXVECTOR4 temp = D3DXVECTOR4(m_pSurface1->m_pTriangleVertices[i].pos.x, 
@@ -200,15 +198,48 @@ HRESULT Scene::UpdateBoundingBox()
 		if(temp.z > max.z)
 			max.z = temp.z;
 	}
+	*/
+	D3DXVECTOR3 vBBS1Center = m_pSurface1->GetBoundingBoxCenter();
+	D3DXVECTOR3 vBBS1Extents = m_pSurface1->GetBoundingBoxExtents();
 
-	D3DXVECTOR3 vNewMin(min.x, min.y, min.z);
-	D3DXVECTOR3 vNewMax(max.x, max.y, max.z);
+	D3DXVECTOR3 vBBS2Center = m_pSurface2->GetBoundingBoxCenter();
+	D3DXVECTOR3 vBBS2Extents = m_pSurface2->GetBoundingBoxExtents();
 
-	if(initialized && vNewMin == m_vMin && vNewMax == m_vMax)
-		return S_OK;
+	D3DXVECTOR3 vBBS1Min = vBBS1Center - vBBS1Extents;
+	D3DXVECTOR3 vBBS2Min = vBBS2Center - vBBS2Extents;
+	D3DXVECTOR3 vBBS1Max = vBBS1Center + vBBS1Extents;
+	D3DXVECTOR3 vBBS2Max = vBBS2Center + vBBS2Extents;
+
+	D3DXVECTOR4 vMin1, vMin2, vMax1, vMax2;
+
+	D3DXVec3Transform(&vMin1, &vBBS1Min, &m_pSurface1->m_mModel);
+	D3DXVec3Transform(&vMin2, &vBBS2Min, &m_pSurface2->m_mModel);
+	D3DXVec3Transform(&vMax1, &vBBS1Max, &m_pSurface1->m_mModel);
+	D3DXVec3Transform(&vMax2, &vBBS2Max, &m_pSurface2->m_mModel);
+
+	D3DXVECTOR3 vBBMin, vBBMax;
+	vBBMin = D3DXVECTOR3(vMin1.x, vMin1.y, vMin1.z);
+	vBBMax = D3DXVECTOR3(vMax1.x, vMax1.y, vMax1.z);
+
+	if(vMin2.x < vBBMin.x)
+		vBBMin.x = vMin2.x;
+	if(vMin2.y < vBBMin.y)
+		vBBMin.y = vMin2.y;
+	if(vMin2.z < vBBMin.z)
+		vBBMin.z = vMin2.z;
+
+	if(vMax2.x > vBBMax.x)
+		vBBMax.x = vMax2.x;
+	if(vMax2.y > vBBMax.y)
+		vBBMax.y = vMax2.y;
+	if(vMax2.z > vBBMax.z)
+		vBBMax.z = vMax2.z;
+
+	//if(initialized && vNewMin == m_vMin && vNewMax == m_vMax)
+		//return S_OK;
 		
-	m_vMin = vNewMin;
-	m_vMax = vNewMax;
+	m_vMin = vBBMin;
+	m_vMax = vBBMax;
 	
 
 	m_pBBVertices[0].pos.x = m_vMin.x;
@@ -238,7 +269,7 @@ HRESULT Scene::UpdateBoundingBox()
 
 
 	// Change texture size corresponding to the ratio between x y and z of BB
-	D3DXVECTOR3 vDiff = m_vMax - m_vMin;
+	/*D3DXVECTOR3 vDiff = m_vMax - m_vMin;
 	float fMaxDiff = max(vDiff.x, max(vDiff.y, vDiff.z));
 	vDiff /= fMaxDiff;
 
@@ -261,7 +292,7 @@ HRESULT Scene::UpdateBoundingBox()
 									  m_fIsoValue));
 
 	initialized = true;
-
+	*/
 	return S_OK;
 }
 
@@ -285,8 +316,9 @@ void Scene::UpdateTextureResolution(int iMaxRes)
 
 void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 {
-	//UpdateBoundingBox();
+	UpdateBoundingBox();
 
+	m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, NULL);
 	/*if(m_bGenerateVoronoi)
 	{
 		m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);

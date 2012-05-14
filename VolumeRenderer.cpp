@@ -148,9 +148,7 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3
 	rtViewport.Height = float(m_iHeight);
 	m_pd3dImmediateContext->RSSetViewports(1, &rtViewport);
 
-
-
-	
+	/*
 
 	//Render frontfaces of boundingbox
 	m_pd3dImmediateContext->ClearRenderTargetView(m_pFrontRTV, clearColor);
@@ -183,6 +181,7 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3
 	m_pBackTextureVar->SetResource(NULL);
 	m_pVolumeTextureVar->SetResource(NULL);
 	m_pVolumeRenderTechnique->GetPassByName("RayCast")->Apply(0, m_pd3dImmediateContext);
+	*/
 
 	//Draw wireframe boundingbox
 	m_pVolumeRenderTechnique->GetPassByName("Wireframe")->Apply(0, m_pd3dImmediateContext);

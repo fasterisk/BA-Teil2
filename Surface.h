@@ -8,12 +8,6 @@ public:
 	Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pSurfaceEffect);
 	~Surface();
 	
-	int m_iNumTriangleVertices;
-	int m_iNumEdgeVertices;
-	VERTEX *m_pTriangleVertices;
-	VERTEX *m_pEdgeVertices;
-	
-
 	D3DXMATRIX m_mModel;
 
 	void Translate(float fX, float fY, float fZ);
@@ -25,16 +19,22 @@ public:
 
 	void Scale(float fFactor);
 
-	void SetColor(float fR, float fG, float fB);//after that you need to init buffers again
-
 	HRESULT LoadMesh(LPWSTR lsFileName);
 
-	HRESULT Initialize(char *s);
+	HRESULT Initialize(LPWSTR lsFileName);
 	void Render(D3DXMATRIX mViewProjection);
 	void Render(ID3DX11EffectTechnique* pTechnique);
 	void RenderVoronoi(ID3DX11EffectTechnique* pTechnique);
 
+	//GETTER
+	D3DXVECTOR3 GetBoundingBoxCenter();
+	D3DXVECTOR3 GetBoundingBoxExtents();
+
+
 protected:
+
+	HRESULT InitializeShader();
+	HRESULT InitializeMesh(LPWSTR lsFileName);
 
 	ID3D11Device*					m_pd3dDevice;
 	ID3D11DeviceContext*			m_pd3dImmediateContext;
@@ -58,26 +58,6 @@ protected:
 
 	CDXUTSDKMesh	m_pSurfaceMesh;
 
-
-	//TEST TEST TEST TEST
-	CDXUTSDKMesh                g_Mesh11;
-
-ID3D11InputLayout*          g_pVertexLayout11;
-ID3D11Buffer*               g_pVertexBuffer;
-ID3D11Buffer*               g_pIndexBuffer;
-ID3D11VertexShader*         g_pVertexShader;
-ID3D11PixelShader*          g_pPixelShader;
-ID3D11SamplerState*         g_pSamLinear;
-
-
-UINT                        g_iCBVSPerObjectBind;
-
-
-UINT                        g_iCBPSPerObjectBind;
-
-
-ID3D11Buffer*               g_pcbVSPerObject;
-ID3D11Buffer*               g_pcbPSPerObject;
 };
 
 #endif
