@@ -193,7 +193,7 @@ void InitApp()
 
 	StringCchPrintf( sz, 100, L"IsoValue: %.2f", g_fIsoValue);
 	g_SampleUI.AddStatic(IDC_ISO_SLIDER_STATIC, sz, 0, iY += 26, 100, 22);
-	g_SampleUI.AddSlider(IDC_ISO_SLIDER, 0, iY+=20, 130, 22);
+	g_SampleUI.AddSlider(IDC_ISO_SLIDER, 0, iY+=20, 130, 22, 0, 10000, 5000);
 	g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
 	g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 
@@ -481,7 +481,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			break;
 		case IDC_ISO_SLIDER:
 			g_bBlockMouseDragging = true;
-			g_fIsoValue = g_SampleUI.GetSlider(IDC_ISO_SLIDER)->GetValue()/100.0f;
+			g_fIsoValue = g_SampleUI.GetSlider(IDC_ISO_SLIDER)->GetValue()/10000.0f;
 			StringCchPrintf( sz, 100, L"IsoValue: %.2f", g_fIsoValue);
 			g_SampleUI.GetStatic( IDC_ISO_SLIDER_STATIC )->SetText( sz );
 			g_pScene->ChangeIsoValue(g_fIsoValue);
