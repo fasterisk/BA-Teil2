@@ -61,26 +61,27 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_TOGGLEREF				2
 #define IDC_CHANGEDEVICE			3
 
-#define IDC_CHANGE_CONTROL			4
-#define IDC_ROTATE_MOVE_CAMERA		5
-#define IDC_ROTATE					6
-#define IDC_MOVE					7
-#define IDC_CAMERA					8
-#define IDC_TEXTRES_STATIC			9
-#define IDC_TEXTRES_MAX_STATIC		12
-#define IDC_TEXTRES_MAX_SLIDER		13
-#define IDC_SLICES					14
-#define IDC_ALL_SLICES				15
-#define IDC_ONE_SLICE				16
-#define IDC_SLICEINDEX_STATIC		17
-#define IDC_SLICEINDEX_SLIDER		18
-#define IDC_SHOW_SURFACES			19
-#define IDC_DIFFUSION				20
-#define IDC_ISO_SLIDER				21
-#define IDC_ISO_SLIDER_STATIC		22
-#define IDC_ISO_CHECK				23
-#define IDC_DIFFSTEPS_STATIC		24
-#define IDC_DIFFSTEPS_SLIDER		25
+#define IDC_LOAD_SURFACE			4
+#define IDC_CHANGE_CONTROL			5
+#define IDC_ROTATE_MOVE_CAMERA		6
+#define IDC_ROTATE					7
+#define IDC_MOVE					8
+#define IDC_CAMERA					9
+#define IDC_TEXTRES_STATIC			10
+#define IDC_TEXTRES_MAX_STATIC		11
+#define IDC_TEXTRES_MAX_SLIDER		12
+#define IDC_SLICES					13
+#define IDC_ALL_SLICES				14
+#define IDC_ONE_SLICE				15
+#define IDC_SLICEINDEX_STATIC		16
+#define IDC_SLICEINDEX_SLIDER		17
+#define IDC_SHOW_SURFACES			18
+#define IDC_DIFFUSION				19
+#define IDC_ISO_SLIDER				20
+#define IDC_ISO_SLIDER_STATIC		21
+#define IDC_ISO_CHECK				22
+#define IDC_DIFFSTEPS_STATIC		23
+#define IDC_DIFFSTEPS_SLIDER		24
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 

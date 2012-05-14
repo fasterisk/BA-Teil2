@@ -14,9 +14,17 @@ int iSliceIndex;
 // Sampler
 //--------------------------------------------------------------------------------------
 
-SamplerState linearSamplerClamp
+SamplerState pointSamplerClamp
 {
 	Filter = MIN_MAG_MIP_POINT;
+	AddressU = Clamp;				// border sampling in U
+    AddressV = Clamp;				// border sampling in V
+	AddressW = Clamp;				// border sampling in W
+};
+
+SamplerState linearSamplerClamp
+{
+	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Clamp;				// border sampling in U
     AddressV = Clamp;				// border sampling in V
 	AddressW = Clamp;				// border sampling in W
@@ -134,25 +142,25 @@ PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 {
 	PS_DIFFUSION_OUTPUT output;
 
-	float rawKernel = 0.92387*DistTexture.SampleLevel(linearSamplerClamp, input.tex, 0).x;
+	float rawKernel = 0.92387*DistTexture.SampleLevel(pointSamplerClamp, input.tex, 0).x;
 	float kernel = rawKernel*vTextureSize.x;
 	kernel *= fPolySize;
 	kernel -= 0.5;
 	kernel = max(0,kernel);
-	output.color = ColorTexture.SampleLevel(linearSamplerClamp, input.tex+float3(-kernel/vTextureSize.x,0,0), 0);
-	output.color += ColorTexture.SampleLevel(linearSamplerClamp, input.tex+float3( kernel/vTextureSize.x,0,0), 0);
+	output.color = ColorTexture.SampleLevel(pointSamplerClamp, input.tex+float3(-kernel/vTextureSize.x,0,0), 0);
+	output.color += ColorTexture.SampleLevel(pointSamplerClamp, input.tex+float3( kernel/vTextureSize.x,0,0), 0);
 	kernel = rawKernel*vTextureSize.y;
 	kernel *= fPolySize;
 	kernel -= 0.5;
 	kernel = max(0,kernel);
-	output.color += ColorTexture.SampleLevel(linearSamplerClamp, input.tex+float3(0,-kernel/vTextureSize.y, 0), 0);
-	output.color += ColorTexture.SampleLevel(linearSamplerClamp, input.tex+float3(0, kernel/vTextureSize.y, 0), 0);
+	output.color += ColorTexture.SampleLevel(pointSamplerClamp, input.tex+float3(0,-kernel/vTextureSize.y, 0), 0);
+	output.color += ColorTexture.SampleLevel(pointSamplerClamp, input.tex+float3(0, kernel/vTextureSize.y, 0), 0);
 	kernel = rawKernel*vTextureSize.z;
 	kernel *= fPolySize;
 	kernel -= 0.5;
 	kernel = max(0,kernel);
-	output.color += ColorTexture.SampleLevel(linearSamplerClamp, input.tex+float3(0, 0, -kernel/vTextureSize.z), 0);
-	output.color += ColorTexture.SampleLevel(linearSamplerClamp, input.tex+float3(0, 0, kernel/vTextureSize.z), 0);
+	output.color += ColorTexture.SampleLevel(pointSamplerClamp, input.tex+float3(0, 0, -kernel/vTextureSize.z), 0);
+	output.color += ColorTexture.SampleLevel(pointSamplerClamp, input.tex+float3(0, 0, kernel/vTextureSize.z), 0);
 	
 	output.color /= 6;
 	return output;
@@ -163,7 +171,7 @@ PS_DIFFUSION_OUTPUT OneSlicePS(GS_DIFFUSION_OUTPUT input)
 	PS_DIFFUSION_OUTPUT output;
 	if(input.sliceindex == iSliceIndex)
 	{
-		output.color = ColorTexture.SampleLevel(linearSamplerClamp, input.tex, 0);
+		output.color = ColorTexture.SampleLevel(pointSamplerClamp, input.tex, 0);
 	}
 	else
 	{
