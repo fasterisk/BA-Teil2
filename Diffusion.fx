@@ -53,14 +53,14 @@ struct VS_DIFFUSION_INPUT
 {
 	float3 pos		: POSITION;
 	float3 tex		: TEXCOORD;
-	int sliceindex : SLICEINDEX;
+	uint sliceindex : SLICEINDEX;
 };
 
 struct GS_DIFFUSION_INPUT
 {
 	float4 pos		: POSITION;
 	float3 tex		: TEXCOORD;
-	int sliceindex : SLICEINDEX;
+	uint sliceindex : SLICEINDEX;
 };
 
 struct GS_DIFFUSION_OUTPUT

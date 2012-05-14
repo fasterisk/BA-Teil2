@@ -66,9 +66,7 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_ROTATE					6
 #define IDC_MOVE					7
 #define IDC_CAMERA					8
-#define IDC_TEXTRES_WIDTH_STATIC	9
-#define IDC_TEXTRES_HEIGHT_STATIC	10
-#define IDC_TEXTRES_DEPTH_STATIC	11
+#define IDC_TEXTRES_STATIC			9
 #define IDC_TEXTRES_MAX_STATIC		12
 #define IDC_TEXTRES_MAX_SLIDER		13
 #define IDC_SLICES					14
@@ -161,12 +159,8 @@ void InitApp()
 	g_SampleUI.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 26, 170, 22);
 	g_SampleUI.GetRadioButton( IDC_ROTATE )->SetChecked(true);
 	
-	StringCchPrintf( sz, 100, L"Texture Width: %d", g_iTextureWidth ); 
-	g_SampleUI.AddStatic( IDC_TEXTRES_WIDTH_STATIC, sz, 0, iY += 35, 100, 22 );
-    StringCchPrintf( sz, 100, L"Texture Height: %d", g_iTextureHeight ); 
-    g_SampleUI.AddStatic( IDC_TEXTRES_HEIGHT_STATIC, sz, 0, iY += 24, 100, 22 );
-    StringCchPrintf( sz, 100, L"Texture Depth: %d", g_iTextureDepth ); 
-    g_SampleUI.AddStatic( IDC_TEXTRES_DEPTH_STATIC, sz, 0, iY += 24, 100, 22 );
+	StringCchPrintf( sz, 100, L"Size: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
+	g_SampleUI.AddStatic( IDC_TEXTRES_STATIC, sz, 0, iY += 35, 100, 22 );
     StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
 	g_SampleUI.AddStatic( IDC_TEXTRES_MAX_STATIC, sz, 0, iY += 24, 100, 22 );
 	g_SampleUI.AddSlider( IDC_TEXTRES_MAX_SLIDER, 0, iY += 20, 130, 22, 64, 256, 128);
@@ -371,16 +365,10 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	WCHAR sz[100];
 
 	g_iTextureWidth = g_pScene->GetTextureWidth();
-	StringCchPrintf( sz, 100, L"Texture Width: %d", g_iTextureWidth ); 
-    g_SampleUI.GetStatic( IDC_TEXTRES_WIDTH_STATIC )->SetText( sz );
-
 	g_iTextureHeight = g_pScene->GetTextureHeight();
-	StringCchPrintf( sz, 100, L"Texture Height: %d", g_iTextureHeight ); 
-	g_SampleUI.GetStatic( IDC_TEXTRES_HEIGHT_STATIC )->SetText( sz );
-
 	g_iTextureDepth = g_pScene->GetTextureDepth();
-	StringCchPrintf( sz, 100, L"Texture Depth: %d", g_iTextureDepth ); 
-	g_SampleUI.GetStatic( IDC_TEXTRES_DEPTH_STATIC )->SetText( sz );
+	StringCchPrintf( sz, 100, L"Size: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
+	g_SampleUI.GetStatic(IDC_TEXTRES_STATIC)->SetText(sz);
 }
 
 //--------------------------------------------------------------------------------------
@@ -427,6 +415,12 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
             g_SampleUI.GetStatic( IDC_TEXTRES_MAX_STATIC )->SetText( sz );
 			g_pScene->UpdateTextureResolution(g_iTextureMaximum);
+			g_iTextureWidth = g_pScene->GetTextureWidth();
+			g_iTextureHeight = g_pScene->GetTextureHeight();
+			g_iTextureDepth = g_pScene->GetTextureDepth();
+			StringCchPrintf( sz, 100, L"Size: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
+			g_SampleUI.GetStatic(IDC_TEXTRES_STATIC)->SetText(sz);
+			
 			g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
 			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
 			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);

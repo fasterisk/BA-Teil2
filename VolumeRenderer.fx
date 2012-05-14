@@ -85,14 +85,6 @@ SamplerState linearSamplerBorder
     BorderColor = float4(0,0,0,0);	// outside of border should be black
 };
 
-SamplerState linearSamplerClamp
-{
-    Filter = MIN_MAG_MIP_LINEAR;
-    AddressU = Clamp;
-    AddressV = Clamp;
-   // AddressW = Clamp;
-};
-
 //------------------------------------------------------------------------------------------------------
 // Structs
 //------------------------------------------------------------------------------------------------------
@@ -111,7 +103,6 @@ struct VsBBOutput
 struct VsSQInput
 {
 	float3 pos : POSITION;
-//	float2 texC : TEXCOORD;
 };
 
 struct VsSQOutput
@@ -173,10 +164,6 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 	float3 front = FrontTexture.Sample(linearSamplerBorder, texC).rgb;
 	float3 back = BackTexture.Sample(linearSamplerBorder, texC).rgb;
     
-	//output.color = float4(front, 1.0f);
-	//return output;
-
-
     float3 dir = normalize(back - front);
 	
 	
@@ -201,9 +188,6 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
 			break;
     }
-	//output.color = float4(dir, 1.0f);
-//	output.color.a = 1.0f;
-	//output.color = float4(0.0f, 1.0f, 0.0f, 1.0f);
     return output;
 }
 
