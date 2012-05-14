@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "resource.h"
 #include <string>
+#include <Commdlg.h>
 
 //--------------------------------------------------------------------------------------
 // Global variables
@@ -25,6 +26,8 @@ float						g_zNear = 0.1f;
 float						g_zFar = 100.0f;
 D3DXMATRIX					g_View;
 D3DXMATRIX					g_Proj;
+
+OPENFILENAME ofn ;
 
 ID3D11Texture2D*            g_pSceneDepthTex2D      = NULL;
 ID3D11Texture2D*            g_pSceneDepthTex2DNonMS = NULL;
@@ -154,7 +157,8 @@ void InitApp()
 	WCHAR sz[100];
 
     g_SampleUI.SetCallback( OnGUIEvent ); int iY = 10;
-	g_SampleUI.AddButton( IDC_CHANGE_CONTROL, L"Change contr. surface", 0, iY, 170, 30);
+	g_SampleUI.AddButton(IDC_LOAD_SURFACE, L"Load Surface...", 0, iY, 170, 30);
+	g_SampleUI.AddButton( IDC_CHANGE_CONTROL, L"Change contr. surface", 0, iY += 40, 170, 30);
 	g_SampleUI.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 40, 170, 22);
 	g_SampleUI.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 26, 170, 22);
 	g_SampleUI.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 26, 170, 22);
@@ -379,6 +383,26 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 {
     switch( nControlID )
     {
+		case IDC_LOAD_SURFACE:
+			WCHAR szFile[100] ;
+			 // open a file name
+			ZeroMemory( &ofn , sizeof( ofn));
+			ofn.lStructSize = sizeof ( ofn );
+			ofn.hwndOwner = NULL  ;
+			ofn.lpstrFile = szFile ;
+			ofn.lpstrFile[0] = '\0';
+			ofn.nMaxFile = sizeof( szFile );
+			ofn.lpstrFilter = L"All\0*.*\0Text\0*.TXT\0";
+			ofn.nFilterIndex =1;
+			ofn.lpstrFileTitle = NULL ;
+			ofn.nMaxFileTitle = 0 ;
+			ofn.lpstrInitialDir=NULL ;
+			ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
+			GetOpenFileName( &ofn );
+	
+			// Now simply display the file name 
+			MessageBox ( NULL , ofn.lpstrFile , L"File Name" , MB_OK);
+			break;
 		case IDC_CHANGE_CONTROL:
 			g_pScene->ChangeControlledSurface();
 			break;
