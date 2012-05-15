@@ -19,6 +19,8 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 	D3DXMatrixIdentity(&m_mTransInv);
 
 	m_translation = D3DXVECTOR3(0.0, 0.0, 0.0);
+
+	m_vColor = D3DXVECTOR3(0.0, 0.0, 0.0);
 }
 
 
@@ -77,6 +79,21 @@ void Surface::Scale(float fFactor)
 	D3DXMatrixScaling(&mScale, fFactor, fFactor, fFactor);
 
 	m_mModel *= mScale;
+}
+
+void Surface::SetColor(D3DXVECTOR3 vColor)
+{
+	m_vColor = vColor;
+}
+
+void Surface::SetColor(float fR, float fG, float fB)
+{
+	m_vColor = D3DXVECTOR3(fR, fG, fB);
+}
+
+D3DXVECTOR3 Surface::GetColor()
+{
+	return m_vColor;
 }
 
 HRESULT Surface::LoadMesh(LPWSTR lsFileName)
@@ -153,46 +170,47 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 
 void Surface::Render(ID3DX11EffectTechnique* pTechnique)
 {
-	UINT stride = sizeof(VERTEX);
-	UINT offset = 0;
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pTriangleVertexBuffer, &stride, &offset);
-	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//Set up vertex and index buffer
+    UINT Strides[1];
+    UINT Offsets[1];
+    ID3D11Buffer* pVB[1];
+    pVB[0] = m_pSurfaceMesh.GetVB11( 0, 0 );
+    Strides[0] = ( UINT )m_pSurfaceMesh.GetVertexStride( 0, 0 );
+    Offsets[0] = 0;
+    m_pd3dImmediateContext->IASetVertexBuffers( 0, 1, pVB, Strides, Offsets );
+    m_pd3dImmediateContext->IASetIndexBuffer( m_pSurfaceMesh.GetIB11( 0 ), m_pSurfaceMesh.GetIBFormat11( 0 ), 0 );
 
+	 //Render
+    SDKMESH_SUBSET* pSubset = NULL;
+    D3D11_PRIMITIVE_TOPOLOGY PrimType;
+
+	//Set input layout
+	m_pd3dImmediateContext->IASetInputLayout( m_pInputLayout );
+
+	//Get technique descriptor for passes
 	D3DX11_TECHNIQUE_DESC techDesc;
 	pTechnique->GetDesc(&techDesc);
 
+	//draw all passes of the technique
 	for( UINT p = 0; p < techDesc.Passes; ++p )
 	{
-		//apply technique
-		pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
+		//apply pass
+		m_pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 
-		//draw
-		//m_pd3dImmediateContext->Draw(m_iNumTriangleVertices, 0);
+		for( UINT subset = 0; subset < m_pSurfaceMesh.GetNumSubsets( 0 ); ++subset )
+		{
+		    // Get the subset
+		    pSubset = m_pSurfaceMesh.GetSubset( 0, subset );
+
+	        PrimType = CDXUTSDKMesh::GetPrimitiveType11( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
+	        m_pd3dImmediateContext->IASetPrimitiveTopology( PrimType );
+
+	        ID3D11ShaderResourceView* pDiffuseRV = m_pSurfaceMesh.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
+	        m_pd3dImmediateContext->PSSetShaderResources( 0, 1, &pDiffuseRV );
+	
+	        m_pd3dImmediateContext->DrawIndexed( ( UINT )pSubset->IndexCount, 0, ( UINT )pSubset->VertexStart );
+	    }
 	}
-}
-
-void Surface::RenderVoronoi(ID3DX11EffectTechnique* pTechnique)
-{
-	UINT stride = sizeof(VERTEX);
-	UINT offset = 0;
-
-	//apply triangle technique & draw
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pTriangleVertexBuffer, &stride, &offset);
-	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	pTechnique->GetPassByName("Triangle")->Apply( 0, m_pd3dImmediateContext);
-	//m_pd3dImmediateContext->Draw(m_iNumTriangleVertices, 0);
-	
-	//apply edge technique & draw
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pEdgeVertexBuffer, &stride, &offset);
-	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-	pTechnique->GetPassByName("Edge")->Apply( 0, m_pd3dImmediateContext);
-	//m_pd3dImmediateContext->Draw(m_iNumEdgeVertices, 0);
-	
-	//apply point technique & draw
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pTriangleVertexBuffer, &stride, &offset);
-	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-	pTechnique->GetPassByName("Point")->Apply( 0, m_pd3dImmediateContext);
-	//m_pd3dImmediateContext->Draw(m_iNumTriangleVertices, 0);
 }
 
 D3DXVECTOR3 Surface::GetBoundingBoxCenter()

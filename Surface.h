@@ -19,6 +19,9 @@ public:
 
 	void Scale(float fFactor);
 
+	void SetColor(D3DXVECTOR3 vColor);
+	void SetColor(float fR, float fG, float fB);
+
 	HRESULT LoadMesh(LPWSTR lsFileName);
 
 	HRESULT Initialize(LPWSTR lsFileName);
@@ -29,7 +32,7 @@ public:
 	//GETTER
 	D3DXVECTOR3 GetBoundingBoxCenter();
 	D3DXVECTOR3 GetBoundingBoxExtents();
-
+	D3DXVECTOR3 GetColor();
 
 protected:
 
@@ -55,6 +58,8 @@ protected:
 	D3DXMATRIX m_mTrans;
 	D3DXMATRIX m_mTransInv;
 	D3DXVECTOR3 m_translation;
+
+	D3DXVECTOR3 m_vColor;
 
 	CDXUTSDKMesh	m_pSurfaceMesh;
 

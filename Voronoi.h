@@ -42,8 +42,6 @@ private:
 	ID3DX11EffectTechnique		*m_pVoronoiDiagramTechnique;
 	ID3DX11EffectTechnique		*m_pFlatTo3DTexTechnique;
 
-	ID3D11InputLayout			*m_pInputLayout;
-
 	// Slices state
 	ID3D11InputLayout			*m_pSlicesLayout;
 	ID3D11Buffer                *m_pSlicesVB;
@@ -61,6 +59,7 @@ private:
 	ID3DX11EffectVectorVariable				*m_pTextureSizeVar;
 	ID3DX11EffectVectorVariable				*m_pBBMinVar;
 	ID3DX11EffectVectorVariable				*m_pBBMaxVar;
+	ID3DX11EffectVectorVariable				*m_pCurrentColorVar;
 
 	ID3DX11EffectShaderResourceVariable		*m_pFlatColorTex2DSRVar;
 	ID3DX11EffectShaderResourceVariable		*m_pFlatDistTex2DSRVar;

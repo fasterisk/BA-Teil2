@@ -7,7 +7,6 @@ Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateCon
 	m_pd3dImmediateContext = pd3dImmediateContext;
 	m_pVoronoiEffect = pVoronoiEffect;
 
-	m_pInputLayout = NULL;
 	m_pDestColorTex3D = NULL;
 	m_pDestDistTex3D = NULL;
 	m_pDepthStencil = NULL;
@@ -53,8 +52,6 @@ void Voronoi::Cleanup()
 
 	SAFE_RELEASE(m_pDepthStencil);
 	SAFE_RELEASE(m_pDepthStencilView);
-
-	SAFE_RELEASE(m_pInputLayout);
 
 	SAFE_RELEASE(m_pSlicesLayout);
 	SAFE_RELEASE(m_pSlicesVB);
@@ -217,7 +214,6 @@ HRESULT Voronoi::InitShaders()
 	HRESULT hr;
 
 	assert(m_pVoronoiEffect);
-	SAFE_RELEASE(m_pInputLayout);
 
 	// Get Technique and variables
 	m_pVoronoiDiagramTechnique	= m_pVoronoiEffect->GetTechniqueByName("GenerateVoronoiDiagram");
@@ -231,6 +227,7 @@ HRESULT Voronoi::InitShaders()
 	m_pBBMaxVar					= m_pVoronoiEffect->GetVariableByName("vBBMax")->AsVector();
 	m_pFlatColorTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatColorTexture")->AsShaderResource();
 	m_pFlatDistTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatDistTexture")->AsShaderResource();
+	m_pCurrentColorVar			= m_pVoronoiEffect->GetVariableByName("vCurrentColor")->AsVector();
 
 	assert(m_pVoronoiDiagramTechnique);
 	assert(m_pModelViewProjectionVar);
@@ -240,23 +237,7 @@ HRESULT Voronoi::InitShaders()
 	assert(m_pBBMaxVar);
 	assert(m_pFlatColorTex2DSRVar);
 	assert(m_pFlatDistTex2DSRVar);
-
-	//Create InputLayout
-	D3DX11_PASS_SHADER_DESC passVsDesc;
-	m_pVoronoiDiagramTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
-	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
-	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
-	const void *vsCodePtr = effectVsDesc.pBytecode;
-	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
-
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	};
-
-	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pInputLayout));
+	assert(m_pCurrentColorVar);
 
 	return S_OK;
 }
@@ -396,8 +377,6 @@ HRESULT Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 	destFlatTex2DRTVs[1] = m_pFlatDistTexRTV;
 	m_pd3dImmediateContext->OMSetRenderTargets(2, destFlatTex2DRTVs, m_pDepthStencilView);
 
-	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
-
 
 	//Render To Flat Texture
 	for(int iSliceIndex = 0; iSliceIndex < m_iTextureDepth; iSliceIndex++)
@@ -460,11 +439,13 @@ HRESULT Voronoi::RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2O
 	// Render to flat textures
 	m_pModelViewProjectionVar->SetMatrix(mModel1Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix1);
-	m_pSurface1->RenderVoronoi(m_pVoronoiDiagramTechnique);
+	m_pCurrentColorVar->SetFloatVector(m_pSurface1->GetColor());
+	m_pSurface1->Render(m_pVoronoiDiagramTechnique);
 
 	m_pModelViewProjectionVar->SetMatrix(mModel2Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix2);
-	m_pSurface2->RenderVoronoi(m_pVoronoiDiagramTechnique);
+	m_pCurrentColorVar->SetFloatVector(m_pSurface2->GetColor());
+	m_pSurface2->Render(m_pVoronoiDiagramTechnique);
 	
 	return S_OK;
 }
