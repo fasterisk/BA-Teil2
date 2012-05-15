@@ -205,41 +205,75 @@ HRESULT Scene::UpdateBoundingBox()
 	D3DXVECTOR3 vBBS2Center = m_pSurface2->GetBoundingBoxCenter();
 	D3DXVECTOR3 vBBS2Extents = m_pSurface2->GetBoundingBoxExtents();
 
-	D3DXVECTOR3 vBBS1Min = vBBS1Center - vBBS1Extents;
-	D3DXVECTOR3 vBBS2Min = vBBS2Center - vBBS2Extents;
-	D3DXVECTOR3 vBBS1Max = vBBS1Center + vBBS1Extents;
-	D3DXVECTOR3 vBBS2Max = vBBS2Center + vBBS2Extents;
+	D3DXVECTOR3 vBBS1Vertices[8];
+	vBBS1Vertices[0] = D3DXVECTOR3(vBBS1Center.x + vBBS1Extents.x, vBBS1Center.y + vBBS1Extents.y, vBBS1Center.z + vBBS1Extents.z);
+	vBBS1Vertices[1] = D3DXVECTOR3(vBBS1Center.x + vBBS1Extents.x, vBBS1Center.y + vBBS1Extents.y, vBBS1Center.z - vBBS1Extents.z);
+	vBBS1Vertices[2] = D3DXVECTOR3(vBBS1Center.x + vBBS1Extents.x, vBBS1Center.y - vBBS1Extents.y, vBBS1Center.z + vBBS1Extents.z);
+	vBBS1Vertices[3] = D3DXVECTOR3(vBBS1Center.x + vBBS1Extents.x, vBBS1Center.y - vBBS1Extents.y, vBBS1Center.z - vBBS1Extents.z);
+	vBBS1Vertices[4] = D3DXVECTOR3(vBBS1Center.x - vBBS1Extents.x, vBBS1Center.y + vBBS1Extents.y, vBBS1Center.z + vBBS1Extents.z);
+	vBBS1Vertices[5] = D3DXVECTOR3(vBBS1Center.x - vBBS1Extents.x, vBBS1Center.y + vBBS1Extents.y, vBBS1Center.z - vBBS1Extents.z);
+	vBBS1Vertices[6] = D3DXVECTOR3(vBBS1Center.x - vBBS1Extents.x, vBBS1Center.y - vBBS1Extents.y, vBBS1Center.z + vBBS1Extents.z);
+	vBBS1Vertices[7] = D3DXVECTOR3(vBBS1Center.x - vBBS1Extents.x, vBBS1Center.y - vBBS1Extents.y, vBBS1Center.z - vBBS1Extents.z);
 
-	D3DXVECTOR4 vMin1, vMin2, vMax1, vMax2;
+	D3DXVECTOR3 vBBS2Vertices[8];
+	vBBS2Vertices[0] = D3DXVECTOR3(vBBS2Center.x + vBBS2Extents.x, vBBS2Center.y + vBBS2Extents.y, vBBS2Center.z + vBBS2Extents.z);
+	vBBS2Vertices[1] = D3DXVECTOR3(vBBS2Center.x + vBBS2Extents.x, vBBS2Center.y + vBBS2Extents.y, vBBS2Center.z - vBBS2Extents.z);
+	vBBS2Vertices[2] = D3DXVECTOR3(vBBS2Center.x + vBBS2Extents.x, vBBS2Center.y - vBBS2Extents.y, vBBS2Center.z + vBBS2Extents.z);
+	vBBS2Vertices[3] = D3DXVECTOR3(vBBS2Center.x + vBBS2Extents.x, vBBS2Center.y - vBBS2Extents.y, vBBS2Center.z - vBBS2Extents.z);
+	vBBS2Vertices[4] = D3DXVECTOR3(vBBS2Center.x - vBBS2Extents.x, vBBS2Center.y + vBBS2Extents.y, vBBS2Center.z + vBBS2Extents.z);
+	vBBS2Vertices[5] = D3DXVECTOR3(vBBS2Center.x - vBBS2Extents.x, vBBS2Center.y + vBBS2Extents.y, vBBS2Center.z - vBBS2Extents.z);
+	vBBS2Vertices[6] = D3DXVECTOR3(vBBS2Center.x - vBBS2Extents.x, vBBS2Center.y - vBBS2Extents.y, vBBS2Center.z + vBBS2Extents.z);
+	vBBS2Vertices[7] = D3DXVECTOR3(vBBS2Center.x - vBBS2Extents.x, vBBS2Center.y - vBBS2Extents.y, vBBS2Center.z - vBBS2Extents.z);
+	
+	D3DXVECTOR4 vBBS1TransformedVertices[8];
+	D3DXVECTOR4 vBBS2TransformedVertices[8];
+	for(int i = 0; i < 8; i++)
+	{
+		D3DXVec3Transform(&vBBS1TransformedVertices[i], &vBBS1Vertices[i], &m_pSurface1->m_mModel);
+		D3DXVec3Transform(&vBBS2TransformedVertices[i], &vBBS2Vertices[i], &m_pSurface2->m_mModel);
+	}
 
-	D3DXVec3Transform(&vMin1, &vBBS1Min, &m_pSurface1->m_mModel);
-	D3DXVec3Transform(&vMin2, &vBBS2Min, &m_pSurface2->m_mModel);
-	D3DXVec3Transform(&vMax1, &vBBS1Max, &m_pSurface1->m_mModel);
-	D3DXVec3Transform(&vMax2, &vBBS2Max, &m_pSurface2->m_mModel);
+	D3DXVECTOR4 vMin, vMax;
+	vMin = vBBS1TransformedVertices[0];
+	vMax = vBBS1TransformedVertices[0];
 
-	D3DXVECTOR3 vBBMin, vBBMax;
-	vBBMin = D3DXVECTOR3(vMin1.x, vMin1.y, vMin1.z);
-	vBBMax = D3DXVECTOR3(vMax1.x, vMax1.y, vMax1.z);
+	for(int i = 0; i < 8; i++)
+	{
+		if(vBBS1TransformedVertices[i].x < vMin.x)
+			vMin.x = vBBS1TransformedVertices[i].x;
+		if(vBBS1TransformedVertices[i].y < vMin.y)
+			vMin.y = vBBS1TransformedVertices[i].y;
+		if(vBBS1TransformedVertices[i].z < vMin.z)
+			vMin.z = vBBS1TransformedVertices[i].z;
 
-	if(vMin2.x < vBBMin.x)
-		vBBMin.x = vMin2.x;
-	if(vMin2.y < vBBMin.y)
-		vBBMin.y = vMin2.y;
-	if(vMin2.z < vBBMin.z)
-		vBBMin.z = vMin2.z;
+		if(vBBS2TransformedVertices[i].x < vMin.x)
+			vMin.x = vBBS2TransformedVertices[i].x;
+		if(vBBS2TransformedVertices[i].y < vMin.y)
+			vMin.y = vBBS2TransformedVertices[i].y;
+		if(vBBS2TransformedVertices[i].z < vMin.z)
+			vMin.z = vBBS2TransformedVertices[i].z;
 
-	if(vMax2.x > vBBMax.x)
-		vBBMax.x = vMax2.x;
-	if(vMax2.y > vBBMax.y)
-		vBBMax.y = vMax2.y;
-	if(vMax2.z > vBBMax.z)
-		vBBMax.z = vMax2.z;
+		if(vBBS1TransformedVertices[i].x > vMax.x)
+			vMax.x = vBBS1TransformedVertices[i].x;
+		if(vBBS1TransformedVertices[i].y > vMax.y)
+			vMax.y = vBBS1TransformedVertices[i].y;
+		if(vBBS1TransformedVertices[i].z > vMax.z)
+			vMax.z = vBBS1TransformedVertices[i].z;
+
+		if(vBBS2TransformedVertices[i].x > vMax.x)
+			vMax.x = vBBS2TransformedVertices[i].x;
+		if(vBBS2TransformedVertices[i].y > vMax.y)
+			vMax.y = vBBS2TransformedVertices[i].y;
+		if(vBBS2TransformedVertices[i].z > vMax.z)
+			vMax.z = vBBS2TransformedVertices[i].z;
+	}
+	
 
 	//if(initialized && vNewMin == m_vMin && vNewMax == m_vMax)
 		//return S_OK;
 		
-	m_vMin = vBBMin;
-	m_vMax = vBBMax;
+	m_vMin = D3DXVECTOR3(vMin.x, vMin.y, vMin.z);
+	m_vMax = D3DXVECTOR3(vMax.x, vMax.y, vMax.z);
 	
 
 	m_pBBVertices[0].pos.x = m_vMin.x;
