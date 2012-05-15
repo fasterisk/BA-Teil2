@@ -143,7 +143,7 @@ technique10 RenderColor
         SetRasterizerState(CullNone);
     }
 
-	pass
+	/*pass
 	{
 		SetVertexShader(CompileShader(vs_4_0, VS_WIREFRAME()));
 		SetGeometryShader(NULL);
@@ -151,5 +151,5 @@ technique10 RenderColor
 
 		SetDepthStencilState( EnableDepth, 0);
 		SetRasterizerState(Wireframe);
-	}
+	}*/
 }

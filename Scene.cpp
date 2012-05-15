@@ -213,8 +213,8 @@ HRESULT Scene::UpdateBoundingBox()
 	}
 	
 
-	//if(initialized && vNewMin == m_vMin && vNewMax == m_vMax)
-		//return S_OK;
+	if(initialized && vMin == m_vMin && vMax == m_vMax)
+		return S_OK;
 		
 	m_vMin = D3DXVECTOR3(vMin.x, vMin.y, vMin.z);
 	m_vMax = D3DXVECTOR3(vMax.x, vMax.y, vMax.z);
@@ -296,7 +296,6 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 {
 	UpdateBoundingBox();
 
-	m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, NULL);
 	if(m_bGenerateVoronoi)
 	{
 		m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
@@ -316,9 +315,9 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		if(m_bDrawAllSlices == false)
 		{
 			if(m_bRenderIsoSurface)
-				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pIsoSurfaceSRV);
+				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);//m_pIsoSurfaceSRV);
 			else
-				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pCurrentDiffusionSRV);
+				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);//m_pCurrentDiffusionSRV);
 			
 			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pOneSliceDiffusionSRV);
 		}
@@ -326,11 +325,11 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		{
 			if(m_bRenderIsoSurface)
 			{
-				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pIsoSurfaceSRV);
+				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);//m_pIsoSurfaceSRV);
 			}
 			else
 			{
-				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
+				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);//m_pCurrentDiffusionSRV);
 			}
 		}
 	}
@@ -339,8 +338,6 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 	{
 		m_pSurface1->Render(mViewProjection);
 		m_pSurface2->Render(mViewProjection);
-		//m_pSurface1->RenderNormals(mViewProjection);
-		//m_pSurface2->RenderNormals(mViewProjection);
 	}
 }	
 

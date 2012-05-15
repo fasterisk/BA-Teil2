@@ -28,6 +28,8 @@ Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateCon
 	m_pFlatDistTexRTV = NULL;
 	m_pFlatDistTexSRV = NULL;
 
+	m_pVoronoiInputLayout = NULL;
+
 	m_pSlicesLayout = NULL;
 	m_pSlicesVB = NULL;
 }
@@ -52,6 +54,8 @@ void Voronoi::Cleanup()
 
 	SAFE_RELEASE(m_pDepthStencil);
 	SAFE_RELEASE(m_pDepthStencilView);
+
+	SAFE_RELEASE(m_pVoronoiInputLayout);
 
 	SAFE_RELEASE(m_pSlicesLayout);
 	SAFE_RELEASE(m_pSlicesVB);
@@ -228,6 +232,25 @@ HRESULT Voronoi::InitShaders()
 	m_pFlatColorTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatColorTexture")->AsShaderResource();
 	m_pFlatDistTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatDistTexture")->AsShaderResource();
 	m_pCurrentColorVar			= m_pVoronoiEffect->GetVariableByName("vCurrentColor")->AsVector();
+
+	SAFE_RELEASE(m_pVoronoiInputLayout);
+
+	D3DX11_PASS_SHADER_DESC passVsDesc;
+	m_pVoronoiDiagramTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
+	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
+	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
+	const void *vsCodePtr = effectVsDesc.pBytecode;
+	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
+
+    // Create our vertex input layout
+    const D3D11_INPUT_ELEMENT_DESC layout[] =
+    {
+        { "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    };
+
+   V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pVoronoiInputLayout));
 
 	assert(m_pVoronoiDiagramTechnique);
 	assert(m_pModelViewProjectionVar);
@@ -408,7 +431,7 @@ HRESULT Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 
 	V_RETURN(m_pFlatColorTex2DSRVar->SetResource(NULL));
 	V_RETURN(m_pFlatDistTex2DSRVar->SetResource(NULL));
-
+	V_RETURN(m_pFlatTo3DTexTechnique->GetPassByIndex(0)->Apply(0, m_pd3dImmediateContext));
 	
 	//restore old render targets
 	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
@@ -435,6 +458,8 @@ HRESULT Voronoi::RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2O
 	m_pd3dImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 	
 	V_RETURN(m_pSliceIndexVar->SetInt(iSliceIndex));
+
+	m_pd3dImmediateContext->IASetInputLayout(m_pVoronoiInputLayout);
 
 	// Render to flat textures
 	m_pModelViewProjectionVar->SetMatrix(mModel1Orth);

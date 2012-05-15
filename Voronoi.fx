@@ -795,7 +795,7 @@ void ResolveGS(triangle GS_RESOLVE_INPUT input[3], inout TriangleStream<GS_RESOL
 PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
-	output.color = float4(vCurrentColor, 1.0f);
+	output.color = float4(1.0f, 0,0,1.0f);//float4(vCurrentColor, 1.0f);
 
 	float3 tex = normalize(vTextureSize);
 
@@ -826,7 +826,7 @@ PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
-	output.color = float4(vCurrentColor, 1.0f);
+	output.color = float4(1.0f, 0,0,1.0f);//float4(vCurrentColor, 1.0f);
 
 	float3 tex = normalize(vTextureSize);
 
@@ -855,7 +855,7 @@ PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 PS_VORONOI_OUTPUT VoronoiVertexPS(GS_VERTEX_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
-	output.color = float4(vCurrentColor, 1.0f);
+	output.color = float4(1.0f, 0,0,1.0f);//float4(vCurrentColor, 1.0f);
 	output.distdir = float4(0.0f, 1.0f, 0.0f, 1.0f);
 
 	float3 tex = normalize(vTextureSize);
@@ -878,6 +878,7 @@ PS_RESOLVE_OUTPUT ResolvePS(GS_RESOLVE_OUTPUT input)
 {
 	PS_RESOLVE_OUTPUT output;
 	output.color = flatColorTexture.SampleLevel(linearSamplerBorder, input.tex.xy, 0);
+	output.color = float4(1.0, 0.0, 0,1);
 	output.dist = flatDistTexture.SampleLevel(linearSamplerBorder, input.tex.xy, 0);
 	return output;
 }
@@ -885,6 +886,8 @@ PS_RESOLVE_OUTPUT ResolvePS(GS_RESOLVE_OUTPUT input)
 //--------------------------------------------------------------------------------------
 // Techniques
 //--------------------------------------------------------------------------------------
+
+
 
 technique10 GenerateVoronoiDiagram
 {
@@ -897,7 +900,7 @@ technique10 GenerateVoronoiDiagram
         SetBlendState( BS_NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetDepthStencilState( EnableDepth, 0 );
 	}
-	pass Edge
+	/*pass Edge
 	{
 		SetVertexShader(CompileShader(vs_4_0, VoronoiEdgeVS()));
 		SetGeometryShader(CompileShader(gs_4_0, VoronoiEdgeGS()));
@@ -914,7 +917,7 @@ technique10 GenerateVoronoiDiagram
 		SetRasterizerState( RS_CullDisabled );
         SetBlendState( BS_NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetDepthStencilState( EnableDepth, 0 );
-	}
+	}*/
 }
 
 technique10 Flat2DTextureTo3D

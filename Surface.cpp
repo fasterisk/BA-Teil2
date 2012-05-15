@@ -163,9 +163,6 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 	        m_pd3dImmediateContext->DrawIndexed( ( UINT )pSubset->IndexCount, 0, ( UINT )pSubset->VertexStart );
 	    }
 	}
-
-   
-	
 }
 
 void Surface::Render(ID3DX11EffectTechnique* pTechnique)
@@ -185,7 +182,7 @@ void Surface::Render(ID3DX11EffectTechnique* pTechnique)
     D3D11_PRIMITIVE_TOPOLOGY PrimType;
 
 	//Set input layout
-	m_pd3dImmediateContext->IASetInputLayout( m_pInputLayout );
+	//m_pd3dImmediateContext->IASetInputLayout( m_pInputLayout );
 
 	//Get technique descriptor for passes
 	D3DX11_TECHNIQUE_DESC techDesc;
@@ -195,7 +192,7 @@ void Surface::Render(ID3DX11EffectTechnique* pTechnique)
 	for( UINT p = 0; p < techDesc.Passes; ++p )
 	{
 		//apply pass
-		m_pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
+		pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 
 		for( UINT subset = 0; subset < m_pSurfaceMesh.GetNumSubsets( 0 ); ++subset )
 		{
@@ -205,8 +202,8 @@ void Surface::Render(ID3DX11EffectTechnique* pTechnique)
 	        PrimType = CDXUTSDKMesh::GetPrimitiveType11( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
 	        m_pd3dImmediateContext->IASetPrimitiveTopology( PrimType );
 
-	        ID3D11ShaderResourceView* pDiffuseRV = m_pSurfaceMesh.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
-	        m_pd3dImmediateContext->PSSetShaderResources( 0, 1, &pDiffuseRV );
+	        //ID3D11ShaderResourceView* pDiffuseRV = m_pSurfaceMesh.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
+	        //m_pd3dImmediateContext->PSSetShaderResources( 0, 1, &pDiffuseRV );
 	
 	        m_pd3dImmediateContext->DrawIndexed( ( UINT )pSubset->IndexCount, 0, ( UINT )pSubset->VertexStart );
 	    }
