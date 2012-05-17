@@ -56,7 +56,7 @@ struct VsInput
 {
     float3 Pos      : POSITION;
 	float3 Normal	: NORMAL;
-    float2 TexCoord : TEXCOORD0;
+    float2 TexCoord : TEXCOORD;
 };
 
 
@@ -64,7 +64,7 @@ struct VsOutput
 {
 	float4 Pos		: SV_POSITION;
 	float3 Normal	: NORMAL;
-	float2 TexCoord	: TEXCOORD0;
+	float2 TexCoord	: TEXCOORD;
 };
 
 struct VsWOutput

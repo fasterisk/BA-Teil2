@@ -126,13 +126,13 @@ HRESULT Scene::InitSurfaces()
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
 	V_RETURN(m_pSurface1->Initialize(L"Media\\meshes\\blackholeroom.sdkmesh"));
-	m_pSurface1->SetColor(0.0, 0.0, 0.0);
+	m_pSurface1->SetColor(1.0, 0.0, 0.0);
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
 	V_RETURN(m_pSurface2->Initialize(L"Media\\meshes\\blackhole.sdkmesh"));
 	m_pSurface2->Scale(0.5);
-	m_pSurface2->SetColor(1.0, 1.0, 1.0);
+	m_pSurface2->SetColor(0.0, 1.0, 0.0);
 
 	m_pControlledSurface = m_pSurface1;
 
@@ -213,7 +213,13 @@ HRESULT Scene::UpdateBoundingBox()
 	}
 	
 
-	if(initialized && vMin == m_vMin && vMax == m_vMax)
+	if(initialized
+		&& vMin.x == m_vMin.x
+		&& vMin.y == m_vMin.y
+		&& vMin.z == m_vMin.z
+		&& vMax.x == m_vMax.x
+		&& vMax.y == m_vMax.y
+		&& vMax.z == m_vMax.z)
 		return S_OK;
 		
 	m_vMin = D3DXVECTOR3(vMin.x, vMin.y, vMin.z);
@@ -311,13 +317,15 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		{
 			m_pIsoSurfaceSRV = m_pDiffusion->RenderIsoSurface(m_pCurrentDiffusionSRV);
 		}
-
+		
 		if(m_bDrawAllSlices == false)
 		{
+			
 			if(m_bRenderIsoSurface)
-				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);//m_pIsoSurfaceSRV);
+				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pIsoSurfaceSRV);
 			else
-				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);//m_pCurrentDiffusionSRV);
+				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pCurrentDiffusionSRV);
+				
 			
 			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pOneSliceDiffusionSRV);
 		}
@@ -325,20 +333,23 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		{
 			if(m_bRenderIsoSurface)
 			{
-				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);//m_pIsoSurfaceSRV);
+				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pIsoSurfaceSRV);
 			}
 			else
 			{
-				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);//m_pCurrentDiffusionSRV);
+				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
 			}
+
 		}
 	}
+	
 	
 	if(bShowSurfaces)
 	{
 		m_pSurface1->Render(mViewProjection);
 		m_pSurface2->Render(mViewProjection);
 	}
+	
 }	
 
 
@@ -370,6 +381,11 @@ HRESULT Scene::Init3DTextures()
 	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pColor3DTex1));
 	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pColor3DTex2));
 	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pDist3DTex));
+
+	DXUT_SetDebugName( m_pVoronoi3DTex, "Voronoi Texture" );
+	DXUT_SetDebugName( m_pColor3DTex1, "Diffusion Texture 1" );
+	DXUT_SetDebugName( m_pColor3DTex2, "Diffusion Texture 2" );
+	DXUT_SetDebugName( m_pDist3DTex, "Dist Texture" );
 
 	//create the shader resource views
 	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;

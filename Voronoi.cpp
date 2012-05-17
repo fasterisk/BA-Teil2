@@ -139,6 +139,9 @@ HRESULT Voronoi::InitFlatTextures()
 	V_RETURN(m_pd3dDevice->CreateTexture2D(&cdTexDesc, NULL, &m_pFlatColorTex));
 	V_RETURN(m_pd3dDevice->CreateTexture2D(&cdTexDesc, NULL, &m_pFlatDistTex));
 
+	DXUT_SetDebugName( m_pFlatColorTex, "Voronoi Flat Texture" );
+	DXUT_SetDebugName( m_pFlatDistTex, "Dist Flat Texture" );
+
 	//create RTVs for color and dist texture
 	D3D11_RENDER_TARGET_VIEW_DESC cdRTVDesc;
 	cdRTVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
