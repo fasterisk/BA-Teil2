@@ -65,6 +65,7 @@ private:
 
 	ID3DX11EffectShaderResourceVariable		*m_pFlatColorTex2DSRVar;
 	ID3DX11EffectShaderResourceVariable		*m_pFlatDistTex2DSRVar;
+	ID3DX11EffectShaderResourceVariable		*m_pSurfaceTextureVar;
 
 	//Textures, RTVs and DSV
 	ID3D11Texture3D				*m_pDestColorTex3D;

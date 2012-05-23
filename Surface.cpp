@@ -167,7 +167,7 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 	}
 }
 
-void Surface::RenderVoronoi(ID3DX11EffectTechnique* pVoronoiTechnique)
+void Surface::RenderVoronoi(ID3DX11EffectTechnique* pVoronoiTechnique, ID3DX11EffectShaderResourceVariable *pSurfaceTextureVar)
 {
 	//Set up vertex and index buffer
     UINT Strides[1];
@@ -190,8 +190,7 @@ void Surface::RenderVoronoi(ID3DX11EffectTechnique* pVoronoiTechnique)
 
 	//draw all passes of the technique
 	
-	//apply triangle pass
-	pVoronoiTechnique->GetPassByName("Triangle")->Apply( 0, m_pd3dImmediateContext);
+	//TRIANGLE
 
 	for( UINT subset = 0; subset < m_pSurfaceMesh.GetNumSubsets( 0 ); ++subset )
 	{
@@ -201,17 +200,16 @@ void Surface::RenderVoronoi(ID3DX11EffectTechnique* pVoronoiTechnique)
 		PrimType = CDXUTSDKMesh::GetPrimitiveType11( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
 	    m_pd3dImmediateContext->IASetPrimitiveTopology( PrimType );
 
-	    /*ID3D11ShaderResourceView* pDiffuseRV = m_pSurfaceMesh.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
-		m_pSurfaceTextureVar->SetResource(pDiffuseRV);
+	    ID3D11ShaderResourceView* pDiffuseRV = m_pSurfaceMesh.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
+		pSurfaceTextureVar->SetResource(pDiffuseRV);
 
-		//apply pass
-		m_pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);*/
+		//apply triangle pass
+		pVoronoiTechnique->GetPassByName("Triangle")->Apply( 0, m_pd3dImmediateContext);
 	
 	    m_pd3dImmediateContext->DrawIndexed( ( UINT )pSubset->IndexCount, 0, ( UINT )pSubset->VertexStart );
 	}
 
-	//apply edge pass
-	pVoronoiTechnique->GetPassByName("Edge")->Apply( 0, m_pd3dImmediateContext);
+	//EDGE
 
 	for( UINT subset = 0; subset < m_pSurfaceMesh.GetNumSubsets( 0 ); ++subset )
 	{
@@ -221,17 +219,17 @@ void Surface::RenderVoronoi(ID3DX11EffectTechnique* pVoronoiTechnique)
 		PrimType = CDXUTSDKMesh::GetPrimitiveType11( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
 	    m_pd3dImmediateContext->IASetPrimitiveTopology( PrimType );
 
-	    /*ID3D11ShaderResourceView* pDiffuseRV = m_pSurfaceMesh.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
-		m_pSurfaceTextureVar->SetResource(pDiffuseRV);
+	    ID3D11ShaderResourceView* pDiffuseRV = m_pSurfaceMesh.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
+		pSurfaceTextureVar->SetResource(pDiffuseRV);
 
-		//apply pass
-		m_pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);*/
+		//apply edge pass
+		pVoronoiTechnique->GetPassByName("Edge")->Apply( 0, m_pd3dImmediateContext);
 	
 		m_pd3dImmediateContext->DrawIndexed( ( UINT )pSubset->IndexCount, 0, ( UINT )pSubset->VertexStart );
 	}
 
-	//apply point pass
-	pVoronoiTechnique->GetPassByName("Point")->Apply( 0, m_pd3dImmediateContext);
+	
+	//POINT
 
 	for( UINT subset = 0; subset < m_pSurfaceMesh.GetNumSubsets( 0 ); ++subset )
 	{
@@ -241,11 +239,11 @@ void Surface::RenderVoronoi(ID3DX11EffectTechnique* pVoronoiTechnique)
 		PrimType = CDXUTSDKMesh::GetPrimitiveType11( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
 	    m_pd3dImmediateContext->IASetPrimitiveTopology( PrimType );
 
-	    /*ID3D11ShaderResourceView* pDiffuseRV = m_pSurfaceMesh.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
-		m_pSurfaceTextureVar->SetResource(pDiffuseRV);
+	    ID3D11ShaderResourceView* pDiffuseRV = m_pSurfaceMesh.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
+		pSurfaceTextureVar->SetResource(pDiffuseRV);
 
-		//apply pass
-		m_pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);*/
+		//apply point pass
+		pVoronoiTechnique->GetPassByName("Point")->Apply( 0, m_pd3dImmediateContext);
 	
 		m_pd3dImmediateContext->Draw( ( UINT )pSubset->VertexCount, ( UINT )pSubset->VertexStart );
 	}

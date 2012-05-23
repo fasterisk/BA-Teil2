@@ -235,6 +235,7 @@ HRESULT Voronoi::InitShaders()
 	m_pFlatColorTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatColorTexture")->AsShaderResource();
 	m_pFlatDistTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatDistTexture")->AsShaderResource();
 	m_pCurrentColorVar			= m_pVoronoiEffect->GetVariableByName("vCurrentColor")->AsVector();
+	m_pSurfaceTextureVar		= m_pVoronoiEffect->GetVariableByName("SurfaceTexture")->AsShaderResource();
 
 	SAFE_RELEASE(m_pVoronoiInputLayout);
 
@@ -468,12 +469,12 @@ HRESULT Voronoi::RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2O
 	m_pModelViewProjectionVar->SetMatrix(mModel1Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix1);
 	m_pCurrentColorVar->SetFloatVector(m_pSurface1->GetColor());
-	m_pSurface1->RenderVoronoi(m_pVoronoiDiagramTechnique);
+	m_pSurface1->RenderVoronoi(m_pVoronoiDiagramTechnique, m_pSurfaceTextureVar);
 
 	m_pModelViewProjectionVar->SetMatrix(mModel2Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix2);
 	m_pCurrentColorVar->SetFloatVector(m_pSurface2->GetColor());
-	m_pSurface2->RenderVoronoi(m_pVoronoiDiagramTechnique);
+	m_pSurface2->RenderVoronoi(m_pVoronoiDiagramTechnique, m_pSurfaceTextureVar);
 	
 	return S_OK;
 }

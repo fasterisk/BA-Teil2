@@ -839,7 +839,7 @@ void ResolveGS(triangle GS_RESOLVE_INPUT input[3], inout TriangleStream<GS_RESOL
 PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
-	output.color = float4(vCurrentColor, 1.0f);
+	output.color = SurfaceTexture.Sample(linearSamplerBorder, input.tex);
 
 	float3 tex = normalize(vTextureSize);
 
@@ -870,7 +870,7 @@ PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
-	output.color = float4(vCurrentColor, 1.0f);
+	output.color = SurfaceTexture.Sample(linearSamplerBorder, input.tex);
 
 	float3 tex = normalize(vTextureSize);
 
@@ -899,7 +899,7 @@ PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 PS_VORONOI_OUTPUT VoronoiVertexPS(GS_VERTEX_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
-	output.color = float4(vCurrentColor, 1.0f);
+	output.color = SurfaceTexture.Sample(linearSamplerBorder, input.tex);
 
 	float3 tex = normalize(vTextureSize);
 

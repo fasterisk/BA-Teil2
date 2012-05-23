@@ -26,7 +26,7 @@ public:
 
 	HRESULT Initialize(LPWSTR lsFileName);
 	void Render(D3DXMATRIX mViewProjection);
-	void RenderVoronoi(ID3DX11EffectTechnique* pTechnique);
+	void RenderVoronoi(ID3DX11EffectTechnique* pTechnique, ID3DX11EffectShaderResourceVariable *pSurfaceTextureVar);
 
 	//GETTER
 	D3DXVECTOR3 GetBoundingBoxCenter();
