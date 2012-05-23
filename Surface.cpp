@@ -100,6 +100,7 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 {
 	HRESULT hr(S_OK);
 	V_RETURN(m_pSurfaceMesh.Create(m_pd3dDevice, lsFileName, true));
+	D3DXMatrixIdentity(&m_mModel);
 	return hr;
 }
 
@@ -110,7 +111,7 @@ HRESULT Surface::Initialize(LPWSTR lsFileName)
 
 	V_RETURN(InitializeShader());
 
-	V_RETURN(InitializeMesh(lsFileName));
+	V_RETURN(LoadMesh(lsFileName));
 
 	return hr;
 }
@@ -289,15 +290,5 @@ HRESULT Surface::InitializeShader()
    V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pInputLayout));
 
    return hr;
-}
-
-HRESULT Surface::InitializeMesh(LPWSTR lsFileName)
-{
-	HRESULT hr(S_OK);
-
-	// Load the mesh
-    V_RETURN( m_pSurfaceMesh.Create( m_pd3dDevice, lsFileName, true ) );
-
-	return hr;
 }
 

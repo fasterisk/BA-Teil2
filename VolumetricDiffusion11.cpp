@@ -407,11 +407,18 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			hr = g_pScene->ChangeCurrentSurfaceMesh(ofn.lpstrFile);
 			if(hr == S_OK)
 			{
-				MessageBox ( NULL , L"OK", L"File Name" , MB_OK);
+				g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
+				g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
+				g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
+				g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+				g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
+				g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
+				g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
+				g_pScene->Render3DTexture(false);
 			}
 			else
 			{
-				MessageBox ( NULL , L"FAILED", L"File Name" , MB_OK);
+				MessageBox ( NULL , L"Mesh could not be loaded", ofn.lpstrFile , MB_OK);
 			}
 			break;
 		case IDC_CHANGE_CONTROL:

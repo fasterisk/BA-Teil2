@@ -36,7 +36,6 @@ public:
 protected:
 
 	HRESULT InitializeShader();
-	HRESULT InitializeMesh(LPWSTR lsFileName);
 
 	ID3D11Device*					m_pd3dDevice;
 	ID3D11DeviceContext*			m_pd3dImmediateContext;
