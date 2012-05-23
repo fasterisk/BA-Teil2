@@ -32,6 +32,8 @@ Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateCon
 
 	m_pSlicesLayout = NULL;
 	m_pSlicesVB = NULL;
+
+	m_bRenderIsoSurface = false;
 }
 
 Voronoi::~Voronoi()
@@ -236,6 +238,7 @@ HRESULT Voronoi::InitShaders()
 	m_pFlatDistTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatDistTexture")->AsShaderResource();
 	m_pCurrentColorVar			= m_pVoronoiEffect->GetVariableByName("vCurrentColor")->AsVector();
 	m_pSurfaceTextureVar		= m_pVoronoiEffect->GetVariableByName("SurfaceTexture")->AsShaderResource();
+	m_pRenderIsoSurfaceVar		= m_pVoronoiEffect->GetVariableByName("bRenderIsoSurface")->AsScalar();
 
 	SAFE_RELEASE(m_pVoronoiInputLayout);
 
@@ -447,7 +450,7 @@ HRESULT Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 HRESULT Voronoi::RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2Orth, D3DXMATRIX mNormalMatrix1, D3DXMATRIX mNormalMatrix2, int iSliceIndex)
 {
 	HRESULT hr;
-	
+
 	// compute x and y coordinates for the TOP-LEFT corner of the slice in the flat 3D texture
 	int x = (iSliceIndex % m_cols) * m_iTextureWidth;
 	int y = (iSliceIndex / m_cols) * m_iTextureHeight;

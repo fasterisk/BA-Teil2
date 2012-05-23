@@ -35,6 +35,8 @@ private:
 	Surface						*m_pSurface1;
 	Surface						*m_pSurface2;
 
+	bool						m_bRenderIsoSurface;
+
 	ID3D11Device				*m_pd3dDevice;
 	ID3D11DeviceContext			*m_pd3dImmediateContext;
 
@@ -57,6 +59,7 @@ private:
 	ID3DX11EffectMatrixVariable				*m_pNormalMatrixVar;
 
 	ID3DX11EffectScalarVariable				*m_pSliceIndexVar;
+	ID3DX11EffectScalarVariable				*m_pRenderIsoSurfaceVar;
 
 	ID3DX11EffectVectorVariable				*m_pTextureSizeVar;
 	ID3DX11EffectVectorVariable				*m_pBBMinVar;
