@@ -274,6 +274,8 @@ void TriangleCalcDistanceAndAppendNormalParallel(GS_VORONOI_INPUT interVec1, GS_
 	tStream.RestartStrip();
 }
 
+
+
 void EdgeProjectOntoSlice(GS_EDGE_VORONOI_OUTPUT output, GS_EDGE_VORONOI_INPUT vec1, GS_EDGE_VORONOI_INPUT vec2, inout TriangleStream<GS_EDGE_VORONOI_OUTPUT> tStream, float fSliceDepth, bool bSliceDepthGreater)
 {
 	
@@ -413,6 +415,76 @@ void EdgeProjectOntoSlice(GS_EDGE_VORONOI_OUTPUT output, GS_EDGE_VORONOI_INPUT v
 	tStream.Append(output);
 	tStream.RestartStrip();
 
+}
+
+void CalculateEdgeProjection(GS_EDGE_VORONOI_INPUT vec1, GS_EDGE_VORONOI_INPUT vec2, float fSliceDepth, inout TriangleStream<GS_EDGE_VORONOI_OUTPUT> tStream)
+{
+	GS_EDGE_VORONOI_OUTPUT output;
+	output.vec1 = vec1.pos;
+	output.vec2 = vec2.pos;
+
+	if(vec1.pos.z <= fSliceDepth && vec2.pos.z <= fSliceDepth)
+	{
+		if(vec1.normal.z == 0)
+			return;
+
+		EdgeProjectOntoSlice(output, vec1, vec2, tStream, fSliceDepth, true);
+	}
+	else if(vec1.pos.z >= fSliceDepth && vec2.pos.z >= fSliceDepth)
+	{
+		if(vec1.normal.z == 0)
+			return;
+
+		EdgeProjectOntoSlice(output, vec1, vec2, tStream, fSliceDepth, false);
+	}
+	else// case when slice divides edge in 2 parts
+	{
+		GS_EDGE_VORONOI_INPUT interVec;
+		interVec.pos = interpolate(vec1.pos, vec2.pos, fSliceDepth);
+		interVec.tex = vec1.tex;//TODO
+		
+		float zDist = vec2.pos.z - vec1.pos.z;
+		float zWeight = (fSliceDepth - vec1.pos.z)/zDist;
+		interVec.pos2 = lerp(vec1.pos2, vec2.pos2, float3(zWeight, zWeight, zWeight));
+		
+		if(vec1.pos.z < fSliceDepth)
+		{
+			EdgeProjectOntoSlice(output, vec1, interVec, tStream, fSliceDepth, true);
+			EdgeProjectOntoSlice(output, vec2, interVec, tStream, fSliceDepth, false);	
+		}
+		else
+		{
+			EdgeProjectOntoSlice(output, vec1, interVec, tStream, fSliceDepth, false);
+			EdgeProjectOntoSlice(output, vec2, interVec, tStream, fSliceDepth, true);
+		}
+	}
+}
+
+void CalculatePointProjection(GS_VORONOI_INPUT vec, float fSliceDepth, inout TriangleStream<GS_VERTEX_VORONOI_OUTPUT> tStream)
+{
+	GS_VERTEX_VORONOI_OUTPUT output;
+	output.tex = vec.tex;//TODO
+	output.vertex = vec.pos;
+	output.pos = float4(-1.0f, -1.0f, fSliceDepth, 1.0f);
+	output.pos2 = output.pos;
+	tStream.Append(output);
+	output.pos = float4(-1.0f, 1.0f, fSliceDepth, 1.0f);
+	output.pos2 = output.pos;
+	tStream.Append(output);
+	output.pos = float4(1.0f, 1.0f, fSliceDepth, 1.0f);
+	output.pos2 = output.pos;
+	tStream.Append(output);
+	tStream.RestartStrip();
+	output.pos = float4(-1.0f, -1.0f, fSliceDepth, 1.0f);
+	output.pos2 = output.pos;
+	tStream.Append(output);
+	output.pos = float4(1.0f, 1.0f, fSliceDepth, 1.0f);
+	output.pos2 = output.pos;
+	tStream.Append(output);
+	output.pos = float4(1.0f, -1.0f, fSliceDepth, 1.0f);
+	output.pos2 = output.pos;
+	tStream.Append(output);
+	tStream.RestartStrip();
 }
 
 
@@ -682,86 +754,34 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 }
 
 [maxvertexcount(18)]
-void VoronoiEdgeGS(line GS_EDGE_VORONOI_INPUT input[2], inout TriangleStream<GS_EDGE_VORONOI_OUTPUT> tStream)
+void VoronoiEdgeGS(triangle GS_EDGE_VORONOI_INPUT input[3], inout TriangleStream<GS_EDGE_VORONOI_OUTPUT> tStream)
 {
 	//Calculate depth of the current slice
 	float sliceDepth = iSliceIndex/vTextureSize.z;
 
+	
+	
 	GS_EDGE_VORONOI_INPUT vec1 = input[0];
 	GS_EDGE_VORONOI_INPUT vec2 = input[1];
+	GS_EDGE_VORONOI_INPUT vec3 = input[2];
 	vec1.pos /= vec1.pos.w;
 	vec2.pos /= vec2.pos.w;
+	vec3.pos /= vec3.pos.w;
 
-	GS_EDGE_VORONOI_OUTPUT output;
-	output.vec1 = vec1.pos;
-	output.vec2 = vec2.pos;
-
-	if(vec1.pos.z <= sliceDepth && vec2.pos.z <= sliceDepth)
-	{
-		if(vec1.normal.z == 0)
-			return;
-
-		EdgeProjectOntoSlice(output, vec1, vec2, tStream, sliceDepth, true);
-	}
-	else if(vec1.pos.z >= sliceDepth && vec2.pos.z >= sliceDepth)
-	{
-		if(vec1.normal.z == 0)
-			return;
-
-		EdgeProjectOntoSlice(output, vec1, vec2, tStream, sliceDepth, false);
-	}
-	else// case when slice divides edge in 2 parts
-	{
-		GS_EDGE_VORONOI_INPUT interVec;
-		interVec.pos = interpolate(vec1.pos, vec2.pos, sliceDepth);
-		interVec.tex = vec1.tex;//TODO
-		
-		float zDist = vec2.pos.z - vec1.pos.z;
-		float zWeight = (sliceDepth - vec1.pos.z)/zDist;
-		interVec.pos2 = lerp(vec1.pos2, vec2.pos2, float3(zWeight, zWeight, zWeight));
-		
-		if(vec1.pos.z < sliceDepth)
-		{
-			EdgeProjectOntoSlice(output, vec1, interVec, tStream, sliceDepth, true);
-			EdgeProjectOntoSlice(output, vec2, interVec, tStream, sliceDepth, false);	
-		}
-		else
-		{
-			EdgeProjectOntoSlice(output, vec1, interVec, tStream, sliceDepth, false);
-			EdgeProjectOntoSlice(output, vec2, interVec, tStream, sliceDepth, true);
-		}
-	}
+	CalculateEdgeProjection(vec1, vec2, sliceDepth, tStream);
+	CalculateEdgeProjection(vec2, vec3, sliceDepth, tStream);
+	CalculateEdgeProjection(vec3, vec1, sliceDepth, tStream);
 }
 
 [maxvertexcount(6)]
-void VoronoiVertexGS( point GS_VORONOI_INPUT input[1], inout TriangleStream<GS_VERTEX_VORONOI_OUTPUT> tStream)
+void VoronoiVertexGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream<GS_VERTEX_VORONOI_OUTPUT> tStream)
 {
 	//Calculate depth of the current slice
 	float sliceDepth = iSliceIndex/vTextureSize.z;
 
-	GS_VERTEX_VORONOI_OUTPUT output;
-	output.tex = input[0].tex;//TODO
-	output.vertex = input[0].pos;
-	output.pos = float4(-1.0f, -1.0f, sliceDepth, 1.0f);
-	output.pos2 = output.pos;
-	tStream.Append(output);
-	output.pos = float4(-1.0f, 1.0f, sliceDepth, 1.0f);
-	output.pos2 = output.pos;
-	tStream.Append(output);
-	output.pos = float4(1.0f, 1.0f, sliceDepth, 1.0f);
-	output.pos2 = output.pos;
-	tStream.Append(output);
-	tStream.RestartStrip();
-	output.pos = float4(-1.0f, -1.0f, sliceDepth, 1.0f);
-	output.pos2 = output.pos;
-	tStream.Append(output);
-	output.pos = float4(1.0f, 1.0f, sliceDepth, 1.0f);
-	output.pos2 = output.pos;
-	tStream.Append(output);
-	output.pos = float4(1.0f, -1.0f, sliceDepth, 1.0f);
-	output.pos2 = output.pos;
-	tStream.Append(output);
-	tStream.RestartStrip();
+	CalculatePointProjection(input[0], sliceDepth, tStream);
+	CalculatePointProjection(input[1], sliceDepth, tStream);
+	CalculatePointProjection(input[2], sliceDepth, tStream);
 }
 
 [maxvertexcount(3)]
@@ -888,7 +908,7 @@ technique10 GenerateVoronoiDiagram
         SetBlendState( BS_NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetDepthStencilState( EnableDepth, 0 );
 	}
-	/*pass Edge
+	pass Edge
 	{
 		SetVertexShader(CompileShader(vs_4_0, VoronoiEdgeVS()));
 		SetGeometryShader(CompileShader(gs_4_0, VoronoiEdgeGS()));
@@ -905,7 +925,7 @@ technique10 GenerateVoronoiDiagram
 		SetRasterizerState( RS_CullDisabled );
         SetBlendState( BS_NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetDepthStencilState( EnableDepth, 0 );
-	}*/
+	}
 }
 
 technique10 Flat2DTextureTo3D

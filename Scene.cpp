@@ -126,13 +126,18 @@ HRESULT Scene::InitSurfaces()
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
 	V_RETURN(m_pSurface1->Initialize(L"Media\\meshes\\blackholeroom.sdkmesh"));
-	m_pSurface1->SetColor(1.0, 0.0, 0.0);
+	m_pSurface1->SetColor(0.0, 0.0, 0.0);
+	m_pSurface1->Translate(0.0, -1.5, 0.0);
+	m_pSurface1->Scale(0.2);
+	
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface2->Initialize(L"Media\\meshes\\blackhole.sdkmesh"));
-	m_pSurface2->Scale(0.5);
-	m_pSurface2->SetColor(0.0, 1.0, 0.0);
+	V_RETURN(m_pSurface2->Initialize(L"Media\\meshes\\tiny.sdkmesh"));
+	m_pSurface2->Scale(0.001);
+	m_pSurface2->SetColor(1.0, 1.0, 1.0);
+	m_pSurface2->RotateX(-3.1415/2);
+	m_pSurface2->RotateY(3.1415);
 
 	m_pControlledSurface = m_pSurface1;
 

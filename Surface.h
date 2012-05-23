@@ -26,7 +26,6 @@ public:
 
 	HRESULT Initialize(LPWSTR lsFileName);
 	void Render(D3DXMATRIX mViewProjection);
-	void Render(ID3DX11EffectTechnique* pTechnique);
 	void RenderVoronoi(ID3DX11EffectTechnique* pTechnique);
 
 	//GETTER
