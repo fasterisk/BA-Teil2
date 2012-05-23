@@ -179,12 +179,10 @@ void Surface::RenderVoronoi(ID3DX11EffectTechnique* pVoronoiTechnique)
     m_pd3dImmediateContext->IASetVertexBuffers( 0, 1, pVB, Strides, Offsets );
     m_pd3dImmediateContext->IASetIndexBuffer( m_pSurfaceMesh.GetIB11( 0 ), m_pSurfaceMesh.GetIBFormat11( 0 ), 0 );
 
-	 //Render
+
+	//Render
     SDKMESH_SUBSET* pSubset = NULL;
     D3D11_PRIMITIVE_TOPOLOGY PrimType;
-
-	//Set input layout
-	//m_pd3dImmediateContext->IASetInputLayout( m_pInputLayout );
 
 	//Get technique descriptor for passes
 	D3DX11_TECHNIQUE_DESC techDesc;
