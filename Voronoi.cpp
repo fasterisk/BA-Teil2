@@ -355,7 +355,7 @@ HRESULT Voronoi::InitSlices()
 	return S_OK;
 }
 
-bool Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
+bool Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, bool bRenderIsoSurface)
 {
 	//store the old render targets and viewports
     ID3D11RenderTargetView* pOldRTV = DXUTGetD3D11RenderTargetView();
@@ -400,6 +400,7 @@ bool Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 	m_pBBMinVar->SetFloatVector(vBBMinOrth);
 	m_pBBMaxVar->SetFloatVector(vBBMaxOrth);
 	m_pTextureSizeVar->SetFloatVector(D3DXVECTOR3((float)m_iTextureWidth, (float)m_iTextureHeight, (float)m_iTextureDepth));
+	m_pRenderIsoSurfaceVar->SetBool(bRenderIsoSurface);
 
 	// Set Flat Textures as Rendertargets
 	ID3D11RenderTargetView* destFlatTex2DRTVs[2];

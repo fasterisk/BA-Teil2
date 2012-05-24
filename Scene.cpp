@@ -310,7 +310,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 
 	if(m_bGenerateVoronoi)
 	{
-		bool b = m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
+		bool b = m_pVoronoi->RenderVoronoi(m_vMin, m_vMax, m_bRenderIsoSurface);
 		if(b)
 		{
 			m_bGenerateVoronoi = false;

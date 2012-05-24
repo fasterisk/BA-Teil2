@@ -16,7 +16,7 @@ public:
 	void SetSurfaces(Surface *pSurface1, Surface *pSurface2);
 
 
-	bool RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax);
+	bool RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, bool bRenderIsoSurface);
 
 private:
 	//Methods
