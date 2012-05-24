@@ -16,7 +16,7 @@ public:
 	void SetSurfaces(Surface *pSurface1, Surface *pSurface2);
 
 
-	HRESULT RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax);
+	bool RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax);
 
 private:
 	//Methods
@@ -36,6 +36,7 @@ private:
 	Surface						*m_pSurface2;
 
 	bool						m_bRenderIsoSurface;
+	int							m_iCurrentSlice;
 
 	ID3D11Device				*m_pd3dDevice;
 	ID3D11DeviceContext			*m_pd3dImmediateContext;

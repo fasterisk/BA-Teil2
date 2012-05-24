@@ -309,11 +309,17 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 
 	if(m_bGenerateVoronoi)
 	{
-		m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
-		m_bGenerateVoronoi = false;
-
-		m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, m_iDiffusionSteps);
-		
+		bool b = m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
+		if(b)
+		{
+			m_bGenerateVoronoi = false;
+			m_bRender3DTexture = true;
+			m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, m_iDiffusionSteps);
+		}
+		else
+		{
+			m_bRender3DTexture = false;
+		}
 	}
 
 	if(m_bRender3DTexture)
@@ -485,7 +491,6 @@ HRESULT Scene::ChangeCurrentSurfaceMesh(LPWSTR lsFileName)
 void Scene::GenerateVoronoi()
 {
 	m_bGenerateVoronoi = true;
-	m_bRender3DTexture = true;
 }
 
 void Scene::Render3DTexture(bool bRenderVoronoi)
