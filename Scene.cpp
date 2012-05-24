@@ -30,6 +30,7 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_bRender3DTexture = false;
 	m_bGenerateVoronoi = false;
 	m_bRenderIsoSurface = false;
+	m_bDiffusionStepsChanged = true;
 
 	m_iTextureWidth = 128;
 	m_iTextureHeight = 128;
@@ -314,7 +315,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		{
 			m_bGenerateVoronoi = false;
 			m_bRender3DTexture = true;
-			m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, m_iDiffusionSteps);
+			m_bDiffusionStepsChanged = true;
 		}
 		else
 		{
@@ -324,6 +325,12 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 
 	if(m_bRender3DTexture)
 	{
+		if(m_bDiffusionStepsChanged)
+		{
+			m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, m_iDiffusionSteps);
+			m_bDiffusionStepsChanged = false;
+		}
+
 		if(m_bRenderIsoSurface)
 		{
 			m_pIsoSurfaceSRV = m_pDiffusion->RenderIsoSurface(m_pCurrentDiffusionSRV);
@@ -427,6 +434,7 @@ void Scene::ChangeIsoBehaviour()
 void Scene::ChangeDiffusionSteps(int iDiffusionSteps)
 {
 	m_iDiffusionSteps = iDiffusionSteps;
+	m_bDiffusionStepsChanged = true;
 }
 
 void Scene::ChangeControlledSurface()

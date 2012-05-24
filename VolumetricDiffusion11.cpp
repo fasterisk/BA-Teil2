@@ -521,7 +521,6 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			StringCchPrintf(sz, 100, L"Steps: %d", g_iDiffusionSteps);
 			g_SampleUI.GetStatic(IDC_DIFFSTEPS_STATIC)->SetText(sz);
 			g_pScene->ChangeDiffusionSteps(g_iDiffusionSteps);
-			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_ISO_CHECK:
 			g_pScene->ChangeIsoBehaviour();

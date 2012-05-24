@@ -47,6 +47,7 @@ protected:
 	bool m_bGenerateVoronoi;
 	bool m_bRender3DTexture;
 	bool m_bRenderIsoSurface;
+	bool m_bDiffusionStepsChanged;
 
 	// Device
 	ID3D11Device*			m_pd3dDevice;
