@@ -1,6 +1,7 @@
 #include "Globals.h"
 #include "Surface.h"
 #include "SDKMesh.h"
+#include <assimp.hpp>
 
 
 Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pSurfaceEffect)
@@ -101,6 +102,8 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 	HRESULT hr(S_OK);
 	V_RETURN(m_pSurfaceMesh.Create(m_pd3dDevice, lsFileName, true));
 	D3DXMatrixIdentity(&m_mModel);
+
+	Assimp::Importer Importer;
 	return hr;
 }
 
