@@ -240,7 +240,7 @@ HRESULT Voronoi::InitShaders()
 	m_pFlatDistTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatDistTexture")->AsShaderResource();
 	m_pCurrentColorVar			= m_pVoronoiEffect->GetVariableByName("vCurrentColor")->AsVector();
 	m_pSurfaceTextureVar		= m_pVoronoiEffect->GetVariableByName("SurfaceTexture")->AsShaderResource();
-	m_pRenderIsoSurfaceVar		= m_pVoronoiEffect->GetVariableByName("bRenderIsoSurface")->AsScalar();
+	m_pIsoSurfaceVar			= m_pVoronoiEffect->GetVariableByName("fIsoSurfaceVal")->AsScalar();
 
 	SAFE_RELEASE(m_pVoronoiInputLayout);
 
@@ -400,7 +400,6 @@ bool Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, bool bRender
 	m_pBBMinVar->SetFloatVector(vBBMinOrth);
 	m_pBBMaxVar->SetFloatVector(vBBMaxOrth);
 	m_pTextureSizeVar->SetFloatVector(D3DXVECTOR3((float)m_iTextureWidth, (float)m_iTextureHeight, (float)m_iTextureDepth));
-	m_pRenderIsoSurfaceVar->SetBool(bRenderIsoSurface);
 
 	// Set Flat Textures as Rendertargets
 	ID3D11RenderTargetView* destFlatTex2DRTVs[2];
@@ -483,11 +482,13 @@ HRESULT Voronoi::RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2O
 	m_pModelViewProjectionVar->SetMatrix(mModel1Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix1);
 	m_pCurrentColorVar->SetFloatVector(m_pSurface1->GetColor());
+	m_pIsoSurfaceVar->SetFloat(0.0f);
 	m_pSurface1->RenderVoronoi(m_pVoronoiDiagramTechnique, m_pSurfaceTextureVar);
 
 	m_pModelViewProjectionVar->SetMatrix(mModel2Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix2);
 	m_pCurrentColorVar->SetFloatVector(m_pSurface2->GetColor());
+	m_pIsoSurfaceVar->SetFloat(1.0f);
 	m_pSurface2->RenderVoronoi(m_pVoronoiDiagramTechnique, m_pSurfaceTextureVar);
 	
 	return S_OK;

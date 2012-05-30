@@ -186,7 +186,7 @@ PS_DIFFUSION_OUTPUT IsoSurfacePS(GS_DIFFUSION_OUTPUT input)
 
 	output.color = ColorTexture.SampleLevel(linearSamplerClamp, input.tex, 0);
 	
-	if(output.color.x >= fIsoValue)
+	if(output.color.a >= fIsoValue)
 	{
 		output.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
 	}

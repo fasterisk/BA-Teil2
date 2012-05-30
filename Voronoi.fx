@@ -19,7 +19,7 @@ float fIsoValue;
 
 float3 vCurrentColor;
 
-bool bRenderIsoSurface = false;
+float fIsoSurfaceVal;
 
 //--------------------------------------------------------------------------------------
 // Sampler
@@ -841,10 +841,9 @@ void ResolveGS(triangle GS_RESOLVE_INPUT input[3], inout TriangleStream<GS_RESOL
 PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
-	if(bRenderIsoSurface)
-		output.color = float4(vCurrentColor, 1.0f);
-	else
-		output.color = SurfaceTexture.Sample(linearSamplerBorder, input.tex);
+	
+	output.color = SurfaceTexture.Sample(linearSamplerBorder, input.tex);
+	output.color.a = fIsoSurfaceVal;
 
 	float3 tex = normalize(vTextureSize);
 
@@ -869,11 +868,8 @@ PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
-	if(bRenderIsoSurface)
-		output.color = float4(vCurrentColor, 1.0f);
-	else
-		output.color = SurfaceTexture.Sample(linearSamplerBorder, input.tex);
-
+	output.color = SurfaceTexture.Sample(linearSamplerBorder, input.tex);
+	output.color.a = fIsoSurfaceVal;
 
 	float3 tex = normalize(vTextureSize);
 
@@ -889,7 +885,6 @@ PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 	float3 b = v2 - v1;// gerade: g = a + t*b
 	float3 upper = cross(p-a, b);
 	float dist = length(upper)/length(b);
-	
 
 	output.depth = dist/3;
 	float3 distdir = normalize(cross(b, upper));
@@ -902,10 +897,8 @@ PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 PS_VORONOI_OUTPUT VoronoiVertexPS(GS_VERTEX_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
-	if(bRenderIsoSurface)
-		output.color = float4(vCurrentColor, 1.0f);
-	else
-		output.color = SurfaceTexture.Sample(linearSamplerBorder, input.tex);
+	output.color = SurfaceTexture.Sample(linearSamplerBorder, input.tex);
+	output.color.a = fIsoSurfaceVal;
 
 	float3 tex = normalize(vTextureSize);
 
