@@ -10,6 +10,8 @@ float fIsoValue;
 float fPolySize;
 int iSliceIndex;
 
+bool bShowIsoColor;
+
 //--------------------------------------------------------------------------------------
 // Sampler
 //--------------------------------------------------------------------------------------
@@ -188,7 +190,8 @@ PS_DIFFUSION_OUTPUT IsoSurfacePS(GS_DIFFUSION_OUTPUT input)
 	
 	if(output.color.a >= fIsoValue)
 	{
-		output.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
+		if(!bShowIsoColor)
+			output.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	else
 	{

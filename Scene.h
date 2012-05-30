@@ -20,7 +20,8 @@ public:
 	void ChangeIsoValue(float fIsoValue);
 	void ChangeDiffusionSteps(int iDiffusionSteps);
 	void ChangeControlledSurface();
-	void ChangeIsoBehaviour();
+	void ShowIsoSurface(bool bShow);
+	void ShowIsoColor(bool bShow);
 	HRESULT ChangeRenderingToOneSlice(int iSliceIndex);
 	HRESULT ChangeRenderingToAllSlices();
 	void TranslateCurrentSurface(float fX, float fY, float fZ);

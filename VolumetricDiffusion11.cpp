@@ -54,6 +54,8 @@ bool						g_bShowSurfaces = true;
 float						g_fIsoValue = 0.5f;
 int							g_iDiffusionSteps = 8;
 bool						g_bSurface1IsControlled = true;
+bool						g_bShowIsoSurface = false;
+bool						g_bShowIsoColor = false;
 
 // Texthelper
 CDXUTTextHelper*            g_pTxtHelper = NULL;
@@ -86,6 +88,7 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_ISO_CHECK				22
 #define IDC_DIFFSTEPS_STATIC		23
 #define IDC_DIFFSTEPS_SLIDER		24
+#define IDC_ISO_COLOR				25
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -195,6 +198,10 @@ void InitApp()
 	g_SampleUI.AddCheckBox(IDC_ISO_CHECK, L"Show Isosurface", 0, iY+=36, 170, 22);
 	g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetChecked(false);
 	g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
+
+	g_SampleUI.AddCheckBox(IDC_ISO_COLOR, L"Show Colors", 0, iY+=26, 170, 22);
+	g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetChecked(false);
+	g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
 
 	StringCchPrintf( sz, 100, L"IsoValue: %.2f", g_fIsoValue);
 	g_SampleUI.AddStatic(IDC_ISO_SLIDER_STATIC, sz, 0, iY += 26, 100, 22);
@@ -414,6 +421,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 				g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
 				g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
 				g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
+				g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
 				g_pScene->Render3DTexture(false);
 			}
 			else
@@ -440,6 +448,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
 			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
+			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
 			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_MOVE:
@@ -452,6 +461,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
 			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
+			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
 			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_CAMERA:
@@ -476,6 +486,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
 			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
+			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
 			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_ALL_SLICES:
@@ -506,6 +517,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(true);
 			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(true);
 			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(true);
+			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(true);
 			if(g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->GetChecked())
 			{
 				g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(true);
@@ -523,8 +535,8 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_pScene->ChangeDiffusionSteps(g_iDiffusionSteps);
 			break;
 		case IDC_ISO_CHECK:
-			g_pScene->ChangeIsoBehaviour();
-			g_pScene->GenerateVoronoi();
+			g_bShowIsoSurface = !g_bShowIsoSurface;
+			g_pScene->ShowIsoSurface(g_bShowIsoSurface);
 			break;
 		case IDC_ISO_SLIDER:
 			g_bBlockMouseDragging = true;
@@ -532,6 +544,10 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			StringCchPrintf( sz, 100, L"IsoValue: %.4f", g_fIsoValue);
 			g_SampleUI.GetStatic( IDC_ISO_SLIDER_STATIC )->SetText( sz );
 			g_pScene->ChangeIsoValue(g_fIsoValue);
+			break;
+		case IDC_ISO_COLOR:
+			g_bShowIsoColor = !g_bShowIsoColor;
+			g_pScene->ShowIsoColor(g_bShowIsoColor);
 			break;
     }
 

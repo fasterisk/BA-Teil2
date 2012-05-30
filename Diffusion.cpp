@@ -32,6 +32,7 @@ Diffusion::Diffusion(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediat
 	m_fIsoValue = 0.5f;
 	m_iDiffTex = 0;
 
+	m_bShowIsoColor = false;
 }
 
 Diffusion::~Diffusion()
@@ -145,6 +146,7 @@ HRESULT Diffusion::InitShaders()
 	m_pTextureSizeVar		= m_pDiffusionEffect->GetVariableByName("vTextureSize")->AsVector();
 	m_pPolySizeVar			= m_pDiffusionEffect->GetVariableByName("fPolySize")->AsScalar();
 	m_pSliceIndexVar		= m_pDiffusionEffect->GetVariableByName("iSliceIndex")->AsScalar();
+	m_pShowIsoColorVar		= m_pDiffusionEffect->GetVariableByName("bShowIsoColor")->AsScalar();
 
 	assert(m_pDiffusionTechnique);
 	assert(m_pColor3DTexSRVar);
@@ -235,6 +237,11 @@ HRESULT Diffusion::InitSlices()
 void Diffusion::ChangeIsoValue(float fIsoValue)
 {
 	m_fIsoValue = fIsoValue;
+}
+
+void Diffusion::ShowIsoColor(bool bShow)
+{
+	m_bShowIsoColor = bShow;
 }
 
 ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* pVoronoi3DTextureSRV, 
@@ -389,6 +396,9 @@ ID3D11ShaderResourceView* Diffusion::RenderIsoSurface(ID3D11ShaderResourceView* 
 	assert(hr == S_OK);
 	
 	hr = m_pIsoValueVar->SetFloat(m_fIsoValue);
+	assert(hr == S_OK);
+
+	hr = m_pShowIsoColorVar->SetBool(m_bShowIsoColor);
 	assert(hr == S_OK);
 
 	hr = m_pDiffusionTechnique->GetPassByName("RenderIsoSurface")->Apply(0, m_pd3dImmediateContext);

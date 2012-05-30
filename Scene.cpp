@@ -426,9 +426,14 @@ void Scene::ChangeIsoValue(float fIsoValue)
 	m_pDiffusion->ChangeIsoValue(fIsoValue);
 }
 
-void Scene::ChangeIsoBehaviour()
+void Scene::ShowIsoSurface(bool bShow)
 {
-	m_bRenderIsoSurface = !m_bRenderIsoSurface;
+	m_bRenderIsoSurface = bShow;
+}
+
+void Scene::ShowIsoColor(bool bShow)
+{
+	m_pDiffusion->ShowIsoColor(bShow);
 }
 
 void Scene::ChangeDiffusionSteps(int iDiffusionSteps)

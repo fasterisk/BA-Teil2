@@ -17,6 +17,7 @@ public:
 					   int iTextureWidth, int iTextureHeight, int iTextureDepth, float fIsoValue);
 	
 	void ChangeIsoValue(float fIsoValue);
+	void ShowIsoColor(bool bShow);
 
 	ID3D11ShaderResourceView* RenderDiffusion(ID3D11ShaderResourceView* pVoronoi3DTextureSRV, 
 										      ID3D11ShaderResourceView* pDist3DTextureSRV, 
@@ -65,6 +66,7 @@ private:
 	ID3DX11EffectScalarVariable				*m_pIsoValueVar;
 	ID3DX11EffectScalarVariable				*m_pPolySizeVar;
 	ID3DX11EffectScalarVariable				*m_pSliceIndexVar;
+	ID3DX11EffectScalarVariable				*m_pShowIsoColorVar;
 
 	ID3DX11EffectVectorVariable				*m_pTextureSizeVar;
 	
@@ -75,7 +77,7 @@ private:
 	float						m_fIsoValue;
 	int							m_iDiffTex;
 
-
+	bool						m_bShowIsoColor;
 
 };
 
