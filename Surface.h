@@ -61,6 +61,7 @@ protected:
 
 	CDXUTSDKMesh	m_pSurfaceMesh;
 
+
 };
 
 #endif

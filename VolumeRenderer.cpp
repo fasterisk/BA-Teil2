@@ -22,6 +22,8 @@ VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd
 
 	m_pSQInputLayout = NULL;
 	m_pSQVertexBuffer = NULL;
+
+	m_bLinearSampling = true;
 }
 
 VolumeRenderer::~VolumeRenderer()
@@ -118,17 +120,16 @@ HRESULT VolumeRenderer::SetScreenSize(int iWidth, int iHeight)
 	return S_OK;
 }
 
-HRESULT VolumeRenderer::ChangeSliceRenderingParameters(float fAlpha)
+void VolumeRenderer::ChangeSampling()
 {
-	HRESULT hr;
-	V_RETURN(m_fAlphaVar->SetFloat(fAlpha));
-	return S_OK;
+	m_bLinearSampling = !m_bLinearSampling;
 }
 
 void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV)
 {
 	m_pBBMinVar->SetFloatVector(vBBMin);
 	m_pBBMaxVar->SetFloatVector(vBBMax);
+	m_pSamplingVar->SetBool(m_bLinearSampling);
 	
 	//Update vertex buffer for boundingbox
 	UpdateBoundingVertices(pBBVertices);
@@ -199,7 +200,7 @@ HRESULT VolumeRenderer::InitShader()
 	m_pIterationsVar = m_pEffect->GetVariableByName("iIterations")->AsScalar();
 	m_pBBMinVar = m_pEffect->GetVariableByName("vBBMin")->AsVector();
 	m_pBBMaxVar = m_pEffect->GetVariableByName("vBBMax")->AsVector();
-	m_fAlphaVar = m_pEffect->GetVariableByName("fAlpha")->AsScalar();
+	m_pSamplingVar = m_pEffect->GetVariableByName("bLinearSampling")->AsScalar();
 
 	return S_OK;
 }

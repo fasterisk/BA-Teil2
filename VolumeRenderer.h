@@ -7,11 +7,13 @@ public:
 	HRESULT Initialize();
 	HRESULT Update(int iWidth, int iHeight, int iDepth);
 	HRESULT SetScreenSize(int iWidth, int iHeight);
-	HRESULT ChangeSliceRenderingParameters(float fAlpha);
+	void ChangeSampling();
 
 	void Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
 
 private:
+	bool m_bLinearSampling;
+
 	// Device
 	ID3D11Device*			m_pd3dDevice;
 	ID3D11DeviceContext*	m_pd3dImmediateContext;
@@ -32,6 +34,7 @@ private:
 
 	ID3DX11EffectScalarVariable*			m_pIterationsVar;
 	ID3DX11EffectScalarVariable*			m_fAlphaVar;
+	ID3DX11EffectScalarVariable*			m_pSamplingVar;
 
 	//Screen size
 	int m_iWidth;

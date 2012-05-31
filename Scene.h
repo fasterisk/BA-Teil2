@@ -5,6 +5,7 @@ class TextureGrid;
 class Voronoi;
 class Diffusion;
 
+
 class Scene {
 public:
 
@@ -20,6 +21,7 @@ public:
 	void ChangeIsoValue(float fIsoValue);
 	void ChangeDiffusionSteps(int iDiffusionSteps);
 	void ChangeControlledSurface();
+	void ChangeSampling();
 	void ShowIsoSurface(bool bShow);
 	void ShowIsoColor(bool bShow);
 	HRESULT ChangeRenderingToOneSlice(int iSliceIndex);

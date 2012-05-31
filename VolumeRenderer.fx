@@ -14,7 +14,7 @@ int iIterations;
 float3 vBBMin;
 float3 vBBMax;
 
-float fAlpha;
+bool bLinearSampling;
 
 //------------------------------------------------------------------------------------------------------
 // States
@@ -76,13 +76,22 @@ BlendState NoBlending
 // Sampler
 //------------------------------------------------------------------------------------------------------
 
-SamplerState linearSamplerBorder
+SamplerState linearSampler
 {
 	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = Border;				// border sampling in U
-    AddressV = Border;				// border sampling in V
-	AddressW = Border;				// border sampling in W
-    BorderColor = float4(0,0,0,0);	// outside of border should be black
+	AddressU = Border;
+    AddressV = Border;
+	AddressW = Border;
+    BorderColor = float4(0,0,0,0);
+};
+
+SamplerState pointSampler
+{
+	Filter = MIN_MAG_MIP_POINT;
+	AddressU = Border;
+    AddressV = Border;
+	AddressW = Border;
+    BorderColor = float4(0,0,0,0);
 };
 
 //------------------------------------------------------------------------------------------------------
@@ -161,8 +170,8 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 	float2 texC = input.pos2.xy /= input.pos2.w;
     texC.x =  0.5f*texC.x + 0.5f;
     texC.y = -0.5f*texC.y + 0.5f;
-	float3 front = FrontTexture.Sample(linearSamplerBorder, texC).rgb;
-	float3 back = BackTexture.Sample(linearSamplerBorder, texC).rgb;
+	float3 front = FrontTexture.Sample(linearSampler, texC).rgb;
+	float3 back = BackTexture.Sample(linearSampler, texC).rgb;
     
     float3 dir = normalize(back - front);
 	
@@ -176,11 +185,19 @@ PsOutput PS_RAYCAST(VsSQOutput input)
     
     for(int i = 0; i < iIterations; i++)
     {
-		src = VolumeTexture.SampleLevel(linearSamplerBorder, pos, 0).rgba;
-		src.a = fAlpha;
+		if(bLinearSampling)
+			src = VolumeTexture.SampleLevel(linearSampler, pos, 0).rgba;
+		else
+			src = VolumeTexture.SampleLevel(pointSampler, pos, 0).rgba;
 		
 		output.color = output.color + src;
 		
+		if(output.color.a >= 1.0f)
+		{
+			output.color.a = 1.0f;
+			break;
+		}
+
 		//advance the current position
 		pos.xyz += Step;
 		

@@ -89,6 +89,9 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_DIFFSTEPS_STATIC		23
 #define IDC_DIFFSTEPS_SLIDER		24
 #define IDC_ISO_COLOR				25
+#define IDC_SAMPLING				26
+#define	IDC_SAMPLING_LINEAR			27
+#define IDC_SAMPLING_POINT			28
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -162,52 +165,58 @@ void InitApp()
 
     g_SampleUI.SetCallback( OnGUIEvent ); int iY = 10;
 	g_SampleUI.AddButton(IDC_LOAD_SURFACE, L"Load Surface...", 0, iY, 170, 30);
-	g_SampleUI.AddButton( IDC_CHANGE_CONTROL, L"Current: Surface 1", 0, iY += 40, 170, 30);
-	g_SampleUI.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 40, 170, 22);
-	g_SampleUI.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 26, 170, 22);
-	g_SampleUI.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 26, 170, 22);
+	g_SampleUI.AddButton( IDC_CHANGE_CONTROL, L"Current: Surface 1", 0, iY += 30, 170, 30);
+	g_SampleUI.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 30, 170, 22);
+	g_SampleUI.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 20, 170, 22);
+	g_SampleUI.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 20, 170, 22);
 	g_SampleUI.GetRadioButton( IDC_ROTATE )->SetChecked(true);
 	
 	StringCchPrintf( sz, 100, L"TexSize: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
-	g_SampleUI.AddStatic( IDC_TEXTRES_STATIC, sz, 0, iY += 35, 100, 22 );
+	g_SampleUI.AddStatic( IDC_TEXTRES_STATIC, sz, 0, iY += 30, 100, 22 );
     StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
-	g_SampleUI.AddStatic( IDC_TEXTRES_MAX_STATIC, sz, 0, iY += 24, 100, 22 );
+	g_SampleUI.AddStatic( IDC_TEXTRES_MAX_STATIC, sz, 0, iY += 20, 100, 22 );
 	g_SampleUI.AddSlider( IDC_TEXTRES_MAX_SLIDER, 0, iY += 20, 130, 22, 64, 256, 128);
 
-	g_SampleUI.AddCheckBox(IDC_SHOW_SURFACES, L"Show Surfaces", 0, iY+=36, 170, 22);
+	g_SampleUI.AddCheckBox(IDC_SHOW_SURFACES, L"Show Surfaces", 0, iY+=30, 170, 22);
 	g_SampleUI.GetCheckBox(IDC_SHOW_SURFACES)->SetChecked(true);
 
-	g_SampleUI.AddButton(IDC_DIFFUSION, L"Diffuse!", 0, iY+=36, 170, 30);
+	g_SampleUI.AddButton(IDC_DIFFUSION, L"Diffuse!", 0, iY+=30, 170, 30);
 
 	StringCchPrintf( sz, 100, L"Steps: %d", g_iDiffusionSteps);
-	g_SampleUI.AddStatic(IDC_DIFFSTEPS_STATIC, sz, 0, iY += 36, 100, 22);
+	g_SampleUI.AddStatic(IDC_DIFFSTEPS_STATIC, sz, 0, iY += 30, 100, 22);
 	g_SampleUI.AddSlider(IDC_DIFFSTEPS_SLIDER, 0, iY+=20, 130, 22, 1, 20, 8);
 
-	g_SampleUI.AddRadioButton( IDC_ALL_SLICES, IDC_SLICES, L"Draw All Slices", 0, iY += 36, 170, 22);
-	g_SampleUI.AddRadioButton( IDC_ONE_SLICE, IDC_SLICES, L"Draw One Slice", 0, iY += 26, 170, 22);
+	g_SampleUI.AddRadioButton(IDC_SAMPLING_LINEAR, IDC_SAMPLING, L"Linear Sampling", 0, iY+=30, 170, 22);
+	g_SampleUI.AddRadioButton(IDC_SAMPLING_POINT, IDC_SAMPLING, L"Point Sampling", 0, iY+=20, 170, 22);
+	g_SampleUI.GetRadioButton(IDC_SAMPLING_LINEAR)->SetChecked(true);
+
+	g_SampleUI.AddRadioButton( IDC_ALL_SLICES, IDC_SLICES, L"Draw All Slices", 0, iY += 30, 170, 22);
+	g_SampleUI.AddRadioButton( IDC_ONE_SLICE, IDC_SLICES, L"Draw One Slice", 0, iY += 20, 170, 22);
 	g_SampleUI.GetRadioButton( IDC_ALL_SLICES )->SetChecked(true);
 	g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
 	g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
 
 	StringCchPrintf( sz, 100, L"Sliceindex: %d", g_iSliceIndex);
-	g_SampleUI.AddStatic(IDC_SLICEINDEX_STATIC, sz, 0, iY+=26, 100, 22);
+	g_SampleUI.AddStatic(IDC_SLICEINDEX_STATIC, sz, 0, iY+=20, 100, 22);
 	g_SampleUI.AddSlider( IDC_SLICEINDEX_SLIDER, 0, iY+=20, 130, 22);
 	g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
 	g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
 
-	g_SampleUI.AddCheckBox(IDC_ISO_CHECK, L"Show Isosurface", 0, iY+=36, 170, 22);
+	g_SampleUI.AddCheckBox(IDC_ISO_CHECK, L"Show Isosurface", 0, iY+=30, 170, 22);
 	g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetChecked(false);
 	g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
 
-	g_SampleUI.AddCheckBox(IDC_ISO_COLOR, L"Show Colors", 0, iY+=26, 170, 22);
+	g_SampleUI.AddCheckBox(IDC_ISO_COLOR, L"Show Colors", 0, iY+=20, 170, 22);
 	g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetChecked(false);
 	g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
 
 	StringCchPrintf( sz, 100, L"IsoValue: %.2f", g_fIsoValue);
-	g_SampleUI.AddStatic(IDC_ISO_SLIDER_STATIC, sz, 0, iY += 26, 100, 22);
-	g_SampleUI.AddSlider(IDC_ISO_SLIDER, 0, iY+=20, 130, 22, 0, 10000, 5000);
+	g_SampleUI.AddStatic(IDC_ISO_SLIDER_STATIC, sz, 0, iY += 20, 100, 22);
+	g_SampleUI.AddSlider(IDC_ISO_SLIDER, 0, iY+=20, 130, 22, 1, 10000, 5000);
 	g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
 	g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
+
+	
 
 	// Setup the camera's view parameters
     D3DXVECTOR3 vecEye( 0.0f, 0.0f, -40.0f );
@@ -533,6 +542,12 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			StringCchPrintf(sz, 100, L"Steps: %d", g_iDiffusionSteps);
 			g_SampleUI.GetStatic(IDC_DIFFSTEPS_STATIC)->SetText(sz);
 			g_pScene->ChangeDiffusionSteps(g_iDiffusionSteps);
+			break;
+		case IDC_SAMPLING_LINEAR:
+			g_pScene->ChangeSampling();
+			break;
+		case IDC_SAMPLING_POINT:
+			g_pScene->ChangeSampling();
 			break;
 		case IDC_ISO_CHECK:
 			g_bShowIsoSurface = !g_bShowIsoSurface;

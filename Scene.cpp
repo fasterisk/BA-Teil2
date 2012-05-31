@@ -112,7 +112,6 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	// Initialize VolumeRenderer
 	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
 	V_RETURN(m_pVolumeRenderer->Initialize());
-	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(0.01f));
 
 	
 	V_RETURN(UpdateBoundingBox());
@@ -457,7 +456,6 @@ HRESULT Scene::ChangeRenderingToOneSlice(int iSliceIndex)
 	HRESULT hr;
 	m_bDrawAllSlices = false;
 	m_iCurrentSlice = iSliceIndex;
-	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(1.0f));
 	return S_OK;
 }
 
@@ -465,8 +463,12 @@ HRESULT Scene::ChangeRenderingToAllSlices()
 {
 	HRESULT hr;
 	m_bDrawAllSlices = true;
-	V_RETURN(m_pVolumeRenderer->ChangeSliceRenderingParameters(0.01f));
 	return S_OK;
+}
+
+void Scene::ChangeSampling()
+{
+	m_pVolumeRenderer->ChangeSampling();
 }
 
 void Scene::TranslateCurrentSurface(float fX, float fY, float fZ)
