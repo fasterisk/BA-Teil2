@@ -1,921 +1,921 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\3DSConverter.cpp">
+    <ClCompile Include="..\..\Assimp\code\3DSConverter.cpp">
       <Filter>3DS</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\3DSLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\3DSLoader.cpp">
       <Filter>3DS</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ACLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\ACLoader.cpp">
       <Filter>AC</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ASELoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\ASELoader.cpp">
       <Filter>ASE</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ASEParser.cpp">
+    <ClCompile Include="..\..\Assimp\code\ASEParser.cpp">
       <Filter>ASE</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Assimp.cpp">
+    <ClCompile Include="..\..\Assimp\code\Assimp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\AssimpPCH.cpp">
+    <ClCompile Include="..\..\Assimp\code\AssimpPCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\B3DImporter.cpp">
+    <ClCompile Include="..\..\Assimp\code\B3DImporter.cpp">
       <Filter>B3D</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BVHLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\BVHLoader.cpp">
       <Filter>BVH</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BaseImporter.cpp">
+    <ClCompile Include="..\..\Assimp\code\BaseImporter.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BaseProcess.cpp">
+    <ClCompile Include="..\..\Assimp\code\BaseProcess.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CalcTangentsProcess.cpp">
+    <ClCompile Include="..\..\Assimp\code\CalcTangentsProcess.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ColladaLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\ColladaLoader.cpp">
       <Filter>Collada</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ColladaParser.cpp">
+    <ClCompile Include="..\..\Assimp\code\ColladaParser.cpp">
       <Filter>Collada</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ComputeUVMappingProcess.cpp">
+    <ClCompile Include="..\..\Assimp\code\ComputeUVMappingProcess.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ConvertToLHProcess.cpp">
+    <ClCompile Include="..\..\Assimp\code\ConvertToLHProcess.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DXFLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\DXFLoader.cpp">
       <Filter>DXF</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CSMLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\CSMLoader.cpp">
       <Filter>CSM</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DefaultIOStream.cpp">
+    <ClCompile Include="..\..\Assimp\code\DefaultIOStream.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DefaultIOSystem.cpp">
+    <ClCompile Include="..\..\Assimp\code\DefaultIOSystem.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DefaultLogger.cpp">
+    <ClCompile Include="..\..\Assimp\code\DefaultLogger.cpp">
       <Filter>Logging</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FindDegenerates.cpp">
+    <ClCompile Include="..\..\Assimp\code\FindDegenerates.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FindInstancesProcess.cpp">
+    <ClCompile Include="..\..\Assimp\code\FindInstancesProcess.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FindInvalidDataProcess.cpp">
+    <ClCompile Include="..\..\Assimp\code\FindInvalidDataProcess.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FixNormalsStep.cpp">
+    <ClCompile Include="..\..\Assimp\code\FixNormalsStep.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\GenFaceNormalsProcess.cpp">
+    <ClCompile Include="..\..\Assimp\code\GenFaceNormalsProcess.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\GenVertexNormalsProcess.cpp">
+    <ClCompile Include="..\..\Assimp\code\GenVertexNormalsProcess.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\HMPLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\HMPLoader.cpp">
       <Filter>HMP</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IRRLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\IRRLoader.cpp">
       <Filter>Irr</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IRRMeshLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\IRRMeshLoader.cpp">
       <Filter>Irr</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IRRShared.cpp">
+    <ClCompile Include="..\..\Assimp\code\IRRShared.cpp">
       <Filter>Irr</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Importer.cpp">
+    <ClCompile Include="..\..\Assimp\code\Importer.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ImproveCacheLocality.cpp">
+    <ClCompile Include="..\..\Assimp\code\ImproveCacheLocality.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\JoinVerticesProcess.cpp">
+    <ClCompile Include="..\..\Assimp\code\JoinVerticesProcess.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOAnimation.cpp">
+    <ClCompile Include="..\..\Assimp\code\LWOAnimation.cpp">
       <Filter>LWO</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOBLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\LWOBLoader.cpp">
       <Filter>LWO</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\LWOLoader.cpp">
       <Filter>LWO</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOMaterial.cpp">
+    <ClCompile Include="..\..\Assimp\code\LWOMaterial.cpp">
       <Filter>LWO</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWSLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\LWSLoader.cpp">
       <Filter>LWS</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LimitBoneWeightsProcess.cpp">
+    <ClCompile Include="..\..\Assimp\code\LimitBoneWeightsProcess.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD2Loader.cpp">
+    <ClCompile Include="..\..\Assimp\code\MD2Loader.cpp">
       <Filter>MD2</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD3Loader.cpp">
+    <ClCompile Include="..\..\Assimp\code\MD3Loader.cpp">
       <Filter>MD3</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD5Loader.cpp">
+    <ClCompile Include="..\..\Assimp\code\MD5Loader.cpp">
       <Filter>MD5</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD5Parser.cpp">
+    <ClCompile Include="..\..\Assimp\code\MD5Parser.cpp">
       <Filter>MD5</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDCLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\MDCLoader.cpp">
       <Filter>MDC</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDLLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\MDLLoader.cpp">
       <Filter>MDL</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDLMaterialLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\MDLMaterialLoader.cpp">
       <Filter>MDL</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MaterialSystem.cpp">
+    <ClCompile Include="..\..\Assimp\code\MaterialSystem.cpp">
       <Filter>MaterialSystem</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\NFFLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\NFFLoader.cpp">
       <Filter>NFF</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OFFLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\OFFLoader.cpp">
       <Filter>OFFFormat</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileImporter.cpp">
+    <ClCompile Include="..\..\Assimp\code\ObjFileImporter.cpp">
       <Filter>Obj</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileMtlImporter.cpp">
+    <ClCompile Include="..\..\Assimp\code\ObjFileMtlImporter.cpp">
       <Filter>Obj</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileParser.cpp">
+    <ClCompile Include="..\..\Assimp\code\ObjFileParser.cpp">
       <Filter>Obj</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OgreImporter.cpp">
+    <ClCompile Include="..\..\Assimp\code\OgreImporter.cpp">
       <Filter>Ogre</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OgreImporterMaterial.cpp">
+    <ClCompile Include="..\..\Assimp\code\OgreImporterMaterial.cpp">
       <Filter>Ogre</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OptimizeGraph.cpp">
+    <ClCompile Include="..\..\Assimp\code\OptimizeGraph.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OptimizeMeshes.cpp">
+    <ClCompile Include="..\..\Assimp\code\OptimizeMeshes.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\PlyLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\PlyLoader.cpp">
       <Filter>Ply</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\PlyParser.cpp">
+    <ClCompile Include="..\..\Assimp\code\PlyParser.cpp">
       <Filter>Ply</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\PretransformVertices.cpp">
+    <ClCompile Include="..\..\Assimp\code\PretransformVertices.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3DLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\Q3DLoader.cpp">
       <Filter>Q3D</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPFileParser.cpp">
+    <ClCompile Include="..\..\Assimp\code\Q3BSPFileParser.cpp">
       <Filter>Q3BSP</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPFileImporter.cpp">
+    <ClCompile Include="..\..\Assimp\code\Q3BSPFileImporter.cpp">
       <Filter>Q3BSP</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPZipArchive.cpp">
+    <ClCompile Include="..\..\Assimp\code\Q3BSPZipArchive.cpp">
       <Filter>Q3BSP</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RawLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\RawLoader.cpp">
       <Filter>Raw</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RemoveComments.cpp">
+    <ClCompile Include="..\..\Assimp\code\RemoveComments.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RemoveRedundantMaterials.cpp">
+    <ClCompile Include="..\..\Assimp\code\RemoveRedundantMaterials.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RemoveVCProcess.cpp">
+    <ClCompile Include="..\..\Assimp\code\RemoveVCProcess.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SGSpatialSort.cpp">
+    <ClCompile Include="..\..\Assimp\code\SGSpatialSort.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SMDLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\SMDLoader.cpp">
       <Filter>SMD</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\STLLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\STLLoader.cpp">
       <Filter>STL</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SceneCombiner.cpp">
+    <ClCompile Include="..\..\Assimp\code\SceneCombiner.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ScenePreprocessor.cpp">
+    <ClCompile Include="..\..\Assimp\code\ScenePreprocessor.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SkeletonMeshBuilder.cpp">
+    <ClCompile Include="..\..\Assimp\code\SkeletonMeshBuilder.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SortByPTypeProcess.cpp">
+    <ClCompile Include="..\..\Assimp\code\SortByPTypeProcess.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SpatialSort.cpp">
+    <ClCompile Include="..\..\Assimp\code\SpatialSort.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SplitLargeMeshes.cpp">
+    <ClCompile Include="..\..\Assimp\code\SplitLargeMeshes.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\StandardShapes.cpp">
+    <ClCompile Include="..\..\Assimp\code\StandardShapes.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TargetAnimation.cpp">
+    <ClCompile Include="..\..\Assimp\code\TargetAnimation.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TerragenLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\TerragenLoader.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TextureTransform.cpp">
+    <ClCompile Include="..\..\Assimp\code\TextureTransform.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TriangulateProcess.cpp">
+    <ClCompile Include="..\..\Assimp\code\TriangulateProcess.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\UnrealLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\UnrealLoader.cpp">
       <Filter>Unreal</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ValidateDataStructure.cpp">
+    <ClCompile Include="..\..\Assimp\code\ValidateDataStructure.cpp">
       <Filter>PostProcessing</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\VertexTriangleAdjacency.cpp">
+    <ClCompile Include="..\..\Assimp\code\VertexTriangleAdjacency.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\XFileImporter.cpp">
+    <ClCompile Include="..\..\Assimp\code\XFileImporter.cpp">
       <Filter>XFile</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\XFileParser.cpp">
+    <ClCompile Include="..\..\Assimp\code\XFileParser.cpp">
       <Filter>XFile</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\aiAssert.cpp">
+    <ClCompile Include="..\..\Assimp\code\aiAssert.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MakeVerboseFormat.cpp">
+    <ClCompile Include="..\..\Assimp\code\MakeVerboseFormat.cpp">
       <Filter>Extra</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\irrXML.cpp">
+    <ClCompile Include="..\..\Assimp\contrib\irrXML\irrXML.cpp">
       <Filter>IrrXML</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\adler32.c">
+    <ClCompile Include="..\..\Assimp\contrib\zlib\adler32.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\compress.c">
+    <ClCompile Include="..\..\Assimp\contrib\zlib\compress.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\crc32.c">
+    <ClCompile Include="..\..\Assimp\contrib\zlib\crc32.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\deflate.c">
+    <ClCompile Include="..\..\Assimp\contrib\zlib\deflate.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inffast.c">
+    <ClCompile Include="..\..\Assimp\contrib\zlib\inffast.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inflate.c">
+    <ClCompile Include="..\..\Assimp\contrib\zlib\inflate.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inftrees.c">
+    <ClCompile Include="..\..\Assimp\contrib\zlib\inftrees.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\trees.c">
+    <ClCompile Include="..\..\Assimp\contrib\zlib\trees.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\zutil.c">
+    <ClCompile Include="..\..\Assimp\contrib\zlib\zutil.c">
       <Filter>zlib</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\ConvertUTF\ConvertUTF.c">
+    <ClCompile Include="..\..\Assimp\contrib\ConvertUTF\ConvertUTF.c">
       <Filter>ConvertUTF</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\unzip\ioapi.c">
+    <ClCompile Include="..\..\Assimp\contrib\unzip\ioapi.c">
       <Filter>unzip</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\unzip\unzip.c">
+    <ClCompile Include="..\..\Assimp\contrib\unzip\unzip.c">
       <Filter>unzip</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Subdivision.cpp">
+    <ClCompile Include="..\..\Assimp\code\Subdivision.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MS3DLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\MS3DLoader.cpp">
       <Filter>MS3D</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\COBLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\COBLoader.cpp">
       <Filter>COB</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\BlenderLoader.cpp">
       <Filter>BLENDER</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderDNA.cpp">
+    <ClCompile Include="..\..\Assimp\code\BlenderDNA.cpp">
       <Filter>BLENDER</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderScene.cpp">
+    <ClCompile Include="..\..\Assimp\code\BlenderScene.cpp">
       <Filter>BLENDER</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderModifier.cpp">
+    <ClCompile Include="..\..\Assimp\code\BlenderModifier.cpp">
       <Filter>BLENDER</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\NDOLoader.cpp">
+    <ClCompile Include="..\..\Assimp\code\NDOLoader.cpp">
       <Filter>NDO</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\3DSHelper.h">
+    <ClInclude Include="..\..\Assimp\code\3DSHelper.h">
       <Filter>3DS</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\3DSLoader.h">
+    <ClInclude Include="..\..\Assimp\code\3DSLoader.h">
       <Filter>3DS</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ACLoader.h">
+    <ClInclude Include="..\..\Assimp\code\ACLoader.h">
       <Filter>AC</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ASELoader.h">
+    <ClInclude Include="..\..\Assimp\code\ASELoader.h">
       <Filter>ASE</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ASEParser.h">
+    <ClInclude Include="..\..\Assimp\code\ASEParser.h">
       <Filter>ASE</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\AssimpPCH.h">
+    <ClInclude Include="..\..\Assimp\code\AssimpPCH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\B3DImporter.h">
+    <ClInclude Include="..\..\Assimp\code\B3DImporter.h">
       <Filter>B3D</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BVHLoader.h">
+    <ClInclude Include="..\..\Assimp\code\BVHLoader.h">
       <Filter>BVH</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BaseImporter.h">
+    <ClInclude Include="..\..\Assimp\code\BaseImporter.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BaseProcess.h">
+    <ClInclude Include="..\..\Assimp\code\BaseProcess.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ByteSwap.h">
+    <ClInclude Include="..\..\Assimp\code\ByteSwap.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CalcTangentsProcess.h">
+    <ClInclude Include="..\..\Assimp\code\CalcTangentsProcess.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ColladaHelper.h">
+    <ClInclude Include="..\..\Assimp\code\ColladaHelper.h">
       <Filter>Collada</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ColladaLoader.h">
+    <ClInclude Include="..\..\Assimp\code\ColladaLoader.h">
       <Filter>Collada</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ColladaParser.h">
+    <ClInclude Include="..\..\Assimp\code\ColladaParser.h">
       <Filter>Collada</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ComputeUVMappingProcess.h">
+    <ClInclude Include="..\..\Assimp\code\ComputeUVMappingProcess.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ConvertToLHProcess.h">
+    <ClInclude Include="..\..\Assimp\code\ConvertToLHProcess.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DXFLoader.h">
+    <ClInclude Include="..\..\Assimp\code\DXFLoader.h">
       <Filter>DXF</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CSMLoader.h">
+    <ClInclude Include="..\..\Assimp\code\CSMLoader.h">
       <Filter>CSM</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DefaultIOStream.h">
+    <ClInclude Include="..\..\Assimp\code\DefaultIOStream.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DefaultIOSystem.h">
+    <ClInclude Include="..\..\Assimp\code\DefaultIOSystem.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DefaultProgressHandler.h">
+    <ClInclude Include="..\..\Assimp\code\DefaultProgressHandler.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FileLogStream.h">
+    <ClInclude Include="..\..\Assimp\code\FileLogStream.h">
       <Filter>Logging</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FindDegenerates.h">
+    <ClInclude Include="..\..\Assimp\code\FindDegenerates.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FindInstancesProcess.h">
+    <ClInclude Include="..\..\Assimp\code\FindInstancesProcess.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FindInvalidDataProcess.h">
+    <ClInclude Include="..\..\Assimp\code\FindInvalidDataProcess.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FixNormalsStep.h">
+    <ClInclude Include="..\..\Assimp\code\FixNormalsStep.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\GenFaceNormalsProcess.h">
+    <ClInclude Include="..\..\Assimp\code\GenFaceNormalsProcess.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\GenVertexNormalsProcess.h">
+    <ClInclude Include="..\..\Assimp\code\GenVertexNormalsProcess.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\GenericProperty.h">
+    <ClInclude Include="..\..\Assimp\code\GenericProperty.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\HMPFileData.h">
+    <ClInclude Include="..\..\Assimp\code\HMPFileData.h">
       <Filter>HMP</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\HMPLoader.h">
+    <ClInclude Include="..\..\Assimp\code\HMPLoader.h">
       <Filter>HMP</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\HalfLifeFileData.h">
+    <ClInclude Include="..\..\Assimp\code\HalfLifeFileData.h">
       <Filter>HMP</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Hash.h">
+    <ClInclude Include="..\..\Assimp\code\Hash.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IFF.h">
+    <ClInclude Include="..\..\Assimp\code\IFF.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IRRLoader.h">
+    <ClInclude Include="..\..\Assimp\code\IRRLoader.h">
       <Filter>Irr</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IRRMeshLoader.h">
+    <ClInclude Include="..\..\Assimp\code\IRRMeshLoader.h">
       <Filter>Irr</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IRRShared.h">
+    <ClInclude Include="..\..\Assimp\code\IRRShared.h">
       <Filter>Irr</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ImproveCacheLocality.h">
+    <ClInclude Include="..\..\Assimp\code\ImproveCacheLocality.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\JoinVerticesProcess.h">
+    <ClInclude Include="..\..\Assimp\code\JoinVerticesProcess.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOAnimation.h">
+    <ClInclude Include="..\..\Assimp\code\LWOAnimation.h">
       <Filter>LWO</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOFileData.h">
+    <ClInclude Include="..\..\Assimp\code\LWOFileData.h">
       <Filter>LWO</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOLoader.h">
+    <ClInclude Include="..\..\Assimp\code\LWOLoader.h">
       <Filter>LWO</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWSLoader.h">
+    <ClInclude Include="..\..\Assimp\code\LWSLoader.h">
       <Filter>LWS</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LimitBoneWeightsProcess.h">
+    <ClInclude Include="..\..\Assimp\code\LimitBoneWeightsProcess.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD2FileData.h">
+    <ClInclude Include="..\..\Assimp\code\MD2FileData.h">
       <Filter>MD2</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD2Loader.h">
+    <ClInclude Include="..\..\Assimp\code\MD2Loader.h">
       <Filter>MD2</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD2NormalTable.h">
+    <ClInclude Include="..\..\Assimp\code\MD2NormalTable.h">
       <Filter>MD2</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD3FileData.h">
+    <ClInclude Include="..\..\Assimp\code\MD3FileData.h">
       <Filter>MD3</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD3Loader.h">
+    <ClInclude Include="..\..\Assimp\code\MD3Loader.h">
       <Filter>MD3</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD5Loader.h">
+    <ClInclude Include="..\..\Assimp\code\MD5Loader.h">
       <Filter>MD5</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD5Parser.h">
+    <ClInclude Include="..\..\Assimp\code\MD5Parser.h">
       <Filter>MD5</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDCFileData.h">
+    <ClInclude Include="..\..\Assimp\code\MDCFileData.h">
       <Filter>MDC</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDCLoader.h">
+    <ClInclude Include="..\..\Assimp\code\MDCLoader.h">
       <Filter>MDC</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDCNormalTable.h">
+    <ClInclude Include="..\..\Assimp\code\MDCNormalTable.h">
       <Filter>MDC</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDLDefaultColorMap.h">
+    <ClInclude Include="..\..\Assimp\code\MDLDefaultColorMap.h">
       <Filter>MDL</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDLFileData.h">
+    <ClInclude Include="..\..\Assimp\code\MDLFileData.h">
       <Filter>MDL</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDLLoader.h">
+    <ClInclude Include="..\..\Assimp\code\MDLLoader.h">
       <Filter>MDL</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MaterialSystem.h">
+    <ClInclude Include="..\..\Assimp\code\MaterialSystem.h">
       <Filter>MaterialSystem</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\NFFLoader.h">
+    <ClInclude Include="..\..\Assimp\code\NFFLoader.h">
       <Filter>NFF</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OFFLoader.h">
+    <ClInclude Include="..\..\Assimp\code\OFFLoader.h">
       <Filter>OFFFormat</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileData.h">
+    <ClInclude Include="..\..\Assimp\code\ObjFileData.h">
       <Filter>Obj</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileImporter.h">
+    <ClInclude Include="..\..\Assimp\code\ObjFileImporter.h">
       <Filter>Obj</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileMtlImporter.h">
+    <ClInclude Include="..\..\Assimp\code\ObjFileMtlImporter.h">
       <Filter>Obj</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileParser.h">
+    <ClInclude Include="..\..\Assimp\code\ObjFileParser.h">
       <Filter>Obj</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjTools.h">
+    <ClInclude Include="..\..\Assimp\code\ObjTools.h">
       <Filter>Obj</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OgreImporter.h">
+    <ClInclude Include="..\..\Assimp\code\OgreImporter.h">
       <Filter>Ogre</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OptimizeGraph.h">
+    <ClInclude Include="..\..\Assimp\code\OptimizeGraph.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OptimizeMeshes.h">
+    <ClInclude Include="..\..\Assimp\code\OptimizeMeshes.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ParsingUtils.h">
+    <ClInclude Include="..\..\Assimp\code\ParsingUtils.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\PlyLoader.h">
+    <ClInclude Include="..\..\Assimp\code\PlyLoader.h">
       <Filter>Ply</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\PlyParser.h">
+    <ClInclude Include="..\..\Assimp\code\PlyParser.h">
       <Filter>Ply</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\PretransformVertices.h">
+    <ClInclude Include="..\..\Assimp\code\PretransformVertices.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ProcessHelper.h">
+    <ClInclude Include="..\..\Assimp\code\ProcessHelper.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3DLoader.h">
+    <ClInclude Include="..\..\Assimp\code\Q3DLoader.h">
       <Filter>Q3D</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPFileData.h">
+    <ClInclude Include="..\..\Assimp\code\Q3BSPFileData.h">
       <Filter>Q3BSP</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPFileParser.h">
+    <ClInclude Include="..\..\Assimp\code\Q3BSPFileParser.h">
       <Filter>Q3BSP</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPFileImporter.h">
+    <ClInclude Include="..\..\Assimp\code\Q3BSPFileImporter.h">
       <Filter>Q3BSP</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPZipArchive.h">
+    <ClInclude Include="..\..\Assimp\code\Q3BSPZipArchive.h">
       <Filter>Q3BSP</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RawLoader.h">
+    <ClInclude Include="..\..\Assimp\code\RawLoader.h">
       <Filter>Raw</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RemoveComments.h">
+    <ClInclude Include="..\..\Assimp\code\RemoveComments.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RemoveRedundantMaterials.h">
+    <ClInclude Include="..\..\Assimp\code\RemoveRedundantMaterials.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RemoveVCProcess.h">
+    <ClInclude Include="..\..\Assimp\code\RemoveVCProcess.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SGSpatialSort.h">
+    <ClInclude Include="..\..\Assimp\code\SGSpatialSort.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SMDLoader.h">
+    <ClInclude Include="..\..\Assimp\code\SMDLoader.h">
       <Filter>SMD</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\STLLoader.h">
+    <ClInclude Include="..\..\Assimp\code\STLLoader.h">
       <Filter>STL</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SceneCombiner.h">
+    <ClInclude Include="..\..\Assimp\code\SceneCombiner.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ScenePreprocessor.h">
+    <ClInclude Include="..\..\Assimp\code\ScenePreprocessor.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SkeletonMeshBuilder.h">
+    <ClInclude Include="..\..\Assimp\code\SkeletonMeshBuilder.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SmoothingGroups.h">
+    <ClInclude Include="..\..\Assimp\code\SmoothingGroups.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SortByPTypeProcess.h">
+    <ClInclude Include="..\..\Assimp\code\SortByPTypeProcess.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SpatialSort.h">
+    <ClInclude Include="..\..\Assimp\code\SpatialSort.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SplitLargeMeshes.h">
+    <ClInclude Include="..\..\Assimp\code\SplitLargeMeshes.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\StandardShapes.h">
+    <ClInclude Include="..\..\Assimp\code\StandardShapes.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\StdOStreamLogStream.h">
+    <ClInclude Include="..\..\Assimp\code\StdOStreamLogStream.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\StreamReader.h">
+    <ClInclude Include="..\..\Assimp\code\StreamReader.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\StringComparison.h">
+    <ClInclude Include="..\..\Assimp\code\StringComparison.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TargetAnimation.h">
+    <ClInclude Include="..\..\Assimp\code\TargetAnimation.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TerragenLoader.h">
+    <ClInclude Include="..\..\Assimp\code\TerragenLoader.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TextureTransform.h">
+    <ClInclude Include="..\..\Assimp\code\TextureTransform.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TriangulateProcess.h">
+    <ClInclude Include="..\..\Assimp\code\TriangulateProcess.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\UnrealLoader.h">
+    <ClInclude Include="..\..\Assimp\code\UnrealLoader.h">
       <Filter>Unreal</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ValidateDataStructure.h">
+    <ClInclude Include="..\..\Assimp\code\ValidateDataStructure.h">
       <Filter>PostProcessing</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\VertexTriangleAdjacency.h">
+    <ClInclude Include="..\..\Assimp\code\VertexTriangleAdjacency.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Win32DebugLogStream.h">
+    <ClInclude Include="..\..\Assimp\code\Win32DebugLogStream.h">
       <Filter>Logging</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\XFileHelper.h">
+    <ClInclude Include="..\..\Assimp\code\XFileHelper.h">
       <Filter>XFile</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\XFileImporter.h">
+    <ClInclude Include="..\..\Assimp\code\XFileImporter.h">
       <Filter>XFile</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\XFileParser.h">
+    <ClInclude Include="..\..\Assimp\code\XFileParser.h">
       <Filter>XFile</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\fast_atof.h">
+    <ClInclude Include="..\..\Assimp\code\fast_atof.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\irrXMLWrapper.h">
+    <ClInclude Include="..\..\Assimp\code\irrXMLWrapper.h">
       <Filter>IrrXML</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\qnan.h">
+    <ClInclude Include="..\..\Assimp\code\qnan.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MakeVerboseFormat.h">
+    <ClInclude Include="..\..\Assimp\code\MakeVerboseFormat.h">
       <Filter>Extra</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD4FileData.h">
+    <ClInclude Include="..\..\Assimp\code\MD4FileData.h">
       <Filter>Extra</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\CXMLReaderImpl.h">
+    <ClInclude Include="..\..\Assimp\contrib\irrXML\CXMLReaderImpl.h">
       <Filter>IrrXML</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\heapsort.h">
+    <ClInclude Include="..\..\Assimp\contrib\irrXML\heapsort.h">
       <Filter>IrrXML</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\irrArray.h">
+    <ClInclude Include="..\..\Assimp\contrib\irrXML\irrArray.h">
       <Filter>IrrXML</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\irrString.h">
+    <ClInclude Include="..\..\Assimp\contrib\irrXML\irrString.h">
       <Filter>IrrXML</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\irrTypes.h">
+    <ClInclude Include="..\..\Assimp\contrib\irrXML\irrTypes.h">
       <Filter>IrrXML</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\irrXML.h">
+    <ClInclude Include="..\..\Assimp\contrib\irrXML\irrXML.h">
       <Filter>IrrXML</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\crc32.h">
+    <ClInclude Include="..\..\Assimp\contrib\zlib\crc32.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\deflate.h">
+    <ClInclude Include="..\..\Assimp\contrib\zlib\deflate.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inffast.h">
+    <ClInclude Include="..\..\Assimp\contrib\zlib\inffast.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inffixed.h">
+    <ClInclude Include="..\..\Assimp\contrib\zlib\inffixed.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inflate.h">
+    <ClInclude Include="..\..\Assimp\contrib\zlib\inflate.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inftrees.h">
+    <ClInclude Include="..\..\Assimp\contrib\zlib\inftrees.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\trees.h">
+    <ClInclude Include="..\..\Assimp\contrib\zlib\trees.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\zconf.h">
+    <ClInclude Include="..\..\Assimp\contrib\zlib\zconf.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\zconf.in.h">
+    <ClInclude Include="..\..\Assimp\contrib\zlib\zconf.in.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\zlib.h">
+    <ClInclude Include="..\..\Assimp\contrib\zlib\zlib.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\zutil.h">
+    <ClInclude Include="..\..\Assimp\contrib\zlib\zutil.h">
       <Filter>zlib</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\unzip\crypt.h">
+    <ClInclude Include="..\..\Assimp\contrib\unzip\crypt.h">
       <Filter>unzip</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\unzip\ioapi.h">
+    <ClInclude Include="..\..\Assimp\contrib\unzip\ioapi.h">
       <Filter>unzip</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\unzip\unzip.h">
+    <ClInclude Include="..\..\Assimp\contrib\unzip\unzip.h">
       <Filter>unzip</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Subdivision.h">
+    <ClInclude Include="..\..\Assimp\code\Subdivision.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Vertex.h">
+    <ClInclude Include="..\..\Assimp\code\Vertex.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MS3DLoader.h">
+    <ClInclude Include="..\..\Assimp\code\MS3DLoader.h">
       <Filter>MS3D</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\COBLoader.h">
+    <ClInclude Include="..\..\Assimp\code\COBLoader.h">
       <Filter>COB</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\COBScene.h">
+    <ClInclude Include="..\..\Assimp\code\COBScene.h">
       <Filter>COB</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TinyFormatter.h">
+    <ClInclude Include="..\..\Assimp\code\TinyFormatter.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LineSplitter.h">
+    <ClInclude Include="..\..\Assimp\code\LineSplitter.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderLoader.h">
+    <ClInclude Include="..\..\Assimp\code\BlenderLoader.h">
       <Filter>BLENDER</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderDNA.h">
+    <ClInclude Include="..\..\Assimp\code\BlenderDNA.h">
       <Filter>BLENDER</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderDNA.inl">
+    <ClInclude Include="..\..\Assimp\code\BlenderDNA.inl">
       <Filter>BLENDER</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderScene.h">
+    <ClInclude Include="..\..\Assimp\code\BlenderScene.h">
       <Filter>BLENDER</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderSceneGen.h">
+    <ClInclude Include="..\..\Assimp\code\BlenderSceneGen.h">
       <Filter>BLENDER</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderIntermediate.h">
+    <ClInclude Include="..\..\Assimp\code\BlenderIntermediate.h">
       <Filter>BLENDER</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderModifier.h">
+    <ClInclude Include="..\..\Assimp\code\BlenderModifier.h">
       <Filter>BLENDER</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Profiler.h">
+    <ClInclude Include="..\..\Assimp\code\Profiler.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\NDOLoader.h">
+    <ClInclude Include="..\..\Assimp\code\NDOLoader.h">
       <Filter>NDO</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\math\common_factor_rt.hpp">
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\math\common_factor_rt.hpp">
       <Filter>Boost</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\foreach.hpp">
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\foreach.hpp">
       <Filter>Boost</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\format.hpp">
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\format.hpp">
       <Filter>Boost</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\scoped_array.hpp">
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\scoped_array.hpp">
       <Filter>Boost</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\scoped_ptr.hpp">
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\scoped_ptr.hpp">
       <Filter>Boost</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\shared_array.hpp">
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\shared_array.hpp">
       <Filter>Boost</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\shared_ptr.hpp">
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\shared_ptr.hpp">
       <Filter>Boost</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\static_assert.hpp">
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\static_assert.hpp">
       <Filter>Boost</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\tuple\tuple.hpp">
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\tuple\tuple.hpp">
       <Filter>Boost</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiAnim.h">
+    <ClInclude Include="..\..\Assimp\include\aiAnim.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiAssert.h">
+    <ClInclude Include="..\..\Assimp\include\aiAssert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiCamera.h">
+    <ClInclude Include="..\..\Assimp\include\aiCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiColor4D.h">
+    <ClInclude Include="..\..\Assimp\include\aiColor4D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiColor4D.inl">
+    <ClInclude Include="..\..\Assimp\include\aiColor4D.inl">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiConfig.h">
+    <ClInclude Include="..\..\Assimp\include\aiConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiDefines.h">
+    <ClInclude Include="..\..\Assimp\include\aiDefines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiFileIO.h">
+    <ClInclude Include="..\..\Assimp\include\aiFileIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiLight.h">
+    <ClInclude Include="..\..\Assimp\include\aiLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMaterial.h">
+    <ClInclude Include="..\..\Assimp\include\aiMaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMaterial.inl">
+    <ClInclude Include="..\..\Assimp\include\aiMaterial.inl">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMatrix3x3.h">
+    <ClInclude Include="..\..\Assimp\include\aiMatrix3x3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMatrix3x3.inl">
+    <ClInclude Include="..\..\Assimp\include\aiMatrix3x3.inl">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMatrix4x4.h">
+    <ClInclude Include="..\..\Assimp\include\aiMatrix4x4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMatrix4x4.inl">
+    <ClInclude Include="..\..\Assimp\include\aiMatrix4x4.inl">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMesh.h">
+    <ClInclude Include="..\..\Assimp\include\aiMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiPostProcess.h">
+    <ClInclude Include="..\..\Assimp\include\aiPostProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiQuaternion.h">
+    <ClInclude Include="..\..\Assimp\include\aiQuaternion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiScene.h">
+    <ClInclude Include="..\..\Assimp\include\aiScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiTexture.h">
+    <ClInclude Include="..\..\Assimp\include\aiTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiTypes.h">
+    <ClInclude Include="..\..\Assimp\include\aiTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiVector2D.h">
+    <ClInclude Include="..\..\Assimp\include\aiVector2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiVector3D.h">
+    <ClInclude Include="..\..\Assimp\include\aiVector3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiVector3D.inl">
+    <ClInclude Include="..\..\Assimp\include\aiVector3D.inl">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiVersion.h">
+    <ClInclude Include="..\..\Assimp\include\aiVersion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\assimp.h">
+    <ClInclude Include="..\..\Assimp\include\assimp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\assimp.hpp">
+    <ClInclude Include="..\..\Assimp\include\assimp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\DefaultLogger.h">
+    <ClInclude Include="..\..\Assimp\include\DefaultLogger.h">
       <Filter>Logging</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\ProgressHandler.h">
+    <ClInclude Include="..\..\Assimp\include\ProgressHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\IOStream.h">
+    <ClInclude Include="..\..\Assimp\include\IOStream.h">
       <Filter>Logging</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\IOSystem.h">
+    <ClInclude Include="..\..\Assimp\include\IOSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\Logger.h">
+    <ClInclude Include="..\..\Assimp\include\Logger.h">
       <Filter>Logging</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\LogStream.h">
+    <ClInclude Include="..\..\Assimp\include\LogStream.h">
       <Filter>Logging</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\NullLogger.h">
+    <ClInclude Include="..\..\Assimp\include\NullLogger.h">
       <Filter>Logging</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\Compiler\pushpack1.h">
+    <ClInclude Include="..\..\Assimp\include\Compiler\pushpack1.h">
       <Filter>Compiler</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\Compiler\poppack1.h">
+    <ClInclude Include="..\..\Assimp\include\Compiler\poppack1.h">
       <Filter>Compiler</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\pstdint.h">
+    <ClInclude Include="..\..\Assimp\code\pstdint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

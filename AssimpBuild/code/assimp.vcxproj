@@ -66,13 +66,13 @@
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\AssimpBuild\code\MinSizeRel\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">AssimpBuild\code\MinSizeRel\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">assimp.dir\MinSizeRel\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">assimp</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.dll</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\AssimpBuild\code\RelWithDebInfo\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">AssimpBuild\code\RelWithDebInfo\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">assimp.dir\RelWithDebInfo\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">assimp</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.dll</TargetExt>
@@ -95,14 +95,14 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_DLL_EXPORT;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="Debug";assimp_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>Debug</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild/code/Debug/assimp.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>AssimpBuild/code/Debug/assimp.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_DLL_EXPORT;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Debug\";assimp_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/include;C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Assimp/include;../../Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/include;C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Assimp/include;../../Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -114,9 +114,9 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ImportLibrary>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild/code/Debug/assimp.lib</ImportLibrary>
+      <ImportLibrary>AssimpBuild/code/Debug/assimp.lib</ImportLibrary>
       <LinkIncremental>true</LinkIncremental>
-      <ProgramDataBaseFileName>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild/code/Debug/assimp.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>AssimpBuild/code/Debug/assimp.pdb</ProgramDataBaseFileName>
       <StackReserveSize>10000000</StackReserveSize>
       <SubSystem>Console</SubSystem>
       <Version>
@@ -142,14 +142,14 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_DLL_EXPORT;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="Release";assimp_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>Release</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild/code/Release/assimp.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>AssimpBuild/code/Release/assimp.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_DLL_EXPORT;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Release\";assimp_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/include;C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Assimp/include;../../Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/include;C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Assimp/include;../../Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -161,8 +161,8 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <ImportLibrary>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild/code/Release/assimp.lib</ImportLibrary>
-      <ProgramDataBaseFileName>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild/code/Release/assimp.pdb</ProgramDataBaseFileName>
+      <ImportLibrary>AssimpBuild/code/Release/assimp.lib</ImportLibrary>
+      <ProgramDataBaseFileName>AssimpBuild/code/Release/assimp.pdb</ProgramDataBaseFileName>
       <StackReserveSize>10000000</StackReserveSize>
       <SubSystem>Console</SubSystem>
       <Version>
@@ -175,7 +175,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
     <ClCompile>
       <AdditionalOptions> /Zm1000 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/include;C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Assimp/include;../../Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
@@ -188,14 +188,14 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_DLL_EXPORT;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="MinSizeRel";assimp_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>MinSizeRel</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild/code/MinSizeRel/assimp.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>AssimpBuild/code/MinSizeRel/assimp.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_DLL_EXPORT;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"MinSizeRel\";assimp_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/include;C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Assimp/include;../../Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/include;C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Assimp/include;../../Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -207,8 +207,8 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <ImportLibrary>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild/code/MinSizeRel/assimp.lib</ImportLibrary>
-      <ProgramDataBaseFileName>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild/code/MinSizeRel/assimp.pdb</ProgramDataBaseFileName>
+      <ImportLibrary>AssimpBuild/code/MinSizeRel/assimp.lib</ImportLibrary>
+      <ProgramDataBaseFileName>AssimpBuild/code/MinSizeRel/assimp.pdb</ProgramDataBaseFileName>
       <StackReserveSize>10000000</StackReserveSize>
       <SubSystem>Console</SubSystem>
       <Version>
@@ -221,7 +221,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
     <ClCompile>
       <AdditionalOptions> /Zm1000 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/include;C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Assimp/include;../../Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -233,14 +233,14 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_DLL_EXPORT;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="RelWithDebInfo";assimp_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>RelWithDebInfo</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild/code/RelWithDebInfo/assimp.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>AssimpBuild/code/RelWithDebInfo/assimp.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ASSIMP_BUILD_BOOST_WORKAROUND;ASSIMP_BUILD_DLL_EXPORT;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"RelWithDebInfo\";assimp_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/include;C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Assimp/include;../../Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/include;C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Assimp/include;../../Assimp/code/BoostWorkaround;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -252,9 +252,9 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ImportLibrary>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild/code/RelWithDebInfo/assimp.lib</ImportLibrary>
+      <ImportLibrary>AssimpBuild/code/RelWithDebInfo/assimp.lib</ImportLibrary>
       <LinkIncremental>true</LinkIncremental>
-      <ProgramDataBaseFileName>C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild/code/RelWithDebInfo/assimp.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>AssimpBuild/code/RelWithDebInfo/assimp.pdb</ProgramDataBaseFileName>
       <StackReserveSize>10000000</StackReserveSize>
       <SubSystem>Console</SubSystem>
       <Version>
@@ -265,426 +265,374 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\Assimp\code\CMakeLists.txt">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
-"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp -BC:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild --check-stamp-file C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\AssimpBuild\code\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/CMakeLists.txt;C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CMakeLists.txt;C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\AssimpBuild\code\CMakeFiles\generate.stamp</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
-"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp -BC:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild --check-stamp-file C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\AssimpBuild\code\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/CMakeLists.txt;C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CMakeLists.txt;C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\AssimpBuild\code\CMakeFiles\generate.stamp</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
-"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp -BC:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild --check-stamp-file C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\AssimpBuild\code\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/CMakeLists.txt;C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CMakeLists.txt;C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\AssimpBuild\code\CMakeFiles\generate.stamp</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/CMakeLists.txt</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
-"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp -BC:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild --check-stamp-file C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\AssimpBuild\code\CMakeFiles\generate.stamp
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/Assimp/code/CMakeLists.txt;C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CMakeLists.txt;C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\AssimpBuild\code\CMakeFiles\generate.stamp</Outputs>
-    </CustomBuild>
+    <ClCompile Include="..\..\Assimp\code\3DSConverter.cpp" />
+    <ClInclude Include="..\..\Assimp\code\3DSHelper.h" />
+    <ClCompile Include="..\..\Assimp\code\3DSLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\3DSLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\ACLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\ACLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\ASELoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\ASELoader.h" />
+    <ClCompile Include="..\..\Assimp\code\ASEParser.cpp" />
+    <ClInclude Include="..\..\Assimp\code\ASEParser.h" />
+    <ClCompile Include="..\..\Assimp\code\Assimp.cpp" />
+    <ClCompile Include="..\..\Assimp\code\AssimpPCH.cpp" />
+    <ClInclude Include="..\..\Assimp\code\AssimpPCH.h" />
+    <ClCompile Include="..\..\Assimp\code\B3DImporter.cpp" />
+    <ClInclude Include="..\..\Assimp\code\B3DImporter.h" />
+    <ClCompile Include="..\..\Assimp\code\BVHLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\BVHLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\BaseImporter.cpp" />
+    <ClInclude Include="..\..\Assimp\code\BaseImporter.h" />
+    <ClCompile Include="..\..\Assimp\code\BaseProcess.cpp" />
+    <ClInclude Include="..\..\Assimp\code\BaseProcess.h" />
+    <ClInclude Include="..\..\Assimp\code\ByteSwap.h" />
+    <ClCompile Include="..\..\Assimp\code\CalcTangentsProcess.cpp" />
+    <ClInclude Include="..\..\Assimp\code\CalcTangentsProcess.h" />
+    <ClInclude Include="..\..\Assimp\code\ColladaHelper.h" />
+    <ClCompile Include="..\..\Assimp\code\ColladaLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\ColladaLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\ColladaParser.cpp" />
+    <ClInclude Include="..\..\Assimp\code\ColladaParser.h" />
+    <ClCompile Include="..\..\Assimp\code\ComputeUVMappingProcess.cpp" />
+    <ClInclude Include="..\..\Assimp\code\ComputeUVMappingProcess.h" />
+    <ClCompile Include="..\..\Assimp\code\ConvertToLHProcess.cpp" />
+    <ClInclude Include="..\..\Assimp\code\ConvertToLHProcess.h" />
+    <ClCompile Include="..\..\Assimp\code\DXFLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\DXFLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\CSMLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\CSMLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\DefaultIOStream.cpp" />
+    <ClInclude Include="..\..\Assimp\code\DefaultIOStream.h" />
+    <ClCompile Include="..\..\Assimp\code\DefaultIOSystem.cpp" />
+    <ClInclude Include="..\..\Assimp\code\DefaultIOSystem.h" />
+    <ClInclude Include="..\..\Assimp\code\DefaultProgressHandler.h" />
+    <ClCompile Include="..\..\Assimp\code\DefaultLogger.cpp" />
+    <ClInclude Include="..\..\Assimp\code\FileLogStream.h" />
+    <ClCompile Include="..\..\Assimp\code\FindDegenerates.cpp" />
+    <ClInclude Include="..\..\Assimp\code\FindDegenerates.h" />
+    <ClCompile Include="..\..\Assimp\code\FindInstancesProcess.cpp" />
+    <ClInclude Include="..\..\Assimp\code\FindInstancesProcess.h" />
+    <ClCompile Include="..\..\Assimp\code\FindInvalidDataProcess.cpp" />
+    <ClInclude Include="..\..\Assimp\code\FindInvalidDataProcess.h" />
+    <ClCompile Include="..\..\Assimp\code\FixNormalsStep.cpp" />
+    <ClInclude Include="..\..\Assimp\code\FixNormalsStep.h" />
+    <ClCompile Include="..\..\Assimp\code\GenFaceNormalsProcess.cpp" />
+    <ClInclude Include="..\..\Assimp\code\GenFaceNormalsProcess.h" />
+    <ClCompile Include="..\..\Assimp\code\GenVertexNormalsProcess.cpp" />
+    <ClInclude Include="..\..\Assimp\code\GenVertexNormalsProcess.h" />
+    <ClInclude Include="..\..\Assimp\code\GenericProperty.h" />
+    <ClInclude Include="..\..\Assimp\code\HMPFileData.h" />
+    <ClCompile Include="..\..\Assimp\code\HMPLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\HMPLoader.h" />
+    <ClInclude Include="..\..\Assimp\code\HalfLifeFileData.h" />
+    <ClInclude Include="..\..\Assimp\code\Hash.h" />
+    <ClInclude Include="..\..\Assimp\code\IFF.h" />
+    <ClCompile Include="..\..\Assimp\code\IRRLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\IRRLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\IRRMeshLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\IRRMeshLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\IRRShared.cpp" />
+    <ClInclude Include="..\..\Assimp\code\IRRShared.h" />
+    <ClCompile Include="..\..\Assimp\code\Importer.cpp" />
+    <ClCompile Include="..\..\Assimp\code\ImproveCacheLocality.cpp" />
+    <ClInclude Include="..\..\Assimp\code\ImproveCacheLocality.h" />
+    <ClCompile Include="..\..\Assimp\code\JoinVerticesProcess.cpp" />
+    <ClInclude Include="..\..\Assimp\code\JoinVerticesProcess.h" />
+    <ClCompile Include="..\..\Assimp\code\LWOAnimation.cpp" />
+    <ClInclude Include="..\..\Assimp\code\LWOAnimation.h" />
+    <ClCompile Include="..\..\Assimp\code\LWOBLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\LWOFileData.h" />
+    <ClCompile Include="..\..\Assimp\code\LWOLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\LWOLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\LWOMaterial.cpp" />
+    <ClCompile Include="..\..\Assimp\code\LWSLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\LWSLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\LimitBoneWeightsProcess.cpp" />
+    <ClInclude Include="..\..\Assimp\code\LimitBoneWeightsProcess.h" />
+    <ClInclude Include="..\..\Assimp\code\MD2FileData.h" />
+    <ClCompile Include="..\..\Assimp\code\MD2Loader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\MD2Loader.h" />
+    <ClInclude Include="..\..\Assimp\code\MD2NormalTable.h" />
+    <ClInclude Include="..\..\Assimp\code\MD3FileData.h" />
+    <ClCompile Include="..\..\Assimp\code\MD3Loader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\MD3Loader.h" />
+    <ClCompile Include="..\..\Assimp\code\MD5Loader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\MD5Loader.h" />
+    <ClCompile Include="..\..\Assimp\code\MD5Parser.cpp" />
+    <ClInclude Include="..\..\Assimp\code\MD5Parser.h" />
+    <ClInclude Include="..\..\Assimp\code\MDCFileData.h" />
+    <ClCompile Include="..\..\Assimp\code\MDCLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\MDCLoader.h" />
+    <ClInclude Include="..\..\Assimp\code\MDCNormalTable.h" />
+    <ClInclude Include="..\..\Assimp\code\MDLDefaultColorMap.h" />
+    <ClInclude Include="..\..\Assimp\code\MDLFileData.h" />
+    <ClCompile Include="..\..\Assimp\code\MDLLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\MDLLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\MDLMaterialLoader.cpp" />
+    <ClCompile Include="..\..\Assimp\code\MaterialSystem.cpp" />
+    <ClInclude Include="..\..\Assimp\code\MaterialSystem.h" />
+    <ClCompile Include="..\..\Assimp\code\NFFLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\NFFLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\OFFLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\OFFLoader.h" />
+    <ClInclude Include="..\..\Assimp\code\ObjFileData.h" />
+    <ClCompile Include="..\..\Assimp\code\ObjFileImporter.cpp" />
+    <ClInclude Include="..\..\Assimp\code\ObjFileImporter.h" />
+    <ClCompile Include="..\..\Assimp\code\ObjFileMtlImporter.cpp" />
+    <ClInclude Include="..\..\Assimp\code\ObjFileMtlImporter.h" />
+    <ClCompile Include="..\..\Assimp\code\ObjFileParser.cpp" />
+    <ClInclude Include="..\..\Assimp\code\ObjFileParser.h" />
+    <ClInclude Include="..\..\Assimp\code\ObjTools.h" />
+    <ClInclude Include="..\..\Assimp\code\OgreImporter.h" />
+    <ClCompile Include="..\..\Assimp\code\OgreImporter.cpp" />
+    <ClCompile Include="..\..\Assimp\code\OgreImporterMaterial.cpp" />
+    <ClCompile Include="..\..\Assimp\code\OptimizeGraph.cpp" />
+    <ClInclude Include="..\..\Assimp\code\OptimizeGraph.h" />
+    <ClCompile Include="..\..\Assimp\code\OptimizeMeshes.cpp" />
+    <ClInclude Include="..\..\Assimp\code\OptimizeMeshes.h" />
+    <ClInclude Include="..\..\Assimp\code\ParsingUtils.h" />
+    <ClCompile Include="..\..\Assimp\code\PlyLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\PlyLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\PlyParser.cpp" />
+    <ClInclude Include="..\..\Assimp\code\PlyParser.h" />
+    <ClCompile Include="..\..\Assimp\code\PretransformVertices.cpp" />
+    <ClInclude Include="..\..\Assimp\code\PretransformVertices.h" />
+    <ClInclude Include="..\..\Assimp\code\ProcessHelper.h" />
+    <ClCompile Include="..\..\Assimp\code\Q3DLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\Q3DLoader.h" />
+    <ClInclude Include="..\..\Assimp\code\Q3BSPFileData.h" />
+    <ClInclude Include="..\..\Assimp\code\Q3BSPFileParser.h" />
+    <ClCompile Include="..\..\Assimp\code\Q3BSPFileParser.cpp" />
+    <ClInclude Include="..\..\Assimp\code\Q3BSPFileImporter.h" />
+    <ClCompile Include="..\..\Assimp\code\Q3BSPFileImporter.cpp" />
+    <ClInclude Include="..\..\Assimp\code\Q3BSPZipArchive.h" />
+    <ClCompile Include="..\..\Assimp\code\Q3BSPZipArchive.cpp" />
+    <ClCompile Include="..\..\Assimp\code\RawLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\RawLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\RemoveComments.cpp" />
+    <ClInclude Include="..\..\Assimp\code\RemoveComments.h" />
+    <ClCompile Include="..\..\Assimp\code\RemoveRedundantMaterials.cpp" />
+    <ClInclude Include="..\..\Assimp\code\RemoveRedundantMaterials.h" />
+    <ClCompile Include="..\..\Assimp\code\RemoveVCProcess.cpp" />
+    <ClInclude Include="..\..\Assimp\code\RemoveVCProcess.h" />
+    <ClCompile Include="..\..\Assimp\code\SGSpatialSort.cpp" />
+    <ClInclude Include="..\..\Assimp\code\SGSpatialSort.h" />
+    <ClCompile Include="..\..\Assimp\code\SMDLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\SMDLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\STLLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\STLLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\SceneCombiner.cpp" />
+    <ClInclude Include="..\..\Assimp\code\SceneCombiner.h" />
+    <ClCompile Include="..\..\Assimp\code\ScenePreprocessor.cpp" />
+    <ClInclude Include="..\..\Assimp\code\ScenePreprocessor.h" />
+    <ClCompile Include="..\..\Assimp\code\SkeletonMeshBuilder.cpp" />
+    <ClInclude Include="..\..\Assimp\code\SkeletonMeshBuilder.h" />
+    <ClInclude Include="..\..\Assimp\code\SmoothingGroups.h" />
+    <ClCompile Include="..\..\Assimp\code\SortByPTypeProcess.cpp" />
+    <ClInclude Include="..\..\Assimp\code\SortByPTypeProcess.h" />
+    <ClCompile Include="..\..\Assimp\code\SpatialSort.cpp" />
+    <ClInclude Include="..\..\Assimp\code\SpatialSort.h" />
+    <ClCompile Include="..\..\Assimp\code\SplitLargeMeshes.cpp" />
+    <ClInclude Include="..\..\Assimp\code\SplitLargeMeshes.h" />
+    <ClCompile Include="..\..\Assimp\code\StandardShapes.cpp" />
+    <ClInclude Include="..\..\Assimp\code\StandardShapes.h" />
+    <ClInclude Include="..\..\Assimp\code\StdOStreamLogStream.h" />
+    <ClInclude Include="..\..\Assimp\code\StreamReader.h" />
+    <ClInclude Include="..\..\Assimp\code\StringComparison.h" />
+    <ClCompile Include="..\..\Assimp\code\TargetAnimation.cpp" />
+    <ClInclude Include="..\..\Assimp\code\TargetAnimation.h" />
+    <ClCompile Include="..\..\Assimp\code\TerragenLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\TerragenLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\TextureTransform.cpp" />
+    <ClInclude Include="..\..\Assimp\code\TextureTransform.h" />
+    <ClCompile Include="..\..\Assimp\code\TriangulateProcess.cpp" />
+    <ClInclude Include="..\..\Assimp\code\TriangulateProcess.h" />
+    <ClCompile Include="..\..\Assimp\code\UnrealLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\UnrealLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\ValidateDataStructure.cpp" />
+    <ClInclude Include="..\..\Assimp\code\ValidateDataStructure.h" />
+    <ClCompile Include="..\..\Assimp\code\VertexTriangleAdjacency.cpp" />
+    <ClInclude Include="..\..\Assimp\code\VertexTriangleAdjacency.h" />
+    <ClInclude Include="..\..\Assimp\code\Win32DebugLogStream.h" />
+    <ClInclude Include="..\..\Assimp\code\XFileHelper.h" />
+    <ClCompile Include="..\..\Assimp\code\XFileImporter.cpp" />
+    <ClInclude Include="..\..\Assimp\code\XFileImporter.h" />
+    <ClCompile Include="..\..\Assimp\code\XFileParser.cpp" />
+    <ClInclude Include="..\..\Assimp\code\XFileParser.h" />
+    <ClCompile Include="..\..\Assimp\code\aiAssert.cpp" />
+    <ClInclude Include="..\..\Assimp\code\fast_atof.h" />
+    <ClInclude Include="..\..\Assimp\code\irrXMLWrapper.h" />
+    <ClInclude Include="..\..\Assimp\code\qnan.h" />
+    <ClCompile Include="..\..\Assimp\code\MakeVerboseFormat.cpp" />
+    <ClInclude Include="..\..\Assimp\code\MakeVerboseFormat.h" />
+    <ClInclude Include="..\..\Assimp\code\MD4FileData.h" />
+    <ClInclude Include="..\..\Assimp\contrib\irrXML\CXMLReaderImpl.h" />
+    <ClInclude Include="..\..\Assimp\contrib\irrXML\heapsort.h" />
+    <ClInclude Include="..\..\Assimp\contrib\irrXML\irrArray.h" />
+    <ClInclude Include="..\..\Assimp\contrib\irrXML\irrString.h" />
+    <ClInclude Include="..\..\Assimp\contrib\irrXML\irrTypes.h" />
+    <ClCompile Include="..\..\Assimp\contrib\irrXML\irrXML.cpp" />
+    <ClInclude Include="..\..\Assimp\contrib\irrXML\irrXML.h" />
+    <ClCompile Include="..\..\Assimp\contrib\zlib\adler32.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\Assimp\contrib\zlib\compress.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\..\Assimp\contrib\zlib\crc32.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="..\..\Assimp\contrib\zlib\crc32.h" />
+    <ClCompile Include="..\..\Assimp\contrib\zlib\deflate.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="..\..\Assimp\contrib\zlib\deflate.h" />
+    <ClCompile Include="..\..\Assimp\contrib\zlib\inffast.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="..\..\Assimp\contrib\zlib\inffast.h" />
+    <ClInclude Include="..\..\Assimp\contrib\zlib\inffixed.h" />
+    <ClCompile Include="..\..\Assimp\contrib\zlib\inflate.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="..\..\Assimp\contrib\zlib\inflate.h" />
+    <ClCompile Include="..\..\Assimp\contrib\zlib\inftrees.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="..\..\Assimp\contrib\zlib\inftrees.h" />
+    <ClCompile Include="..\..\Assimp\contrib\zlib\trees.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="..\..\Assimp\contrib\zlib\trees.h" />
+    <ClInclude Include="..\..\Assimp\contrib\zlib\zconf.h" />
+    <ClInclude Include="..\..\Assimp\contrib\zlib\zconf.in.h" />
+    <ClInclude Include="..\..\Assimp\contrib\zlib\zlib.h" />
+    <ClCompile Include="..\..\Assimp\contrib\zlib\zutil.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="..\..\Assimp\contrib\zlib\zutil.h" />
+    <ClCompile Include="..\..\Assimp\contrib\ConvertUTF\ConvertUTF.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="..\..\Assimp\contrib\unzip\crypt.h" />
+    <ClCompile Include="..\..\Assimp\contrib\unzip\ioapi.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="..\..\Assimp\contrib\unzip\ioapi.h" />
+    <ClCompile Include="..\..\Assimp\contrib\unzip\unzip.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="..\..\Assimp\contrib\unzip\unzip.h" />
+    <ClCompile Include="..\..\Assimp\code\Subdivision.cpp" />
+    <ClInclude Include="..\..\Assimp\code\Subdivision.h" />
+    <ClInclude Include="..\..\Assimp\code\Vertex.h" />
+    <ClInclude Include="..\..\Assimp\code\MS3DLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\MS3DLoader.cpp" />
+    <ClCompile Include="..\..\Assimp\code\COBLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\COBLoader.h" />
+    <ClInclude Include="..\..\Assimp\code\COBScene.h" />
+    <ClInclude Include="..\..\Assimp\code\TinyFormatter.h" />
+    <ClInclude Include="..\..\Assimp\code\LineSplitter.h" />
+    <ClCompile Include="..\..\Assimp\code\BlenderLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\BlenderLoader.h" />
+    <ClCompile Include="..\..\Assimp\code\BlenderDNA.cpp" />
+    <ClInclude Include="..\..\Assimp\code\BlenderDNA.h" />
+    <ClInclude Include="..\..\Assimp\code\BlenderDNA.inl" />
+    <ClCompile Include="..\..\Assimp\code\BlenderScene.cpp" />
+    <ClInclude Include="..\..\Assimp\code\BlenderScene.h" />
+    <ClInclude Include="..\..\Assimp\code\BlenderSceneGen.h" />
+    <ClInclude Include="..\..\Assimp\code\BlenderIntermediate.h" />
+    <ClInclude Include="..\..\Assimp\code\BlenderModifier.h" />
+    <ClCompile Include="..\..\Assimp\code\BlenderModifier.cpp" />
+    <ClInclude Include="..\..\Assimp\code\Profiler.h" />
+    <ClCompile Include="..\..\Assimp\code\NDOLoader.cpp" />
+    <ClInclude Include="..\..\Assimp\code\NDOLoader.h" />
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\math\common_factor_rt.hpp" />
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\foreach.hpp" />
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\format.hpp" />
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\scoped_array.hpp" />
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\scoped_ptr.hpp" />
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\shared_array.hpp" />
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\shared_ptr.hpp" />
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\static_assert.hpp" />
+    <ClInclude Include="..\..\Assimp\code\BoostWorkaround\boost\tuple\tuple.hpp" />
+    <ClInclude Include="..\..\Assimp\include\aiAnim.h" />
+    <ClInclude Include="..\..\Assimp\include\aiAssert.h" />
+    <ClInclude Include="..\..\Assimp\include\aiCamera.h" />
+    <ClInclude Include="..\..\Assimp\include\aiColor4D.h" />
+    <ClInclude Include="..\..\Assimp\include\aiColor4D.inl" />
+    <ClInclude Include="..\..\Assimp\include\aiConfig.h" />
+    <ClInclude Include="..\..\Assimp\include\aiDefines.h" />
+    <ClInclude Include="..\..\Assimp\include\aiFileIO.h" />
+    <ClInclude Include="..\..\Assimp\include\aiLight.h" />
+    <ClInclude Include="..\..\Assimp\include\aiMaterial.h" />
+    <ClInclude Include="..\..\Assimp\include\aiMaterial.inl" />
+    <ClInclude Include="..\..\Assimp\include\aiMatrix3x3.h" />
+    <ClInclude Include="..\..\Assimp\include\aiMatrix3x3.inl" />
+    <ClInclude Include="..\..\Assimp\include\aiMatrix4x4.h" />
+    <ClInclude Include="..\..\Assimp\include\aiMatrix4x4.inl" />
+    <ClInclude Include="..\..\Assimp\include\aiMesh.h" />
+    <ClInclude Include="..\..\Assimp\include\aiPostProcess.h" />
+    <ClInclude Include="..\..\Assimp\include\aiQuaternion.h" />
+    <ClInclude Include="..\..\Assimp\include\aiScene.h" />
+    <ClInclude Include="..\..\Assimp\include\aiTexture.h" />
+    <ClInclude Include="..\..\Assimp\include\aiTypes.h" />
+    <ClInclude Include="..\..\Assimp\include\aiVector2D.h" />
+    <ClInclude Include="..\..\Assimp\include\aiVector3D.h" />
+    <ClInclude Include="..\..\Assimp\include\aiVector3D.inl" />
+    <ClInclude Include="..\..\Assimp\include\aiVersion.h" />
+    <ClInclude Include="..\..\Assimp\include\assimp.h" />
+    <ClInclude Include="..\..\Assimp\include\assimp.hpp" />
+    <ClInclude Include="..\..\Assimp\include\DefaultLogger.h" />
+    <ClInclude Include="..\..\Assimp\include\ProgressHandler.h" />
+    <ClInclude Include="..\..\Assimp\include\IOStream.h" />
+    <ClInclude Include="..\..\Assimp\include\IOSystem.h" />
+    <ClInclude Include="..\..\Assimp\include\Logger.h" />
+    <ClInclude Include="..\..\Assimp\include\LogStream.h" />
+    <ClInclude Include="..\..\Assimp\include\NullLogger.h" />
+    <ClInclude Include="..\..\Assimp\include\Compiler\pushpack1.h" />
+    <ClInclude Include="..\..\Assimp\include\Compiler\poppack1.h" />
+    <ClInclude Include="..\..\Assimp\code\pstdint.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\3DSConverter.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\3DSHelper.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\3DSLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\3DSLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ACLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ACLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ASELoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ASELoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ASEParser.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ASEParser.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Assimp.cpp" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\AssimpPCH.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\AssimpPCH.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\B3DImporter.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\B3DImporter.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BVHLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BVHLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BaseImporter.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BaseImporter.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BaseProcess.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BaseProcess.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ByteSwap.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CalcTangentsProcess.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CalcTangentsProcess.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ColladaHelper.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ColladaLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ColladaLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ColladaParser.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ColladaParser.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ComputeUVMappingProcess.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ComputeUVMappingProcess.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ConvertToLHProcess.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ConvertToLHProcess.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DXFLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DXFLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CSMLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\CSMLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DefaultIOStream.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DefaultIOStream.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DefaultIOSystem.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DefaultIOSystem.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DefaultProgressHandler.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\DefaultLogger.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FileLogStream.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FindDegenerates.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FindDegenerates.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FindInstancesProcess.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FindInstancesProcess.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FindInvalidDataProcess.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FindInvalidDataProcess.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FixNormalsStep.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\FixNormalsStep.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\GenFaceNormalsProcess.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\GenFaceNormalsProcess.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\GenVertexNormalsProcess.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\GenVertexNormalsProcess.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\GenericProperty.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\HMPFileData.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\HMPLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\HMPLoader.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\HalfLifeFileData.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Hash.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IFF.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IRRLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IRRLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IRRMeshLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IRRMeshLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IRRShared.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\IRRShared.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Importer.cpp" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ImproveCacheLocality.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ImproveCacheLocality.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\JoinVerticesProcess.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\JoinVerticesProcess.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOAnimation.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOAnimation.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOBLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOFileData.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWOMaterial.cpp" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWSLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LWSLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LimitBoneWeightsProcess.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LimitBoneWeightsProcess.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD2FileData.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD2Loader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD2Loader.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD2NormalTable.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD3FileData.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD3Loader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD3Loader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD5Loader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD5Loader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD5Parser.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD5Parser.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDCFileData.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDCLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDCLoader.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDCNormalTable.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDLDefaultColorMap.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDLFileData.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDLLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDLLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MDLMaterialLoader.cpp" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MaterialSystem.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MaterialSystem.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\NFFLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\NFFLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OFFLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OFFLoader.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileData.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileImporter.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileImporter.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileMtlImporter.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileMtlImporter.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileParser.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjFileParser.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ObjTools.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OgreImporter.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OgreImporter.cpp" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OgreImporterMaterial.cpp" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OptimizeGraph.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OptimizeGraph.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OptimizeMeshes.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\OptimizeMeshes.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ParsingUtils.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\PlyLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\PlyLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\PlyParser.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\PlyParser.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\PretransformVertices.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\PretransformVertices.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ProcessHelper.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3DLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3DLoader.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPFileData.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPFileParser.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPFileParser.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPFileImporter.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPFileImporter.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPZipArchive.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Q3BSPZipArchive.cpp" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RawLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RawLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RemoveComments.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RemoveComments.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RemoveRedundantMaterials.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RemoveRedundantMaterials.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RemoveVCProcess.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\RemoveVCProcess.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SGSpatialSort.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SGSpatialSort.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SMDLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SMDLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\STLLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\STLLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SceneCombiner.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SceneCombiner.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ScenePreprocessor.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ScenePreprocessor.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SkeletonMeshBuilder.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SkeletonMeshBuilder.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SmoothingGroups.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SortByPTypeProcess.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SortByPTypeProcess.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SpatialSort.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SpatialSort.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SplitLargeMeshes.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\SplitLargeMeshes.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\StandardShapes.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\StandardShapes.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\StdOStreamLogStream.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\StreamReader.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\StringComparison.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TargetAnimation.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TargetAnimation.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TerragenLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TerragenLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TextureTransform.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TextureTransform.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TriangulateProcess.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TriangulateProcess.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\UnrealLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\UnrealLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ValidateDataStructure.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\ValidateDataStructure.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\VertexTriangleAdjacency.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\VertexTriangleAdjacency.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Win32DebugLogStream.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\XFileHelper.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\XFileImporter.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\XFileImporter.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\XFileParser.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\XFileParser.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\aiAssert.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\fast_atof.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\irrXMLWrapper.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\qnan.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MakeVerboseFormat.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MakeVerboseFormat.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MD4FileData.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\CXMLReaderImpl.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\heapsort.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\irrArray.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\irrString.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\irrTypes.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\irrXML.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\irrXML\irrXML.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\adler32.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\compress.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\crc32.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\crc32.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\deflate.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\deflate.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inffast.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inffast.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inffixed.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inflate.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inflate.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inftrees.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\inftrees.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\trees.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\trees.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\zconf.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\zconf.in.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\zlib.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\zutil.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\zlib\zutil.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\ConvertUTF\ConvertUTF.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\unzip\crypt.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\unzip\ioapi.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\unzip\ioapi.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\unzip\unzip.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">CompileAsC</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\contrib\unzip\unzip.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Subdivision.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Subdivision.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Vertex.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MS3DLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\MS3DLoader.cpp" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\COBLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\COBLoader.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\COBScene.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\TinyFormatter.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\LineSplitter.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderLoader.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderDNA.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderDNA.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderDNA.inl" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderScene.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderScene.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderSceneGen.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderIntermediate.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderModifier.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BlenderModifier.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\Profiler.h" />
-    <ClCompile Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\NDOLoader.cpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\NDOLoader.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\math\common_factor_rt.hpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\foreach.hpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\format.hpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\scoped_array.hpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\scoped_ptr.hpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\shared_array.hpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\shared_ptr.hpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\static_assert.hpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\BoostWorkaround\boost\tuple\tuple.hpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiAnim.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiAssert.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiCamera.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiColor4D.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiColor4D.inl" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiConfig.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiDefines.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiFileIO.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiLight.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMaterial.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMaterial.inl" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMatrix3x3.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMatrix3x3.inl" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMatrix4x4.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMatrix4x4.inl" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiMesh.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiPostProcess.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiQuaternion.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiScene.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiTexture.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiTypes.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiVector2D.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiVector3D.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiVector3D.inl" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\aiVersion.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\assimp.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\assimp.hpp" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\DefaultLogger.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\ProgressHandler.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\IOStream.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\IOSystem.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\Logger.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\LogStream.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\NullLogger.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\Compiler\pushpack1.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\include\Compiler\poppack1.h" />
-    <ClInclude Include="C:\Users\Flo\Documents\Uni\Bakkarbeit\Teilaufgabe2\Assimp\code\pstdint.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="C:/Users/Flo/Documents/Uni/Bakkarbeit/Teilaufgabe2/AssimpBuild/ZERO_CHECK.vcxproj">
+    <ProjectReference Include="AssimpBuild/ZERO_CHECK.vcxproj">
       <Project>82C56F0D-12AE-4474-BDD6-2634D70EED7C</Project>
     </ProjectReference>
   </ItemGroup>
