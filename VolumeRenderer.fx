@@ -194,6 +194,7 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 		
 		if(output.color.a >= 1.0f)
 		{
+			output.color.rgb /= output.color.a;
 			output.color.a = 1.0f;
 			break;
 		}
