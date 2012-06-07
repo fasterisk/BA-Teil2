@@ -4,7 +4,7 @@
 #include <assimp.hpp>
 #include <aiScene.h>
 #include <aiPostProcess.h>
-
+#include <FreeImage.h>
 
 Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pSurfaceEffect)
 {
@@ -109,10 +109,10 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 	//convert LPCWSTR to std::string
 	std::string strFileName = ConvertWideCharToChar(lsFileName);
 
-	//V_RETURN(m_pSurfaceMesh.Create(m_pd3dDevice, lsFileName, true));
+	V_RETURN(m_pSurfaceMesh.Create(m_pd3dDevice, lsFileName, true));
 	D3DXMatrixIdentity(&m_mModel);
 
-	Assimp::Importer Importer;
+	/*Assimp::Importer Importer;
 
 	const aiScene* pScene = Importer.ReadFile(strFileName.c_str(), aiProcess_Triangulate |
 															aiProcess_GenSmoothNormals | 
@@ -194,7 +194,7 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 	ibInitialData.SysMemSlicePitch = 0;
 	m_pd3dDevice->CreateBuffer(&ibDesc, &ibInitialData, &m_pIndexBuffer);
 
-
+	*/
 
 
 
