@@ -48,7 +48,7 @@ struct VERTEX
 {
 	D3DXVECTOR3 pos;
 	D3DXVECTOR3 normal;
-	D3DXCOLOR color;
+	D3DXVECTOR2 texcoord;
 };
 
 struct DIFFUSION_VERTEX
@@ -94,6 +94,14 @@ inline void ComputeRowColsForFlat3DTexture( int depth, int *outCols, int *outRow
     
     *outCols = cols;
     *outRows = rows;
+}
+
+inline std::string ConvertWideCharToChar(LPWSTR lpwstr)
+{
+	int size_needed = WideCharToMultiByte(CP_ACP, 0, lpwstr, (int)wcslen(lpwstr), NULL, 0, NULL, NULL);
+    std::string strTo( size_needed, 0 );
+    WideCharToMultiByte(CP_ACP, 0, lpwstr, (int)wcslen(lpwstr), &strTo[0], size_needed, NULL, NULL);
+	return strTo;
 }
 
 

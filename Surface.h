@@ -48,9 +48,8 @@ protected:
 
 	ID3DX11EffectShaderResourceVariable *m_pSurfaceTextureVar;
 
-	ID3D11Buffer* m_pTriangleVertexBuffer;
-	ID3D11Buffer* m_pEdgeVertexBuffer;
-	ID3D11Buffer* m_pIndexBuffer;
+	ID3D11Buffer*	m_pVertexBuffer;
+	ID3D11Buffer*	m_pIndexBuffer;
 
 	D3DXMATRIX m_mRot;
 	D3DXMATRIX m_mTrans;

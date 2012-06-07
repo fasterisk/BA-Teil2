@@ -3,6 +3,7 @@
 #include "SDKMesh.h"
 #include <assimp.hpp>
 #include <aiScene.h>
+#include <aiPostProcess.h>
 
 
 Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pSurfaceEffect)
@@ -11,8 +12,7 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 	m_pd3dImmediateContext = pd3dImmediateContext;
 	m_pSurfaceEffect = pSurfaceEffect;
 
-	m_pTriangleVertexBuffer = NULL;
-	m_pEdgeVertexBuffer = NULL;
+	m_pVertexBuffer = NULL;
 	m_pIndexBuffer = NULL;
 
 	D3DXMatrixIdentity(&m_mModel);
@@ -29,6 +29,8 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 Surface::~Surface()
 {
 	SAFE_RELEASE(m_pInputLayout);
+	SAFE_RELEASE(m_pVertexBuffer);
+	SAFE_RELEASE(m_pIndexBuffer);
 }
 
 void Surface::Translate(float fX, float fY, float fZ)
@@ -101,8 +103,99 @@ D3DXVECTOR3 Surface::GetColor()
 HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 {
 	HRESULT hr(S_OK);
-	V_RETURN(m_pSurfaceMesh.Create(m_pd3dDevice, lsFileName, true));
+
+
+
+	//convert LPCWSTR to std::string
+	std::string strFileName = ConvertWideCharToChar(lsFileName);
+
+	//V_RETURN(m_pSurfaceMesh.Create(m_pd3dDevice, lsFileName, true));
 	D3DXMatrixIdentity(&m_mModel);
+
+	Assimp::Importer Importer;
+
+	const aiScene* pScene = Importer.ReadFile(strFileName.c_str(), aiProcess_Triangulate |
+															aiProcess_GenSmoothNormals | 
+															aiProcess_FlipUVs);
+
+	assert(pScene);
+
+	//std::string errorstring = Importer.GetErrorString();
+
+	SAFE_RELEASE(m_pVertexBuffer);
+	SAFE_RELEASE(m_pIndexBuffer);
+
+	// Get vertex and index count of the whole mesh
+	unsigned int mNumVertices = 0;
+	unsigned int mNumIndices = 0;
+	for(unsigned int i = 0; i < pScene->mNumMeshes; i++)
+	{
+		mNumVertices += pScene->mMeshes[i]->mNumVertices;
+		mNumIndices += pScene->mMeshes[i]->mNumFaces*3;
+	}
+
+	// Create vertex and index array
+	VERTEX* pVertices = new VERTEX[mNumVertices];
+	unsigned int* pIndices = new unsigned int[mNumIndices];
+	unsigned int mCurrentVertex = 0;
+	unsigned int mCurrentIndex = 0;
+
+	for(unsigned int i = 0; i < pScene->mNumMeshes; i++)
+	{
+		const aiMesh* paiMesh = pScene->mMeshes[i];
+		for(unsigned int j = 0; j < paiMesh->mNumVertices; j++)
+		{
+			const aiVector3D* pPos = &(paiMesh->mVertices[i]);
+			const aiVector3D* pNormal = &(paiMesh->mNormals[i]);
+			const aiVector3D* pTexcoord = &(paiMesh->mTextureCoords[0][i]);
+
+			VERTEX vertex;
+			vertex.pos = D3DXVECTOR3(pPos->x, pPos->y, pPos->z);
+			vertex.normal = D3DXVECTOR3(pNormal->x, pNormal->y, pNormal->z);
+			vertex.texcoord = D3DXVECTOR2(pTexcoord->x, pTexcoord->y);
+			pVertices[mCurrentVertex] = vertex;
+			mCurrentVertex++;
+		}
+
+		for(unsigned int j = 0; j < paiMesh->mNumFaces; j++)
+		{
+			const aiFace& face = paiMesh->mFaces[j];
+			assert(face.mNumIndices == 3);
+			pIndices[mCurrentIndex] = face.mIndices[0];
+			pIndices[mCurrentIndex+1] = face.mIndices[1];
+			pIndices[mCurrentIndex+2] = face.mIndices[2];
+			mCurrentIndex += 3;
+		}
+	}
+
+	//Create vertex buffer
+	D3D11_BUFFER_DESC vbDesc;
+	vbDesc.ByteWidth = mNumVertices*sizeof(VERTEX);
+	vbDesc.Usage = D3D11_USAGE_DEFAULT;
+	vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbDesc.CPUAccessFlags = 0;
+	vbDesc.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA vbInitialData;
+	vbInitialData.pSysMem = pVertices;
+	vbInitialData.SysMemPitch = 0;
+	vbInitialData.SysMemSlicePitch = 0;
+	m_pd3dDevice->CreateBuffer(&vbDesc, &vbInitialData, &m_pVertexBuffer);
+
+	//Create index buffer
+	D3D11_BUFFER_DESC ibDesc;
+	ibDesc.ByteWidth = mNumIndices*sizeof(unsigned int);
+	ibDesc.Usage = D3D11_USAGE_DEFAULT;
+	ibDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibDesc.CPUAccessFlags = 0;
+	ibDesc.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA ibInitialData;
+	ibInitialData.pSysMem = pIndices;
+	ibInitialData.SysMemPitch = 0;
+	ibInitialData.SysMemSlicePitch = 0;
+	m_pd3dDevice->CreateBuffer(&ibDesc, &ibInitialData, &m_pIndexBuffer);
+
+
+
 
 
 	return hr;
