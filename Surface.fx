@@ -63,7 +63,6 @@ struct VsInput
 struct VsOutput
 {
 	float4 Pos		: SV_POSITION;
-	float3 Normal	: NORMAL;
 	float2 TexCoord	: TEXCOORD;
 };
 
@@ -91,7 +90,6 @@ VsOutput VS_COLOR(VsInput input)
     VsOutput output;
 
     output.Pos = mul(float4(input.Pos, 1.0f), ModelViewProjectionMatrix);
-	output.Normal = mul(input.Normal, (float3x3)NormalMatrix);
 	output.TexCoord = input.TexCoord;
 
     return output;
@@ -116,6 +114,7 @@ PsOutput PS_COLOR( VsOutput input )
     output.Color = SurfaceTexture.Sample(textureSampler, input.TexCoord);
 
 	output.Color.a = 0.1f;
+	//output.Color = float4(1.0f, 1.0f, 0.0f, 1.0f);
     return output;
 }
 
@@ -143,13 +142,13 @@ technique10 RenderColor
         SetRasterizerState(CullNone);
     }
 
-	/*pass
+	pass
 	{
 		SetVertexShader(CompileShader(vs_4_0, VS_WIREFRAME()));
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_WIREFRAME()));
 
-		SetDepthStencilState( EnableDepth, 0);
+		SetDepthStencilState( DisableDepth, 0);
 		SetRasterizerState(Wireframe);
-	}*/
+	}
 }

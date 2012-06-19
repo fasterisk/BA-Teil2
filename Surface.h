@@ -44,12 +44,16 @@ protected:
 	ID3D11InputLayout*				m_pInputLayout;
 
 	ID3DX11EffectMatrixVariable		*m_pModelViewProjectionVar;
-	ID3DX11EffectMatrixVariable		*m_pNormalMatrixVar;
 
 	ID3DX11EffectShaderResourceVariable *m_pSurfaceTextureVar;
 
 	ID3D11Buffer*	m_pVertexBuffer;
 	ID3D11Buffer*	m_pIndexBuffer;
+	unsigned int m_mNumVertices;
+	unsigned int m_mNumIndices;
+
+	ID3D11Texture2D	*m_pDiffuseTexture;
+	ID3D11ShaderResourceView	*m_pDiffuseTextureSRV;
 
 	D3DXMATRIX m_mRot;
 	D3DXMATRIX m_mTrans;

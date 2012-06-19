@@ -23,6 +23,8 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 	m_translation = D3DXVECTOR3(0.0, 0.0, 0.0);
 
 	m_vColor = D3DXVECTOR3(0.0, 0.0, 0.0);
+
+	FreeImage_Initialise();
 }
 
 
@@ -103,20 +105,18 @@ D3DXVECTOR3 Surface::GetColor()
 HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 {
 	HRESULT hr(S_OK);
-
-
-
+	
 	//convert LPCWSTR to std::string
 	std::string strFileName = ConvertWideCharToChar(lsFileName);
+	std::wstring wstrFileName = lsFileName;
 
-	V_RETURN(m_pSurfaceMesh.Create(m_pd3dDevice, lsFileName, true));
+	//V_RETURN(m_pSurfaceMesh.Create(m_pd3dDevice, lsFileName, true));
 	D3DXMatrixIdentity(&m_mModel);
 
-	/*Assimp::Importer Importer;
+	Assimp::Importer Importer;
 
 	const aiScene* pScene = Importer.ReadFile(strFileName.c_str(), aiProcess_Triangulate |
-															aiProcess_GenSmoothNormals | 
-															aiProcess_FlipUVs);
+															aiProcess_GenSmoothNormals);
 
 	assert(pScene);
 
@@ -145,9 +145,9 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 		const aiMesh* paiMesh = pScene->mMeshes[i];
 		for(unsigned int j = 0; j < paiMesh->mNumVertices; j++)
 		{
-			const aiVector3D* pPos = &(paiMesh->mVertices[i]);
-			const aiVector3D* pNormal = &(paiMesh->mNormals[i]);
-			const aiVector3D* pTexcoord = &(paiMesh->mTextureCoords[0][i]);
+			const aiVector3D* pPos = &(paiMesh->mVertices[j]);
+			const aiVector3D* pNormal = &(paiMesh->mNormals[j]);
+			const aiVector3D* pTexcoord = &(paiMesh->mTextureCoords[0][j]);
 
 			VERTEX vertex;
 			vertex.pos = D3DXVECTOR3(pPos->x, pPos->y, pPos->z);
@@ -167,6 +167,9 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 			mCurrentIndex += 3;
 		}
 	}
+
+	m_mNumVertices = mNumVertices;
+	m_mNumIndices = mNumIndices;
 
 	//Create vertex buffer
 	D3D11_BUFFER_DESC vbDesc;
@@ -194,9 +197,69 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 	ibInitialData.SysMemSlicePitch = 0;
 	m_pd3dDevice->CreateBuffer(&ibDesc, &ibInitialData, &m_pIndexBuffer);
 
-	*/
+	strFileName.erase(strFileName.length()-4, 4);
+	wstrFileName.erase(wstrFileName.length()-4, 4);
 
+	std::string strTextureName = strFileName.append("_Color.jpg");
+	std::wstring wstrTextureName = wstrFileName.append(L"_Color.jpg");
 
+	//Get the image file type
+	FREE_IMAGE_FORMAT fif = FreeImage_GetFileType(strTextureName.c_str());
+
+	//load the image file
+	FIBITMAP *texture = FreeImage_Load(fif, strTextureName.c_str());
+	
+	texture = FreeImage_ConvertTo32Bits(texture);
+
+	if(texture != NULL)
+	{
+		// This is important to note, FreeImage loads textures in
+		// BGR format. Now we could just use the GL_BGR extension
+		// But, we will simply swap the B and R components ourselves.
+		// Firstly, allocate the new bit data doe the image.
+		BYTE *bits = new BYTE[FreeImage_GetWidth(texture) * FreeImage_GetHeight(texture) * 3];
+
+		// get a pointer to FreeImage's data.
+		BYTE *pixels = (BYTE*)FreeImage_GetBits(texture);
+
+		// Iterate through the pixels, copying the data
+		// from 'pixels' to 'bits' except in RGB format.
+		for(int pix=0; pix<FreeImage_GetWidth(texture) * FreeImage_GetHeight(texture); pix++)
+		{
+			bits[pix*3+0]=pixels[pix*3+2];
+			bits[pix*3+1]=pixels[pix*3+1];
+			bits[pix*3+2]=pixels[pix*3+0];
+		}
+
+		D3D11_TEXTURE2D_DESC texDesc;
+		texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		texDesc.CPUAccessFlags = 0;
+		texDesc.MipLevels = 1;
+		texDesc.MiscFlags = 0;
+		texDesc.SampleDesc.Count = 1;
+		texDesc.SampleDesc.Quality = 0;
+		texDesc.Usage = D3D11_USAGE_DEFAULT;
+		texDesc.Width = FreeImage_GetWidth(texture);
+		texDesc.Height = FreeImage_GetHeight(texture);
+		texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		texDesc.ArraySize = 1;
+		D3D11_SUBRESOURCE_DATA texData;
+		texData.pSysMem = bits;
+		texData.SysMemPitch = 50;
+		texData.SysMemSlicePitch = 0;
+		V_RETURN(m_pd3dDevice->CreateTexture2D(&texDesc, &texData, &m_pDiffuseTexture));
+		DXUT_SetDebugName( m_pDiffuseTexture, strTextureName.c_str());
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		ZeroMemory(&srvDesc, sizeof(srvDesc));
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pDiffuseTexture, &srvDesc, &m_pDiffuseTextureSRV));
+	}
+
+	FreeImage_Unload(texture);
 
 	return hr;
 }
@@ -220,20 +283,11 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 	m_pModelViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&mModelViewProjection));
 
 	//Set up vertex and index buffer
-    UINT Strides[1];
-    UINT Offsets[1];
-    ID3D11Buffer* pVB[1];
-    pVB[0] = m_pSurfaceMesh.GetVB11( 0, 0 );
-    Strides[0] = ( UINT )m_pSurfaceMesh.GetVertexStride( 0, 0 );
-    Offsets[0] = 0;
-    m_pd3dImmediateContext->IASetVertexBuffers( 0, 1, pVB, Strides, Offsets );
-    m_pd3dImmediateContext->IASetIndexBuffer( m_pSurfaceMesh.GetIB11( 0 ), m_pSurfaceMesh.GetIBFormat11( 0 ), 0 );
-
+	UINT strides = sizeof(VERTEX);
+	UINT offsets = 0;
+    m_pd3dImmediateContext->IASetVertexBuffers( 0, 1, &m_pVertexBuffer, &strides, &offsets );
+	m_pd3dImmediateContext->IASetIndexBuffer( m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0 );
     
-    //Render
-    SDKMESH_SUBSET* pSubset = NULL;
-    D3D11_PRIMITIVE_TOPOLOGY PrimType;
-
 	//Set input layout
 	m_pd3dImmediateContext->IASetInputLayout( m_pInputLayout );
 
@@ -244,23 +298,14 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 	//draw all passes of the technique
 	for( UINT p = 0; p < techDesc.Passes; ++p )
 	{
+		m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		for( UINT subset = 0; subset < m_pSurfaceMesh.GetNumSubsets( 0 ); ++subset )
-		{
-		    // Get the subset
-		    pSubset = m_pSurfaceMesh.GetSubset( 0, subset );
-
-	        PrimType = CDXUTSDKMesh::GetPrimitiveType11( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
-	        m_pd3dImmediateContext->IASetPrimitiveTopology( PrimType );
-
-	        ID3D11ShaderResourceView* pDiffuseRV = m_pSurfaceMesh.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
-			m_pSurfaceTextureVar->SetResource(pDiffuseRV);
-
-			//apply pass
-			m_pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
+		//apply pass
+		m_pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 	
-	        m_pd3dImmediateContext->DrawIndexed( ( UINT )pSubset->IndexCount, 0, ( UINT )pSubset->VertexStart );
-	    }
+		m_pSurfaceTextureVar->SetResource(m_pDiffuseTextureSRV);
+
+		m_pd3dImmediateContext->DrawIndexed(m_mNumIndices, 0, 0);
 	}
 }
 
@@ -362,7 +407,6 @@ HRESULT Surface::InitializeShader()
 
 	m_pTechnique = m_pSurfaceEffect->GetTechniqueByName("RenderColor");
 	m_pModelViewProjectionVar = m_pSurfaceEffect->GetVariableByName("ModelViewProjectionMatrix")->AsMatrix();
-	m_pNormalMatrixVar = m_pSurfaceEffect->GetVariableByName("NormalMatrix")->AsMatrix();
 	m_pSurfaceTextureVar = m_pSurfaceEffect->GetVariableByName("SurfaceTexture")->AsShaderResource();
 
 	D3DX11_PASS_SHADER_DESC passVsDesc;

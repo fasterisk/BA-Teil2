@@ -114,7 +114,7 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(m_pVolumeRenderer->Initialize());
 
 	
-	V_RETURN(UpdateBoundingBox());
+	//V_RETURN(UpdateBoundingBox());
 
 	return S_OK;
 }
@@ -125,7 +125,7 @@ HRESULT Scene::InitSurfaces()
 
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface1->Initialize(L"Media\\meshes\\blackholeroom.sdkmesh"));
+	V_RETURN(m_pSurface1->Initialize(L"Media\\meshes\\WoodenBoxOpen02.obj"));
 	m_pSurface1->SetColor(0.0, 0.0, 0.0);
 	m_pSurface1->Translate(0.0, -1.5, 0.0);
 	m_pSurface1->Scale(0.2);
@@ -133,7 +133,7 @@ HRESULT Scene::InitSurfaces()
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface2->Initialize(L"Media\\meshes\\tiny.sdkmesh"));
+	V_RETURN(m_pSurface2->Initialize(L"Media\\meshes\\WoodenBoxOpen02.obj"));
 	m_pSurface2->Scale(0.001);
 	m_pSurface2->SetColor(1.0, 1.0, 1.0);
 	m_pSurface2->RotateX(-3.1415/2);
@@ -305,9 +305,9 @@ void Scene::UpdateTextureResolution(int iMaxRes)
 
 void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 {
-	UpdateBoundingBox();
+	//UpdateBoundingBox();
 
-	if(m_bGenerateVoronoi)
+	/*if(m_bGenerateVoronoi)
 	{
 		bool b = m_pVoronoi->RenderVoronoi(m_vMin, m_vMax, m_bRenderIsoSurface);
 		if(b)
@@ -359,13 +359,13 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 
 		}
 	}
+	*/
 	
-	
-	if(bShowSurfaces)
-	{
+	//if(bShowSurfaces)
+	//{
 		m_pSurface1->Render(mViewProjection);
 		m_pSurface2->Render(mViewProjection);
-	}
+	//}
 	
 }	
 
