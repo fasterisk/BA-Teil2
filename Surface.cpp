@@ -209,27 +209,36 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 	//load the image file
 	FIBITMAP *texture = FreeImage_Load(fif, strTextureName.c_str());
 	
-	texture = FreeImage_ConvertTo32Bits(texture);
+	//texture = FreeImage_ConvertTo32Bits(texture);
 
 	if(texture != NULL)
 	{
-		// This is important to note, FreeImage loads textures in
-		// BGR format. Now we could just use the GL_BGR extension
-		// But, we will simply swap the B and R components ourselves.
-		// Firstly, allocate the new bit data doe the image.
-		BYTE *bits = new BYTE[FreeImage_GetWidth(texture) * FreeImage_GetHeight(texture) * 3];
+		unsigned char* bits = (unsigned char*)FreeImage_GetBits(texture);
 
-		// get a pointer to FreeImage's data.
-		BYTE *pixels = (BYTE*)FreeImage_GetBits(texture);
+		unsigned int nBPP = FreeImage_GetBPP(texture);
+		unsigned int nWidth = FreeImage_GetWidth(texture);
+		unsigned int nHeight = FreeImage_GetHeight(texture);
+		unsigned int nPitch = FreeImage_GetPitch(texture);
 
-		// Iterate through the pixels, copying the data
-		// from 'pixels' to 'bits' except in RGB format.
-		for(int pix=0; pix<FreeImage_GetWidth(texture) * FreeImage_GetHeight(texture); pix++)
+		unsigned char* texturedata = new unsigned char[nWidth*nHeight*4];
+
+		int offset = 0;
+		int offset_img = 0;
+
+		for(unsigned int y = 0; y < nHeight; y++)
 		{
-			bits[pix*3+0]=pixels[pix*3+2];
-			bits[pix*3+1]=pixels[pix*3+1];
-			bits[pix*3+2]=pixels[pix*3+0];
+			for(unsigned int x = 0; x < nWidth; x++)
+			{
+				texturedata[offset+2] = ((unsigned char*)bits)[offset_img+0];
+				texturedata[offset+1] = ((unsigned char*)bits)[offset_img+1];
+				texturedata[offset+0] = ((unsigned char*)bits)[offset_img+2];
+				texturedata[offset+3] = ((unsigned char*)bits)[offset_img+3];
+				offset += 4;
+				offset_img += 3;
+			}
+			offset_img = y * nPitch;
 		}
+
 
 		D3D11_TEXTURE2D_DESC texDesc;
 		texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -241,11 +250,11 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 		texDesc.Usage = D3D11_USAGE_DEFAULT;
 		texDesc.Width = FreeImage_GetWidth(texture);
 		texDesc.Height = FreeImage_GetHeight(texture);
-		texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		texDesc.ArraySize = 1;
 		D3D11_SUBRESOURCE_DATA texData;
-		texData.pSysMem = bits;
-		texData.SysMemPitch = 50;
+		texData.pSysMem = texturedata;
+		texData.SysMemPitch = nWidth*4;
 		texData.SysMemSlicePitch = 0;
 		V_RETURN(m_pd3dDevice->CreateTexture2D(&texDesc, &texData, &m_pDiffuseTexture));
 		DXUT_SetDebugName( m_pDiffuseTexture, strTextureName.c_str());
@@ -255,7 +264,7 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		srvDesc.Texture2D.MipLevels = 1;
-		srvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pDiffuseTexture, &srvDesc, &m_pDiffuseTextureSRV));
 	}
 
