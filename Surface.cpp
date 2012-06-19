@@ -23,6 +23,8 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 	m_translation = D3DXVECTOR3(0.0, 0.0, 0.0);
 
 	m_vColor = D3DXVECTOR3(0.0, 0.0, 0.0);
+	m_vBBMin = D3DXVECTOR3(0.0, 0.0, 0.0);
+	m_vBBMax = D3DXVECTOR3(0.0, 0.0, 0.0);
 
 	FreeImage_Initialise();
 }
@@ -155,6 +157,19 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 			vertex.texcoord = D3DXVECTOR2(pTexcoord->x, pTexcoord->y);
 			pVertices[mCurrentVertex] = vertex;
 			mCurrentVertex++;
+
+			if(vertex.pos.x < m_vBBMin.x)
+				m_vBBMin.x = vertex.pos.x;
+			if(vertex.pos.y < m_vBBMin.y)
+				m_vBBMin.y = vertex.pos.y;
+			if(vertex.pos.z < m_vBBMin.z)
+				m_vBBMin.z = vertex.pos.z;
+			if(vertex.pos.x > m_vBBMax.x)
+				m_vBBMax.x = vertex.pos.x;
+			if(vertex.pos.y > m_vBBMax.y)
+				m_vBBMax.y = vertex.pos.y;
+			if(vertex.pos.z > m_vBBMax.z)
+				m_vBBMax.z = vertex.pos.z;
 		}
 
 		for(unsigned int j = 0; j < paiMesh->mNumFaces; j++)
@@ -341,73 +356,43 @@ void Surface::RenderVoronoi(ID3DX11EffectTechnique* pVoronoiTechnique, ID3DX11Ef
 
 	//draw all passes of the technique
 	
+	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pSurfaceTextureVar->SetResource(m_pDiffuseTextureSRV);
+
 	//TRIANGLE
-
-	for( UINT subset = 0; subset < m_pSurfaceMesh.GetNumSubsets( 0 ); ++subset )
-	{
-	    // Get the subset
-	    pSubset = m_pSurfaceMesh.GetSubset( 0, subset );
 	
-		PrimType = CDXUTSDKMesh::GetPrimitiveType11( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
-	    m_pd3dImmediateContext->IASetPrimitiveTopology( PrimType );
-
-	    ID3D11ShaderResourceView* pDiffuseRV = m_pSurfaceMesh.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
-		pSurfaceTextureVar->SetResource(pDiffuseRV);
-
-		//apply triangle pass
-		pVoronoiTechnique->GetPassByName("Triangle")->Apply( 0, m_pd3dImmediateContext);
+	//apply triangle pass
+	pVoronoiTechnique->GetPassByName("Triangle")->Apply( 0, m_pd3dImmediateContext);
 	
-	    m_pd3dImmediateContext->DrawIndexed( ( UINT )pSubset->IndexCount, 0, ( UINT )pSubset->VertexStart );
-	}
+	m_pd3dImmediateContext->DrawIndexed(m_mNumIndices, 0, 0);
 
 	//EDGE
 
-	for( UINT subset = 0; subset < m_pSurfaceMesh.GetNumSubsets( 0 ); ++subset )
-	{
-	    // Get the subset
-	    pSubset = m_pSurfaceMesh.GetSubset( 0, subset );
+	//apply edge pass
+	pVoronoiTechnique->GetPassByName("Edge")->Apply( 0, m_pd3dImmediateContext);
 	
-		PrimType = CDXUTSDKMesh::GetPrimitiveType11( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
-	    m_pd3dImmediateContext->IASetPrimitiveTopology( PrimType );
+	m_pd3dImmediateContext->DrawIndexed(m_mNumIndices, 0, 0);
 
-	    ID3D11ShaderResourceView* pDiffuseRV = m_pSurfaceMesh.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
-		pSurfaceTextureVar->SetResource(pDiffuseRV);
-
-		//apply edge pass
-		pVoronoiTechnique->GetPassByName("Edge")->Apply( 0, m_pd3dImmediateContext);
-	
-		m_pd3dImmediateContext->DrawIndexed( ( UINT )pSubset->IndexCount, 0, ( UINT )pSubset->VertexStart );
-	}
-
-	
 	//POINT
-
-	for( UINT subset = 0; subset < m_pSurfaceMesh.GetNumSubsets( 0 ); ++subset )
-	{
-	    // Get the subset
-	    pSubset = m_pSurfaceMesh.GetSubset( 0, subset );
 	
-		PrimType = CDXUTSDKMesh::GetPrimitiveType11( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
-	    m_pd3dImmediateContext->IASetPrimitiveTopology( PrimType );
-
-	    ID3D11ShaderResourceView* pDiffuseRV = m_pSurfaceMesh.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
-		pSurfaceTextureVar->SetResource(pDiffuseRV);
-
-		//apply point pass
-		pVoronoiTechnique->GetPassByName("Point")->Apply( 0, m_pd3dImmediateContext);
+	//apply point pass
+	pVoronoiTechnique->GetPassByName("Point")->Apply( 0, m_pd3dImmediateContext);
 	
-		m_pd3dImmediateContext->Draw( ( UINT )pSubset->VertexCount, ( UINT )pSubset->VertexStart );
-	}
+	m_pd3dImmediateContext->DrawIndexed(m_mNumIndices, 0, 0);
 }
 
-D3DXVECTOR3 Surface::GetBoundingBoxCenter()
+D3DXVECTOR4 Surface::GetTransformedBBMin()
 {
-	return m_pSurfaceMesh.GetMeshBBoxCenter(0);
+	D3DXVECTOR4 vBBMin;
+	D3DXVec3Transform(&vBBMin, &m_vBBMin, &m_mModel);
+	return vBBMin;
 }
 
-D3DXVECTOR3 Surface::GetBoundingBoxExtents()
+D3DXVECTOR4 Surface::GetTransformedBBMax()
 {
-	return m_pSurfaceMesh.GetMeshBBoxExtents(0);
+	D3DXVECTOR4 vBBMax;
+	D3DXVec3Transform(&vBBMax, &m_vBBMax, &m_mModel);
+	return vBBMax;
 }
 
 HRESULT Surface::InitializeShader()

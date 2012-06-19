@@ -29,8 +29,8 @@ public:
 	void RenderVoronoi(ID3DX11EffectTechnique* pTechnique, ID3DX11EffectShaderResourceVariable *pSurfaceTextureVar);
 
 	//GETTER
-	D3DXVECTOR3 GetBoundingBoxCenter();
-	D3DXVECTOR3 GetBoundingBoxExtents();
+	D3DXVECTOR4 GetTransformedBBMin();
+	D3DXVECTOR4 GetTransformedBBMax();
 	D3DXVECTOR3 GetColor();
 
 protected:
@@ -51,6 +51,9 @@ protected:
 	ID3D11Buffer*	m_pIndexBuffer;
 	unsigned int m_mNumVertices;
 	unsigned int m_mNumIndices;
+
+	D3DXVECTOR3 m_vBBMin;
+	D3DXVECTOR3 m_vBBMax;
 
 	ID3D11Texture2D	*m_pDiffuseTexture;
 	ID3D11ShaderResourceView	*m_pDiffuseTextureSRV;
