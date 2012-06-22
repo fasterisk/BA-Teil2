@@ -103,6 +103,14 @@ inline void ComputeRowColsForFlat3DTexture( int depth, int *outCols, int *outRow
     *outRows = rows;
 }
 
+inline std::wstring ConvertMultibyteToWideChar(std::string str)
+{
+	int size_needed = MultiByteToWideChar(CP_ACP, 0, str.c_str(), (int)strlen(str.c_str()), NULL, 0);
+	std::wstring wstrTo(size_needed, 0);
+	MultiByteToWideChar(CP_ACP, 0, str.c_str(), (int)strlen(str.c_str()), &wstrTo[0], 0);
+	return wstrTo;
+}
+
 inline std::string ConvertWideCharToChar(LPWSTR lpwstr)
 {
 	int size_needed = WideCharToMultiByte(CP_ACP, 0, lpwstr, (int)wcslen(lpwstr), NULL, 0, NULL, NULL);

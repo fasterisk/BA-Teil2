@@ -425,6 +425,9 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			ofnMesh.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
 			GetOpenFileName( &ofnMesh );
 
+			if(wcslen(ofnMesh.lpstrFile) == 0)
+				break;
+
 			strMeshName = ConvertWideCharToChar(ofnMesh.lpstrFile);
 
 			// load the surface mesh into the current surface

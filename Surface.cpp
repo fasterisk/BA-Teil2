@@ -107,17 +107,22 @@ HRESULT Surface::LoadMesh(std::string strMeshName)
 {
 	HRESULT hr(S_OK);
 	
-	//V_RETURN(m_pSurfaceMesh.Create(m_pd3dDevice, lsFileName, true));
-	D3DXMatrixIdentity(&m_mModel);
-
 	Assimp::Importer Importer;
 
 	const aiScene* pScene = Importer.ReadFile(strMeshName.c_str(), aiProcess_Triangulate |
 															aiProcess_GenSmoothNormals);
 
-	assert(pScene);
+	//assert(pScene);
 
-	//std::string errorstring = Importer.GetErrorString();
+	if(pScene == NULL)
+	{
+		std::string errorstring = Importer.GetErrorString();
+
+		MessageBox ( NULL , L"Mesh type is not supported!", ConvertMultibyteToWideChar(strMeshName).c_str(), MB_OK);
+		return S_OK;
+	}
+
+	D3DXMatrixIdentity(&m_mModel);
 
 	SAFE_RELEASE(m_pVertexBuffer);
 	SAFE_RELEASE(m_pIndexBuffer);
