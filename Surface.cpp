@@ -137,6 +137,7 @@ HRESULT Surface::LoadMesh(std::string strMeshName, std::string strTextureName)
 	unsigned int* pIndices = new unsigned int[mNumIndices];
 	unsigned int mCurrentVertex = 0;
 	unsigned int mCurrentIndex = 0;
+	float fMaxVertexValue = 0;
 
 	for(unsigned int i = 0; i < pScene->mNumMeshes; i++)
 	{
@@ -148,8 +149,17 @@ HRESULT Surface::LoadMesh(std::string strMeshName, std::string strTextureName)
 			
 			VERTEX vertex;
 			vertex.pos = D3DXVECTOR3(pPos->x, pPos->y, pPos->z);
+			
 			vertex.normal = D3DXVECTOR3(pNormal->x, pNormal->y, pNormal->z);
 			
+			//get maximum vertex value to scale the model inside the window
+			if(abs(vertex.pos.x) > fMaxVertexValue)
+				fMaxVertexValue = abs(vertex.pos.x);
+			if(abs(vertex.pos.y) > fMaxVertexValue)
+				fMaxVertexValue = abs(vertex.pos.y);
+			if(abs(vertex.pos.z) > fMaxVertexValue)
+				fMaxVertexValue = abs(vertex.pos.z);
+
 			if(paiMesh->HasTextureCoords(0))
 			{
 				const aiVector3D* pTexcoord = &(paiMesh->mTextureCoords[0][j]);
@@ -183,6 +193,9 @@ HRESULT Surface::LoadMesh(std::string strMeshName, std::string strTextureName)
 			mCurrentIndex += 3;
 		}
 	}
+
+	//Scale the model
+	Scale(1/fMaxVertexValue * 0.5f);
 
 	m_mNumVertices = mNumVertices;
 	m_mNumIndices = mNumIndices;
