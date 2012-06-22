@@ -58,6 +58,12 @@ struct DIFFUSION_VERTEX
 	int sliceindex;
 };
 
+struct BOUNDINGBOX
+{
+	D3DXVECTOR4 vMin;
+	D3DXVECTOR4 vMax;
+};
+
 
 #define WIDEN( w ) WIDEN2( w )
 #define WIDEN2( w )	L ##w

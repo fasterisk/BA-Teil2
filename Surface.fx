@@ -113,7 +113,7 @@ PsOutput PS_COLOR( VsOutput input )
     PsOutput output;
     output.Color = SurfaceTexture.Sample(textureSampler, input.TexCoord);
 
-	output.Color.a = 1.0f;
+	output.Color.a = 0.1f;
 	//output.Color = float4(1.0f, 1.0f, 0.0f, 1.0f);
     return output;
 }
@@ -138,7 +138,7 @@ technique10 RenderColor
         SetPixelShader( CompileShader( ps_4_0, PS_COLOR() ) );
 
 		SetBlendState(AlphaBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetDepthStencilState(EnableDepth, 0 );
+        SetDepthStencilState(DisableDepth, 0 );
         SetRasterizerState(CullNone);
     }
 

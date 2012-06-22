@@ -23,8 +23,6 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 	m_translation = D3DXVECTOR3(0.0, 0.0, 0.0);
 
 	m_vColor = D3DXVECTOR3(0.0, 0.0, 0.0);
-	m_vBBMin = D3DXVECTOR3(0.0, 0.0, 0.0);
-	m_vBBMax = D3DXVECTOR3(0.0, 0.0, 0.0);
 
 	FreeImage_Initialise();
 }
@@ -137,7 +135,7 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 	}
 
 	// Create vertex and index array
-	VERTEX* pVertices = new VERTEX[mNumVertices];
+	m_pVertices = new VERTEX[mNumVertices];
 	unsigned int* pIndices = new unsigned int[mNumIndices];
 	unsigned int mCurrentVertex = 0;
 	unsigned int mCurrentIndex = 0;
@@ -155,21 +153,8 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 			vertex.pos = D3DXVECTOR3(pPos->x, pPos->y, pPos->z);
 			vertex.normal = D3DXVECTOR3(pNormal->x, pNormal->y, pNormal->z);
 			vertex.texcoord = D3DXVECTOR2(pTexcoord->x, pTexcoord->y);
-			pVertices[mCurrentVertex] = vertex;
+			m_pVertices[mCurrentVertex] = vertex;
 			mCurrentVertex++;
-
-			if(vertex.pos.x < m_vBBMin.x)
-				m_vBBMin.x = vertex.pos.x;
-			if(vertex.pos.y < m_vBBMin.y)
-				m_vBBMin.y = vertex.pos.y;
-			if(vertex.pos.z < m_vBBMin.z)
-				m_vBBMin.z = vertex.pos.z;
-			if(vertex.pos.x > m_vBBMax.x)
-				m_vBBMax.x = vertex.pos.x;
-			if(vertex.pos.y > m_vBBMax.y)
-				m_vBBMax.y = vertex.pos.y;
-			if(vertex.pos.z > m_vBBMax.z)
-				m_vBBMax.z = vertex.pos.z;
 		}
 
 		for(unsigned int j = 0; j < paiMesh->mNumFaces; j++)
@@ -194,7 +179,7 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 	vbDesc.CPUAccessFlags = 0;
 	vbDesc.MiscFlags = 0;
 	D3D11_SUBRESOURCE_DATA vbInitialData;
-	vbInitialData.pSysMem = pVertices;
+	vbInitialData.pSysMem = m_pVertices;
 	vbInitialData.SysMemPitch = 0;
 	vbInitialData.SysMemSlicePitch = 0;
 	m_pd3dDevice->CreateBuffer(&vbDesc, &vbInitialData, &m_pVertexBuffer);
@@ -336,23 +321,13 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 void Surface::RenderVoronoi(ID3DX11EffectTechnique* pVoronoiTechnique, ID3DX11EffectShaderResourceVariable *pSurfaceTextureVar)
 {
 	//Set up vertex and index buffer
-    UINT Strides[1];
-    UINT Offsets[1];
-    ID3D11Buffer* pVB[1];
-    pVB[0] = m_pSurfaceMesh.GetVB11( 0, 0 );
-    Strides[0] = ( UINT )m_pSurfaceMesh.GetVertexStride( 0, 0 );
-    Offsets[0] = 0;
-    m_pd3dImmediateContext->IASetVertexBuffers( 0, 1, pVB, Strides, Offsets );
-    m_pd3dImmediateContext->IASetIndexBuffer( m_pSurfaceMesh.GetIB11( 0 ), m_pSurfaceMesh.GetIBFormat11( 0 ), 0 );
+	UINT strides = sizeof(VERTEX);
+	UINT offsets = 0;
+    m_pd3dImmediateContext->IASetVertexBuffers( 0, 1, &m_pVertexBuffer, &strides, &offsets );
+	m_pd3dImmediateContext->IASetIndexBuffer( m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0 );
 
-
-	//Render
-    SDKMESH_SUBSET* pSubset = NULL;
-    D3D11_PRIMITIVE_TOPOLOGY PrimType;
-
-	//Get technique descriptor for passes
-	D3DX11_TECHNIQUE_DESC techDesc;
-	pVoronoiTechnique->GetDesc(&techDesc);
+	//Set input layout
+	m_pd3dImmediateContext->IASetInputLayout( m_pInputLayout );
 
 	//draw all passes of the technique
 	
@@ -381,18 +356,31 @@ void Surface::RenderVoronoi(ID3DX11EffectTechnique* pVoronoiTechnique, ID3DX11Ef
 	m_pd3dImmediateContext->DrawIndexed(m_mNumIndices, 0, 0);
 }
 
-D3DXVECTOR4 Surface::GetTransformedBBMin()
+BOUNDINGBOX Surface::GetBoundingBox()
 {
-	D3DXVECTOR4 vBBMin;
-	D3DXVec3Transform(&vBBMin, &m_vBBMin, &m_mModel);
-	return vBBMin;
-}
+	BOUNDINGBOX bbFinal;
+	D3DXVECTOR4 vCurrent;
+	
+	D3DXVec3Transform(&bbFinal.vMin, &m_pVertices[0].pos, &m_mModel);
+	D3DXVec3Transform(&bbFinal.vMax, &m_pVertices[0].pos, &m_mModel);
 
-D3DXVECTOR4 Surface::GetTransformedBBMax()
-{
-	D3DXVECTOR4 vBBMax;
-	D3DXVec3Transform(&vBBMax, &m_vBBMax, &m_mModel);
-	return vBBMax;
+	for(int i = 1; i < m_mNumVertices; i++)
+	{
+		D3DXVec3Transform(&vCurrent, &m_pVertices[i].pos, &m_mModel);
+		if(vCurrent.x < bbFinal.vMin.x)
+			bbFinal.vMin.x = vCurrent.x;
+		if(vCurrent.y < bbFinal.vMin.y)
+			bbFinal.vMin.y = vCurrent.y;
+		if(vCurrent.z < bbFinal.vMin.z)
+			bbFinal.vMin.z = vCurrent.z;
+		if(vCurrent.x > bbFinal.vMax.x)
+			bbFinal.vMax.x = vCurrent.x;
+		if(vCurrent.y > bbFinal.vMax.y)
+			bbFinal.vMax.y = vCurrent.y;
+		if(vCurrent.z > bbFinal.vMax.z)
+			bbFinal.vMax.z = vCurrent.z;
+	}
+	return bbFinal;
 }
 
 HRESULT Surface::InitializeShader()

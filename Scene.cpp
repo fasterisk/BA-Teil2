@@ -114,7 +114,7 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	V_RETURN(m_pVolumeRenderer->Initialize());
 
 	
-	//V_RETURN(UpdateBoundingBox());
+	V_RETURN(UpdateBoundingBox());
 
 	return S_OK;
 }
@@ -126,6 +126,7 @@ HRESULT Scene::InitSurfaces()
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
 	V_RETURN(m_pSurface1->Initialize(L"Media\\meshes\\WoodenBoxOpen02.obj"));
+	m_pSurface1->Scale(2.0f);
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
@@ -140,40 +141,35 @@ HRESULT Scene::UpdateBoundingBox()
 {
 	HRESULT hr;
 
-	D3DXVECTOR4 vBBMin1 = m_pSurface1->GetTransformedBBMin();
-	D3DXVECTOR4 vBBMax1 = m_pSurface1->GetTransformedBBMax();
+	BOUNDINGBOX bbSurface1 = m_pSurface1->GetBoundingBox();
+	BOUNDINGBOX bbSurface2 = m_pSurface2->GetBoundingBox();
 
-	D3DXVECTOR4 vBBMin2 = m_pSurface2->GetTransformedBBMin();
-	D3DXVECTOR4 vBBMax2 = m_pSurface2->GetTransformedBBMax();
+	BOUNDINGBOX bbFinal = bbSurface1;
 
-
-	D3DXVECTOR3 vMin = D3DXVECTOR3(vBBMin1.x, vBBMin1.y, vBBMin1.z);
-	D3DXVECTOR3 vMax = D3DXVECTOR3(vBBMax1.x, vBBMax1.y, vBBMax1.z);
-
-	if(vBBMin2.x < vMin.x)
-		vMin.x = vBBMin2.x;
-	if(vBBMin2.y < vMin.y)
-		vMin.y = vBBMin2.y;
-	if(vBBMin2.z < vMin.z)
-		vMin.z = vBBMin2.z;
-	if(vBBMax2.x > vMax.x)
-		vMax.x = vBBMax2.x;
-	if(vBBMax2.y > vMax.y)
-		vMax.y = vBBMax2.y;
-	if(vBBMax2.z > vMax.z)
-		vMax.z = vBBMax2.z;
+	if(bbSurface2.vMin.x < bbFinal.vMin.x)
+		bbFinal.vMin.x = bbSurface2.vMin.x;
+	if(bbSurface2.vMin.y < bbFinal.vMin.y)
+		bbFinal.vMin.y = bbSurface2.vMin.y;
+	if(bbSurface2.vMin.z < bbFinal.vMin.z)
+		bbFinal.vMin.z = bbSurface2.vMin.z;
+	if(bbSurface2.vMax.x > bbFinal.vMax.x)
+		bbFinal.vMax.x = bbSurface2.vMax.x;
+	if(bbSurface2.vMax.y > bbFinal.vMax.y)
+		bbFinal.vMax.y = bbSurface2.vMax.y;
+	if(bbSurface2.vMax.z > bbFinal.vMax.z)
+		bbFinal.vMax.z = bbSurface2.vMax.z;
 
 	if(initialized
-		&& vMin.x == m_vMin.x
-		&& vMin.y == m_vMin.y
-		&& vMin.z == m_vMin.z
-		&& vMax.x == m_vMax.x
-		&& vMax.y == m_vMax.y
-		&& vMax.z == m_vMax.z)
+		&& bbFinal.vMin.x == m_vMin.x
+		&& bbFinal.vMin.y == m_vMin.y
+		&& bbFinal.vMin.z == m_vMin.z
+		&& bbFinal.vMax.x == m_vMax.x
+		&& bbFinal.vMax.y == m_vMax.y
+		&& bbFinal.vMax.z == m_vMax.z)
 		return S_OK;
 		
-	m_vMin = D3DXVECTOR3(vMin.x, vMin.y, vMin.z);
-	m_vMax = D3DXVECTOR3(vMax.x, vMax.y, vMax.z);
+	m_vMin = D3DXVECTOR3(bbFinal.vMin.x, bbFinal.vMin.y, bbFinal.vMin.z);
+	m_vMax = D3DXVECTOR3(bbFinal.vMax.x, bbFinal.vMax.y, bbFinal.vMax.z);
 	
 
 	m_pBBVertices[0].pos.x = m_vMin.x;
