@@ -22,6 +22,7 @@ public:
 	void SetColor(D3DXVECTOR3 vColor);
 	void SetColor(float fR, float fG, float fB);
 
+	HRESULT LoadMesh(std::string strMeshName);
 	HRESULT LoadMesh(std::string strMeshName, std::string strTextureName);
 
 	HRESULT Initialize(std::string strMeshName, std::string strTextureName);

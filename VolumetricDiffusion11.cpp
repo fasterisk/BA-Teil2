@@ -403,21 +403,20 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 
 	//File names for mesh and texture loading
 	OPENFILENAME ofnMesh;
-	OPENFILENAME ofnTexture;
+	
 	std::string strMeshName;
-	std::string strTextureName;
+	
     
 	switch( nControlID )
     {
 		case IDC_LOAD_SURFACE:
-			WCHAR szFile[100] ;
 			 // open a mesh file name
 			ZeroMemory(&ofnMesh, sizeof(ofnMesh));
 			ofnMesh.lStructSize = sizeof ( ofnMesh );
 			ofnMesh.hwndOwner = NULL  ;
-			ofnMesh.lpstrFile = szFile ;
+			ofnMesh.lpstrFile = sz;
 			ofnMesh.lpstrFile[0] = '\0';
-			ofnMesh.nMaxFile = sizeof( szFile );
+			ofnMesh.nMaxFile = sizeof(sz);
 			ofnMesh.lpstrFilter = L"All\0*.*\0";
 			ofnMesh.nFilterIndex =1;
 			ofnMesh.lpstrFileTitle = NULL ;
@@ -428,24 +427,8 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 
 			strMeshName = ConvertWideCharToChar(ofnMesh.lpstrFile);
 
-			ZeroMemory(&ofnTexture, sizeof(ofnTexture));
-			ofnTexture.lStructSize = sizeof ( ofnTexture );
-			ofnTexture.hwndOwner = NULL  ;
-			ofnTexture.lpstrFile = szFile ;
-			ofnTexture.lpstrFile[0] = '\0';
-			ofnTexture.nMaxFile = sizeof( szFile );
-			ofnTexture.lpstrFilter = L"All\0*.*\0";
-			ofnTexture.nFilterIndex =1;
-			ofnTexture.lpstrFileTitle = NULL ;
-			ofnTexture.nMaxFileTitle = 0 ;
-			ofnTexture.lpstrInitialDir=NULL ;
-			ofnTexture.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
-			GetOpenFileName( &ofnTexture );
-
-			strTextureName = ConvertWideCharToChar(ofnTexture.lpstrFile);
-	
 			// load the surface mesh into the current surface
-			hr = g_pScene->ChangeCurrentSurfaceMesh(strMeshName, strTextureName);
+			hr = g_pScene->ChangeCurrentSurfaceMesh(strMeshName);
 			if(hr == S_OK)
 			{
 				g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);

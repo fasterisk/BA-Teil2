@@ -437,10 +437,10 @@ void Scene::ScaleCurrentSurface(float fFactor)
 	m_pControlledSurface->Scale(fFactor);
 }
 
-HRESULT Scene::ChangeCurrentSurfaceMesh(std::string strMeshName, std::string strTextureName)
+HRESULT Scene::ChangeCurrentSurfaceMesh(std::string strMeshName)
 {
 	HRESULT hr(S_OK);
-	V_RETURN(m_pControlledSurface->LoadMesh(strMeshName, strTextureName));
+	V_RETURN(m_pControlledSurface->LoadMesh(strMeshName));
 	return hr;
 }
 
