@@ -48,7 +48,8 @@ struct VERTEX
 {
 	D3DXVECTOR3 pos;
 	D3DXVECTOR3 normal;
-	D3DXVECTOR2 texcoord;
+	D3DXVECTOR3 texcoord;
+	D3DXVECTOR4 color;
 };
 
 struct DIFFUSION_VERTEX

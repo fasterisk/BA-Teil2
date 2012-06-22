@@ -56,14 +56,16 @@ struct VsInput
 {
     float3 Pos      : POSITION;
 	float3 Normal	: NORMAL;
-    float2 TexCoord : TEXCOORD;
+    float3 TexCoord : TEXCOORD;
+	float4 Color	: COLOR0;
 };
 
 
 struct VsOutput
 {
 	float4 Pos		: SV_POSITION;
-	float2 TexCoord	: TEXCOORD;
+	float3 TexCoord	: TEXCOORD;
+	float4 Color	: COLOR0;
 };
 
 struct VsWOutput
@@ -91,6 +93,7 @@ VsOutput VS_COLOR(VsInput input)
 
     output.Pos = mul(float4(input.Pos, 1.0f), ModelViewProjectionMatrix);
 	output.TexCoord = input.TexCoord;
+	output.Color = input.Color;
 
     return output;
 }
@@ -111,10 +114,16 @@ VsWOutput VS_WIREFRAME(VsInput input)
 PsOutput PS_COLOR( VsOutput input )
 {
     PsOutput output;
-    output.Color = SurfaceTexture.Sample(textureSampler, input.TexCoord);
+	if(input.TexCoord.z == 0.0f)
+	{
+		output.Color = input.Color;		
+	}
+	else
+	{
+		output.Color = SurfaceTexture.Sample(textureSampler, input.TexCoord.xy);
+	}
 
 	output.Color.a = 0.1f;
-	//output.Color = float4(1.0f, 1.0f, 0.0f, 1.0f);
     return output;
 }
 

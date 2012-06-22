@@ -22,9 +22,9 @@ public:
 	void SetColor(D3DXVECTOR3 vColor);
 	void SetColor(float fR, float fG, float fB);
 
-	HRESULT LoadMesh(LPWSTR lsFileName);
+	HRESULT LoadMesh(std::string strMeshName, std::string strTextureName);
 
-	HRESULT Initialize(LPWSTR lsFileName);
+	HRESULT Initialize(std::string strMeshName, std::string strTextureName);
 	void Render(D3DXMATRIX mViewProjection);
 	void RenderVoronoi(ID3DX11EffectTechnique* pTechnique, ID3DX11EffectShaderResourceVariable *pSurfaceTextureVar);
 

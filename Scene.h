@@ -31,7 +31,7 @@ public:
 	void RotateXCurrentSurface(float fFactor);
 	void RotateYCurrentSurface(float fFactor);
 	void ScaleCurrentSurface(float fFactor);
-	HRESULT ChangeCurrentSurfaceMesh(LPWSTR lsFileName);
+	HRESULT ChangeCurrentSurfaceMesh(std::string strMeshName, std::string strTextureName);
 
 	int GetTextureWidth()	{return m_iTextureWidth;}
 	int GetTextureHeight()	{return m_iTextureHeight;}

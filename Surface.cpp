@@ -14,6 +14,7 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 
 	m_pVertexBuffer = NULL;
 	m_pIndexBuffer = NULL;
+	m_pVertices = NULL;
 
 	D3DXMatrixIdentity(&m_mModel);
 	D3DXMatrixIdentity(&m_mRot);
@@ -102,20 +103,16 @@ D3DXVECTOR3 Surface::GetColor()
 	return m_vColor;
 }
 
-HRESULT Surface::LoadMesh(LPWSTR lsFileName)
+HRESULT Surface::LoadMesh(std::string strMeshName, std::string strTextureName)
 {
 	HRESULT hr(S_OK);
 	
-	//convert LPCWSTR to std::string
-	std::string strFileName = ConvertWideCharToChar(lsFileName);
-	std::wstring wstrFileName = lsFileName;
-
 	//V_RETURN(m_pSurfaceMesh.Create(m_pd3dDevice, lsFileName, true));
 	D3DXMatrixIdentity(&m_mModel);
 
 	Assimp::Importer Importer;
 
-	const aiScene* pScene = Importer.ReadFile(strFileName.c_str(), aiProcess_Triangulate |
+	const aiScene* pScene = Importer.ReadFile(strMeshName.c_str(), aiProcess_Triangulate |
 															aiProcess_GenSmoothNormals);
 
 	assert(pScene);
@@ -124,6 +121,7 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 
 	SAFE_RELEASE(m_pVertexBuffer);
 	SAFE_RELEASE(m_pIndexBuffer);
+	SAFE_DELETE(m_pVertices);
 
 	// Get vertex and index count of the whole mesh
 	unsigned int mNumVertices = 0;
@@ -147,12 +145,30 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 		{
 			const aiVector3D* pPos = &(paiMesh->mVertices[j]);
 			const aiVector3D* pNormal = &(paiMesh->mNormals[j]);
-			const aiVector3D* pTexcoord = &(paiMesh->mTextureCoords[0][j]);
-
+			
 			VERTEX vertex;
 			vertex.pos = D3DXVECTOR3(pPos->x, pPos->y, pPos->z);
 			vertex.normal = D3DXVECTOR3(pNormal->x, pNormal->y, pNormal->z);
-			vertex.texcoord = D3DXVECTOR2(pTexcoord->x, pTexcoord->y);
+			
+			if(paiMesh->HasTextureCoords(0))
+			{
+				const aiVector3D* pTexcoord = &(paiMesh->mTextureCoords[0][j]);
+				vertex.texcoord = D3DXVECTOR3(pTexcoord->x, pTexcoord->y, 1.0f);
+			}
+			else if(paiMesh->HasVertexColors(0))
+			{
+				vertex.texcoord = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+				
+				const aiColor4D* pColor = paiMesh->mColors[j];
+				vertex.color = D3DXVECTOR4(pColor->r, pColor->g, pColor->b, pColor->a);
+			}
+			else
+			{
+				vertex.texcoord = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+				vertex.color = D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f);
+			}
+			
+			
 			m_pVertices[mCurrentVertex] = vertex;
 			mCurrentVertex++;
 		}
@@ -197,20 +213,12 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 	ibInitialData.SysMemSlicePitch = 0;
 	m_pd3dDevice->CreateBuffer(&ibDesc, &ibInitialData, &m_pIndexBuffer);
 
-	strFileName.erase(strFileName.length()-4, 4);
-	wstrFileName.erase(wstrFileName.length()-4, 4);
-
-	std::string strTextureName = strFileName.append("_Color.jpg");
-	std::wstring wstrTextureName = wstrFileName.append(L"_Color.jpg");
-
 	//Get the image file type
 	FREE_IMAGE_FORMAT fif = FreeImage_GetFileType(strTextureName.c_str());
 
 	//load the image file
 	FIBITMAP *texture = FreeImage_Load(fif, strTextureName.c_str());
 	
-	//texture = FreeImage_ConvertTo32Bits(texture);
-
 	if(texture != NULL)
 	{
 		unsigned char* bits = (unsigned char*)FreeImage_GetBits(texture);
@@ -274,13 +282,13 @@ HRESULT Surface::LoadMesh(LPWSTR lsFileName)
 }
 
 
-HRESULT Surface::Initialize(LPWSTR lsFileName)
+HRESULT Surface::Initialize(std::string strMeshName, std::string strTextureName)
 {
 	HRESULT hr(S_OK);
 
 	V_RETURN(InitializeShader());
 
-	V_RETURN(LoadMesh(lsFileName));
+	V_RETURN(LoadMesh(strMeshName, strTextureName));
 
 	return hr;
 }
@@ -309,10 +317,9 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 	{
 		m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		//apply pass
-		m_pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
-	
 		m_pSurfaceTextureVar->SetResource(m_pDiffuseTextureSRV);
+
+		m_pTechnique->GetPassByIndex( p )->Apply( 0, m_pd3dImmediateContext);
 
 		m_pd3dImmediateContext->DrawIndexed(m_mNumIndices, 0, 0);
 	}
@@ -403,7 +410,8 @@ HRESULT Surface::InitializeShader()
     {
         { "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
    V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pInputLayout));

@@ -125,12 +125,12 @@ HRESULT Scene::InitSurfaces()
 
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface1->Initialize(L"Media\\meshes\\WoodenBoxOpen02.obj"));
+	V_RETURN(m_pSurface1->Initialize("Media\\meshes\\WoodenBoxOpen02.obj", "Media\\meshes\\WoodenBoxOpen02_Color.jpg"));
 	m_pSurface1->Scale(2.0f);
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface2->Initialize(L"Media\\meshes\\WoodenBoxOpen02.obj"));
+	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\WoodenBoxOpen02.obj", "Media\\meshes\\WoodenBoxOpen02_Color.jpg"));
 
 	m_pControlledSurface = m_pSurface1;
 
@@ -437,10 +437,10 @@ void Scene::ScaleCurrentSurface(float fFactor)
 	m_pControlledSurface->Scale(fFactor);
 }
 
-HRESULT Scene::ChangeCurrentSurfaceMesh(LPWSTR lsFileName)
+HRESULT Scene::ChangeCurrentSurfaceMesh(std::string strMeshName, std::string strTextureName)
 {
 	HRESULT hr(S_OK);
-	V_RETURN(m_pControlledSurface->LoadMesh(lsFileName));
+	V_RETURN(m_pControlledSurface->LoadMesh(strMeshName, strTextureName));
 	return hr;
 }
 
