@@ -246,6 +246,7 @@ HRESULT Surface::LoadMesh(std::string strMeshName)
 	ibeInitialData.SysMemSlicePitch = 0;
 	m_pd3dDevice->CreateBuffer(&ibeDesc, &ibeInitialData, &m_pEdgeIndexBuffer);
 
+	MessageBox ( NULL , L"Mesh successfully loaded. Please choose a texture file in the next dialog!", ConvertMultibyteToWideChar(strMeshName).c_str(), MB_OK);
 
 	OPENFILENAME ofnTexture;
 	std::string strTextureName;
