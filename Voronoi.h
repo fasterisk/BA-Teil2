@@ -45,8 +45,6 @@ private:
 	ID3DX11EffectTechnique		*m_pVoronoiDiagramTechnique;
 	ID3DX11EffectTechnique		*m_pFlatTo3DTexTechnique;
 	
-	ID3D11InputLayout			*m_pVoronoiInputLayout;
-
 	// Slices state
 	ID3D11InputLayout			*m_pSlicesLayout;
 	ID3D11Buffer                *m_pSlicesVB;

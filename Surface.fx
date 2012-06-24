@@ -56,16 +56,15 @@ struct VsInput
 {
     float3 Pos      : POSITION;
 	float3 Normal	: NORMAL;
-    float3 TexCoord : TEXCOORD;
-	float4 Color	: COLOR0;
+    float2 TexCoord : TEXCOORD;
 };
 
 
 struct VsOutput
 {
 	float4 Pos		: SV_POSITION;
-	float3 TexCoord	: TEXCOORD;
-	float4 Color	: COLOR0;
+	float3 Normal	: NORMAL;
+	float2 TexCoord	: TEXCOORD;
 };
 
 struct VsWOutput
@@ -92,8 +91,8 @@ VsOutput VS_COLOR(VsInput input)
     VsOutput output;
 
     output.Pos = mul(float4(input.Pos, 1.0f), ModelViewProjectionMatrix);
+	output.Normal = mul(input.Normal, (float3x3)NormalMatrix);
 	output.TexCoord = input.TexCoord;
-	output.Color = input.Color;
 
     return output;
 }
@@ -114,14 +113,7 @@ VsWOutput VS_WIREFRAME(VsInput input)
 PsOutput PS_COLOR( VsOutput input )
 {
     PsOutput output;
-	if(input.TexCoord.z == 0.0f)
-	{
-		output.Color = input.Color;		
-	}
-	else
-	{
-		output.Color = SurfaceTexture.Sample(textureSampler, input.TexCoord.xy);
-	}
+    output.Color = SurfaceTexture.Sample(textureSampler, input.TexCoord);
 
 	output.Color.a = 0.1f;
     return output;
@@ -147,7 +139,7 @@ technique10 RenderColor
         SetPixelShader( CompileShader( ps_4_0, PS_COLOR() ) );
 
 		SetBlendState(AlphaBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetDepthStencilState(DisableDepth, 0 );
+        SetDepthStencilState( DisableDepth, 0 );
         SetRasterizerState(CullNone);
     }
 
@@ -157,7 +149,7 @@ technique10 RenderColor
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_WIREFRAME()));
 
-		SetDepthStencilState( DisableDepth, 0);
+		SetDepthStencilState( EnableDepth, 0);
 		SetRasterizerState(Wireframe);
 	}
 }

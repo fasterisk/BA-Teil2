@@ -49,8 +49,9 @@ protected:
 
 	VERTEX* m_pVertices;
 
-	ID3D11Buffer*	m_pVertexBuffer;
-	ID3D11Buffer*	m_pIndexBuffer;
+	ID3D11Buffer*	m_pTriangleVertexBuffer;
+	ID3D11Buffer*	m_pTriangleIndexBuffer;
+	ID3D11Buffer*	m_pEdgeIndexBuffer;
 	unsigned int m_mNumVertices;
 	unsigned int m_mNumIndices;
 

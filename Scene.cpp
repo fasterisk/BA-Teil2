@@ -125,13 +125,13 @@ HRESULT Scene::InitSurfaces()
 
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface1->Initialize("Media\\meshes\\Cube\\cube.obj", "Media\\meshes\\Textures\\blue.JPG"));
+	V_RETURN(m_pSurface1->Initialize("Media\\meshes\\Square\\square.obj", "Media\\meshes\\Textures\\blue.JPG"));
 	m_pSurface1->Translate(0.0f, -0.25f, 0.0f);
 	m_pSurface1->Scale(3.0f);
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\Sphere\\sphere.obj", "Media\\meshes\\Textures\\green.JPG"));
+	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\Square\\square.obj", "Media\\meshes\\Textures\\red.JPG"));
 
 	m_pControlledSurface = m_pSurface1;
 
@@ -281,10 +281,15 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		{
 			
 			if(m_bRenderIsoSurface)
-				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pIsoSurfaceSRV);
+			{
+				//m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pIsoSurfaceSRV);
+				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);//m_pIsoSurfaceSRV);
+			}
 			else
-				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pCurrentDiffusionSRV);
-				
+			{
+				//m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pCurrentDiffusionSRV);
+				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);//m_pCurrentDiffusionSRV);
+			}	
 			
 			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pOneSliceDiffusionSRV);
 		}
@@ -292,11 +297,13 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		{
 			if(m_bRenderIsoSurface)
 			{
-				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pIsoSurfaceSRV);
+				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pIsoSurfaceSRV);
+				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);//m_pIsoSurfaceSRV);
 			}
 			else
 			{
-				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
+				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
+				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);//m_pCurrentDiffusionSRV);
 			}
 
 		}
