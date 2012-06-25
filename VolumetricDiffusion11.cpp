@@ -376,9 +376,9 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 		}
 
 		if(iWheelDelta>0)
-			g_pScene->TranslateCurrentSurface(100*lookAt.x, 100*lookAt.y, 100*lookAt.z);
+			g_pScene->TranslateCurrentSurface(g_fElapsedTime*100*lookAt.x, g_fElapsedTime*100*lookAt.y, g_fElapsedTime*100*lookAt.z);
 		else if(iWheelDelta<0)
-			g_pScene->TranslateCurrentSurface(-100*lookAt.x, -100*lookAt.y, -100*lookAt.z);
+			g_pScene->TranslateCurrentSurface(-g_fElapsedTime*100*lookAt.x, -g_fElapsedTime*100*lookAt.y, -g_fElapsedTime*100*lookAt.z);
 	}
 
 	g_mouseX = iX;
