@@ -31,6 +31,7 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_bGenerateVoronoi = false;
 	m_bRenderIsoSurface = false;
 	m_bDiffusionStepsChanged = true;
+	m_bIsoValueChanged = true;
 
 	m_iTextureWidth = 128;
 	m_iTextureHeight = 128;
@@ -273,9 +274,10 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 			m_bDiffusionStepsChanged = false;
 		}
 
-		if(m_bRenderIsoSurface)
+		if(m_bRenderIsoSurface && m_bIsoValueChanged)
 		{
 			m_pIsoSurfaceSRV = m_pDiffusion->RenderIsoSurface(m_pCurrentDiffusionSRV);
+			m_bIsoValueChanged = false;
 		}
 		
 		if(m_bDrawAllSlices == false)
@@ -373,16 +375,19 @@ void Scene::ChangeIsoValue(float fIsoValue)
 {
 	m_fIsoValue = fIsoValue;
 	m_pDiffusion->ChangeIsoValue(fIsoValue);
+	m_bIsoValueChanged = true;
 }
 
 void Scene::ShowIsoSurface(bool bShow)
 {
 	m_bRenderIsoSurface = bShow;
+	m_bIsoValueChanged = true;
 }
 
 void Scene::ShowIsoColor(bool bShow)
 {
 	m_pDiffusion->ShowIsoColor(bShow);
+	m_bIsoValueChanged = true;
 }
 
 void Scene::ChangeDiffusionSteps(int iDiffusionSteps)
