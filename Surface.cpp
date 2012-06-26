@@ -250,7 +250,7 @@ HRESULT Surface::LoadMesh(std::string strMeshName)
 
 	OPENFILENAME ofnTexture;
 	std::string strTextureName;
-	WCHAR sz[100];
+	WCHAR sz[300];
 
 	//Open file dialog
 	ZeroMemory(&ofnTexture, sizeof(ofnTexture));

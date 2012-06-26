@@ -398,7 +398,7 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 //--------------------------------------------------------------------------------------
 void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, void* pUserContext )
 {
-	WCHAR sz[100];
+	WCHAR sz[300];
 	HRESULT hr;
 
 	//File names for mesh and texture loading
