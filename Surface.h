@@ -19,6 +19,9 @@ public:
 
 	void Scale(float fFactor);
 
+	float GetIsoColor();
+	void SetIsoColor(float fIsoColor);
+
 	void SetColor(D3DXVECTOR3 vColor);
 	void SetColor(float fR, float fG, float fB);
 
@@ -67,6 +70,7 @@ protected:
 
 	CDXUTSDKMesh	m_pSurfaceMesh;
 
+	float m_fIsoColor;
 
 };
 

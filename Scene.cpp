@@ -129,11 +129,13 @@ HRESULT Scene::InitSurfaces()
 	V_RETURN(m_pSurface1->Initialize("Media\\meshes\\Cube\\cube.obj", "Media\\meshes\\Textures\\blue.JPG"));
 	m_pSurface1->Translate(0.0f, -0.25f, 0.0f);
 	m_pSurface1->Scale(3.0f);
+	m_pSurface1->SetIsoColor(0.0f);
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
 	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\Cube\\cube.obj", "Media\\meshes\\Textures\\red.JPG"));
 	m_pSurface2->Translate(0.0f, -0.25f, 0.0f);
+	m_pSurface2->SetIsoColor(1.0f);
 
 	m_pControlledSurface = m_pSurface1;
 
@@ -147,6 +149,56 @@ HRESULT Scene::UpdateBoundingBox()
 	BOUNDINGBOX bbSurface1 = m_pSurface1->GetBoundingBox();
 	BOUNDINGBOX bbSurface2 = m_pSurface2->GetBoundingBox();
 
+
+	//check which surface is the inner surface
+	bool bSurface1IsInner = false;
+	D3DXVECTOR3* bbVerticesSurface1 = new D3DXVECTOR3[8];
+	bbVerticesSurface1[0].x = bbSurface1.vMin.x;
+	bbVerticesSurface1[0].y = bbSurface1.vMin.y;
+	bbVerticesSurface1[0].z = bbSurface1.vMin.z;
+	bbVerticesSurface1[1].x = bbSurface1.vMax.x;
+	bbVerticesSurface1[1].y = bbSurface1.vMin.y;
+	bbVerticesSurface1[1].z = bbSurface1.vMin.z;
+	bbVerticesSurface1[2].x = bbSurface1.vMax.x;
+	bbVerticesSurface1[2].y = bbSurface1.vMax.y;
+	bbVerticesSurface1[2].z = bbSurface1.vMin.z;
+	bbVerticesSurface1[3].x = bbSurface1.vMin.x;
+	bbVerticesSurface1[3].y = bbSurface1.vMax.y;
+	bbVerticesSurface1[3].z = bbSurface1.vMin.z;
+	bbVerticesSurface1[4].x = bbSurface1.vMax.x;
+	bbVerticesSurface1[4].y = bbSurface1.vMin.y;
+	bbVerticesSurface1[4].z = bbSurface1.vMax.z;
+	bbVerticesSurface1[5].x = bbSurface1.vMin.x;
+	bbVerticesSurface1[5].y = bbSurface1.vMin.y;
+	bbVerticesSurface1[5].z = bbSurface1.vMax.z;
+	bbVerticesSurface1[6].x = bbSurface1.vMax.x;
+	bbVerticesSurface1[6].y = bbSurface1.vMax.y;
+	bbVerticesSurface1[6].z = bbSurface1.vMax.z;
+	bbVerticesSurface1[7].x = bbSurface1.vMin.x;
+	bbVerticesSurface1[7].y = bbSurface1.vMax.y;
+	bbVerticesSurface1[7].z = bbSurface1.vMax.z;
+
+	for(int i = 0; i < 8; i++)
+	{
+		bSurface1IsInner = CheckIfPointIsInBoundingBox(bbSurface2, bbVerticesSurface1[i]);
+		if(bSurface1IsInner == true)
+			break;
+	}
+
+	SAFE_DELETE_ARRAY(bbVerticesSurface1);
+
+	if(bSurface1IsInner)
+	{
+		m_pSurface1->SetIsoColor(1.0f);
+		m_pSurface2->SetIsoColor(0.0f);
+	}
+	else
+	{
+		m_pSurface1->SetIsoColor(0.0f);
+		m_pSurface2->SetIsoColor(1.0f);
+	}
+
+	//get overall bounding box
 	BOUNDINGBOX bbFinal = bbSurface1;
 
 	if(bbSurface2.vMin.x < bbFinal.vMin.x)

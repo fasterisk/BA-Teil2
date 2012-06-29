@@ -26,6 +26,8 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 
 	m_vColor = D3DXVECTOR3(0.0, 0.0, 0.0);
 
+	m_fIsoColor = 1.0f;
+
 	FreeImage_Initialise();
 }
 
@@ -103,6 +105,16 @@ void Surface::SetColor(float fR, float fG, float fB)
 D3DXVECTOR3 Surface::GetColor()
 {
 	return m_vColor;
+}
+
+void Surface::SetIsoColor(float fIsoColor)
+{
+	m_fIsoColor = fIsoColor;
+}
+
+float Surface::GetIsoColor()
+{
+	return m_fIsoColor;
 }
 
 HRESULT Surface::LoadMesh(std::string strMeshName)

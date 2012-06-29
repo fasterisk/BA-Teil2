@@ -118,6 +118,15 @@ inline std::string ConvertWideCharToChar(LPWSTR lpwstr)
 	return strTo;
 }
 
+inline bool CheckIfPointIsInBoundingBox(BOUNDINGBOX bb, D3DXVECTOR3 point)
+{
+	if(point.x > bb.vMin.x && point.x < bb.vMax.x &&
+		point.y > bb.vMin.y && point.y < bb.vMax.y &&
+		point.z > bb.vMin.z && point.z < bb.vMax.z)
+		return true;
+	else
+		return false;
+}
 
 
 #endif

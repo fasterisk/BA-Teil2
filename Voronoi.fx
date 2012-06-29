@@ -802,17 +802,6 @@ void VoronoiEdgeGS(line GS_EDGE_VORONOI_INPUT input[2], inout TriangleStream<GS_
 	//Calculate depth of the current slice
 	float sliceDepth = iSliceIndex/vTextureSize.z;
 
-	/*GS_EDGE_VORONOI_INPUT vec1 = input[0];
-	GS_EDGE_VORONOI_INPUT vec2 = input[1];
-	GS_EDGE_VORONOI_INPUT vec3 = input[2];
-	vec1.pos /= vec1.pos.w;
-	vec2.pos /= vec2.pos.w;
-	vec3.pos /= vec3.pos.w;
-
-	CalculateEdgeProjection(vec1, vec2, sliceDepth, tStream);
-	CalculateEdgeProjection(vec2, vec3, sliceDepth, tStream);
-	CalculateEdgeProjection(vec3, vec1, sliceDepth, tStream);*/
-
 	GS_EDGE_VORONOI_INPUT vec1 = input[0];
 	GS_EDGE_VORONOI_INPUT vec2 = input[1];
 	vec1.pos /= vec1.pos.w;

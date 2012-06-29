@@ -464,13 +464,13 @@ HRESULT Voronoi::RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2O
 	m_pModelViewProjectionVar->SetMatrix(mModel1Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix1);
 	m_pCurrentColorVar->SetFloatVector(m_pSurface1->GetColor());
-	m_pIsoSurfaceVar->SetFloat(0.0f);
+	m_pIsoSurfaceVar->SetFloat(m_pSurface1->GetIsoColor());
 	m_pSurface1->RenderVoronoi(m_pVoronoiDiagramTechnique, m_pSurfaceTextureVar);
 
 	m_pModelViewProjectionVar->SetMatrix(mModel2Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix2);
 	m_pCurrentColorVar->SetFloatVector(m_pSurface2->GetColor());
-	m_pIsoSurfaceVar->SetFloat(1.0f);
+	m_pIsoSurfaceVar->SetFloat(m_pSurface2->GetIsoColor());
 	m_pSurface2->RenderVoronoi(m_pVoronoiDiagramTechnique, m_pSurfaceTextureVar);
 	
 	return S_OK;
