@@ -513,6 +513,7 @@ HRESULT Scene::ChangeCurrentSurfaceMesh(std::string strMeshName)
 void Scene::GenerateVoronoi()
 {
 	m_bGenerateVoronoi = true;
+	m_bIsoValueChanged = true;
 }
 
 void Scene::Render3DTexture(bool bRenderVoronoi)
