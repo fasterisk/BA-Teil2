@@ -17,6 +17,9 @@ Surface::Surface(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateCon
 	m_pEdgeIndexBuffer = NULL;
 	m_pVertices = NULL;
 
+	m_pDiffuseTexture = NULL;
+	m_pDiffuseTextureSRV = NULL;
+
 	D3DXMatrixIdentity(&m_mModel);
 	D3DXMatrixIdentity(&m_mRot);
 	D3DXMatrixIdentity(&m_mTrans);
@@ -38,6 +41,9 @@ Surface::~Surface()
 	SAFE_RELEASE(m_pTriangleVertexBuffer);
 	SAFE_RELEASE(m_pTriangleIndexBuffer);
 	SAFE_RELEASE(m_pEdgeIndexBuffer);
+
+	SAFE_RELEASE(m_pDiffuseTexture);
+	SAFE_RELEASE(m_pDiffuseTextureSRV);
 }
 
 void Surface::Translate(float fX, float fY, float fZ)
@@ -314,6 +320,9 @@ HRESULT Surface::LoadMesh(std::string strMeshName)
 			offset_img = y * nPitch;
 		}
 	
+		SAFE_RELEASE(m_pDiffuseTexture);
+		SAFE_RELEASE(m_pDiffuseTextureSRV);
+
 		D3D11_TEXTURE2D_DESC texDesc;
 		texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		texDesc.CPUAccessFlags = 0;
@@ -516,6 +525,9 @@ HRESULT Surface::LoadMesh(std::string strMeshName, std::string strTextureName)
 			offset_img = y * nPitch;
 		}
 	
+		SAFE_RELEASE(m_pDiffuseTexture);
+		SAFE_RELEASE(m_pDiffuseTextureSRV);
+
 		D3D11_TEXTURE2D_DESC texDesc;
 		texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		texDesc.CPUAccessFlags = 0;

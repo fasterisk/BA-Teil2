@@ -47,7 +47,7 @@ protected:
 	HRESULT InitSurfaces();
 	HRESULT Init3DTextures();
 
-	bool initialized;
+	bool m_bUpdate3DTextures;
 	bool m_bGenerateVoronoi;
 	bool m_bRender3DTexture;
 	bool m_bRenderIsoSurface;

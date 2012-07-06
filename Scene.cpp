@@ -26,7 +26,7 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_pColor3DTex2SRV = NULL;
 	m_pDist3DTexSRV = NULL;
 	m_pBBVertices = new VERTEX[8];
-	initialized = false;
+	m_bUpdate3DTextures = false;
 	m_bRender3DTexture = false;
 	m_bGenerateVoronoi = false;
 	m_bRenderIsoSurface = false;
@@ -113,7 +113,6 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	// Initialize VolumeRenderer
 	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
 	V_RETURN(m_pVolumeRenderer->Initialize());
-
 	
 	V_RETURN(UpdateBoundingBox());
 
@@ -126,15 +125,13 @@ HRESULT Scene::InitSurfaces()
 
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface1->Initialize("Media\\meshes\\Cube\\cube.obj", "Media\\meshes\\Textures\\blue.JPG"));
-	m_pSurface1->Translate(0.0f, -0.25f, 0.0f);
-	m_pSurface1->Scale(3.0f);
+	V_RETURN(m_pSurface1->Initialize("Media\\meshes\\Sphere\\sphere.obj", "Media\\meshes\\Textures\\blue.JPG"));
+	m_pSurface1->Scale(2.0f);
 	m_pSurface1->SetIsoColor(0.0f);
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\Cube\\cube.obj", "Media\\meshes\\Textures\\red.JPG"));
-	m_pSurface2->Translate(0.0f, -0.25f, 0.0f);
+	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\Sphere\\sphere.obj", "Media\\meshes\\Textures\\red.JPG"));
 	m_pSurface2->SetIsoColor(1.0f);
 
 	m_pControlledSurface = m_pSurface1;
@@ -214,7 +211,7 @@ HRESULT Scene::UpdateBoundingBox()
 	if(bbSurface2.vMax.z > bbFinal.vMax.z)
 		bbFinal.vMax.z = bbSurface2.vMax.z;
 
-	if(initialized
+	if(m_bUpdate3DTextures
 		&& bbFinal.vMin.x == m_vMin.x
 		&& bbFinal.vMin.y == m_vMin.y
 		&& bbFinal.vMin.z == m_vMin.z
@@ -276,7 +273,7 @@ HRESULT Scene::UpdateBoundingBox()
 									  m_iTextureDepth, 
 									  m_fIsoValue));
 
-	initialized = true;
+	m_bUpdate3DTextures = true;
 	
 	return S_OK;
 }
@@ -296,7 +293,7 @@ void Scene::UpdateTextureResolution(int iMaxRes)
 	m_iTextureHeight = int(vDiff.y * iMaxRes + 0.5);
 	m_iTextureDepth = int(vDiff.z * iMaxRes + 0.5);
 
-	initialized = false;
+	m_bUpdate3DTextures = false;
 }
 
 void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
@@ -446,6 +443,7 @@ void Scene::ChangeDiffusionSteps(int iDiffusionSteps)
 {
 	m_iDiffusionSteps = iDiffusionSteps;
 	m_bGenerateDiffusion = true;
+	m_bIsoValueChanged = true;
 }
 
 void Scene::ChangeControlledSurface()
