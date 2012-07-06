@@ -31,7 +31,8 @@ public:
 	void RotateXCurrentSurface(float fFactor);
 	void RotateYCurrentSurface(float fFactor);
 	void ScaleCurrentSurface(float fFactor);
-	HRESULT ChangeCurrentSurfaceMesh(std::string strMeshName);
+	HRESULT LoadSurface1(std::string strMeshName);
+	HRESULT LoadSurface2(std::string strMeshName);
 
 	int GetTextureWidth()	{return m_iTextureWidth;}
 	int GetTextureHeight()	{return m_iTextureHeight;}
@@ -50,7 +51,7 @@ protected:
 	bool m_bGenerateVoronoi;
 	bool m_bRender3DTexture;
 	bool m_bRenderIsoSurface;
-	bool m_bDiffusionStepsChanged;
+	bool m_bGenerateDiffusion;
 	bool m_bIsoValueChanged;
 
 

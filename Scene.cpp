@@ -30,7 +30,7 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_bRender3DTexture = false;
 	m_bGenerateVoronoi = false;
 	m_bRenderIsoSurface = false;
-	m_bDiffusionStepsChanged = true;
+	m_bGenerateDiffusion = false;
 	m_bIsoValueChanged = true;
 
 	m_iTextureWidth = 128;
@@ -310,7 +310,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		{
 			m_bGenerateVoronoi = false;
 			m_bRender3DTexture = true;
-			m_bDiffusionStepsChanged = true;
+			m_bGenerateDiffusion = true;
 		}
 		else
 		{
@@ -320,10 +320,10 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 
 	if(m_bRender3DTexture)
 	{
-		if(m_bDiffusionStepsChanged)
+		if(m_bGenerateDiffusion)
 		{
 			m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, m_iDiffusionSteps);
-			m_bDiffusionStepsChanged = false;
+			m_bGenerateDiffusion = false;
 		}
 
 		if(m_bRenderIsoSurface && m_bIsoValueChanged)
@@ -338,12 +338,12 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 			if(m_bRenderIsoSurface)
 			{
 				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pIsoSurfaceSRV);
-				//m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);//m_pIsoSurfaceSRV);
+				//m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);
 			}
 			else
 			{
 				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pCurrentDiffusionSRV);
-				//m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);//m_pCurrentDiffusionSRV);
+				//m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);
 			}	
 			
 			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pOneSliceDiffusionSRV);
@@ -353,12 +353,12 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 			if(m_bRenderIsoSurface)
 			{
 				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pIsoSurfaceSRV);
-				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);//m_pIsoSurfaceSRV);
+				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);
 			}
 			else
 			{
 				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
-				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);//m_pCurrentDiffusionSRV);
+				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);
 			}
 
 		}
@@ -445,7 +445,7 @@ void Scene::ShowIsoColor(bool bShow)
 void Scene::ChangeDiffusionSteps(int iDiffusionSteps)
 {
 	m_iDiffusionSteps = iDiffusionSteps;
-	m_bDiffusionStepsChanged = true;
+	m_bGenerateDiffusion = true;
 }
 
 void Scene::ChangeControlledSurface()
@@ -503,16 +503,23 @@ void Scene::ScaleCurrentSurface(float fFactor)
 	m_pControlledSurface->Scale(fFactor);
 }
 
-HRESULT Scene::ChangeCurrentSurfaceMesh(std::string strMeshName)
+HRESULT Scene::LoadSurface1(std::string strMeshName)
 {
 	HRESULT hr(S_OK);
-	V_RETURN(m_pControlledSurface->LoadMesh(strMeshName));
+	V_RETURN(m_pSurface1->LoadMesh(strMeshName));
+	return hr;
+}
+HRESULT Scene::LoadSurface2(std::string strMeshName)
+{
+	HRESULT hr(S_OK);
+	V_RETURN(m_pSurface2->LoadMesh(strMeshName));
 	return hr;
 }
 
 void Scene::GenerateVoronoi()
 {
 	m_bGenerateVoronoi = true;
+	m_bGenerateDiffusion = false;
 	m_bIsoValueChanged = true;
 }
 

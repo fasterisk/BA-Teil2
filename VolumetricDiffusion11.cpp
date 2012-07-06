@@ -67,31 +67,32 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_TOGGLEREF				2
 #define IDC_CHANGEDEVICE			3
 
-#define IDC_LOAD_SURFACE			4
-#define IDC_CHANGE_CONTROL			5
-#define IDC_ROTATE_MOVE_CAMERA		6
-#define IDC_ROTATE					7
-#define IDC_MOVE					8
-#define IDC_CAMERA					9
-#define IDC_TEXTRES_STATIC			10
-#define IDC_TEXTRES_MAX_STATIC		11
-#define IDC_TEXTRES_MAX_SLIDER		12
-#define IDC_SLICES					13
-#define IDC_ALL_SLICES				14
-#define IDC_ONE_SLICE				15
-#define IDC_SLICEINDEX_STATIC		16
-#define IDC_SLICEINDEX_SLIDER		17
-#define IDC_SHOW_SURFACES			18
-#define IDC_DIFFUSION				19
-#define IDC_ISO_SLIDER				20
-#define IDC_ISO_SLIDER_STATIC		21
-#define IDC_ISO_CHECK				22
-#define IDC_DIFFSTEPS_STATIC		23
-#define IDC_DIFFSTEPS_SLIDER		24
-#define IDC_ISO_COLOR				25
-#define IDC_SAMPLING				26
-#define	IDC_SAMPLING_LINEAR			27
-#define IDC_SAMPLING_POINT			28
+#define IDC_LOAD_SURFACE_1			4
+#define IDC_LOAD_SURFACE_2			5
+#define IDC_CHANGE_CONTROL			6
+#define IDC_ROTATE_MOVE_CAMERA		7
+#define IDC_ROTATE					8
+#define IDC_MOVE					9
+#define IDC_CAMERA					10
+#define IDC_TEXTRES_STATIC			11
+#define IDC_TEXTRES_MAX_STATIC		12
+#define IDC_TEXTRES_MAX_SLIDER		13
+#define IDC_SLICES					14
+#define IDC_ALL_SLICES				15
+#define IDC_ONE_SLICE				16
+#define IDC_SLICEINDEX_STATIC		17
+#define IDC_SLICEINDEX_SLIDER		18
+#define IDC_SHOW_SURFACES			19
+#define IDC_DIFFUSION				20
+#define IDC_ISO_SLIDER				21
+#define IDC_ISO_SLIDER_STATIC		22
+#define IDC_ISO_CHECK				23
+#define IDC_DIFFSTEPS_STATIC		24
+#define IDC_DIFFSTEPS_SLIDER		25
+#define IDC_ISO_COLOR				26
+#define IDC_SAMPLING				27
+#define	IDC_SAMPLING_LINEAR			28
+#define IDC_SAMPLING_POINT			29
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -164,8 +165,8 @@ void InitApp()
 	WCHAR sz[100];
 
     g_SampleUI.SetCallback( OnGUIEvent ); int iY = 10;
-	g_SampleUI.AddButton(IDC_LOAD_SURFACE, L"Load Surface...", 0, iY, 170, 30);
-	g_SampleUI.AddButton( IDC_CHANGE_CONTROL, L"Current: Surface 1", 0, iY += 30, 170, 30);
+	g_SampleUI.AddButton(IDC_LOAD_SURFACE_1, L"Load Surface 1", 0, iY, 170, 30);
+	g_SampleUI.AddButton(IDC_LOAD_SURFACE_2, L"Load Surface 2", 0, iY+=30, 170, 30);
 	g_SampleUI.AddRadioButton( IDC_ROTATE, IDC_ROTATE_MOVE_CAMERA, L"Rotate & Scale", 0, iY += 30, 170, 22);
 	g_SampleUI.AddRadioButton( IDC_MOVE, IDC_ROTATE_MOVE_CAMERA, L"Move", 0, iY += 20, 170, 22);
 	g_SampleUI.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 20, 170, 22);
@@ -409,7 +410,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
     
 	switch( nControlID )
     {
-		case IDC_LOAD_SURFACE:
+		case IDC_LOAD_SURFACE_1:
 			 // open a mesh file name
 			ZeroMemory(&ofnMesh, sizeof(ofnMesh));
 			ofnMesh.lStructSize = sizeof ( ofnMesh );
@@ -431,7 +432,48 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			strMeshName = ConvertWideCharToChar(ofnMesh.lpstrFile);
 
 			// load the surface mesh into the current surface
-			hr = g_pScene->ChangeCurrentSurfaceMesh(strMeshName);
+			hr = g_pScene->LoadSurface1(strMeshName);
+			if(hr == S_OK)
+			{
+				g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
+				g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
+				g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
+				g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+				g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
+				g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
+				g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
+				g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
+				g_pScene->Render3DTexture(false);
+			}
+			else
+			{
+				MessageBox ( NULL , L"Mesh could not be loaded", ofnMesh.lpstrFile , MB_OK);
+			}
+			break;
+		
+		case IDC_LOAD_SURFACE_2:
+			 // open a mesh file name
+			ZeroMemory(&ofnMesh, sizeof(ofnMesh));
+			ofnMesh.lStructSize = sizeof ( ofnMesh );
+			ofnMesh.hwndOwner = NULL  ;
+			ofnMesh.lpstrFile = sz;
+			ofnMesh.lpstrFile[0] = '\0';
+			ofnMesh.nMaxFile = sizeof(sz);
+			ofnMesh.lpstrFilter = L"All\0*.*\0";
+			ofnMesh.nFilterIndex =1;
+			ofnMesh.lpstrFileTitle = NULL ;
+			ofnMesh.nMaxFileTitle = 0 ;
+			ofnMesh.lpstrInitialDir=NULL ;
+			ofnMesh.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
+			GetOpenFileName( &ofnMesh );
+
+			if(wcslen(ofnMesh.lpstrFile) == 0)
+				break;
+
+			strMeshName = ConvertWideCharToChar(ofnMesh.lpstrFile);
+
+			// load the surface mesh into the current surface
+			hr = g_pScene->LoadSurface2(strMeshName);
 			if(hr == S_OK)
 			{
 				g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
