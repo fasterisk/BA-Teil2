@@ -125,13 +125,13 @@ HRESULT Scene::InitSurfaces()
 
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface1->Initialize("Media\\meshes\\Sphere\\sphere.obj", "Media\\meshes\\Textures\\blue.JPG"));
+	V_RETURN(m_pSurface1->Initialize("Media\\meshes\\Cube\\cube.obj", "Media\\meshes\\Textures\\blue.JPG"));
 	m_pSurface1->Scale(2.0f);
 	m_pSurface1->SetIsoColor(0.0f);
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\Sphere\\sphere.obj", "Media\\meshes\\Textures\\red.JPG"));
+	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\Cube\\cube.obj", "Media\\meshes\\Textures\\red.JPG"));
 	m_pSurface2->SetIsoColor(1.0f);
 
 	m_pControlledSurface = m_pSurface1;
