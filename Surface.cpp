@@ -131,10 +131,7 @@ HRESULT Surface::LoadMesh(std::string strMeshName)
 
 	const aiScene* pScene = Importer.ReadFile(strMeshName.c_str(), aiProcess_Triangulate |
 																	aiProcess_JoinIdenticalVertices |
-																	aiProcess_MakeLeftHanded |
-																	aiProcess_FindDegenerates |
-																	aiProcess_FlipWindingOrder |
-																	aiProcess_GenNormals
+																	aiProcess_GenSmoothNormals
 																	);
 
 	//assert(pScene);
@@ -367,10 +364,7 @@ HRESULT Surface::LoadMesh(std::string strMeshName, std::string strTextureName)
 
 	const aiScene* pScene = Importer.ReadFile(strMeshName.c_str(), aiProcess_Triangulate |
 																	aiProcess_JoinIdenticalVertices |
-																	aiProcess_MakeLeftHanded |
-																	//aiProcess_FindDegenerates |
-																	aiProcess_FlipWindingOrder |
-																	aiProcess_GenNormals
+																	aiProcess_GenSmoothNormals
 																	);
 
 	assert(pScene);
