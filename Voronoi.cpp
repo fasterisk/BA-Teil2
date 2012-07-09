@@ -1,6 +1,8 @@
 #include "Globals.h"
 #include "Voronoi.h"
 
+/****************************************************************************
+ ****************************************************************************/
 Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateContext, ID3DX11Effect *pVoronoiEffect)
 {
 	m_pd3dDevice = pd3dDevice;
@@ -36,6 +38,8 @@ Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateCon
 	m_bRenderIsoSurface = false;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 Voronoi::~Voronoi()
 {
 	Cleanup();
@@ -61,6 +65,8 @@ void Voronoi::Cleanup()
 	SAFE_RELEASE(m_pSlicesVB);
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Voronoi::Initialize()
 {
 	HRESULT hr;
@@ -72,6 +78,8 @@ HRESULT Voronoi::Initialize()
 	V_RETURN(InitShaders());
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Voronoi::SetDestination(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3D *pDestDistTex3D)
 {
 	m_pDestColorTex3D = pDestColorTex3D;
@@ -80,14 +88,16 @@ HRESULT Voronoi::SetDestination(ID3D11Texture3D *pDestColorTex3D, ID3D11Texture3
 	return Update();
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Voronoi::SetSurfaces(Surface *pSurface1, Surface *pSurface2)
 {
 	m_pSurface1 = pSurface1;
 	m_pSurface2 = pSurface2;
 }
 
-
-
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Voronoi::Update()
 {
 	HRESULT hr(S_OK);
@@ -108,10 +118,13 @@ HRESULT Voronoi::Update()
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Voronoi::InitFlatTextures()
 {
 	HRESULT hr;
 
+	//Release old textures
 	SAFE_RELEASE(m_pFlatColorTex);
 	SAFE_RELEASE(m_pFlatColorTexRTV);
 	SAFE_RELEASE(m_pFlatColorTexSRV);
@@ -179,6 +192,8 @@ HRESULT Voronoi::InitFlatTextures()
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Voronoi::InitRendertargets3D()
 {
 	HRESULT hr;
@@ -186,9 +201,11 @@ HRESULT Voronoi::InitRendertargets3D()
 	assert(m_pDestColorTex3D != NULL);
 	assert(m_pDestDistTex3D != NULL);
 
+	//Release old textures
 	SAFE_RELEASE(m_pDestColorTex3DRTV);
 	SAFE_RELEASE(m_pDestDistTex3DRTV);
 
+	//create color texture
 	D3D11_TEXTURE3D_DESC descColorTex3D;
 	m_pDestColorTex3D->GetDesc(&descColorTex3D);
 	D3D11_RENDER_TARGET_VIEW_DESC descCT3DRTV;
@@ -199,6 +216,7 @@ HRESULT Voronoi::InitRendertargets3D()
 	descCT3DRTV.Texture3D.WSize = descColorTex3D.Depth;
 	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pDestColorTex3D, &descCT3DRTV, &m_pDestColorTex3DRTV));
 
+	//create dist texture
 	D3D11_TEXTURE3D_DESC descDistTex3D;
 	m_pDestDistTex3D->GetDesc(&descDistTex3D);
 	D3D11_RENDER_TARGET_VIEW_DESC descDT3DRTV;
@@ -216,6 +234,8 @@ HRESULT Voronoi::InitRendertargets3D()
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Voronoi::InitShaders()
 {
 	HRESULT hr;
@@ -234,16 +254,8 @@ HRESULT Voronoi::InitShaders()
 	m_pBBMaxVar					= m_pVoronoiEffect->GetVariableByName("vBBMax")->AsVector();
 	m_pFlatColorTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatColorTexture")->AsShaderResource();
 	m_pFlatDistTex2DSRVar		= m_pVoronoiEffect->GetVariableByName("flatDistTexture")->AsShaderResource();
-	m_pCurrentColorVar			= m_pVoronoiEffect->GetVariableByName("vCurrentColor")->AsVector();
 	m_pSurfaceTextureVar		= m_pVoronoiEffect->GetVariableByName("SurfaceTexture")->AsShaderResource();
 	m_pIsoSurfaceVar			= m_pVoronoiEffect->GetVariableByName("fIsoSurfaceVal")->AsScalar();
-
-	D3DX11_PASS_SHADER_DESC passVsDesc;
-	m_pVoronoiDiagramTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
-	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
-	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
-	const void *vsCodePtr = effectVsDesc.pBytecode;
-	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
 
 	assert(m_pVoronoiDiagramTechnique);
 	assert(m_pModelViewProjectionVar);
@@ -253,11 +265,12 @@ HRESULT Voronoi::InitShaders()
 	assert(m_pBBMaxVar);
 	assert(m_pFlatColorTex2DSRVar);
 	assert(m_pFlatDistTex2DSRVar);
-	assert(m_pCurrentColorVar);
 
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Voronoi::InitSlices()
 {
 	HRESULT hr;
@@ -321,13 +334,13 @@ HRESULT Voronoi::InitSlices()
 
 	}
 
+	//create vertex buffer for the slices
 	D3D11_BUFFER_DESC vbDesc;
 	vbDesc.ByteWidth = SLICEQUAD_VERTEX_COUNT*m_iTextureDepth*sizeof(SLICE_SCREENQUAD_VERTEX);
 	vbDesc.Usage = D3D11_USAGE_DEFAULT;
 	vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbDesc.CPUAccessFlags = 0;
 	vbDesc.MiscFlags = 0;
-
 	D3D11_SUBRESOURCE_DATA initialData;
 	initialData.pSysMem = sliceVertices;
 	initialData.SysMemPitch = 0;
@@ -339,6 +352,8 @@ HRESULT Voronoi::InitSlices()
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 bool Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, bool bRenderIsoSurface)
 {
 	//store the old render targets and viewports
@@ -441,6 +456,8 @@ bool Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, bool bRender
 	return true;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Voronoi::RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2Orth, D3DXMATRIX mNormalMatrix1, D3DXMATRIX mNormalMatrix2, int iSliceIndex)
 {
 	HRESULT hr;
@@ -474,6 +491,8 @@ HRESULT Voronoi::RenderToFlatTexture(D3DXMATRIX mModel1Orth, D3DXMATRIX mModel2O
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Voronoi::DrawSlices()
 {
 	assert(m_pSlicesLayout);

@@ -17,8 +17,6 @@ int iSliceIndex;
 float3 vTextureSize;
 float fIsoValue;
 
-float3 vCurrentColor;
-
 float fIsoSurfaceVal;
 
 //--------------------------------------------------------------------------------------
