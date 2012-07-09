@@ -1,6 +1,8 @@
 #include "Globals.h"
 #include "VolumeRenderer.h"
 
+/****************************************************************************
+ ****************************************************************************/
 VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect)
 {
 	m_pd3dDevice = pd3dDevice;
@@ -26,6 +28,8 @@ VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd
 	m_bLinearSampling = true;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 VolumeRenderer::~VolumeRenderer()
 {
 	SAFE_RELEASE(m_pBBVertexBuffer);
@@ -43,15 +47,18 @@ VolumeRenderer::~VolumeRenderer()
 	SAFE_RELEASE(m_pSQVertexBuffer);
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT VolumeRenderer::Initialize()
 {
 	HRESULT hr;
 	V_RETURN(InitShader());
 	V_RETURN(InitBoundingIndicesAndLayout());
-	V_RETURN(CreateScreenQuad());
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT VolumeRenderer::Update(int iWidth, int iHeight, int iDepth)
 {
 	float maxSize = (float)max(iWidth, max(iHeight, iDepth));
@@ -67,6 +74,8 @@ HRESULT VolumeRenderer::Update(int iWidth, int iHeight, int iDepth)
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT VolumeRenderer::SetScreenSize(int iWidth, int iHeight)
 {
 	HRESULT hr;
@@ -120,11 +129,15 @@ HRESULT VolumeRenderer::SetScreenSize(int iWidth, int iHeight)
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void VolumeRenderer::ChangeSampling()
 {
 	m_bLinearSampling = !m_bLinearSampling;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV)
 {
 	m_pBBMinVar->SetFloatVector(vBBMin);
@@ -189,6 +202,8 @@ void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3
 	
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT VolumeRenderer::InitShader()
 {
 	m_pVolumeRenderTechnique = m_pEffect->GetTechniqueByName("VolumeRendering");
@@ -205,6 +220,8 @@ HRESULT VolumeRenderer::InitShader()
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT VolumeRenderer::InitBoundingIndicesAndLayout()
 {
 	HRESULT hr;
@@ -246,60 +263,8 @@ HRESULT VolumeRenderer::InitBoundingIndicesAndLayout()
 	return S_OK;
 }
 
-HRESULT VolumeRenderer::CreateScreenQuad()
-{
-	HRESULT hr;
-
-	SAFE_RELEASE(m_pSQInputLayout);
-	SAFE_RELEASE(m_pSQVertexBuffer);
-
-	//Create input layout
-	D3DX11_PASS_SHADER_DESC passVsDesc;
-	m_pVolumeRenderTechnique->GetPassByName("RayCast")->GetVertexShaderDesc(&passVsDesc);
-	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
-	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
-	const void *vsCodePtr = effectVsDesc.pBytecode;
-	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
-
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,	  0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-    };
-
-	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pSQInputLayout));
-
-	// Create screenquad vertices
-	SCREENQUAD_VERTEX vSQ[4];
-	vSQ[0].pos =  D3DXVECTOR3(-1.0f,  1.0f, 0.0f);
-	vSQ[0].tex = D3DXVECTOR2( 0.0f,  0.0f);
-	vSQ[1].pos =  D3DXVECTOR3( 1.0f,  1.0f, 0.0f);
-	vSQ[1].tex = D3DXVECTOR2( 1.0f,  0.0f);
-	vSQ[2].pos =  D3DXVECTOR3(-1.0f, -1.0f, 0.0f);
-	vSQ[2].tex = D3DXVECTOR2( 0.0f,  1.0f);
-	vSQ[3].pos =  D3DXVECTOR3( 1.0f, -1.0f, 0.0f);
-	vSQ[3].tex = D3DXVECTOR2( 1.0f,  1.0f);
-
-
-	//Create Vertex buffer
-	D3D11_BUFFER_DESC vbd;
-	ZeroMemory(&vbd, sizeof(vbd));
-	vbd.Usage = D3D11_USAGE_DEFAULT;
-	vbd.ByteWidth = sizeof(vSQ);
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0;
-	vbd.MiscFlags = 0;
-	vbd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA vertexData;
-	vertexData.pSysMem = vSQ;
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
-	
-	V_RETURN(m_pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pSQVertexBuffer));
-
-	return S_OK;
-}
-
+/****************************************************************************
+ ****************************************************************************/
 HRESULT VolumeRenderer::UpdateBoundingVertices(VERTEX* BBVertices)
 {
 	HRESULT hr;
@@ -323,6 +288,8 @@ HRESULT VolumeRenderer::UpdateBoundingVertices(VERTEX* BBVertices)
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void VolumeRenderer::DrawBoundingBox()
 {
 	UINT strides = sizeof(VERTEX);
@@ -334,12 +301,3 @@ void VolumeRenderer::DrawBoundingBox()
     m_pd3dImmediateContext->DrawIndexed(36, 0, 0);
 }
 
-void VolumeRenderer::DrawScreenQuad()
-{
-	UINT strides = sizeof(SCREENQUAD_VERTEX);
-    UINT offsets = 0;
-	m_pd3dImmediateContext->IASetInputLayout(m_pSQInputLayout);
-    m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pSQVertexBuffer, &strides, &offsets);
-    m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-    m_pd3dImmediateContext->Draw(4, 0);
-}

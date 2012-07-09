@@ -1,17 +1,45 @@
 class VolumeRenderer
 {
 public:
+	/*
+	 *  Constructor
+	 */
 	VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect);
+
+	/*
+	 *  Destructor
+	 */
 	~VolumeRenderer();
 
+	/*
+	 *  Initialize volumerenderer
+	 *		- shader variables
+	 *		- index buffer and layout of the bounding box
+	 */
 	HRESULT Initialize();
+
+	/*
+	 *  Update stepsize and iterations according to the texture size
+	 */
 	HRESULT Update(int iWidth, int iHeight, int iDepth);
+
+	/*
+	 *  Update screen size
+	 */
 	HRESULT SetScreenSize(int iWidth, int iHeight);
+
+	/*
+	 *  Switch between nearest neighbour and linear sampling
+	 */
 	void ChangeSampling();
 
+	/*
+	 *  Render a given 3D Texture into the bounding box
+	 */
 	void Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
 
 private:
+	//true, if linear sampling, false if nearest neighbor
 	bool m_bLinearSampling;
 
 	// Device
@@ -45,6 +73,7 @@ private:
 	ID3D11Buffer*			m_pBBIndexBuffer;
 	ID3D11InputLayout*		m_pBBInputLayout;
 
+	//front and back textures of the bounding box
 	ID3D11Texture2D*			m_pFrontTexture2D;
     ID3D11RenderTargetView*		m_pFrontRTV;
     ID3D11ShaderResourceView*	m_pFrontSRV;
@@ -56,11 +85,20 @@ private:
 	ID3D11Buffer*			m_pSQVertexBuffer;
 	ID3D11InputLayout*		m_pSQInputLayout;
 
-
+	/*
+	 *  Initializing functions
+	 */
 	HRESULT InitShader();
 	HRESULT InitBoundingIndicesAndLayout();
-	HRESULT CreateScreenQuad();
 	HRESULT UpdateBoundingVertices(VERTEX* BBVertices);
+
+	/*
+	 * Gets called when:
+	 *  1. Draw front face of bounding box
+	 *  2. Draw back face of bounding box
+	 *  3. Raycast
+	 *  4. Draw wireframe bounding box
+	 */
 	void DrawBoundingBox();
-	void DrawScreenQuad();
+
 };
