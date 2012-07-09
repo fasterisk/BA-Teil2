@@ -1,13 +1,12 @@
 #include "Globals.h"
-
 #include "Scene.h"
-
 #include "Surface.h"
 #include "VolumeRenderer.h"
 #include "Voronoi.h"
 #include "Diffusion.h"
 
-
+/****************************************************************************
+ ****************************************************************************/
 Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext)
 {
 	m_pd3dDevice = pd3dDevice;
@@ -47,6 +46,8 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_fIsoValue = 0.5f;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 Scene::~Scene()
 {
 	SAFE_RELEASE(m_pd3dDevice);
@@ -75,7 +76,8 @@ Scene::~Scene()
 	SAFE_RELEASE(m_pDist3DTexSRV);
 }
 
-
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 {
 	HRESULT hr;
@@ -114,11 +116,14 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
 	V_RETURN(m_pVolumeRenderer->Initialize());
 	
+	// Update bounding box
 	V_RETURN(UpdateBoundingBox());
 
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Scene::InitSurfaces()
 {
 	HRESULT hr;
@@ -139,10 +144,13 @@ HRESULT Scene::InitSurfaces()
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Scene::UpdateBoundingBox()
 {
 	HRESULT hr;
 
+	//Get the bounding boxes of the surfaces
 	BOUNDINGBOX bbSurface1 = m_pSurface1->GetBoundingBox();
 	BOUNDINGBOX bbSurface2 = m_pSurface2->GetBoundingBox();
 
@@ -211,6 +219,7 @@ HRESULT Scene::UpdateBoundingBox()
 	if(bbSurface2.vMax.z > bbFinal.vMax.z)
 		bbFinal.vMax.z = bbSurface2.vMax.z;
 
+	//early break, when bounding box was not changed
 	if(m_bUpdate3DTextures
 		&& bbFinal.vMin.x == m_vMin.x
 		&& bbFinal.vMin.y == m_vMin.y
@@ -223,7 +232,7 @@ HRESULT Scene::UpdateBoundingBox()
 	m_vMin = D3DXVECTOR3(bbFinal.vMin.x, bbFinal.vMin.y, bbFinal.vMin.z);
 	m_vMax = D3DXVECTOR3(bbFinal.vMax.x, bbFinal.vMax.y, bbFinal.vMax.z);
 	
-
+	//update bounding box vertices according to the new bounding box
 	m_pBBVertices[0].pos.x = m_vMin.x;
 	m_pBBVertices[0].pos.y = m_vMin.y;
 	m_pBBVertices[0].pos.z = m_vMin.z;
@@ -260,6 +269,7 @@ HRESULT Scene::UpdateBoundingBox()
 	m_iTextureHeight = int(vDiff.y * previousMax + 0.5);
 	m_iTextureDepth = int(vDiff.z * previousMax + 0.5);
 	
+	//Initialize the textures, voronoi, volumerenderer and diffusion
 	V_RETURN(Init3DTextures());
 	V_RETURN(m_pVoronoi->SetDestination(m_pVoronoi3DTex, m_pDist3DTex));
 	V_RETURN(m_pVolumeRenderer->Update(m_iTextureWidth, m_iTextureHeight, m_iTextureDepth));
@@ -278,11 +288,15 @@ HRESULT Scene::UpdateBoundingBox()
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Scene::SetScreenSize(int iWidth, int iHeight)
 {
     return m_pVolumeRenderer->SetScreenSize(iWidth, iHeight);
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Scene::UpdateTextureResolution(int iMaxRes)
 {
 	D3DXVECTOR3 vDiff = m_vMax - m_vMin;
@@ -296,12 +310,18 @@ void Scene::UpdateTextureResolution(int iMaxRes)
 	m_bUpdate3DTextures = false;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 {
 	UpdateBoundingBox();
 
-	if(m_bGenerateVoronoi)
+	if(m_bGenerateVoronoi) //if voronoi has to be generated
 	{
+		/*
+		 *	Voronoi diagram is generated in more steps. this is done because if it would be generated all at once,
+		 *  the graphics driver would crash due to a timeout
+		 */
 		bool b = m_pVoronoi->RenderVoronoi(m_vMin, m_vMax, m_bRenderIsoSurface);
 		if(b)
 		{
@@ -315,53 +335,49 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		}
 	}
 
-	if(m_bRender3DTexture)
+	if(m_bRender3DTexture)//if 3d texture should be rendered by the volumerenderer
 	{
-		if(m_bGenerateDiffusion)
+		if(m_bGenerateDiffusion)//generate the diffusion
 		{
 			m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, m_iDiffusionSteps);
 			m_bGenerateDiffusion = false;
 		}
 
-		if(m_bRenderIsoSurface && m_bIsoValueChanged)
+		if(m_bRenderIsoSurface && m_bIsoValueChanged)//generate iso surface
 		{
 			m_pIsoSurfaceSRV = m_pDiffusion->RenderIsoSurface(m_pCurrentDiffusionSRV);
 			m_bIsoValueChanged = false;
 		}
 		
-		if(m_bDrawAllSlices == false)
+		if(m_bDrawAllSlices == false)//draw only one slice
 		{
 			
 			if(m_bRenderIsoSurface)
 			{
 				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pIsoSurfaceSRV);
-				//m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);
 			}
 			else
 			{
 				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pCurrentDiffusionSRV);
-				//m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);
 			}	
 			
 			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pOneSliceDiffusionSRV);
 		}
-		else
+		else //draw all slices
 		{
 			if(m_bRenderIsoSurface)
 			{
 				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pIsoSurfaceSRV);
-				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);
 			}
 			else
 			{
 				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
-				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);
 			}
 
 		}
 	}
 	
-	
+	//show surfaces
 	if(bShowSurfaces)
 	{
 		m_pSurface1->Render(mViewProjection);
@@ -370,11 +386,13 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 	
 }	
 
-
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Scene::Init3DTextures()
 {
 	HRESULT hr;
-
+	
+	//release old textures
 	SAFE_RELEASE(m_pVoronoi3DTex);
 	SAFE_RELEASE(m_pColor3DTex1);
 	SAFE_RELEASE(m_pColor3DTex2);
@@ -384,6 +402,7 @@ HRESULT Scene::Init3DTextures()
 	SAFE_RELEASE(m_pColor3DTex2SRV);
 	SAFE_RELEASE(m_pDist3DTexSRV);
 
+	//create textures
 	D3D11_TEXTURE3D_DESC desc;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	desc.CPUAccessFlags = 0;
@@ -394,7 +413,6 @@ HRESULT Scene::Init3DTextures()
 	desc.Height = m_iTextureHeight;
 	desc.Depth = m_iTextureDepth;
 	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-
 	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pVoronoi3DTex));
 	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pColor3DTex1));
 	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pColor3DTex2));
@@ -411,7 +429,6 @@ HRESULT Scene::Init3DTextures()
 	descSRV.Texture3D.MostDetailedMip = 0;
 	descSRV.Texture3D.MipLevels = 1;
 	descSRV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-
 	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pVoronoi3DTex, &descSRV, &m_pVoronoi3DTexSRV));
 	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pColor3DTex1, &descSRV, &m_pColor3DTex1SRV));
 	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pColor3DTex2, &descSRV, &m_pColor3DTex2SRV));
@@ -420,6 +437,8 @@ HRESULT Scene::Init3DTextures()
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Scene::ChangeIsoValue(float fIsoValue)
 {
 	m_fIsoValue = fIsoValue;
@@ -427,18 +446,24 @@ void Scene::ChangeIsoValue(float fIsoValue)
 	m_bIsoValueChanged = true;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Scene::ShowIsoSurface(bool bShow)
 {
 	m_bRenderIsoSurface = bShow;
 	m_bIsoValueChanged = true;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Scene::ShowIsoColor(bool bShow)
 {
 	m_pDiffusion->ShowIsoColor(bShow);
 	m_bIsoValueChanged = true;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Scene::ChangeDiffusionSteps(int iDiffusionSteps)
 {
 	m_iDiffusionSteps = iDiffusionSteps;
@@ -446,16 +471,8 @@ void Scene::ChangeDiffusionSteps(int iDiffusionSteps)
 	m_bIsoValueChanged = true;
 }
 
-void Scene::ChangeControlledSurface()
-{
-	if(m_bSurface1IsControlled)
-		m_pControlledSurface = m_pSurface2;
-	else
-		m_pControlledSurface = m_pSurface1;
-
-	m_bSurface1IsControlled = !m_bSurface1IsControlled;
-}
-
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Scene::ChangeRenderingToOneSlice(int iSliceIndex)
 {
 	HRESULT hr;
@@ -464,6 +481,8 @@ HRESULT Scene::ChangeRenderingToOneSlice(int iSliceIndex)
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Scene::ChangeRenderingToAllSlices()
 {
 	HRESULT hr;
@@ -471,11 +490,15 @@ HRESULT Scene::ChangeRenderingToAllSlices()
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Scene::ChangeSampling()
 {
 	m_pVolumeRenderer->ChangeSampling();
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Scene::TranslateSurface1(float fX, float fY, float fZ)
 {
 	m_pSurface1->Translate(fX, fY, fZ);
@@ -526,6 +549,8 @@ void Scene::ScaleSurface2(float fFactor)
 	m_pSurface2->Scale(fFactor);
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Scene::LoadSurface1(std::string strMeshName)
 {
 	HRESULT hr(S_OK);
@@ -539,6 +564,8 @@ HRESULT Scene::LoadSurface2(std::string strMeshName)
 	return hr;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Scene::GenerateVoronoi()
 {
 	m_bGenerateVoronoi = true;
@@ -546,12 +573,15 @@ void Scene::GenerateVoronoi()
 	m_bIsoValueChanged = true;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Scene::Render3DTexture(bool bRenderVoronoi)
 {
 	m_bRender3DTexture = bRenderVoronoi;
 }
 
-
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Scene::CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect)
 {
 	HRESULT hr;
@@ -570,9 +600,8 @@ HRESULT Scene::CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect)
 	return S_OK;
 }
 
-//--------------------------------------------------------------------------------------
-// Find and compile the specified shader
-//--------------------------------------------------------------------------------------
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Scene::CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut )
 {
     HRESULT hr = S_OK;

@@ -512,15 +512,6 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 				MessageBox ( NULL , L"Mesh could not be loaded", ofnMesh.lpstrFile , MB_OK);
 			}
 			break;
-		case IDC_CHANGE_CONTROL:
-			g_bSurface1IsControlled = !g_bSurface1IsControlled;
-			if(g_bSurface1IsControlled)
-				StringCchPrintf( sz, 100, L"Current: Surface 1");
-			else
-				StringCchPrintf( sz, 100, L"Current: Surface 2");
-			g_SampleUI.GetButton(IDC_CHANGE_CONTROL)->SetText(sz);
-			g_pScene->ChangeControlledSurface();
-			break;
 		case IDC_ROTATE:
 			g_bRotatesWithMouse = true;
 			g_bCameraActive = false;

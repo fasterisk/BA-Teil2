@@ -1,9 +1,7 @@
 #ifndef INC_GLOBALS_H
 #define INC_GLOBALS_H
 
-
 // Include the OS headers
-//-----------------------
 #include <windows.h>
 #include <atlbase.h>
 #include <strsafe.h>
@@ -13,7 +11,6 @@
 #pragma warning(disable: 4238)
 
 // Include the D3D11 and effects headers
-//--------------------------
 #include <d3d11.h>
 #include <d3dx11.h>
 #include "d3dx11effect.h"
@@ -32,18 +29,21 @@
 #include <stdio.h>
 #include <iostream>
 
+//vertex structure used in volume renderer
 struct SCREENQUAD_VERTEX
 {
 	D3DXVECTOR3 pos;
 	D3DXVECTOR2 tex;
 };
 
+//vertex structure used in the voronoi algorithm
 struct SLICE_SCREENQUAD_VERTEX
 {
 	D3DXVECTOR3 pos;
 	D3DXVECTOR3 tex;
 };
 
+//vertex structure used for storing the vertices of the surfaces
 struct VERTEX
 {
 	D3DXVECTOR3 pos;
@@ -51,6 +51,7 @@ struct VERTEX
 	D3DXVECTOR2 texcoord;
 };
 
+//vertex structure used in the diffusion algorithm
 struct DIFFUSION_VERTEX
 {
 	D3DXVECTOR3 pos;
@@ -58,6 +59,7 @@ struct DIFFUSION_VERTEX
 	int sliceindex;
 };
 
+//structure for the bounding box
 struct BOUNDINGBOX
 {
 	D3DXVECTOR4 vMin;
@@ -87,6 +89,9 @@ struct BOUNDINGBOX
 
 void ComputeSizeAsString( WCHAR *wc, UINT wcLen, SIZE_T bytes );
 
+/*
+ *	Computes the rows and cols for the flat 3D texture in the voronoi algorithm
+ */
 inline void ComputeRowColsForFlat3DTexture( int depth, int *outCols, int *outRows )
 {
     // Compute # of rows and cols for a "flat 3D-texture" configuration
@@ -102,6 +107,9 @@ inline void ComputeRowColsForFlat3DTexture( int depth, int *outCols, int *outRow
     *outRows = rows;
 }
 
+/*
+ *	converts std::string into a std::wstring
+ */
 inline std::wstring ConvertMultibyteToWideChar(std::string str)
 {
 	int size_needed = MultiByteToWideChar(CP_ACP, 0, str.c_str(), (int)strlen(str.c_str()), NULL, 0);
@@ -110,6 +118,9 @@ inline std::wstring ConvertMultibyteToWideChar(std::string str)
 	return wstrTo;
 }
 
+/*
+ *	converts LPWSTR into a std::string
+ */
 inline std::string ConvertWideCharToChar(LPWSTR lpwstr)
 {
 	int size_needed = WideCharToMultiByte(CP_ACP, 0, lpwstr, (int)wcslen(lpwstr), NULL, 0, NULL, NULL);
@@ -118,6 +129,9 @@ inline std::string ConvertWideCharToChar(LPWSTR lpwstr)
 	return strTo;
 }
 
+/*
+ *	checks if point lies in the bounding box
+ */
 inline bool CheckIfPointIsInBoundingBox(BOUNDINGBOX bb, D3DXVECTOR3 point)
 {
 	if(point.x > bb.vMin.x && point.x < bb.vMax.x &&
