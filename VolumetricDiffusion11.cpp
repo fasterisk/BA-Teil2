@@ -15,6 +15,7 @@ CDXUTDialog                 g_SampleUI;             // dialog for sample specifi
 // Scene
 Scene*						g_pScene;
 
+//Camera vectors
 D3DXVECTOR3                 g_Eye = D3DXVECTOR3( 0.0f, 0.0f, -5.0f );
 D3DXVECTOR3                 g_At = D3DXVECTOR3( 0.0f, 0.0f, 0.0f );
 D3DXVECTOR3                 g_Up = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
@@ -27,12 +28,7 @@ float						g_zFar = 10000.0f;
 D3DXMATRIX					g_View;
 D3DXMATRIX					g_Proj;
 
-
-
 ID3D11Texture2D*            g_pSceneDepthTex2D      = NULL;
-ID3D11Texture2D*            g_pSceneDepthTex2DNonMS = NULL;
-ID3D11ShaderResourceView*   g_pSceneDepthSRV        = NULL;
-ID3D11RenderTargetView*     g_pSceneDepthRTV        = NULL;
 
 // Control parameters
 int							g_mouseX = 0;
@@ -313,19 +309,6 @@ LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bo
 //--------------------------------------------------------------------------------------
 void CALLBACK OnKeyboard( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext )
 {
-	switch(nChar) {
-        case '+':
-			g_zNear += 1.0f;
-			g_Camera.SetProjParams( D3DX_PI / 4, g_fAspectRatio, g_zNear, g_zFar);
-            break;
-        case '-':
-			if(g_zNear < 2.0)
-				break;
-			g_zNear -= 1.0f;
-			g_Camera.SetProjParams( D3DX_PI / 4, g_fAspectRatio, g_zNear, g_zFar);
-            break;
-		
-    }
 }
 
 //--------------------------------------------------------------------------------------
@@ -427,7 +410,6 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 	OPENFILENAME ofnMesh;
 	
 	std::string strMeshName;
-	
     
 	switch( nControlID )
     {
@@ -665,8 +647,6 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 
 	// Initialize the view matrix
     g_Camera.SetViewParams( &g_Eye, &g_At );
-    //g_Camera.SetEnablePositionMovement(true);
-	g_Camera.SetButtonMasks(MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_MIDDLE_BUTTON);
     g_Camera.SetScalers(0.004f, 20.0f);
     g_View = *g_Camera.GetViewMatrix();
     g_Proj = *g_Camera.GetProjMatrix();
