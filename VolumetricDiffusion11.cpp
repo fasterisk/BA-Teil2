@@ -336,7 +336,7 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	if(g_bCameraActive)
 		return;
 
-	if(!bLeftDown)
+	if(!bLeftDown || !bRightDown)
 		g_bBlockMouseDragging = false;
 
 	if(g_bBlockMouseDragging)
@@ -357,29 +357,50 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	{
 		if(bLeftDown)
 		{
-			g_pScene->RotateCurrentSurface(lookRight, (g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
-			g_pScene->RotateCurrentSurface(lookUp, (g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
+			g_pScene->RotateSurface1(lookRight, (g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
+			g_pScene->RotateSurface1(lookUp, (g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
+
+			if(iWheelDelta>0)
+				g_pScene->ScaleSurface1(1.02f);
+			else if(iWheelDelta<0)
+				g_pScene->ScaleSurface1(0.98f);
+		}
+		if(bRightDown)
+		{
+			g_pScene->RotateSurface2(lookRight, (g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
+			g_pScene->RotateSurface2(lookUp, (g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
+
+			if(iWheelDelta>0)
+				g_pScene->ScaleSurface2(1.02f);
+			else if(iWheelDelta<0)
+				g_pScene->ScaleSurface2(0.98f);
 		}
 		
-		if(iWheelDelta>0)
-			g_pScene->ScaleCurrentSurface(1.02f);
-		else if(iWheelDelta<0)
-			g_pScene->ScaleCurrentSurface(0.98f);
+		
 	}
 	else//Move object
 	{
-		
-
 		if(bLeftDown)
 		{
-			g_pScene->TranslateCurrentSurface(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
-			g_pScene->TranslateCurrentSurface(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
+			g_pScene->TranslateSurface1(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
+			g_pScene->TranslateSurface1(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
+
+			if(iWheelDelta>0)
+				g_pScene->TranslateSurface1(g_fElapsedTime*100*lookAt.x, g_fElapsedTime*100*lookAt.y, g_fElapsedTime*100*lookAt.z);
+			else if(iWheelDelta<0)
+				g_pScene->TranslateSurface1(-g_fElapsedTime*100*lookAt.x, -g_fElapsedTime*100*lookAt.y, -g_fElapsedTime*100*lookAt.z);
 		}
 
-		if(iWheelDelta>0)
-			g_pScene->TranslateCurrentSurface(g_fElapsedTime*100*lookAt.x, g_fElapsedTime*100*lookAt.y, g_fElapsedTime*100*lookAt.z);
-		else if(iWheelDelta<0)
-			g_pScene->TranslateCurrentSurface(-g_fElapsedTime*100*lookAt.x, -g_fElapsedTime*100*lookAt.y, -g_fElapsedTime*100*lookAt.z);
+		if(bRightDown)
+		{
+			g_pScene->TranslateSurface2(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
+			g_pScene->TranslateSurface2(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
+		
+			if(iWheelDelta>0)
+				g_pScene->TranslateSurface1(g_fElapsedTime*100*lookAt.x, g_fElapsedTime*100*lookAt.y, g_fElapsedTime*100*lookAt.z);
+			else if(iWheelDelta<0)
+				g_pScene->TranslateSurface1(-g_fElapsedTime*100*lookAt.x, -g_fElapsedTime*100*lookAt.y, -g_fElapsedTime*100*lookAt.z);
+		}
 	}
 
 	g_mouseX = iX;
@@ -653,7 +674,8 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 
 	// Initialize the view matrix
     g_Camera.SetViewParams( &g_Eye, &g_At );
-    g_Camera.SetEnablePositionMovement(true);
+    //g_Camera.SetEnablePositionMovement(true);
+	g_Camera.SetButtonMasks(MOUSE_MIDDLE_BUTTON, MOUSE_WHEEL, MOUSE_MIDDLE_BUTTON);
     g_Camera.SetScalers(0.004f, 20.0f);
     g_View = *g_Camera.GetViewMatrix();
     g_Proj = *g_Camera.GetProjMatrix();

@@ -476,29 +476,54 @@ void Scene::ChangeSampling()
 	m_pVolumeRenderer->ChangeSampling();
 }
 
-void Scene::TranslateCurrentSurface(float fX, float fY, float fZ)
+void Scene::TranslateSurface1(float fX, float fY, float fZ)
 {
-	m_pControlledSurface->Translate(fX, fY, fZ);
+	m_pSurface1->Translate(fX, fY, fZ);
 }
 
-void Scene::RotateCurrentSurface(D3DXVECTOR3 axis, float fFactor)
+void Scene::RotateSurface1(D3DXVECTOR3 axis, float fFactor)
 {
-	m_pControlledSurface->Rotate(axis, fFactor);
+	m_pSurface1->Rotate(axis, fFactor);
 }
 
-void Scene::RotateXCurrentSurface(float fFactor)
+void Scene::RotateXSurface1(float fFactor)
 {
-	m_pControlledSurface->RotateX(fFactor);
+	m_pSurface1->RotateX(fFactor);
 }
 
-void Scene::RotateYCurrentSurface(float fFactor)
+void Scene::RotateYSurface1(float fFactor)
 {
-	m_pControlledSurface->RotateY(fFactor);
+	m_pSurface1->RotateY(fFactor);
 }
 
-void Scene::ScaleCurrentSurface(float fFactor)
+void Scene::ScaleSurface1(float fFactor)
 {
-	m_pControlledSurface->Scale(fFactor);
+	m_pSurface1->Scale(fFactor);
+}
+
+void Scene::TranslateSurface2(float fX, float fY, float fZ)
+{
+	m_pSurface2->Translate(fX, fY, fZ);
+}
+
+void Scene::RotateSurface2(D3DXVECTOR3 axis, float fFactor)
+{
+	m_pSurface2->Rotate(axis, fFactor);
+}
+
+void Scene::RotateXSurface2(float fFactor)
+{
+	m_pSurface2->RotateX(fFactor);
+}
+
+void Scene::RotateYSurface2(float fFactor)
+{
+	m_pSurface2->RotateY(fFactor);
+}
+
+void Scene::ScaleSurface2(float fFactor)
+{
+	m_pSurface2->Scale(fFactor);
 }
 
 HRESULT Scene::LoadSurface1(std::string strMeshName)

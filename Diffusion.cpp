@@ -1,6 +1,8 @@
 #include "Globals.h"
 #include "Diffusion.h"
 
+/****************************************************************************
+ ****************************************************************************/
 Diffusion::Diffusion(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateContext, ID3DX11Effect *pDiffusionEffect)
 {
 	m_pd3dDevice = pd3dDevice;
@@ -35,6 +37,8 @@ Diffusion::Diffusion(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediat
 	m_bShowIsoColor = false;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 Diffusion::~Diffusion()
 {
 	Cleanup();
@@ -57,6 +61,8 @@ void Diffusion::Cleanup()
 	SAFE_RELEASE(m_pIsoSurfaceTextureSRV);
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Diffusion::Initialize(ID3D11Texture3D *pColorTex3D1,
 							  ID3D11Texture3D *pColorTex3D2,
 							  ID3D11ShaderResourceView* pColor3DTex1SRV, 
@@ -96,6 +102,8 @@ HRESULT Diffusion::Initialize(ID3D11Texture3D *pColorTex3D1,
 
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Diffusion::Init3DRTVs()
 {
 	HRESULT hr;
@@ -130,12 +138,13 @@ HRESULT Diffusion::Init3DRTVs()
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Diffusion::InitShaders()
 {
 	HRESULT hr;
 
 	assert(m_pDiffusionEffect);
-	SAFE_RELEASE(m_pInputLayout);
 
 	// Get Technique and variables
 	m_pDiffusionTechnique	= m_pDiffusionEffect->GetTechniqueByName("Diffusion");
@@ -151,12 +160,17 @@ HRESULT Diffusion::InitShaders()
 	assert(m_pDiffusionTechnique);
 	assert(m_pColor3DTexSRVar);
 	assert(m_pDist3DTexSRVar);
-	assert(m_pTextureSizeVar);
 	assert(m_pIsoValueVar);
+	assert(m_pTextureSizeVar);
+	assert(m_pPolySizeVar);
+	assert(m_pSliceIndexVar);
+	assert(m_pShowIsoColorVar);
 
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Diffusion::InitSlices()
 {
 	HRESULT hr;
@@ -216,13 +230,13 @@ HRESULT Diffusion::InitSlices()
 
 	}
 
+	//create the vertex buffer
 	D3D11_BUFFER_DESC vbDesc;
 	vbDesc.ByteWidth = VERTEXCOUNT*m_iTextureDepth*sizeof(DIFFUSION_VERTEX);
 	vbDesc.Usage = D3D11_USAGE_DEFAULT;
 	vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbDesc.CPUAccessFlags = 0;
 	vbDesc.MiscFlags = 0;
-
 	D3D11_SUBRESOURCE_DATA initialData;
 	initialData.pSysMem = sliceVertices;
 	initialData.SysMemPitch = 0;
@@ -234,16 +248,22 @@ HRESULT Diffusion::InitSlices()
 	return S_OK;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Diffusion::ChangeIsoValue(float fIsoValue)
 {
 	m_fIsoValue = fIsoValue;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Diffusion::ShowIsoColor(bool bShow)
 {
 	m_bShowIsoColor = bShow;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* pVoronoi3DTextureSRV, 
 								   ID3D11ShaderResourceView* pDist3DTextureSRV, 
 								   int iDiffusionSteps)
@@ -256,6 +276,7 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 	hr = m_pDist3DTexSRVar->SetResource(pDist3DTextureSRV);
 	assert(hr == S_OK);
 	
+	//ping pong rendering
 	for(int i = 0; i < iDiffusionSteps; i++)
 	{
 		hr = m_pPolySizeVar->SetFloat(1.0 - (float)(i)/(float)iDiffusionSteps);
@@ -263,12 +284,14 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 
 		if(i == 0)
 		{
+			//As first resource texture you have to use the voronoi texture
 			m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pColor3DTexturesRTV[m_iDiffTex], NULL);
 			hr = m_pColor3DTexSRVar->SetResource(pVoronoi3DTextureSRV);
 			assert(hr == S_OK);
 		}
 		else
 		{
+			//after the first render pass, color textures are alternated
 			m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pColor3DTexturesRTV[m_iDiffTex], NULL);
 			hr = m_pColor3DTexSRVar->SetResource(m_pColor3DTexturesSRV[1-m_iDiffTex]);
 			assert(hr == S_OK);
@@ -279,6 +302,7 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 		hr = m_pDiffusionTechnique->GetPassByName("DiffuseTexture")->Apply(0, m_pd3dImmediateContext);
 		assert(hr == S_OK);
 		
+		//RENDER
 		DrawSlices();
 
 		//unbind textures and apply pass again to confirm this
@@ -291,6 +315,8 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 	return m_pColor3DTexturesSRV[1-m_iDiffTex];
 }
 
+/****************************************************************************
+ ****************************************************************************/
 ID3D11ShaderResourceView* Diffusion::GetOneDiffusionSlice(int iSliceIndex, ID3D11ShaderResourceView* pCurrentDiffusionSRV)
 {
 	HRESULT hr(S_OK);
@@ -332,6 +358,7 @@ ID3D11ShaderResourceView* Diffusion::GetOneDiffusionSlice(int iSliceIndex, ID3D1
 	hr = m_pd3dDevice->CreateShaderResourceView(m_pOneSliceTexture, &descSRV, &m_pOneSliceTextureSRV);
 	assert(hr == S_OK);
 
+	//set one slice texture as render target
 	m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pOneSliceTextureRTV, NULL);
 	hr = m_pColor3DTexSRVar->SetResource(pCurrentDiffusionSRV);
 	assert(hr == S_OK);
@@ -342,6 +369,7 @@ ID3D11ShaderResourceView* Diffusion::GetOneDiffusionSlice(int iSliceIndex, ID3D1
 	hr = m_pDiffusionTechnique->GetPassByName("RenderOneSlice")->Apply(0, m_pd3dImmediateContext);
 	assert(hr == S_OK);	
 		
+	//RENDER
 	DrawSlices();
 
 	hr = m_pColor3DTexSRVar->SetResource(NULL);
@@ -350,6 +378,8 @@ ID3D11ShaderResourceView* Diffusion::GetOneDiffusionSlice(int iSliceIndex, ID3D1
 	return m_pOneSliceTextureSRV;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 ID3D11ShaderResourceView* Diffusion::RenderIsoSurface(ID3D11ShaderResourceView* pCurrentDiffusionSRV)
 {
 	HRESULT hr(S_OK);
@@ -391,6 +421,7 @@ ID3D11ShaderResourceView* Diffusion::RenderIsoSurface(ID3D11ShaderResourceView* 
 	hr = m_pd3dDevice->CreateShaderResourceView(m_pIsoSurfaceTexture, &descSRV, &m_pIsoSurfaceTextureSRV);
 	assert(hr == S_OK);
 
+	//set iso surface texture as render target
 	m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pIsoSurfaceTextureRTV, NULL);
 	hr = m_pColor3DTexSRVar->SetResource(pCurrentDiffusionSRV);
 	assert(hr == S_OK);
@@ -404,6 +435,7 @@ ID3D11ShaderResourceView* Diffusion::RenderIsoSurface(ID3D11ShaderResourceView* 
 	hr = m_pDiffusionTechnique->GetPassByName("RenderIsoSurface")->Apply(0, m_pd3dImmediateContext);
 	assert(hr == S_OK);	
 	
+	//RENDER
 	DrawSlices();
 
 	hr = m_pColor3DTexSRVar->SetResource(NULL);
@@ -412,6 +444,8 @@ ID3D11ShaderResourceView* Diffusion::RenderIsoSurface(ID3D11ShaderResourceView* 
 	return m_pIsoSurfaceTextureSRV;
 }
 
+/****************************************************************************
+ ****************************************************************************/
 void Diffusion::DrawSlices()
 {
 	assert(m_pInputLayout);
@@ -439,7 +473,6 @@ void Diffusion::DrawSlices()
 
 	for(int i = 0; i < m_iTextureDepth; i++)
 	{
-		m_pSliceIndexVar->SetInt(i);
 		m_pd3dImmediateContext->Draw(VERTEXCOUNT, VERTEXCOUNT*i);
 	}
 

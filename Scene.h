@@ -24,13 +24,22 @@ public:
 	void ChangeSampling();
 	void ShowIsoSurface(bool bShow);
 	void ShowIsoColor(bool bShow);
+	
 	HRESULT ChangeRenderingToOneSlice(int iSliceIndex);
 	HRESULT ChangeRenderingToAllSlices();
-	void TranslateCurrentSurface(float fX, float fY, float fZ);
-	void RotateCurrentSurface(D3DXVECTOR3 axis, float fFactor);
-	void RotateXCurrentSurface(float fFactor);
-	void RotateYCurrentSurface(float fFactor);
-	void ScaleCurrentSurface(float fFactor);
+	
+	void TranslateSurface1(float fX, float fY, float fZ);
+	void RotateSurface1(D3DXVECTOR3 axis, float fFactor);
+	void RotateXSurface1(float fFactor);
+	void RotateYSurface1(float fFactor);
+	void ScaleSurface1(float fFactor);
+	void TranslateSurface2(float fX, float fY, float fZ);
+	void RotateSurface2(D3DXVECTOR3 axis, float fFactor);
+	void RotateXSurface2(float fFactor);
+	void RotateYSurface2(float fFactor);
+	void ScaleSurface2(float fFactor);
+
+
 	HRESULT LoadSurface1(std::string strMeshName);
 	HRESULT LoadSurface2(std::string strMeshName);
 
