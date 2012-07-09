@@ -554,13 +554,13 @@ void Scene::ScaleSurface2(float fFactor)
 HRESULT Scene::LoadSurface1(std::string strMeshName)
 {
 	HRESULT hr(S_OK);
-	V_RETURN(m_pSurface1->LoadMesh(strMeshName));
+	V_RETURN(m_pSurface1->LoadMesh(strMeshName, "notexture"));
 	return hr;
 }
 HRESULT Scene::LoadSurface2(std::string strMeshName)
 {
 	HRESULT hr(S_OK);
-	V_RETURN(m_pSurface2->LoadMesh(strMeshName));
+	V_RETURN(m_pSurface2->LoadMesh(strMeshName, "notexture"));
 	return hr;
 }
 
