@@ -601,6 +601,8 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 			{
 				interVec1.pos = interpolate(input[0].pos, input[2].pos, sliceDepth);
 				interVec2.pos = interpolate(input[1].pos, input[2].pos, sliceDepth);
+				interVec1.tex = interpolateTexCoord(input[0].pos, input[2].pos, input[0].tex, input[2].tex, sliceDepth);
+				interVec2.tex = interpolateTexCoord(input[1].pos, input[2].pos, input[1].tex, input[2].tex, sliceDepth);
 
 				if(input[0].normal.z == 0)
 				{
@@ -612,18 +614,27 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 
 					//triangle 1: 0,1,interVec1
 					triangle1[0].pos = input[0].pos;
+					triangle1[0].tex = input[0].tex;
 					triangle1[1].pos = input[1].pos;
+					triangle1[1].tex = input[1].tex;
 					triangle1[2].pos = interVec1.pos;
+					triangle1[2].tex = interVec1.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 					//triangle 2: 1,iV1,iV2
 					triangle1[0].pos = input[1].pos;
+					triangle1[0].tex = input[1].tex;
 					triangle1[1].pos = interVec1.pos;
+					triangle1[1].tex = interVec1.tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 					//triangle 3: 2,iV1,iV2
 					triangle1[0].pos = input[2].pos;
+					triangle1[0].tex = input[2].tex;
 					triangle1[1].pos = interVec1.pos;
+					triangle1[1].tex = interVec1.tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 				}
 			}
@@ -633,6 +644,8 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 				//interpolate between 0 and 1 and between 1 and 2
 				interVec1.pos = interpolate(input[0].pos, input[1].pos, sliceDepth);
 				interVec2.pos = interpolate(input[2].pos, input[1].pos, sliceDepth);
+				interVec1.tex = interpolateTexCoord(input[0].pos, input[1].pos, input[0].tex, input[1].tex, sliceDepth);
+				interVec2.tex = interpolateTexCoord(input[2].pos, input[1].pos, input[2].tex, input[1].tex, sliceDepth);
 
 				if(input[0].normal.z == 0)
 				{
@@ -644,18 +657,27 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 
 					//triangle 1: 0,2,iV1
 					triangle1[0].pos = input[0].pos;
+					triangle1[0].tex = input[0].tex;
 					triangle1[1].pos = input[2].pos;
+					triangle1[1].tex = input[2].tex;
 					triangle1[2].pos = interVec1.pos;
+					triangle1[2].tex = interVec1.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 					//triangle 2: 2,iV1,iV2
 					triangle1[0].pos = input[2].pos;
+					triangle1[0].tex = input[2].tex;
 					triangle1[1].pos = interVec1.pos;
+					triangle1[1].tex = interVec1.tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 					//triangle 3: 1,iV1,iV2
 					triangle1[0].pos = input[1].pos;
+					triangle1[0].tex = input[1].tex;
 					triangle1[1].pos = interVec1.pos;
+					triangle1[1].tex = interVec1.tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 				}
 			}
@@ -665,6 +687,8 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 				//interpolate between 0 and 1 and between 0 and 2
 				interVec1.pos = interpolate(input[0].pos, input[1].pos, sliceDepth);
 				interVec2.pos = interpolate(input[0].pos, input[2].pos, sliceDepth);
+				interVec1.tex = interpolateTexCoord(input[0].pos, input[1].pos, input[0].tex, input[1].tex, sliceDepth);
+				interVec2.tex = interpolateTexCoord(input[0].pos, input[2].pos, input[0].tex, input[2].tex, sliceDepth);
 
 				if(input[0].normal.z == 0) 
 				{
@@ -676,18 +700,27 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 
 					//triangle 1: 1,2,iV2
 					triangle1[0].pos = input[1].pos;
+					triangle1[0].tex = input[1].tex;
 					triangle1[1].pos = input[2].pos;
+					triangle1[1].tex = input[2].tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 					//triangle 2: 1,iv1,iv2
 					triangle1[0].pos = input[1].pos;
+					triangle1[0].tex = input[1].tex;
 					triangle1[1].pos = interVec1.pos;
+					triangle1[1].tex = interVec1.tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 					//triangle 3: 0,iv1,iv2
 					triangle1[0].pos = input[0].pos;
+					triangle1[0].tex = input[0].tex;
 					triangle1[1].pos = interVec1.pos;
+					triangle1[1].tex = interVec1.tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 				}
 			}
@@ -700,6 +733,8 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 				//interpolate between 0 and 2 and between 1 and 2
 				interVec1.pos = interpolate(input[0].pos, input[2].pos, sliceDepth);
 				interVec2.pos = interpolate(input[1].pos, input[2].pos, sliceDepth);
+				interVec1.tex = interpolateTexCoord(input[0].pos, input[2].pos, input[0].tex, input[2].tex, sliceDepth);
+				interVec2.tex = interpolateTexCoord(input[1].pos, input[2].pos, input[1].tex, input[2].tex, sliceDepth);
 
 				if(input[0].normal.z == 0)
 				{
@@ -711,18 +746,27 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 
 					//triangle 1: 0, iv1,iv2
 					triangle1[0].pos = input[0].pos;
+					triangle1[0].tex = input[0].tex;
 					triangle1[1].pos = interVec1.pos;
+					triangle1[1].tex = interVec1.tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 					//triangle 2: 0,1,iv2
 					triangle1[0].pos = input[0].pos;
+					triangle1[0].tex = input[0].tex;
 					triangle1[1].pos = input[1].pos;
+					triangle1[1].tex = input[1].tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 					//triangle 3: 2, iv1,iv2
 					triangle1[0].pos = input[2].pos;
+					triangle1[0].tex = input[2].tex;
 					triangle1[1].pos = interVec1.pos;
+					triangle1[1].tex = interVec1.tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 				}
 			}
@@ -732,6 +776,8 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 				//interpolate between 0 and 1 and between 1 and 2
 				interVec1.pos = interpolate(input[0].pos, input[1].pos, sliceDepth);
 				interVec2.pos = interpolate(input[1].pos, input[2].pos, sliceDepth);
+				interVec1.tex = interpolateTexCoord(input[0].pos, input[1].pos, input[0].tex, input[1].tex, sliceDepth);
+				interVec2.tex = interpolateTexCoord(input[1].pos, input[2].pos, input[1].tex, input[2].tex, sliceDepth);
 
 				if(input[0].normal.z == 0)
 				{
@@ -743,18 +789,27 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 
 					//triangle 1: 0, iv1, iv2
 					triangle1[0].pos = input[0].pos;
+					triangle1[0].tex = input[0].tex;
 					triangle1[1].pos = interVec1.pos;
+					triangle1[1].tex = interVec1.tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 					//triangle 2: 0,2,iv2
 					triangle1[0].pos = input[0].pos;
+					triangle1[0].tex = input[0].tex;
 					triangle1[1].pos = input[2].pos;
+					triangle1[1].tex = input[2].tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 					//triangle 3: 1,iv1,iv2
 					triangle1[0].pos = input[1].pos;
+					triangle1[0].tex = input[1].tex;
 					triangle1[1].pos = interVec1.pos;
+					triangle1[1].tex = interVec1.tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 				}
 			}
@@ -764,6 +819,8 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 				//interpolate between 0 and 1 and between 0 and 2
 				interVec1.pos = interpolate(input[0].pos, input[1].pos, sliceDepth);
 				interVec2.pos = interpolate(input[0].pos, input[2].pos, sliceDepth);
+				interVec1.tex = interpolateTexCoord(input[0].pos, input[1].pos, input[0].tex, input[1].tex, sliceDepth);
+				interVec2.tex = interpolateTexCoord(input[0].pos, input[2].pos, input[0].tex, input[2].tex, sliceDepth);
 
 				if(input[0].normal.z == 0) 
 				{
@@ -775,18 +832,27 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 
 					//triangle 1: 0,iv1,iv2
 					triangle1[0].pos = input[0].pos;
+					triangle1[0].tex = input[0].tex;
 					triangle1[1].pos = interVec1.pos;
+					triangle1[1].tex = interVec1.tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, false);
 					//triangle 2: 1,2,iv1
 					triangle1[0].pos = input[1].pos;
+					triangle1[0].tex = input[1].tex;
 					triangle1[1].pos = input[2].pos;
+					triangle1[1].tex = input[2].tex;
 					triangle1[2].pos = interVec1.pos;
+					triangle1[2].tex = interVec1.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 					//triangle 3: 2,iv1,iv2
 					triangle1[0].pos = input[2].pos;
+					triangle1[0].tex = input[2].tex;
 					triangle1[1].pos = interVec1.pos;
+					triangle1[1].tex = interVec1.tex;
 					triangle1[2].pos = interVec2.pos;
+					triangle1[2].tex = interVec2.tex;
 					TriangleCalcDistanceAndAppend(triangle1, tStream, sliceDepth, true);
 				}
 			}
