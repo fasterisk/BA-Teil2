@@ -203,6 +203,8 @@ void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout 
 
 	float3 normal = vertices[0].normal;
 
+	float3 reltex = vTextureSize / vTextureSize.z;
+
 	if((bSliceDepthGreater && normal.z < 0)||(!bSliceDepthGreater && normal.z > 0))
 		normal = -normal;
 
@@ -219,7 +221,7 @@ void TriangleCalcDistanceAndAppend(triangle GS_VORONOI_INPUT vertices[3], inout 
 		//distance-normal between point of the triangle and slice
 		float3 normalToPosAtSlice =	normal*distPosToSliceZ;
 		output.normal = normalize(normal);
-		output.pos = float4(vertices[v].pos.x+normalToPosAtSlice.x*2, vertices[v].pos.y+normalToPosAtSlice.y*2,  sliceDepth, 1.0f);
+		output.pos = float4(vertices[v].pos.x+normalToPosAtSlice.x*2/reltex.x, vertices[v].pos.y+normalToPosAtSlice.y*2/reltex.y,  sliceDepth, 1.0f);
 		output.pos2 = output.pos;
 		output.trianglepoint = vertices[0].pos;
 		output.tex = vertices[v].tex;
