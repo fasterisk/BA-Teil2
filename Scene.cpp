@@ -24,7 +24,7 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_pColor3DTex1SRV = NULL;
 	m_pColor3DTex2SRV = NULL;
 	m_pDist3DTexSRV = NULL;
-	m_pBBVertices = new VERTEX[8];
+	m_pBBVertices = new SURFACE_VERTEX[8];
 	m_bUpdate3DTextures = false;
 	m_bRender3DTexture = false;
 	m_bGenerateVoronoi = false;

@@ -165,7 +165,7 @@ HRESULT Surface::LoadMesh(std::string strMeshName, std::string strTextureName)
 	}
 
 	// Create vertex and index array
-	m_pVertices = new VERTEX[mNumVertices];
+	m_pVertices = new SURFACE_VERTEX[mNumVertices];
 	unsigned int* pTriangleIndices = new unsigned int[mNumIndices];
 	unsigned int* pEdgeIndices = new unsigned int[mNumIndices*2];
 	unsigned int mCurrentVertex = 0;
@@ -181,13 +181,11 @@ HRESULT Surface::LoadMesh(std::string strMeshName, std::string strTextureName)
 		for(unsigned int j = 0; j < paiMesh->mNumVertices; j++)
 		{
 			const aiVector3D* pPos = &(paiMesh->mVertices[j]);
-			const aiVector3D* pNormal = &(paiMesh->mNormals[j]);
 			const aiVector3D* pTexcoord = &(paiMesh->mTextureCoords[0][j]);
 			
 
-			VERTEX vertex;
+			SURFACE_VERTEX vertex;
 			vertex.pos = D3DXVECTOR3(pPos->x, pPos->y, pPos->z);
-			vertex.normal = D3DXVECTOR3(pNormal->x, pNormal->y, pNormal->z);
 			vertex.texcoord = D3DXVECTOR2(pTexcoord->x, pTexcoord->y);
 
 			//get maximum vertex value to scale the model inside the window
@@ -229,7 +227,7 @@ HRESULT Surface::LoadMesh(std::string strMeshName, std::string strTextureName)
 
 	//Create vertex buffer
 	D3D11_BUFFER_DESC vbDesc;
-	vbDesc.ByteWidth = mNumVertices*sizeof(VERTEX);
+	vbDesc.ByteWidth = mNumVertices*sizeof(SURFACE_VERTEX);
 	vbDesc.Usage = D3D11_USAGE_DEFAULT;
 	vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbDesc.CPUAccessFlags = 0;
@@ -388,7 +386,7 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 	m_pModelViewProjectionVar->SetMatrix(reinterpret_cast<float*>(&mModelViewProjection));
 
 	//Set up vertex and index buffer
-	UINT strides = sizeof(VERTEX);
+	UINT strides = sizeof(SURFACE_VERTEX);
 	UINT offsets = 0;
     m_pd3dImmediateContext->IASetVertexBuffers( 0, 1, &m_pTriangleVertexBuffer, &strides, &offsets );
 	m_pd3dImmediateContext->IASetIndexBuffer( m_pTriangleIndexBuffer, DXGI_FORMAT_R32_UINT, 0 );
@@ -418,7 +416,7 @@ void Surface::Render(D3DXMATRIX mViewProjection)
 void Surface::RenderVoronoi(ID3DX11EffectTechnique* pVoronoiTechnique, ID3DX11EffectShaderResourceVariable *pSurfaceTextureVar)
 {
 	//Set up vertex and index buffer
-	UINT strides = sizeof(VERTEX);
+	UINT strides = sizeof(SURFACE_VERTEX);
 	UINT offsets = 0;
     m_pd3dImmediateContext->IASetVertexBuffers( 0, 1, &m_pTriangleVertexBuffer, &strides, &offsets );
 	m_pd3dImmediateContext->IASetIndexBuffer( m_pTriangleIndexBuffer, DXGI_FORMAT_R32_UINT, 0 );
@@ -506,8 +504,7 @@ HRESULT Surface::InitializeShader()
     const D3D11_INPUT_ELEMENT_DESC layout[] =
     {
         { "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
    V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pInputLayout));

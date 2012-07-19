@@ -209,7 +209,7 @@ void InitApp()
 
 	StringCchPrintf( sz, 100, L"IsoValue: %.2f", g_fIsoValue);
 	g_SampleUI.AddStatic(IDC_ISO_SLIDER_STATIC, sz, 0, iY += 20, 100, 22);
-	g_SampleUI.AddSlider(IDC_ISO_SLIDER, 0, iY+=20, 130, 22, 1, 10000, 5000);
+	g_SampleUI.AddSlider(IDC_ISO_SLIDER, 0, iY+=20, 130, 22, 0, 10000, 5000);
 	g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
 	g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 

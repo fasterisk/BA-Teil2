@@ -138,7 +138,7 @@ void VolumeRenderer::ChangeSampling()
 
 /****************************************************************************
  ****************************************************************************/
-void VolumeRenderer::Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV)
+void VolumeRenderer::Render(SURFACE_VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV)
 {
 	m_pBBMinVar->SetFloatVector(vBBMin);
 	m_pBBMaxVar->SetFloatVector(vBBMax);
@@ -265,7 +265,7 @@ HRESULT VolumeRenderer::InitBoundingIndicesAndLayout()
 
 /****************************************************************************
  ****************************************************************************/
-HRESULT VolumeRenderer::UpdateBoundingVertices(VERTEX* BBVertices)
+HRESULT VolumeRenderer::UpdateBoundingVertices(SURFACE_VERTEX* BBVertices)
 {
 	HRESULT hr;
 
@@ -275,7 +275,7 @@ HRESULT VolumeRenderer::UpdateBoundingVertices(VERTEX* BBVertices)
 	D3D11_BUFFER_DESC vbd;
 	ZeroMemory(&vbd, sizeof(vbd));
 	vbd.Usage = D3D11_USAGE_DYNAMIC;
-	vbd.ByteWidth = sizeof(VERTEX) * 8;
+	vbd.ByteWidth = sizeof(SURFACE_VERTEX) * 8;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	D3D11_SUBRESOURCE_DATA vertexData;
@@ -292,7 +292,7 @@ HRESULT VolumeRenderer::UpdateBoundingVertices(VERTEX* BBVertices)
  ****************************************************************************/
 void VolumeRenderer::DrawBoundingBox()
 {
-	UINT strides = sizeof(VERTEX);
+	UINT strides = sizeof(SURFACE_VERTEX);
     UINT offsets = 0;
 	m_pd3dImmediateContext->IASetInputLayout(m_pBBInputLayout);
 	m_pd3dImmediateContext->IASetIndexBuffer(m_pBBIndexBuffer, DXGI_FORMAT_R32_UINT, 0);

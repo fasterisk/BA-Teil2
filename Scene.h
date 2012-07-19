@@ -197,7 +197,7 @@ protected:
 	ID3D11ShaderResourceView*		m_pIsoSurfaceSRV;
 
 	//Bounding Box vertices
-	VERTEX* m_pBBVertices;
+	SURFACE_VERTEX* m_pBBVertices;
 
 	// Shader and effect creation
 	HRESULT CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect);

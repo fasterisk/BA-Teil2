@@ -44,10 +44,9 @@ struct SLICE_SCREENQUAD_VERTEX
 };
 
 //vertex structure used for storing the vertices of the surfaces
-struct VERTEX
+struct SURFACE_VERTEX
 {
 	D3DXVECTOR3 pos;
-	D3DXVECTOR3 normal;
 	D3DXVECTOR2 texcoord;
 };
 

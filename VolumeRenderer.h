@@ -36,7 +36,7 @@ public:
 	/*
 	 *  Render a given 3D Texture into the bounding box
 	 */
-	void Render(VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
+	void Render(SURFACE_VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
 
 private:
 	//true, if linear sampling, false if nearest neighbor
@@ -90,7 +90,7 @@ private:
 	 */
 	HRESULT InitShader();
 	HRESULT InitBoundingIndicesAndLayout();
-	HRESULT UpdateBoundingVertices(VERTEX* BBVertices);
+	HRESULT UpdateBoundingVertices(SURFACE_VERTEX* BBVertices);
 
 	/*
 	 * Gets called when:

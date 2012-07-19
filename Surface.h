@@ -81,7 +81,7 @@ protected:
 	/*
 	 *  Vertices of this surface
 	 */
-	VERTEX* m_pVertices;
+	SURFACE_VERTEX* m_pVertices;
 
 	/*
 	 *  Vertexbuffer - two index buffers are needed because of the differences in the voronoi 
