@@ -130,14 +130,17 @@ HRESULT Scene::InitSurfaces()
 
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface1->Initialize("Media\\meshes\\Cube\\cube.obj", "Media\\meshes\\Textures\\blue.JPG"));
-	m_pSurface1->Scale(2.0f);
+	V_RETURN(m_pSurface1->Initialize("Media\\meshes\\Cube\\cube.obj", "Media\\meshes\\Textures\\red.JPG"));
+	m_pSurface1->Scale(2.4f);
+	m_pSurface1->Translate(0.0f, -0.6f, -0.5f);
 	m_pSurface1->SetIsoColor(0.0f);
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\Cube\\cube.obj", "Media\\meshes\\Textures\\red.JPG"));
+	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\Cone\\cone.obj", "Media\\meshes\\Textures\\military_camouflage.JPG"));
 	m_pSurface2->SetIsoColor(1.0f);
+	m_pSurface2->Scale(1.9f);
+	m_pSurface2->RotateX(3*PI/2);
 
 	m_pControlledSurface = m_pSurface1;
 
@@ -346,6 +349,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		if(m_bRenderIsoSurface && m_bIsoValueChanged)//generate iso surface
 		{
 			m_pIsoSurfaceSRV = m_pDiffusion->RenderIsoSurface(m_pCurrentDiffusionSRV);
+			//m_pIsoSurfaceSRV = m_pDiffusion->RenderIsoSurface(m_pVoronoi3DTexSRV);
 			m_bIsoValueChanged = false;
 		}
 		
@@ -359,6 +363,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 			else
 			{
 				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pCurrentDiffusionSRV);
+				//m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);
 			}	
 			
 			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pOneSliceDiffusionSRV);
@@ -372,6 +377,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 			else
 			{
 				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
+				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);
 			}
 
 		}

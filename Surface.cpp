@@ -135,8 +135,7 @@ HRESULT Surface::LoadMesh(std::string strMeshName, std::string strTextureName)
 	Assimp::Importer Importer;
 
 	const aiScene* pScene = Importer.ReadFile(strMeshName.c_str(), aiProcess_Triangulate |
-																	aiProcess_JoinIdenticalVertices |
-																	aiProcess_GenSmoothNormals
+																	aiProcess_GenNormals
 																	);
 
 	if(pScene == NULL)

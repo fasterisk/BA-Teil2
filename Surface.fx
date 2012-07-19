@@ -67,6 +67,14 @@ struct VsOutput
 	float2 TexCoord	: TEXCOORD;
 };
 
+struct VsNormalOutput
+{
+	float4 Pos		: SV_POSITION;
+	float3 Normal	: NORMAL;
+	float2 TexCoord	: TEXCOORD;
+	float3 Pos2		: TEXTURE0;
+};
+
 struct VsWOutput
 {
 	float4 Pos		: SV_POSITION;
@@ -104,6 +112,49 @@ VsWOutput VS_WIREFRAME(VsInput input)
 	return output;
 }
 
+VsNormalOutput VS_NORMAL(VsInput input)
+{
+	VsNormalOutput output;
+	output.Pos = float4(input.Pos, 1.0f);//mul(float4(input.Pos, 1.0f), ModelViewProjectionMatrix);
+	output.Normal =  input.Normal;//mul(input.Normal, (float3x3)NormalMatrix);
+	output.TexCoord = input.TexCoord;
+	output.Pos2 = input.Pos;
+	return output;
+}
+
+//--------------------------------------------------------------------------------------
+// Geometry Shaders
+//--------------------------------------------------------------------------------------
+[maxvertexcount(6)]
+void GS_NORMAL( triangle VsOutput input[3], inout LineStream<VsOutput> tStream)
+{
+	VsOutput output;
+	output.Pos = mul(input[0].Pos, ModelViewProjectionMatrix);
+	output.Normal = mul(input[0].Normal, (float3x3)NormalMatrix);
+	output.TexCoord = input[0].TexCoord;
+	tStream.Append(output);
+
+	output.Pos = mul(float4(input[0].Pos.xyz + input[0].Normal.xyz*5, 1.0f), ModelViewProjectionMatrix);
+	tStream.Append(output);
+	tStream.RestartStrip();
+
+	output.Pos = mul(input[1].Pos, ModelViewProjectionMatrix);
+	output.Normal = mul(input[1].Normal, (float3x3)NormalMatrix);
+	tStream.Append(output);
+
+	output.Pos = mul(float4(input[1].Pos.xyz + input[1].Normal.xyz*5, 1.0f), ModelViewProjectionMatrix);
+	tStream.Append(output);
+	tStream.RestartStrip();
+
+	output.Pos = mul(input[2].Pos, ModelViewProjectionMatrix);
+	output.Normal = mul(input[2].Normal, (float3x3)NormalMatrix);
+	tStream.Append(output);
+
+	output.Pos = mul(float4(input[2].Pos.xyz + input[2].Normal.xyz*5, 1.0f), ModelViewProjectionMatrix);
+	tStream.Append(output);
+	tStream.RestartStrip();
+}
+
 
 //--------------------------------------------------------------------------------------
 // Pixel Shaders
@@ -122,6 +173,13 @@ PsOutput PS_COLOR( VsOutput input )
 PsWOutput PS_WIREFRAME(VsWOutput input)
 {
 	PsWOutput output;
+	output.Color = float4(0.0, 1.0, 0.0, 1.0);
+	return output;
+}
+
+PsOutput PS_NORMAL(VsOutput input)
+{
+	PsOutput output;
 	output.Color = float4(0.0, 1.0, 0.0, 1.0);
 	return output;
 }
@@ -149,7 +207,17 @@ technique10 RenderColor
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_WIREFRAME()));
 
-		SetDepthStencilState( EnableDepth, 0);
+		SetDepthStencilState( DisableDepth, 0);
 		SetRasterizerState(Wireframe);
+	}
+
+	pass
+	{
+		SetVertexShader(CompileShader(vs_4_0, VS_NORMAL()));
+		SetGeometryShader(CompileShader(gs_4_0, GS_NORMAL()));
+		SetPixelShader(CompileShader(ps_4_0, PS_NORMAL()));
+
+		SetDepthStencilState( EnableDepth, 0);
+		SetRasterizerState(CullNone);
 	}*/
 }
