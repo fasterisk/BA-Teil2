@@ -317,10 +317,9 @@ void Scene::UpdateTextureResolution(int iMaxRes)
  ****************************************************************************/
 void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 {
-	UpdateBoundingBox();
-
 	if(m_bGenerateVoronoi) //if voronoi has to be generated
 	{
+		UpdateBoundingBox();
 		/*
 		 *	Voronoi diagram is generated in more steps. this is done because if it would be generated all at once,
 		 *  the graphics driver would crash due to a timeout
