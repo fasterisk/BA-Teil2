@@ -36,6 +36,9 @@ Voronoi::Voronoi(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateCon
 	m_iCurrentSlice = 0;
 
 	m_bRenderIsoSurface = false;
+
+	m_bRenderToFlatTexture = true;
+	m_bRenderFlatTo3DTexture = false;
 }
 
 /****************************************************************************
@@ -114,7 +117,11 @@ HRESULT Voronoi::Update()
 	//Initialize Slices
 	V_RETURN(InitSlices());
 	
-	
+	//Re-initialize the behaviour variables for incremental voronoi generation
+	m_iCurrentSlice = 0;
+	m_bRenderToFlatTexture = true;
+	m_bRenderFlatTo3DTexture = false;
+
 	return S_OK;
 }
 
@@ -408,7 +415,7 @@ bool Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, bool bRender
 
 
 	//Render To Flat Texture
-	if(m_iCurrentSlice < m_iTextureDepth)
+	if(m_bRenderToFlatTexture)
 	{	
 		RenderToFlatTexture(model1Orth, model2Orth, mNormalMatrix1, mNormalMatrix2, m_iCurrentSlice);
 		m_iCurrentSlice++;
@@ -417,12 +424,17 @@ bool Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, bool bRender
 		m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
 		m_pd3dImmediateContext->RSSetViewports( NumViewports, &pViewports[0]);
 
+		if(m_iCurrentSlice == m_iTextureDepth)
+		{
+			m_iCurrentSlice = 0;
+			m_bRenderToFlatTexture = false;
+			m_bRenderFlatTo3DTexture = true;
+		}
+
 		return false;
 	}
-	else
+	else if(m_bRenderFlatTo3DTexture)
 	{
-		m_iCurrentSlice = 0;
-
 		//Set 3D Textures as RenderTargets
 		ID3D11RenderTargetView* destTex3DRTVs[2];
 		destTex3DRTVs[0] = m_pDestColorTex3DRTV;
@@ -433,7 +445,7 @@ bool Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, bool bRender
 		m_pFlatColorTex2DSRVar->SetResource(m_pFlatColorTexSRV);
 		m_pFlatDistTex2DSRVar->SetResource(m_pFlatDistTexSRV);
 
-		// BEGIN Render Flat Textures to 3D Textures
+		// Render Flat Textures to 3D Textures - slice by slice
 		m_pFlatTo3DTexTechnique->GetPassByIndex(0)->Apply(0, m_pd3dImmediateContext);
 			
 		// Set viewport and scissor to match the size of a single slice 
@@ -441,12 +453,26 @@ bool Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, bool bRender
 	    m_pd3dImmediateContext->RSSetViewports(1, &viewport2);
 		D3D11_RECT scissorRect2 = { 0, 0, m_iTextureWidth, m_iTextureHeight};
 		m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect2);
-		DrawSlices();
-		// END Render Flat Textures to 3D Textures
+		DrawCurrentSlice();
+		m_iCurrentSlice++;
 
 		m_pFlatColorTex2DSRVar->SetResource(NULL);
 		m_pFlatDistTex2DSRVar->SetResource(NULL);
 		m_pFlatTo3DTexTechnique->GetPassByIndex(0)->Apply(0, m_pd3dImmediateContext);
+
+		if(m_iCurrentSlice == m_iTextureDepth)
+		{
+			m_iCurrentSlice = 0;
+			m_bRenderToFlatTexture = false;
+			m_bRenderFlatTo3DTexture = false;
+		}
+		else
+		{
+			//restore old render targets
+			m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
+			m_pd3dImmediateContext->RSSetViewports( NumViewports, &pViewports[0]);
+			return false;
+		}
 	}
 	
 	//restore old render targets
@@ -508,3 +534,19 @@ void Voronoi::DrawSlices()
 	m_pd3dImmediateContext->Draw(SLICEQUAD_VERTEX_COUNT*m_iTextureDepth, 0);
 }
 
+/****************************************************************************
+ ****************************************************************************/
+void Voronoi::DrawCurrentSlice()
+{
+	assert(m_pSlicesLayout);
+	assert(m_pSlicesVB);
+
+	UINT strides = sizeof(SLICE_SCREENQUAD_VERTEX);
+	UINT offsets = 0;
+
+	m_pd3dImmediateContext->IASetInputLayout(m_pSlicesLayout);
+	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pSlicesVB, &strides, &offsets);
+	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	m_pd3dImmediateContext->Draw(SLICEQUAD_VERTEX_COUNT, SLICEQUAD_VERTEX_COUNT*m_iCurrentSlice);
+}

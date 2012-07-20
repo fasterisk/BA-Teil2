@@ -40,10 +40,10 @@ float						g_fAspectRatio = 0;
 
 float						g_fElapsedTime = 0;
 
-int							g_iTextureWidth = 128;
-int							g_iTextureHeight = 128;
-int							g_iTextureDepth = 128;
-int							g_iTextureMaximum = 128;
+int							g_iTextureWidth = 256;
+int							g_iTextureHeight = 256;
+int							g_iTextureDepth = 256;
+int							g_iTextureMaximum = 256;
 bool						g_bBlockMouseDragging = false;
 int							g_iSliceIndex = 64;
 bool						g_bShowSurfaces = true;
@@ -168,11 +168,11 @@ void InitApp()
 	g_SampleUI.AddRadioButton( IDC_CAMERA, IDC_ROTATE_MOVE_CAMERA, L"Camera", 0, iY += 20, 170, 22);
 	g_SampleUI.GetRadioButton( IDC_ROTATE )->SetChecked(true);
 	
-	StringCchPrintf( sz, 100, L"TexSize: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
+	StringCchPrintf( sz, 100, L"Size: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
 	g_SampleUI.AddStatic( IDC_TEXTRES_STATIC, sz, 0, iY += 30, 100, 22 );
     StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
 	g_SampleUI.AddStatic( IDC_TEXTRES_MAX_STATIC, sz, 0, iY += 20, 100, 22 );
-	g_SampleUI.AddSlider( IDC_TEXTRES_MAX_SLIDER, 0, iY += 20, 130, 22, 64, 256, 128);
+	g_SampleUI.AddSlider( IDC_TEXTRES_MAX_SLIDER, 0, iY += 20, 130, 22, 64, 2048, 256);
 
 	g_SampleUI.AddCheckBox(IDC_SHOW_SURFACES, L"Show Surfaces", 0, iY+=30, 170, 22);
 	g_SampleUI.GetCheckBox(IDC_SHOW_SURFACES)->SetChecked(true);
@@ -532,7 +532,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_iTextureWidth = g_pScene->GetTextureWidth();
 			g_iTextureHeight = g_pScene->GetTextureHeight();
 			g_iTextureDepth = g_pScene->GetTextureDepth();
-			StringCchPrintf( sz, 100, L"TexSize: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
+			StringCchPrintf( sz, 100, L"Size: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
 			g_SampleUI.GetStatic(IDC_TEXTRES_STATIC)->SetText(sz);
 			
 			g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);

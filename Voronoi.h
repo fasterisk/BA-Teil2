@@ -37,6 +37,11 @@ public:
 	 */
 	bool RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, bool bRenderIsoSurface);
 
+	/*
+	 * Returns the current voronoi rendering progress
+	 */
+	std::string GetRenderProgress();
+
 private:
 	/*
 	 *  Update Rendertargets, flat textures and slices
@@ -51,6 +56,11 @@ private:
 	 *  Draw the slices of the flat textures to the 3D texture
 	 */
 	void DrawSlices();
+
+	/*
+	 * Draw the current slice to the 3D texture
+	 */
+	void DrawCurrentSlice();
 
 	/*
 	 *  Render the Voronoi Diagram to a flat texture
@@ -68,6 +78,9 @@ private:
 
 	bool						m_bRenderIsoSurface;
 	int							m_iCurrentSlice;
+
+	bool						m_bRenderToFlatTexture;
+	bool						m_bRenderFlatTo3DTexture;
 
 	ID3D11Device				*m_pd3dDevice;
 	ID3D11DeviceContext			*m_pd3dImmediateContext;
