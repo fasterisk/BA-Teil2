@@ -44,6 +44,8 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_iCurrentSlice = 64;
 	m_iDiffusionSteps = 8;
 	m_fIsoValue = 0.5f;
+
+	m_wsRenderProgress = L"Surfaces are displayed";
 }
 
 /****************************************************************************
@@ -317,6 +319,13 @@ void Scene::UpdateTextureResolution(int iMaxRes)
  ****************************************************************************/
 void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 {
+	//show surfaces
+	if(bShowSurfaces)
+	{
+		m_pSurface1->Render(mViewProjection);
+		m_pSurface2->Render(mViewProjection);
+	}
+
 	if(m_bGenerateVoronoi) //if voronoi has to be generated
 	{
 		UpdateBoundingBox();
@@ -325,11 +334,14 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		 *  the graphics driver would crash due to a timeout
 		 */
 		bool b = m_pVoronoi->RenderVoronoi(m_vMin, m_vMax, m_bRenderIsoSurface);
+		m_wsRenderProgress = m_pVoronoi->GetRenderProgress();
 		if(b)
 		{
 			m_bGenerateVoronoi = false;
-			m_bRender3DTexture = true;
 			m_bGenerateDiffusion = true;
+			m_bRender3DTexture = true;
+			m_wsRenderProgress = L"Generate Diffusion...";
+			return;
 		}
 		else
 		{
@@ -357,10 +369,12 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 			
 			if(m_bRenderIsoSurface)
 			{
+				m_wsRenderProgress = L"Rendering one slice of the Isosurface 3D Texture";
 				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pIsoSurfaceSRV);
 			}
 			else
 			{
+				m_wsRenderProgress = L"Rendering one slice of the Diffusion 3D Texture";
 				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pCurrentDiffusionSRV);
 				//m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);
 			}	
@@ -371,24 +385,18 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		{
 			if(m_bRenderIsoSurface)
 			{
+				m_wsRenderProgress = L"Rendering the Isosurface 3D Texture";
 				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pIsoSurfaceSRV);
 			}
 			else
 			{
+				m_wsRenderProgress = L"Rendering the Diffusion 3D Texture";
 				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
 				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);
 			}
 
 		}
 	}
-	
-	//show surfaces
-	if(bShowSurfaces)
-	{
-		m_pSurface1->Render(mViewProjection);
-		m_pSurface2->Render(mViewProjection);
-	}
-	
 }	
 
 /****************************************************************************
@@ -576,6 +584,7 @@ void Scene::GenerateVoronoi()
 	m_bGenerateVoronoi = true;
 	m_bGenerateDiffusion = false;
 	m_bIsoValueChanged = true;
+	m_bRender3DTexture = false;
 }
 
 /****************************************************************************
@@ -583,6 +592,13 @@ void Scene::GenerateVoronoi()
 void Scene::Render3DTexture(bool bRenderVoronoi)
 {
 	m_bRender3DTexture = bRenderVoronoi;
+}
+
+/****************************************************************************
+ ****************************************************************************/
+LPCWSTR Scene::GetProgress()
+{
+	return m_wsRenderProgress.c_str();
 }
 
 /****************************************************************************

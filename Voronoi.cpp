@@ -463,7 +463,7 @@ bool Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, bool bRender
 		if(m_iCurrentSlice == m_iTextureDepth)
 		{
 			m_iCurrentSlice = 0;
-			m_bRenderToFlatTexture = false;
+			m_bRenderToFlatTexture = true;
 			m_bRenderFlatTo3DTexture = false;
 		}
 		else
@@ -549,4 +549,26 @@ void Voronoi::DrawCurrentSlice()
 	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	m_pd3dImmediateContext->Draw(SLICEQUAD_VERTEX_COUNT, SLICEQUAD_VERTEX_COUNT*m_iCurrentSlice);
+}
+
+
+std::wstring Voronoi::GetRenderProgress()
+{
+	if(m_bRenderToFlatTexture)
+	{
+		int iProgress = int((m_iCurrentSlice * 50)/m_iTextureDepth + 0.5);
+		std::wstringstream sstm;
+		sstm << "Generating Voronoi Diagram: " << iProgress << " %";
+		return sstm.str();
+	}
+
+	if(m_bRenderFlatTo3DTexture)
+	{
+		int iProgress = int((m_iCurrentSlice * 50)/m_iTextureDepth + 50.5);
+		std::wstringstream sstm;
+		sstm << "Generating Voronoi Diagram: " << iProgress << " %";
+		return sstm.str();
+	}
+
+	return L"Generation of Voronoi Diagram completed!";
 }

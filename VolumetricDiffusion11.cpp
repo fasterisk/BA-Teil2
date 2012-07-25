@@ -267,6 +267,8 @@ void RenderText()
     g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 0.0f, 1.0f ) );
     g_pTxtHelper->DrawTextLine( DXUTGetFrameStats( DXUTIsVsyncEnabled() ) );
     g_pTxtHelper->DrawTextLine( DXUTGetDeviceStats() );
+	g_pTxtHelper->DrawTextLine( g_pScene->GetProgress() );
+
 
 	g_pTxtHelper->End();//important for SAFE_DELETE
 
@@ -434,6 +436,8 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 
 			strMeshName = ConvertWideCharToChar(ofnMesh.lpstrFile);
 
+
+
 			// load the surface mesh into the current surface
 			hr = g_pScene->LoadSurface1(strMeshName);
 			if(hr == S_OK)
@@ -474,6 +478,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 				break;
 
 			strMeshName = ConvertWideCharToChar(ofnMesh.lpstrFile);
+
 
 			// load the surface mesh into the current surface
 			hr = g_pScene->LoadSurface2(strMeshName);

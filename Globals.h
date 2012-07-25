@@ -28,6 +28,7 @@
 
 #include <stdio.h>
 #include <iostream>
+#include <sstream>
 
 //vertex structure used in volume renderer
 struct SCREENQUAD_VERTEX

@@ -123,6 +123,11 @@ public:
 	 */
 	HRESULT UpdateBoundingBox();
 
+	/*
+	 *  Returns a LPCWSTR which shows the current render progress
+	 */
+	LPCWSTR GetProgress();
+
 protected:
 	/*
 	 *	Initializes the surfaces (is only called when the application starts
@@ -198,6 +203,9 @@ protected:
 
 	//Bounding Box vertices
 	SURFACE_VERTEX* m_pBBVertices;
+
+	//WString that stores current render progress
+	std::wstring m_wsRenderProgress;
 
 	// Shader and effect creation
 	HRESULT CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect);

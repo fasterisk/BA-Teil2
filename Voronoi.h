@@ -40,7 +40,7 @@ public:
 	/*
 	 * Returns the current voronoi rendering progress
 	 */
-	std::string GetRenderProgress();
+	std::wstring GetRenderProgress();
 
 private:
 	/*
