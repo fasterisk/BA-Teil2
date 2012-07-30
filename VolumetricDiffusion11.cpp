@@ -52,6 +52,7 @@ int							g_iDiffusionSteps = 8;
 bool						g_bSurface1IsControlled = true;
 bool						g_bShowIsoSurface = false;
 bool						g_bShowIsoColor = false;
+bool						g_bShowVolume = false;
 
 // Texthelper
 CDXUTTextHelper*            g_pTxtHelper = NULL;
@@ -79,16 +80,17 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_SLICEINDEX_STATIC		17
 #define IDC_SLICEINDEX_SLIDER		18
 #define IDC_SHOW_SURFACES			19
-#define IDC_DIFFUSION				20
-#define IDC_ISO_SLIDER				21
-#define IDC_ISO_SLIDER_STATIC		22
-#define IDC_ISO_CHECK				23
-#define IDC_DIFFSTEPS_STATIC		24
-#define IDC_DIFFSTEPS_SLIDER		25
-#define IDC_ISO_COLOR				26
-#define IDC_SAMPLING				27
-#define	IDC_SAMPLING_LINEAR			28
-#define IDC_SAMPLING_POINT			29
+#define IDC_SHOW_VOLUME				20
+#define IDC_DIFFUSION				21
+#define IDC_ISO_SLIDER				22
+#define IDC_ISO_SLIDER_STATIC		23
+#define IDC_ISO_CHECK				24
+#define IDC_DIFFSTEPS_STATIC		25
+#define IDC_DIFFSTEPS_SLIDER		26
+#define IDC_ISO_COLOR				27
+#define IDC_SAMPLING				28
+#define	IDC_SAMPLING_LINEAR			29
+#define IDC_SAMPLING_POINT			30
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -142,7 +144,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
     DXUTInit( true, true, NULL ); // Parse the command line, show msgboxes on error, no extra command line params
     DXUTSetCursorSettings( true, true ); // Show the cursor and clip it when in full screen
     DXUTCreateWindow( L"Volumetric Diffusion" );
-	DXUTCreateDevice (D3D_FEATURE_LEVEL_10_1, true, g_Width, g_Height);
+	DXUTCreateDevice (D3D_FEATURE_LEVEL_11_0, true, g_Width, g_Height);
     DXUTMainLoop(); // Enter into the DXUT render loop
 	
     return DXUTGetExitCode();
@@ -176,6 +178,8 @@ void InitApp()
 
 	g_SampleUI.AddCheckBox(IDC_SHOW_SURFACES, L"Show Surfaces", 0, iY+=30, 170, 22);
 	g_SampleUI.GetCheckBox(IDC_SHOW_SURFACES)->SetChecked(true);
+
+	g_SampleUI.AddCheckBox(IDC_SHOW_VOLUME, L"Show Volume", 0, iY+=20, 170, 22);
 
 	g_SampleUI.AddButton(IDC_DIFFUSION, L"Diffuse!", 0, iY+=30, 170, 30);
 
@@ -571,6 +575,10 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 		case IDC_SHOW_SURFACES:
 			g_bShowSurfaces = !g_bShowSurfaces;
 			break;
+		case IDC_SHOW_VOLUME:
+			g_bShowVolume = !g_bShowVolume;
+			g_pScene->ChangeVolumeVisibility(g_bShowVolume);
+			break;
 		case IDC_DIFFUSION:
 			g_bShowSurfaces = true;
 			g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(true);
@@ -586,6 +594,9 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			}
 			g_bCameraActive = true;
 			g_SampleUI.GetRadioButton(IDC_CAMERA)->SetChecked(true);
+			g_bShowVolume = true;
+			g_pScene->ChangeVolumeVisibility(true);
+			g_SampleUI.GetCheckBox(IDC_SHOW_VOLUME)->SetChecked(true);
 			g_pScene->GenerateVoronoi();
 			break;
 		case IDC_DIFFSTEPS_SLIDER:

@@ -190,6 +190,7 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 		else
 			src = VolumeTexture.SampleLevel(pointSampler, pos, 0).rgba;
 		
+		src.a *= 0.01;
 		output.color = output.color + src;
 		
 		if(output.color.a >= 1.0f)
@@ -243,7 +244,7 @@ technique10 VolumeRendering
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_RAYCAST()));
 
-		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+		SetBlendState(AlphaBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullBack);
 		SetDepthStencilState( DisableDepth, 0 );
 	}
@@ -254,7 +255,7 @@ technique10 VolumeRendering
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_BB_WIREFRAME()));
 
-		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+		SetBlendState(AlphaBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(RasterizerWireframe);
 		SetDepthStencilState( DisableDepth, 0 );
 	}

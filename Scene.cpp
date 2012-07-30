@@ -349,7 +349,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		}
 	}
 
-	if(m_bRender3DTexture)//if 3d texture should be rendered by the volumerenderer
+	if(m_bRender3DTexture && m_bShowVolume)//if 3d texture should be rendered by the volumerenderer
 	{
 		if(m_bGenerateDiffusion)//generate the diffusion
 		{
@@ -425,7 +425,7 @@ HRESULT Scene::Init3DTextures()
 	desc.Width = m_iTextureWidth;
 	desc.Height = m_iTextureHeight;
 	desc.Depth = m_iTextureDepth;
-	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	desc.Format = TEXTURE_FORMAT;//defined in Globals.h;
 	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pVoronoi3DTex));
 	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pColor3DTex1));
 	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pColor3DTex2));
@@ -441,7 +441,7 @@ HRESULT Scene::Init3DTextures()
 	descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
 	descSRV.Texture3D.MostDetailedMip = 0;
 	descSRV.Texture3D.MipLevels = 1;
-	descSRV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	descSRV.Format = TEXTURE_FORMAT;//defined in Globals.h;
 	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pVoronoi3DTex, &descSRV, &m_pVoronoi3DTexSRV));
 	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pColor3DTex1, &descSRV, &m_pColor3DTex1SRV));
 	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pColor3DTex2, &descSRV, &m_pColor3DTex2SRV));
@@ -501,6 +501,13 @@ HRESULT Scene::ChangeRenderingToAllSlices()
 	HRESULT hr;
 	m_bDrawAllSlices = true;
 	return S_OK;
+}
+
+/****************************************************************************
+ ****************************************************************************/
+void Scene::ChangeVolumeVisibility(bool bVisible)
+{
+	m_bShowVolume = bVisible;
 }
 
 /****************************************************************************

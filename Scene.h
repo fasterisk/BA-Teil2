@@ -79,6 +79,11 @@ public:
 	 *	Change the scene so that all slices of the textures are shown
 	 */
 	HRESULT ChangeRenderingToAllSlices();
+
+	/*
+	 *	Change the visibility of the volume - if it is shown or not
+	 */
+	void ChangeVolumeVisibility(bool bVisible);
 	
 	/*
 	 *	Translation, Rotation and Scale functions of surface 1 and 2
@@ -150,6 +155,7 @@ protected:
 	bool m_bGenerateDiffusion;
 	bool m_bIsoValueChanged;
 	bool	m_bDrawAllSlices;
+	bool	m_bShowVolume;
 	int		m_iCurrentSlice;
 	int		m_iDiffusionSteps;
 	float	m_fIsoValue;

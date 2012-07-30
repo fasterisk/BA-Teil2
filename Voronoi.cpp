@@ -155,7 +155,7 @@ HRESULT Voronoi::InitFlatTextures()
 	cdTexDesc.Usage = D3D11_USAGE_DEFAULT;
 	cdTexDesc.Width = m_iTextureWidth * m_cols;
 	cdTexDesc.Height = m_iTextureHeight * m_rows;
-	cdTexDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	cdTexDesc.Format = TEXTURE_FORMAT;//defined in Globals.h
 	V_RETURN(m_pd3dDevice->CreateTexture2D(&cdTexDesc, NULL, &m_pFlatColorTex));
 	V_RETURN(m_pd3dDevice->CreateTexture2D(&cdTexDesc, NULL, &m_pFlatDistTex));
 
@@ -164,7 +164,7 @@ HRESULT Voronoi::InitFlatTextures()
 
 	//create RTVs for color and dist texture
 	D3D11_RENDER_TARGET_VIEW_DESC cdRTVDesc;
-	cdRTVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	cdRTVDesc.Format = TEXTURE_FORMAT;//defined in Globals.h
 	cdRTVDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	cdRTVDesc.Texture2D.MipSlice = 0;
 	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pFlatColorTex, &cdRTVDesc, &m_pFlatColorTexRTV));
@@ -176,7 +176,7 @@ HRESULT Voronoi::InitFlatTextures()
 	cdSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	cdSRVDesc.Texture2D.MostDetailedMip = 0;
 	cdSRVDesc.Texture2D.MipLevels = 1;
-	cdSRVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	cdSRVDesc.Format = TEXTURE_FORMAT;//defined in Globals.h
 	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pFlatColorTex, &cdSRVDesc, &m_pFlatColorTexSRV));
 	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pFlatDistTex, &cdSRVDesc, &m_pFlatDistTexSRV));
 
