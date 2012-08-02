@@ -69,6 +69,15 @@ public:
 	 */
 	ID3D11ShaderResourceView* RenderIsoSurface(ID3D11ShaderResourceView* pCurrentDiffusionSRV);
 
+	/*
+	 *	Returns the current diffusion texture
+	 */
+	ID3D11Texture3D* GetCurrentDiffusionTexture();
+
+	/*
+	 *	Returns the isosurface texture
+	 */
+	ID3D11Texture3D* GetIsoSurfaceTexture();
 private:
 	
 	//Initializes the Render Target Views of the Color Textures

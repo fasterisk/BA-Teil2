@@ -615,6 +615,20 @@ LPCWSTR Scene::GetProgress()
 
 /****************************************************************************
  ****************************************************************************/
+HRESULT Scene::SaveCurrentVolume(LPCTSTR sDestination)
+{
+	if(m_bRenderIsoSurface)
+	{
+		return D3DX11SaveTextureToFile(m_pd3dImmediateContext, m_pDiffusion->GetIsoSurfaceTexture(), D3DX11_IFF_DDS, sDestination);
+	}
+	else
+	{
+		return D3DX11SaveTextureToFile(m_pd3dImmediateContext, m_pDiffusion->GetCurrentDiffusionTexture(), D3DX11_IFF_DDS, sDestination);
+	}
+}
+
+/****************************************************************************
+ ****************************************************************************/
 HRESULT Scene::CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect)
 {
 	HRESULT hr;

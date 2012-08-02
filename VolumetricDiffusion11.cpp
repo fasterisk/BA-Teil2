@@ -93,6 +93,7 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define	IDC_SAMPLING_LINEAR			29
 #define IDC_SAMPLING_POINT			30
 #define IDC_SHOW_BOUNDINGBOX		31
+#define IDC_SAVEVOLUME_BUTTON		32
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -192,9 +193,9 @@ void InitApp()
 	g_SampleUI.AddStatic(IDC_DIFFSTEPS_STATIC, sz, 0, iY += 30, 100, 22);
 	g_SampleUI.AddSlider(IDC_DIFFSTEPS_SLIDER, 0, iY+=20, 130, 22, 1, 20, 8);
 
-	g_SampleUI.AddRadioButton(IDC_SAMPLING_LINEAR, IDC_SAMPLING, L"Linear Sampling", 0, iY+=30, 170, 22);
+	/*g_SampleUI.AddRadioButton(IDC_SAMPLING_LINEAR, IDC_SAMPLING, L"Linear Sampling", 0, iY+=30, 170, 22);
 	g_SampleUI.AddRadioButton(IDC_SAMPLING_POINT, IDC_SAMPLING, L"Point Sampling", 0, iY+=20, 170, 22);
-	g_SampleUI.GetRadioButton(IDC_SAMPLING_LINEAR)->SetChecked(true);
+	g_SampleUI.GetRadioButton(IDC_SAMPLING_LINEAR)->SetChecked(true);*/
 
 	g_SampleUI.AddRadioButton( IDC_ALL_SLICES, IDC_SLICES, L"Draw All Slices", 0, iY += 30, 170, 22);
 	g_SampleUI.AddRadioButton( IDC_ONE_SLICE, IDC_SLICES, L"Draw One Slice", 0, iY += 20, 170, 22);
@@ -222,7 +223,8 @@ void InitApp()
 	g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
 	g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 
-	
+	g_SampleUI.AddButton(IDC_SAVEVOLUME_BUTTON, L"Save Volume...", 0, iY+=30, 170, 30);
+	g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
 
 	// Setup the camera's view parameters
     D3DXVECTOR3 vecEye( 0.0f, 0.0f, -40.0f );
@@ -419,8 +421,10 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 
 	//File names for mesh and texture loading
 	OPENFILENAME ofnMesh;
-	
 	std::string strMeshName;
+
+	//File name for texture saving
+	OPENFILENAME ofnSave;
     
 	switch( nControlID )
     {
@@ -459,6 +463,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 				g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
 				g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 				g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
+				g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
 				g_pScene->Render3DTexture(false);
 			}
 			else
@@ -501,6 +506,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 				g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
 				g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 				g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
+				g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
 				g_pScene->Render3DTexture(false);
 			}
 			else
@@ -519,6 +525,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
+			g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
 			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_MOVE:
@@ -532,6 +539,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
+			g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
 			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_CAMERA:
@@ -557,6 +565,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
+			g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);		
 			g_pScene->Render3DTexture(false);
 			break;
 		case IDC_ALL_SLICES:
@@ -595,6 +604,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(true);
 			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(true);
 			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(true);
+			g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(true);
 			if(g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->GetChecked())
 			{
 				g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(true);
@@ -634,6 +644,34 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 		case IDC_ISO_COLOR:
 			g_bShowIsoColor = !g_bShowIsoColor;
 			g_pScene->ShowIsoColor(g_bShowIsoColor);
+			break;
+		case IDC_SAVEVOLUME_BUTTON:
+			// open a save file dialog
+			ZeroMemory(&ofnSave, sizeof(ofnSave));
+			ofnSave.lStructSize = sizeof(ofnSave);
+			ofnSave.hwndOwner = NULL;
+			ofnSave.lpstrFile = sz;
+			ofnSave.lpstrFile[0] = '\0';
+			ofnSave.nMaxFile = sizeof(sz);
+			ofnSave.lpstrFilter = L"DDS\0*.dds\0";
+			ofnSave.nFilterIndex =1;
+			ofnSave.lpstrFileTitle = NULL ;
+			ofnSave.nMaxFileTitle = 0 ;
+			ofnSave.lpstrInitialDir=NULL ;
+			ofnSave.lpstrDefExt = L"dds";
+			//ofnSave.Flags = OFN_PATHMUSTEXIST;
+			GetSaveFileName(&ofnSave);
+
+			if(wcslen(ofnSave.lpstrFile) == 0)
+				break;
+
+			hr = g_pScene->SaveCurrentVolume(ofnSave.lpstrFile);
+
+			if(hr != S_OK)
+				MessageBox ( NULL , L"Texture could not be saved!", ofnSave.lpstrFile , MB_OK);
+			else
+				MessageBox ( NULL , L"Texture saved!", ofnSave.lpstrFile , MB_OK);
+
 			break;
     }
 

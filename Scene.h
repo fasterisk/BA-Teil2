@@ -138,6 +138,11 @@ public:
 	 */
 	LPCWSTR GetProgress();
 
+	/*
+	 *  Saves the current volume texture to a .dds file
+	 */
+	HRESULT SaveCurrentVolume(LPCTSTR sDestination);
+
 protected:
 	/*
 	 *	Initializes the surfaces (is only called when the application starts

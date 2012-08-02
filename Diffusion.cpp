@@ -480,3 +480,17 @@ void Diffusion::DrawSlices()
 	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
 	m_pd3dImmediateContext->RSSetViewports( NumViewports, &pViewports[0]);
 }
+
+/****************************************************************************
+ ****************************************************************************/
+ID3D11Texture3D* Diffusion::GetCurrentDiffusionTexture()
+{
+	return m_pColor3DTextures[1-m_iDiffTex];
+}
+
+/****************************************************************************
+ ****************************************************************************/
+ID3D11Texture3D* Diffusion::GetIsoSurfaceTexture()
+{
+	return m_pIsoSurfaceTexture;
+}
