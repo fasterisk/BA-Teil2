@@ -53,6 +53,7 @@ bool						g_bSurface1IsControlled = true;
 bool						g_bShowIsoSurface = false;
 bool						g_bShowIsoColor = false;
 bool						g_bShowVolume = false;
+bool						g_bShowBoundingBox = true;
 
 // Texthelper
 CDXUTTextHelper*            g_pTxtHelper = NULL;
@@ -91,6 +92,7 @@ CDXUTTextHelper*            g_pTxtHelper = NULL;
 #define IDC_SAMPLING				28
 #define	IDC_SAMPLING_LINEAR			29
 #define IDC_SAMPLING_POINT			30
+#define IDC_SHOW_BOUNDINGBOX		31
 
 //--------------------------------------------------------------------------------------
 // Forward declarations 
@@ -180,6 +182,9 @@ void InitApp()
 	g_SampleUI.GetCheckBox(IDC_SHOW_SURFACES)->SetChecked(true);
 
 	g_SampleUI.AddCheckBox(IDC_SHOW_VOLUME, L"Show Volume", 0, iY+=20, 170, 22);
+
+	g_SampleUI.AddCheckBox(IDC_SHOW_BOUNDINGBOX, L"Show BoundingBox", 0, iY+=20, 170, 22);
+	g_SampleUI.GetCheckBox(IDC_SHOW_BOUNDINGBOX)->SetChecked(true);
 
 	g_SampleUI.AddButton(IDC_DIFFUSION, L"Diffuse!", 0, iY+=30, 170, 30);
 
@@ -579,8 +584,11 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_bShowVolume = !g_bShowVolume;
 			g_pScene->ChangeVolumeVisibility(g_bShowVolume);
 			break;
+		case IDC_SHOW_BOUNDINGBOX:
+			g_bShowBoundingBox = !g_bShowBoundingBox;
+			g_pScene->ChangeBoundingBoxVisibility(g_bShowBoundingBox);
+			break;
 		case IDC_DIFFUSION:
-			g_bShowSurfaces = true;
 			g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(true);
 			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(true);
 			g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(true);

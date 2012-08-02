@@ -39,6 +39,11 @@ public:
 	void ShowIsoSurface(bool bShow);
 
 	/*
+	 *  Controls the visibility of the bounding box
+	 */
+	void ShowBoundingBox(bool bShow);
+
+	/*
 	 *  Render a given 3D Texture into the bounding box
 	 */
 	void Render(SURFACE_VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
@@ -49,6 +54,9 @@ private:
 
 	//controls the setting when isosurface is rendered
 	bool m_bShowIsoSurface;
+
+	//controls the visibility of the bounding box
+	bool m_bShowBoundingBox;
 
 	// Device
 	ID3D11Device*			m_pd3dDevice;

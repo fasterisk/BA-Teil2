@@ -510,6 +510,13 @@ void Scene::ChangeVolumeVisibility(bool bVisible)
 
 /****************************************************************************
  ****************************************************************************/
+void Scene::ChangeBoundingBoxVisibility(bool bVisible)
+{
+	m_pVolumeRenderer->ShowBoundingBox(bVisible);
+}
+
+/****************************************************************************
+ ****************************************************************************/
 void Scene::ChangeSampling()
 {
 	m_pVolumeRenderer->ChangeSampling();

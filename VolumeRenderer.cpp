@@ -27,6 +27,7 @@ VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd
 
 	m_bLinearSampling = true;
 	m_bShowIsoSurface = false;
+	m_bShowBoundingBox = true;
 }
 
 /****************************************************************************
@@ -146,6 +147,14 @@ void VolumeRenderer::ShowIsoSurface(bool bShow)
 
 /****************************************************************************
  ****************************************************************************/
+void VolumeRenderer::ShowBoundingBox(bool bShow)
+{
+	m_bShowBoundingBox = bShow;
+}
+
+
+/****************************************************************************
+ ****************************************************************************/
 void VolumeRenderer::Render(SURFACE_VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV)
 {
 	m_pBBMinVar->SetFloatVector(vBBMin);
@@ -205,8 +214,11 @@ void VolumeRenderer::Render(SURFACE_VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3D
 	
 
 	//Draw wireframe boundingbox
-	m_pVolumeRenderTechnique->GetPassByName("Wireframe")->Apply(0, m_pd3dImmediateContext);
-	DrawBoundingBox();
+	if(m_bShowBoundingBox)
+	{
+		m_pVolumeRenderTechnique->GetPassByName("Wireframe")->Apply(0, m_pd3dImmediateContext);
+		DrawBoundingBox();
+	}
 
 	
 }

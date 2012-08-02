@@ -86,6 +86,11 @@ public:
 	void ChangeVolumeVisibility(bool bVisible);
 	
 	/*
+	 *	Change the visibility of the bounding box - if it is shown or not
+	 */
+	void ChangeBoundingBoxVisibility(bool bVisible);
+
+	/*
 	 *	Translation, Rotation and Scale functions of surface 1 and 2
 	 */
 	void TranslateSurface1(float fX, float fY, float fZ);
