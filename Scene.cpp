@@ -360,7 +360,6 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		if(m_bRenderIsoSurface && m_bIsoValueChanged)//generate iso surface
 		{
 			m_pIsoSurfaceSRV = m_pDiffusion->RenderIsoSurface(m_pCurrentDiffusionSRV);
-			//m_pIsoSurfaceSRV = m_pDiffusion->RenderIsoSurface(m_pVoronoi3DTexSRV);
 			m_bIsoValueChanged = false;
 		}
 		
@@ -376,7 +375,6 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 			{
 				m_wsRenderProgress = L"Rendering one slice of the Diffusion 3D Texture";
 				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pCurrentDiffusionSRV);
-				//m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi3DTexSRV);
 			}	
 			
 			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pOneSliceDiffusionSRV);
@@ -392,7 +390,6 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 			{
 				m_wsRenderProgress = L"Rendering the Diffusion 3D Texture";
 				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
-				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi3DTexSRV);
 			}
 
 		}
@@ -464,6 +461,7 @@ void Scene::ChangeIsoValue(float fIsoValue)
 void Scene::ShowIsoSurface(bool bShow)
 {
 	m_bRenderIsoSurface = bShow;
+	m_pVolumeRenderer->ShowIsoSurface(bShow);
 	m_bIsoValueChanged = true;
 }
 

@@ -34,6 +34,11 @@ public:
 	void ChangeSampling();
 
 	/*
+	 *  Switch between settings for "normal" volume rendering and isosurface rendering
+	 */
+	void ShowIsoSurface(bool bShow);
+
+	/*
 	 *  Render a given 3D Texture into the bounding box
 	 */
 	void Render(SURFACE_VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
@@ -41,6 +46,9 @@ public:
 private:
 	//true, if linear sampling, false if nearest neighbor
 	bool m_bLinearSampling;
+
+	//controls the setting when isosurface is rendered
+	bool m_bShowIsoSurface;
 
 	// Device
 	ID3D11Device*			m_pd3dDevice;
@@ -63,6 +71,7 @@ private:
 	ID3DX11EffectScalarVariable*			m_pIterationsVar;
 	ID3DX11EffectScalarVariable*			m_fAlphaVar;
 	ID3DX11EffectScalarVariable*			m_pSamplingVar;
+	ID3DX11EffectScalarVariable*			m_pShowIsoSurfaceVar;
 
 	//Screen size
 	int m_iWidth;

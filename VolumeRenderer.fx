@@ -15,6 +15,7 @@ float3 vBBMin;
 float3 vBBMax;
 
 bool bLinearSampling;
+bool bShowIsoSurface;
 
 //------------------------------------------------------------------------------------------------------
 // States
@@ -190,7 +191,8 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 		else
 			src = VolumeTexture.SampleLevel(pointSampler, pos, 0).rgba;
 		
-		src.a *= 0.01;
+		if(!bShowIsoSurface)
+			src.a *= 0.01;
 		output.color = output.color + src;
 		
 		if(output.color.a >= 1.0f)

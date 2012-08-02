@@ -26,6 +26,7 @@ VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd
 	m_pSQVertexBuffer = NULL;
 
 	m_bLinearSampling = true;
+	m_bShowIsoSurface = false;
 }
 
 /****************************************************************************
@@ -138,11 +139,19 @@ void VolumeRenderer::ChangeSampling()
 
 /****************************************************************************
  ****************************************************************************/
+void VolumeRenderer::ShowIsoSurface(bool bShow)
+{
+	m_bShowIsoSurface = bShow;
+}
+
+/****************************************************************************
+ ****************************************************************************/
 void VolumeRenderer::Render(SURFACE_VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV)
 {
 	m_pBBMinVar->SetFloatVector(vBBMin);
 	m_pBBMaxVar->SetFloatVector(vBBMax);
 	m_pSamplingVar->SetBool(m_bLinearSampling);
+	m_pShowIsoSurfaceVar->SetBool(m_bShowIsoSurface);
 	
 	//Update vertex buffer for boundingbox
 	UpdateBoundingVertices(pBBVertices);
@@ -216,6 +225,7 @@ HRESULT VolumeRenderer::InitShader()
 	m_pBBMinVar = m_pEffect->GetVariableByName("vBBMin")->AsVector();
 	m_pBBMaxVar = m_pEffect->GetVariableByName("vBBMax")->AsVector();
 	m_pSamplingVar = m_pEffect->GetVariableByName("bLinearSampling")->AsScalar();
+	m_pShowIsoSurfaceVar = m_pEffect->GetVariableByName("bShowIsoSurface")->AsScalar();
 
 	return S_OK;
 }
