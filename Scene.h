@@ -1,3 +1,6 @@
+#ifndef _SCENE_H_
+#define _SCENE_H_
+
 class Surface;
 class Voxelizer;
 class VolumeRenderer;
@@ -5,20 +8,29 @@ class TextureGrid;
 class Voronoi;
 class Diffusion;
 
+#include "Globals.h"
 
 class Scene
 {
 public:
-	/*
-	 *	Constructor
-	 */
-	Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext);
+	static Scene* GetInstance();
+	static void DeleteInstance();
 
-	/*
-	 *	Destructor
-	 *	Release all textures
-	 */
-	~Scene();
+	void SetDevice(ID3D11Device* pd3dDevice) 
+		{ m_pd3dDevice = pd3dDevice; }
+
+	void SetContext(ID3D11DeviceContext* pd3dImmediateContext) 
+		{ m_pd3dImmediateContext = pd3dImmediateContext; }
+	
+	ID3D11Device* GetDevice() const 
+		{ return m_pd3dDevice; }
+
+	ID3D11DeviceContext * GetContext() const 
+		{ return m_pd3dImmediateContext; }
+
+	Surface* GetSurface1() const { return m_pSurface1; }
+	Surface* GetSurface2() const { return m_pSurface2; }
+
 
 	/*
 	 *	Initialize the scene:
@@ -144,16 +156,25 @@ public:
 	HRESULT SaveCurrentVolume(LPCTSTR sDestination);
 
 protected:
+
+	/*
+	 *	Constructor
+	 */
+	Scene();
+
+	/*
+	 *	Destructor
+	 *	Release all textures
+	 */
+	~Scene();
+
 	/*
 	 *	Initializes the surfaces (is only called when the application starts
 	 */
-	HRESULT InitSurfaces();
+	HRESULT ItlInitSurfaces();
 
-	/*
-	 *	Initializes the 3D textures
-	 *		Is called every time the bounding box changes or the texture size changes
-	 */
-	HRESULT Init3DTextures();
+
+	static Scene* s_pInstance;
 
 	/*
 	 *	variables that control the behaviour of the render loop
@@ -164,6 +185,7 @@ protected:
 	bool m_bRenderIsoSurface;
 	bool m_bGenerateDiffusion;
 	bool m_bIsoValueChanged;
+	bool m_bGenerateOneSliceTexture;
 	bool	m_bDrawAllSlices;
 	bool	m_bShowVolume;
 	int		m_iCurrentSlice;
@@ -204,18 +226,10 @@ protected:
 	ID3DX11Effect*					m_pDiffusionEffect;
 	ID3DX11Effect*					m_pVoronoiEffect;
 
-	ID3D11Texture3D*				m_pVoronoi3DTex;
-	ID3D11Texture3D*				m_pColor3DTex1;
-	ID3D11Texture3D*				m_pColor3DTex2;
-	ID3D11Texture3D*				m_pDist3DTex;
-	ID3D11ShaderResourceView*		m_pVoronoi3DTexSRV;
-	ID3D11ShaderResourceView*		m_pColor3DTex1SRV;
-	ID3D11ShaderResourceView*		m_pColor3DTex2SRV;
-	ID3D11ShaderResourceView*		m_pDist3DTexSRV;
-
-	ID3D11ShaderResourceView*		m_pCurrentDiffusionSRV;
-	ID3D11ShaderResourceView*		m_pOneSliceDiffusionSRV;
-	ID3D11ShaderResourceView*		m_pIsoSurfaceSRV;
+	//Textures
+	unsigned int m_nDiffusionTexture;
+	unsigned int m_nIsoSurfaceTexture;
+	unsigned int m_nOneSliceTexture;
 
 	//Bounding Box vertices
 	SURFACE_VERTEX* m_pBBVertices;
@@ -228,3 +242,5 @@ protected:
 	HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut );
 
 };
+
+#endif //_SCENE_H_

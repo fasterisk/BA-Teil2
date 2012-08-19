@@ -37,13 +37,6 @@ struct SCREENQUAD_VERTEX
 	D3DXVECTOR2 tex;
 };
 
-//vertex structure used in the voronoi algorithm
-struct SLICE_SCREENQUAD_VERTEX
-{
-	D3DXVECTOR3 pos;
-	D3DXVECTOR3 tex;
-};
-
 //vertex structure used for storing the vertices of the surfaces
 struct SURFACE_VERTEX
 {
@@ -51,8 +44,8 @@ struct SURFACE_VERTEX
 	D3DXVECTOR2 texcoord;
 };
 
-//vertex structure used in the diffusion algorithm
-struct DIFFUSION_VERTEX
+//vertex structure used for slice rendring
+struct SLICE_VERTEX
 {
 	D3DXVECTOR3 pos;
 	D3DXVECTOR3 tex;
@@ -91,24 +84,6 @@ struct BOUNDINGBOX
 #endif
 
 void ComputeSizeAsString( WCHAR *wc, UINT wcLen, SIZE_T bytes );
-
-/*
- *	Computes the rows and cols for the flat 3D texture in the voronoi algorithm
- */
-inline void ComputeRowColsForFlat3DTexture( int depth, int *outCols, int *outRows )
-{
-    // Compute # of rows and cols for a "flat 3D-texture" configuration
-    // (in this configuration all the slices in the volume are spread in a single 2D texture)
-    int rows =(int)floorf(sqrtf((float)depth));
-    int cols = rows;
-    while( rows * cols < depth ) {
-        cols++;
-    }
-    assert( rows*cols >= depth );
-    
-    *outCols = cols;
-    *outRows = rows;
-}
 
 /*
  *	converts std::string into a std::wstring

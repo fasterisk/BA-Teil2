@@ -1,29 +1,31 @@
-#include "Globals.h"
 #include "Scene.h"
 #include "Surface.h"
 #include "VolumeRenderer.h"
 #include "Voronoi.h"
 #include "Diffusion.h"
 
+Scene* Scene::s_pInstance = NULL;
+
+Scene *		Scene::GetInstance()
+{
+	if(s_pInstance == NULL)
+		s_pInstance = new Scene();
+	return s_pInstance;
+}
+
+void	Scene::DeleteInstance()
+{
+	SAFE_DELETE(s_pInstance);
+}
+
 /****************************************************************************
  ****************************************************************************/
-Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext)
+Scene::Scene()
 {
-	m_pd3dDevice = pd3dDevice;
-	m_pd3dImmediateContext = pd3dImmediateContext;
-
 	m_pVolumeRenderEffect = NULL;
 	m_pDiffusionEffect = NULL;
 	m_pVoronoiEffect = NULL;
 	m_pSurfaceEffect = NULL;
-	m_pVoronoi3DTex = NULL;
-	m_pColor3DTex1 = NULL;
-	m_pColor3DTex2 = NULL;
-	m_pDist3DTex = NULL;
-	m_pVoronoi3DTexSRV = NULL;
-	m_pColor3DTex1SRV = NULL;
-	m_pColor3DTex2SRV = NULL;
-	m_pDist3DTexSRV = NULL;
 	m_pBBVertices = new SURFACE_VERTEX[8];
 	m_bUpdate3DTextures = false;
 	m_bRender3DTexture = false;
@@ -31,6 +33,7 @@ Scene::Scene(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext
 	m_bRenderIsoSurface = false;
 	m_bGenerateDiffusion = false;
 	m_bIsoValueChanged = true;
+	m_bGenerateOneSliceTexture = true;
 
 	m_iTextureWidth = 128;
 	m_iTextureHeight = 128;
@@ -67,15 +70,6 @@ Scene::~Scene()
 	
 	SAFE_DELETE(m_pSurface1);
 	SAFE_DELETE(m_pSurface2);
-	
-	SAFE_RELEASE(m_pVoronoi3DTex);
-	SAFE_RELEASE(m_pColor3DTex1);
-	SAFE_RELEASE(m_pColor3DTex2);
-	SAFE_RELEASE(m_pDist3DTex);
-	SAFE_RELEASE(m_pVoronoi3DTexSRV);
-	SAFE_RELEASE(m_pColor3DTex1SRV);
-	SAFE_RELEASE(m_pColor3DTex2SRV);
-	SAFE_RELEASE(m_pDist3DTexSRV);
 }
 
 /****************************************************************************
@@ -85,7 +79,7 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	HRESULT hr;
 
 	// Initialize Shaders
-    WCHAR str[MAX_PATH];
+	WCHAR str[MAX_PATH];
 
 	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"Surface.fx"));
     V_RETURN(CreateEffect(str, &m_pSurfaceEffect));
@@ -104,18 +98,18 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 	m_iTextureDepth = iTexDepth;
 
 	// Initialize Surfaces
-	V_RETURN(InitSurfaces());
+	V_RETURN(ItlInitSurfaces());
 
 	// Initialize Voronoi Diagram Renderer
-	m_pVoronoi = new Voronoi(m_pd3dDevice, m_pd3dImmediateContext, m_pVoronoiEffect);
-	V_RETURN(m_pVoronoi->Initialize());
-	m_pVoronoi->SetSurfaces(m_pSurface1, m_pSurface2);
+	m_pVoronoi = new Voronoi(m_pVoronoiEffect);
+	V_RETURN(m_pVoronoi->Initialize(m_iTextureWidth, m_iTextureHeight, m_iTextureDepth));
 
 	// Initialize Diffusion Renderer
-	m_pDiffusion = new Diffusion(m_pd3dDevice, m_pd3dImmediateContext, m_pDiffusionEffect);
+	m_pDiffusion = new Diffusion(m_pDiffusionEffect);
+	V_RETURN(m_pDiffusion->Initialize(m_iTextureWidth, m_iTextureHeight, m_iTextureDepth));
 
 	// Initialize VolumeRenderer
-	m_pVolumeRenderer = new VolumeRenderer(m_pd3dDevice, m_pd3dImmediateContext, m_pVolumeRenderEffect);
+	m_pVolumeRenderer = new VolumeRenderer(m_pVolumeRenderEffect);
 	V_RETURN(m_pVolumeRenderer->Initialize());
 	
 	// Update bounding box
@@ -126,7 +120,7 @@ HRESULT Scene::Initialize(int iTexWidth, int iTexHeight, int iTexDepth)
 
 /****************************************************************************
  ****************************************************************************/
-HRESULT Scene::InitSurfaces()
+HRESULT Scene::ItlInitSurfaces()
 {
 	HRESULT hr;
 
@@ -275,18 +269,13 @@ HRESULT Scene::UpdateBoundingBox()
 	m_iTextureDepth = int(vDiff.z * previousMax + 0.5);
 	
 	//Initialize the textures, voronoi, volumerenderer and diffusion
-	V_RETURN(Init3DTextures());
-	V_RETURN(m_pVoronoi->SetDestination(m_pVoronoi3DTex, m_pDist3DTex));
+	V_RETURN(m_pVoronoi->Update(m_iTextureWidth, m_iTextureHeight, m_iTextureDepth));
 	V_RETURN(m_pVolumeRenderer->Update(m_iTextureWidth, m_iTextureHeight, m_iTextureDepth));
 
-	V_RETURN(m_pDiffusion->Initialize(m_pColor3DTex1, 
-									  m_pColor3DTex2, 
-									  m_pColor3DTex1SRV, 
-									  m_pColor3DTex2SRV, 
-									  m_iTextureWidth, 
-									  m_iTextureHeight, 
-									  m_iTextureDepth, 
-									  m_fIsoValue));
+	V_RETURN(m_pDiffusion->Update(m_iTextureWidth, 
+								  m_iTextureHeight, 
+								  m_iTextureDepth, 
+								  m_fIsoValue));
 
 	m_bUpdate3DTextures = true;
 	
@@ -333,7 +322,7 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		 *	Voronoi diagram is generated in more steps. this is done because if it would be generated all at once,
 		 *  the graphics driver would crash due to a timeout
 		 */
-		bool b = m_pVoronoi->RenderVoronoi(m_vMin, m_vMax, m_bRenderIsoSurface);
+		bool b = m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
 		m_wsRenderProgress = m_pVoronoi->GetRenderProgress();
 		if(b)
 		{
@@ -351,101 +340,56 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 
 	if(m_bRender3DTexture && m_bShowVolume)//if 3d texture should be rendered by the volumerenderer
 	{
+		
 		if(m_bGenerateDiffusion)//generate the diffusion
 		{
-			m_pCurrentDiffusionSRV = m_pDiffusion->RenderDiffusion(m_pVoronoi3DTexSRV, m_pDist3DTexSRV, m_iDiffusionSteps);
+			m_nDiffusionTexture = m_pDiffusion->RenderDiffusion(m_pVoronoi->GetColor3DTexture(),
+															  m_pVoronoi->GetDistance3DTexture(), 
+															  m_iDiffusionSteps);
 			m_bGenerateDiffusion = false;
 		}
 
 		if(m_bRenderIsoSurface && m_bIsoValueChanged)//generate iso surface
 		{
-			m_pIsoSurfaceSRV = m_pDiffusion->RenderIsoSurface(m_pCurrentDiffusionSRV);
+			m_nIsoSurfaceTexture = m_pDiffusion->RenderIsoSurface(m_nDiffusionTexture);
 			m_bIsoValueChanged = false;
 		}
 		
 		if(m_bDrawAllSlices == false)//draw only one slice
 		{
-			
-			if(m_bRenderIsoSurface)
-			{
-				m_wsRenderProgress = L"Rendering one slice of the Isosurface 3D Texture";
-				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pIsoSurfaceSRV);
+			if(m_bGenerateOneSliceTexture)
+			{			
+				if(m_bRenderIsoSurface)
+				{
+					m_wsRenderProgress = L"Rendering one slice of the Isosurface 3D Texture";
+					m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_nIsoSurfaceTexture);
+				}
+				else
+				{
+					m_wsRenderProgress = L"Rendering one slice of the Diffusion 3D Texture";
+					m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_nDiffusionTexture);
+				}
+				m_bGenerateOneSliceTexture = false;
 			}
-			else
-			{
-				m_wsRenderProgress = L"Rendering one slice of the Diffusion 3D Texture";
-				m_pOneSliceDiffusionSRV = m_pDiffusion->GetOneDiffusionSlice(m_iCurrentSlice, m_pCurrentDiffusionSRV);
-			}	
 			
-			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pOneSliceDiffusionSRV);
+			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_nOneSliceTexture);
 		}
 		else //draw all slices
 		{
 			if(m_bRenderIsoSurface)
 			{
 				m_wsRenderProgress = L"Rendering the Isosurface 3D Texture";
-				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pIsoSurfaceSRV);
+				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_nIsoSurfaceTexture);
 			}
 			else
 			{
 				m_wsRenderProgress = L"Rendering the Diffusion 3D Texture";
-				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pCurrentDiffusionSRV);
+				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_nDiffusionTexture);
 			}
 
 		}
 	}
 }	
-
-/****************************************************************************
- ****************************************************************************/
-HRESULT Scene::Init3DTextures()
-{
-	HRESULT hr;
-	
-	//release old textures
-	SAFE_RELEASE(m_pVoronoi3DTex);
-	SAFE_RELEASE(m_pColor3DTex1);
-	SAFE_RELEASE(m_pColor3DTex2);
-	SAFE_RELEASE(m_pDist3DTex);
-	SAFE_RELEASE(m_pVoronoi3DTexSRV);
-	SAFE_RELEASE(m_pColor3DTex1SRV);
-	SAFE_RELEASE(m_pColor3DTex2SRV);
-	SAFE_RELEASE(m_pDist3DTexSRV);
-
-	//create textures
-	D3D11_TEXTURE3D_DESC desc;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	desc.CPUAccessFlags = 0;
-	desc.MipLevels = 1;
-	desc.MiscFlags = 0;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.Width = m_iTextureWidth;
-	desc.Height = m_iTextureHeight;
-	desc.Depth = m_iTextureDepth;
-	desc.Format = TEXTURE_FORMAT;//defined in Globals.h;
-	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pVoronoi3DTex));
-	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pColor3DTex1));
-	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pColor3DTex2));
-	V_RETURN(m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pDist3DTex));
-
-	DXUT_SetDebugName( m_pVoronoi3DTex, "Voronoi Texture" );
-	DXUT_SetDebugName( m_pColor3DTex1, "Diffusion Texture 1" );
-	DXUT_SetDebugName( m_pColor3DTex2, "Diffusion Texture 2" );
-	DXUT_SetDebugName( m_pDist3DTex, "Dist Texture" );
-
-	//create the shader resource views
-	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
-	descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
-	descSRV.Texture3D.MostDetailedMip = 0;
-	descSRV.Texture3D.MipLevels = 1;
-	descSRV.Format = TEXTURE_FORMAT;//defined in Globals.h;
-	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pVoronoi3DTex, &descSRV, &m_pVoronoi3DTexSRV));
-	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pColor3DTex1, &descSRV, &m_pColor3DTex1SRV));
-	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pColor3DTex2, &descSRV, &m_pColor3DTex2SRV));
-	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pDist3DTex, &descSRV, &m_pDist3DTexSRV));
-
-	return S_OK;
-}
 
 /****************************************************************************
  ****************************************************************************/
@@ -489,6 +433,7 @@ HRESULT Scene::ChangeRenderingToOneSlice(int iSliceIndex)
 	HRESULT hr;
 	m_bDrawAllSlices = false;
 	m_iCurrentSlice = iSliceIndex;
+	m_bGenerateOneSliceTexture = true;
 	return S_OK;
 }
 
@@ -619,12 +564,14 @@ HRESULT Scene::SaveCurrentVolume(LPCTSTR sDestination)
 {
 	if(m_bRenderIsoSurface)
 	{
-		return D3DX11SaveTextureToFile(m_pd3dImmediateContext, m_pDiffusion->GetIsoSurfaceTexture(), D3DX11_IFF_DDS, sDestination);
+//		return D3DX11SaveTextureToFile(m_pd3dImmediateContext, m_pDiffusion->GetIsoSurfaceTexture(), D3DX11_IFF_DDS, sDestination);
 	}
 	else
 	{
-		return D3DX11SaveTextureToFile(m_pd3dImmediateContext, m_pDiffusion->GetCurrentDiffusionTexture(), D3DX11_IFF_DDS, sDestination);
+//		return D3DX11SaveTextureToFile(m_pd3dImmediateContext, m_pDiffusion->GetCurrentDiffusionTexture(), D3DX11_IFF_DDS, sDestination);
 	}
+
+	return S_OK;
 }
 
 /****************************************************************************

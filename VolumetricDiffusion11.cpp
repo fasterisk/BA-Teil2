@@ -3,6 +3,7 @@
 #include "resource.h"
 #include <string>
 #include <Commdlg.h>
+#include "TextureManager.h"
 
 //--------------------------------------------------------------------------------------
 // Global variables
@@ -11,9 +12,6 @@ CDXUTDialogResourceManager  g_DialogResourceManager; // manager for shared resou
 CModelViewerCamera          g_Camera;               // A model viewing camera
 CD3DSettingsDlg             g_D3DSettingsDlg;       // Device settings dialog
 CDXUTDialog                 g_SampleUI;             // dialog for sample specific controls
-
-// Scene
-Scene*						g_pScene;
 
 //Camera vectors
 D3DXVECTOR3                 g_Eye = D3DXVECTOR3( 0.0f, 0.0f, -5.0f );
@@ -278,7 +276,7 @@ void RenderText()
     g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 0.0f, 1.0f ) );
     g_pTxtHelper->DrawTextLine( DXUTGetFrameStats( DXUTIsVsyncEnabled() ) );
     g_pTxtHelper->DrawTextLine( DXUTGetDeviceStats() );
-	g_pTxtHelper->DrawTextLine( g_pScene->GetProgress() );
+	g_pTxtHelper->DrawTextLine( Scene::GetInstance()->GetProgress() );
 
 
 	g_pTxtHelper->End();//important for SAFE_DELETE
@@ -353,23 +351,23 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	{
 		if(bLeftDown)
 		{
-			g_pScene->RotateSurface1(lookRight, (g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
-			g_pScene->RotateSurface1(lookUp, (g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
+			Scene::GetInstance()->RotateSurface1(lookRight, (g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
+			Scene::GetInstance()->RotateSurface1(lookUp, (g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
 
 			if(iWheelDelta>0)
-				g_pScene->ScaleSurface1(1.02f);
+				Scene::GetInstance()->ScaleSurface1(1.02f);
 			else if(iWheelDelta<0)
-				g_pScene->ScaleSurface1(0.98f);
+				Scene::GetInstance()->ScaleSurface1(0.98f);
 		}
 		if(bRightDown)
 		{
-			g_pScene->RotateSurface2(lookRight, (g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
-			g_pScene->RotateSurface2(lookUp, (g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
+			Scene::GetInstance()->RotateSurface2(lookRight, (g_mouseY-iY)*g_fElapsedTime*g_mouseSpeed);
+			Scene::GetInstance()->RotateSurface2(lookUp, (g_mouseX-iX)*g_fElapsedTime*g_mouseSpeed);
 
 			if(iWheelDelta>0)
-				g_pScene->ScaleSurface2(1.02f);
+				Scene::GetInstance()->ScaleSurface2(1.02f);
 			else if(iWheelDelta<0)
-				g_pScene->ScaleSurface2(0.98f);
+				Scene::GetInstance()->ScaleSurface2(0.98f);
 		}
 		
 		
@@ -378,24 +376,24 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 	{
 		if(bLeftDown)
 		{
-			g_pScene->TranslateSurface1(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
-			g_pScene->TranslateSurface1(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
+			Scene::GetInstance()->TranslateSurface1(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
+			Scene::GetInstance()->TranslateSurface1(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
 
 			if(iWheelDelta>0)
-				g_pScene->TranslateSurface1(g_fElapsedTime*100*lookAt.x, g_fElapsedTime*100*lookAt.y, g_fElapsedTime*100*lookAt.z);
+				Scene::GetInstance()->TranslateSurface1(g_fElapsedTime*100*lookAt.x, g_fElapsedTime*100*lookAt.y, g_fElapsedTime*100*lookAt.z);
 			else if(iWheelDelta<0)
-				g_pScene->TranslateSurface1(-g_fElapsedTime*100*lookAt.x, -g_fElapsedTime*100*lookAt.y, -g_fElapsedTime*100*lookAt.z);
+				Scene::GetInstance()->TranslateSurface1(-g_fElapsedTime*100*lookAt.x, -g_fElapsedTime*100*lookAt.y, -g_fElapsedTime*100*lookAt.z);
 		}
 
 		if(bRightDown)
 		{
-			g_pScene->TranslateSurface2(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
-			g_pScene->TranslateSurface2(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
+			Scene::GetInstance()->TranslateSurface2(g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.x, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.y, g_mouseSpeed*(iX-g_mouseX)*g_fElapsedTime*lookRight.z);
+			Scene::GetInstance()->TranslateSurface2(g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.x, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.y, g_mouseSpeed*(g_mouseY-iY)*g_fElapsedTime*lookUp.z);
 		
 			if(iWheelDelta>0)
-				g_pScene->TranslateSurface1(g_fElapsedTime*100*lookAt.x, g_fElapsedTime*100*lookAt.y, g_fElapsedTime*100*lookAt.z);
+				Scene::GetInstance()->TranslateSurface1(g_fElapsedTime*100*lookAt.x, g_fElapsedTime*100*lookAt.y, g_fElapsedTime*100*lookAt.z);
 			else if(iWheelDelta<0)
-				g_pScene->TranslateSurface1(-g_fElapsedTime*100*lookAt.x, -g_fElapsedTime*100*lookAt.y, -g_fElapsedTime*100*lookAt.z);
+				Scene::GetInstance()->TranslateSurface1(-g_fElapsedTime*100*lookAt.x, -g_fElapsedTime*100*lookAt.y, -g_fElapsedTime*100*lookAt.z);
 		}
 	}
 
@@ -404,9 +402,9 @@ void CALLBACK OnMouseEvent( bool bLeftDown, bool bRightDown, bool bMiddleDown, b
 
 	WCHAR sz[100];
 
-	g_iTextureWidth = g_pScene->GetTextureWidth();
-	g_iTextureHeight = g_pScene->GetTextureHeight();
-	g_iTextureDepth = g_pScene->GetTextureDepth();
+	g_iTextureWidth = Scene::GetInstance()->GetTextureWidth();
+	g_iTextureHeight = Scene::GetInstance()->GetTextureHeight();
+	g_iTextureDepth = Scene::GetInstance()->GetTextureDepth();
 	StringCchPrintf( sz, 100, L"Size: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
 	g_SampleUI.GetStatic(IDC_TEXTRES_STATIC)->SetText(sz);
 }
@@ -452,7 +450,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 
 
 			// load the surface mesh into the current surface
-			hr = g_pScene->LoadSurface1(strMeshName);
+			hr = Scene::GetInstance()->LoadSurface1(strMeshName);
 			if(hr == S_OK)
 			{
 				g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
@@ -464,7 +462,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 				g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 				g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
 				g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
-				g_pScene->Render3DTexture(false);
+				Scene::GetInstance()->Render3DTexture(false);
 			}
 			else
 			{
@@ -495,7 +493,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 
 
 			// load the surface mesh into the current surface
-			hr = g_pScene->LoadSurface2(strMeshName);
+			hr = Scene::GetInstance()->LoadSurface2(strMeshName);
 			if(hr == S_OK)
 			{
 				g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
@@ -507,7 +505,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 				g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 				g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
 				g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
-				g_pScene->Render3DTexture(false);
+				Scene::GetInstance()->Render3DTexture(false);
 			}
 			else
 			{
@@ -526,7 +524,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
 			g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
-			g_pScene->Render3DTexture(false);
+			Scene::GetInstance()->Render3DTexture(false);
 			break;
 		case IDC_MOVE:
 			g_bRotatesWithMouse = false;
@@ -540,7 +538,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
 			g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
-			g_pScene->Render3DTexture(false);
+			Scene::GetInstance()->Render3DTexture(false);
 			break;
 		case IDC_CAMERA:
 			g_bCameraActive = true;
@@ -550,10 +548,10 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_iTextureMaximum = g_SampleUI.GetSlider(IDC_TEXTRES_MAX_SLIDER)->GetValue();
 			StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
             g_SampleUI.GetStatic( IDC_TEXTRES_MAX_STATIC )->SetText( sz );
-			g_pScene->UpdateTextureResolution(g_iTextureMaximum);
-			g_iTextureWidth = g_pScene->GetTextureWidth();
-			g_iTextureHeight = g_pScene->GetTextureHeight();
-			g_iTextureDepth = g_pScene->GetTextureDepth();
+			Scene::GetInstance()->UpdateTextureResolution(g_iTextureMaximum);
+			g_iTextureWidth = Scene::GetInstance()->GetTextureWidth();
+			g_iTextureHeight = Scene::GetInstance()->GetTextureHeight();
+			g_iTextureDepth = Scene::GetInstance()->GetTextureDepth();
 			StringCchPrintf( sz, 100, L"Size: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
 			g_SampleUI.GetStatic(IDC_TEXTRES_STATIC)->SetText(sz);
 			
@@ -566,36 +564,36 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
 			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
 			g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);		
-			g_pScene->Render3DTexture(false);
+			Scene::GetInstance()->Render3DTexture(false);
 			break;
 		case IDC_ALL_SLICES:
 			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
 			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
-			g_pScene->ChangeRenderingToAllSlices();
+			Scene::GetInstance()->ChangeRenderingToAllSlices();
 			break;
 		case IDC_ONE_SLICE:
 			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(true);
 			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(true);
 			g_iSliceIndex = int((g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->GetValue()/100.0f)*g_iTextureDepth + 0.5);
-			g_pScene->ChangeRenderingToOneSlice(g_iSliceIndex);
+			Scene::GetInstance()->ChangeRenderingToOneSlice(g_iSliceIndex);
 			break;
 		case IDC_SLICEINDEX_SLIDER:
 			g_bBlockMouseDragging = true;
 			g_iSliceIndex = int((g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->GetValue()/100.0f)*(g_iTextureDepth-1) + 0.5);
 			StringCchPrintf( sz, 100, L"Sliceindex: %d", g_iSliceIndex);
 			g_SampleUI.GetStatic( IDC_SLICEINDEX_STATIC )->SetText( sz );
-			g_pScene->ChangeRenderingToOneSlice(g_iSliceIndex);
+			Scene::GetInstance()->ChangeRenderingToOneSlice(g_iSliceIndex);
 			break;
 		case IDC_SHOW_SURFACES:
 			g_bShowSurfaces = !g_bShowSurfaces;
 			break;
 		case IDC_SHOW_VOLUME:
 			g_bShowVolume = !g_bShowVolume;
-			g_pScene->ChangeVolumeVisibility(g_bShowVolume);
+			Scene::GetInstance()->ChangeVolumeVisibility(g_bShowVolume);
 			break;
 		case IDC_SHOW_BOUNDINGBOX:
 			g_bShowBoundingBox = !g_bShowBoundingBox;
-			g_pScene->ChangeBoundingBoxVisibility(g_bShowBoundingBox);
+			Scene::GetInstance()->ChangeBoundingBoxVisibility(g_bShowBoundingBox);
 			break;
 		case IDC_DIFFUSION:
 			g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(true);
@@ -613,37 +611,37 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			g_bCameraActive = true;
 			g_SampleUI.GetRadioButton(IDC_CAMERA)->SetChecked(true);
 			g_bShowVolume = true;
-			g_pScene->ChangeVolumeVisibility(true);
+			Scene::GetInstance()->ChangeVolumeVisibility(true);
 			g_SampleUI.GetCheckBox(IDC_SHOW_VOLUME)->SetChecked(true);
-			g_pScene->GenerateVoronoi();
+			Scene::GetInstance()->GenerateVoronoi();
 			break;
 		case IDC_DIFFSTEPS_SLIDER:
 			g_bBlockMouseDragging = true;
 			g_iDiffusionSteps = g_SampleUI.GetSlider(IDC_DIFFSTEPS_SLIDER)->GetValue();
 			StringCchPrintf(sz, 100, L"Steps: %d", g_iDiffusionSteps);
 			g_SampleUI.GetStatic(IDC_DIFFSTEPS_STATIC)->SetText(sz);
-			g_pScene->ChangeDiffusionSteps(g_iDiffusionSteps);
+			Scene::GetInstance()->ChangeDiffusionSteps(g_iDiffusionSteps);
 			break;
 		case IDC_SAMPLING_LINEAR:
-			g_pScene->ChangeSampling();
+			Scene::GetInstance()->ChangeSampling();
 			break;
 		case IDC_SAMPLING_POINT:
-			g_pScene->ChangeSampling();
+			Scene::GetInstance()->ChangeSampling();
 			break;
 		case IDC_ISO_CHECK:
 			g_bShowIsoSurface = !g_bShowIsoSurface;
-			g_pScene->ShowIsoSurface(g_bShowIsoSurface);
+			Scene::GetInstance()->ShowIsoSurface(g_bShowIsoSurface);
 			break;
 		case IDC_ISO_SLIDER:
 			g_bBlockMouseDragging = true;
 			g_fIsoValue = g_SampleUI.GetSlider(IDC_ISO_SLIDER)->GetValue()/10000.0f;
 			StringCchPrintf( sz, 100, L"IsoValue: %.4f", g_fIsoValue);
 			g_SampleUI.GetStatic( IDC_ISO_SLIDER_STATIC )->SetText( sz );
-			g_pScene->ChangeIsoValue(g_fIsoValue);
+			Scene::GetInstance()->ChangeIsoValue(g_fIsoValue);
 			break;
 		case IDC_ISO_COLOR:
 			g_bShowIsoColor = !g_bShowIsoColor;
-			g_pScene->ShowIsoColor(g_bShowIsoColor);
+			Scene::GetInstance()->ShowIsoColor(g_bShowIsoColor);
 			break;
 		case IDC_SAVEVOLUME_BUTTON:
 			// open a save file dialog
@@ -665,7 +663,7 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 			if(wcslen(ofnSave.lpstrFile) == 0)
 				break;
 
-			hr = g_pScene->SaveCurrentVolume(ofnSave.lpstrFile);
+			hr = Scene::GetInstance()->SaveCurrentVolume(ofnSave.lpstrFile);
 
 			if(hr != S_OK)
 				MessageBox ( NULL , L"Texture could not be saved!", ofnSave.lpstrFile , MB_OK);
@@ -703,9 +701,11 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
     V_RETURN( g_D3DSettingsDlg.OnD3D11CreateDevice( pd3dDevice ) );
 	g_pTxtHelper = new CDXUTTextHelper( pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15 );
     
-	g_pScene = new Scene(pd3dDevice, pd3dImmediateContext);
-	V_RETURN(g_pScene->Initialize(g_iTextureWidth, g_iTextureHeight, g_iTextureDepth));
-	V_RETURN(g_pScene->SetScreenSize(g_Width, g_Height));
+	Scene::GetInstance()->SetDevice(pd3dDevice);
+	Scene::GetInstance()->SetContext(pd3dImmediateContext);
+
+	V_RETURN(Scene::GetInstance()->Initialize(g_iTextureWidth, g_iTextureHeight, g_iTextureDepth));
+	V_RETURN(Scene::GetInstance()->SetScreenSize(g_Width, g_Height));
 
 	// Initialize the view matrix
     g_Camera.SetViewParams( &g_Eye, &g_At );
@@ -736,7 +736,7 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain( ID3D11Device* pd3dDevice, IDXGISwapCha
 
 	g_Width = pBackBufferSurfaceDesc->Width;
 	g_Height = pBackBufferSurfaceDesc->Height;
-	g_pScene->SetScreenSize(g_Width, g_Height);
+	Scene::GetInstance()->SetScreenSize(g_Width, g_Height);
 
     g_SampleUI.SetLocation( g_Width - 170, 0 );
     g_SampleUI.SetSize( 170, 300 );
@@ -835,7 +835,7 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 
 	D3DXMATRIX mViewProjection = g_View * g_Proj;
 	
-	g_pScene->Render(mViewProjection, g_bShowSurfaces);
+	Scene::GetInstance()->Render(mViewProjection, g_bShowSurfaces);
 
 	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_SampleUI.OnRender( fElapsedTime );
@@ -865,6 +865,7 @@ void CALLBACK OnD3D11DestroyDevice( void* pUserContext )
     DXUTGetGlobalResourceCache().OnDestroyDevice();
     SAFE_DELETE(g_pTxtHelper);
 
-    SAFE_DELETE(g_pScene);
+	Scene::DeleteInstance();
+	TextureManager::DeleteInstance();
 
 }

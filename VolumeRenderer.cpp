@@ -1,12 +1,12 @@
 #include "Globals.h"
 #include "VolumeRenderer.h"
+#include "Scene.h"
+#include "TextureManager.h"
 
 /****************************************************************************
  ****************************************************************************/
-VolumeRenderer::VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect)
+VolumeRenderer::VolumeRenderer(ID3DX11Effect* pEffect)
 {
-	m_pd3dDevice = pd3dDevice;
-	m_pd3dImmediateContext = pd3dImmediateContext;
 	m_pEffect = pEffect;
 
 	m_pVolumeRenderTechnique = NULL;
@@ -107,16 +107,16 @@ HRESULT VolumeRenderer::SetScreenSize(int iWidth, int iHeight)
 	desc.Width = iWidth;
 	desc.Height = iHeight;
 	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	V_RETURN(m_pd3dDevice->CreateTexture2D(&desc, NULL, &m_pFrontTexture2D));
-	V_RETURN(m_pd3dDevice->CreateTexture2D(&desc, NULL, &m_pBackTexture2D));
+	V_RETURN(Scene::GetInstance()->GetDevice()->CreateTexture2D(&desc, NULL, &m_pFrontTexture2D));
+	V_RETURN(Scene::GetInstance()->GetDevice()->CreateTexture2D(&desc, NULL, &m_pBackTexture2D));
 
 	//create the render target views
 	D3D11_RENDER_TARGET_VIEW_DESC descRT;
 	descRT.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	descRT.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	descRT.Texture2D.MipSlice = 0;
-	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pFrontTexture2D, &descRT, &m_pFrontRTV));
-	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pBackTexture2D, &descRT, &m_pBackRTV));
+	V_RETURN(Scene::GetInstance()->GetDevice()->CreateRenderTargetView(m_pFrontTexture2D, &descRT, &m_pFrontRTV));
+	V_RETURN(Scene::GetInstance()->GetDevice()->CreateRenderTargetView(m_pBackTexture2D, &descRT, &m_pBackRTV));
 
 	//create the shader resource views
 	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
@@ -125,8 +125,8 @@ HRESULT VolumeRenderer::SetScreenSize(int iWidth, int iHeight)
 	descSRV.Texture2D.MostDetailedMip = 0;
 	descSRV.Texture2D.MipLevels = 1;
 	descSRV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pFrontTexture2D, &descSRV, &m_pFrontSRV));
-	V_RETURN(m_pd3dDevice->CreateShaderResourceView(m_pBackTexture2D, &descSRV, &m_pBackSRV));
+	V_RETURN(Scene::GetInstance()->GetDevice()->CreateShaderResourceView(m_pFrontTexture2D, &descSRV, &m_pFrontSRV));
+	V_RETURN(Scene::GetInstance()->GetDevice()->CreateShaderResourceView(m_pBackTexture2D, &descSRV, &m_pBackSRV));
 
 	return S_OK;
 }
@@ -155,7 +155,11 @@ void VolumeRenderer::ShowBoundingBox(bool bShow)
 
 /****************************************************************************
  ****************************************************************************/
-void VolumeRenderer::Render(SURFACE_VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV)
+void VolumeRenderer::Render(SURFACE_VERTEX* pBBVertices, 
+							D3DXVECTOR3 vBBMin, 
+							D3DXVECTOR3 vBBMax, 
+							D3DXMATRIX mWorldViewProjection, 
+							const unsigned int n3DTexture)
 {
 	m_pBBMinVar->SetFloatVector(vBBMin);
 	m_pBBMaxVar->SetFloatVector(vBBMax);
@@ -178,18 +182,18 @@ void VolumeRenderer::Render(SURFACE_VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3D
 	rtViewport.MaxDepth = 1;
 	rtViewport.Width = float(m_iWidth);
 	rtViewport.Height = float(m_iHeight);
-	m_pd3dImmediateContext->RSSetViewports(1, &rtViewport);
+	Scene::GetInstance()->GetContext()->RSSetViewports(1, &rtViewport);
 
 	//Render frontfaces of boundingbox
-	m_pd3dImmediateContext->ClearRenderTargetView(m_pFrontRTV, clearColor);
-	m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pFrontRTV, NULL);
-	m_pVolumeRenderTechnique->GetPassByName("BoundingBoxFront")->Apply(0, m_pd3dImmediateContext);
+	Scene::GetInstance()->GetContext()->ClearRenderTargetView(m_pFrontRTV, clearColor);
+	Scene::GetInstance()->GetContext()->OMSetRenderTargets(1, &m_pFrontRTV, NULL);
+	m_pVolumeRenderTechnique->GetPassByName("BoundingBoxFront")->Apply(0, Scene::GetInstance()->GetContext());
 	DrawBoundingBox();
 
 	//Render backfaces of boundingbox
-	m_pd3dImmediateContext->ClearRenderTargetView(m_pBackRTV, clearColor);
-	m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pBackRTV, NULL);
-	m_pVolumeRenderTechnique->GetPassByName("BoundingBoxBack")->Apply(0, m_pd3dImmediateContext);
+	Scene::GetInstance()->GetContext()->ClearRenderTargetView(m_pBackRTV, clearColor);
+	Scene::GetInstance()->GetContext()->OMSetRenderTargets(1, &m_pBackRTV, NULL);
+	m_pVolumeRenderTechnique->GetPassByName("BoundingBoxBack")->Apply(0, Scene::GetInstance()->GetContext());
 	DrawBoundingBox();
 
 	
@@ -197,26 +201,26 @@ void VolumeRenderer::Render(SURFACE_VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3D
 	//Restore Rendertarget- and Depthstencilview
 	ID3D11RenderTargetView* pRTV = DXUTGetD3D11RenderTargetView();
     ID3D11DepthStencilView* pDSV = DXUTGetD3D11DepthStencilView();
-	m_pd3dImmediateContext->OMSetRenderTargets(1, &pRTV, pDSV);
+	Scene::GetInstance()->GetContext()->OMSetRenderTargets(1, &pRTV, pDSV);
 
 	m_pFrontTextureVar->SetResource(m_pFrontSRV);
 	m_pBackTextureVar->SetResource(m_pBackSRV);
-	m_pVolumeTextureVar->SetResource(p3DTextureSRV);
+	TextureManager::GetInstance()->BindTextureAsSRV(n3DTexture, m_pVolumeTextureVar);
 
-	m_pVolumeRenderTechnique->GetPassByName("RayCast")->Apply(0, m_pd3dImmediateContext);
+	m_pVolumeRenderTechnique->GetPassByName("RayCast")->Apply(0, Scene::GetInstance()->GetContext());
 	DrawBoundingBox();
 
 	//unbind textures
 	m_pFrontTextureVar->SetResource(NULL);
 	m_pBackTextureVar->SetResource(NULL);
 	m_pVolumeTextureVar->SetResource(NULL);
-	m_pVolumeRenderTechnique->GetPassByName("RayCast")->Apply(0, m_pd3dImmediateContext);
+	m_pVolumeRenderTechnique->GetPassByName("RayCast")->Apply(0, Scene::GetInstance()->GetContext());
 	
 
 	//Draw wireframe boundingbox
 	if(m_bShowBoundingBox)
 	{
-		m_pVolumeRenderTechnique->GetPassByName("Wireframe")->Apply(0, m_pd3dImmediateContext);
+		m_pVolumeRenderTechnique->GetPassByName("Wireframe")->Apply(0, Scene::GetInstance()->GetContext());
 		DrawBoundingBox();
 	}
 
@@ -265,7 +269,7 @@ HRESULT VolumeRenderer::InitBoundingIndicesAndLayout()
 	indexData.pSysMem = indices;
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
-	V_RETURN(m_pd3dDevice->CreateBuffer(&ibd, &indexData, &m_pBBIndexBuffer));
+	V_RETURN(Scene::GetInstance()->GetDevice()->CreateBuffer(&ibd, &indexData, &m_pBBIndexBuffer));
 
 	
 	D3DX11_PASS_SHADER_DESC passVsDesc;
@@ -280,7 +284,7 @@ HRESULT VolumeRenderer::InitBoundingIndicesAndLayout()
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-	V_RETURN(m_pd3dDevice->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pBBInputLayout));
+	V_RETURN(Scene::GetInstance()->GetDevice()->CreateInputLayout(layout, _countof(layout), vsCodePtr, vsCodeLen, &m_pBBInputLayout));
 
 	return S_OK;
 }
@@ -305,7 +309,7 @@ HRESULT VolumeRenderer::UpdateBoundingVertices(SURFACE_VERTEX* BBVertices)
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 	
-	V_RETURN(m_pd3dDevice->CreateBuffer(&vbd, &vertexData, &m_pBBVertexBuffer));
+	V_RETURN(Scene::GetInstance()->GetDevice()->CreateBuffer(&vbd, &vertexData, &m_pBBVertexBuffer));
 
 	return S_OK;
 }
@@ -316,10 +320,10 @@ void VolumeRenderer::DrawBoundingBox()
 {
 	UINT strides = sizeof(SURFACE_VERTEX);
     UINT offsets = 0;
-	m_pd3dImmediateContext->IASetInputLayout(m_pBBInputLayout);
-	m_pd3dImmediateContext->IASetIndexBuffer(m_pBBIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pBBVertexBuffer, &strides, &offsets);
-    m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_pd3dImmediateContext->DrawIndexed(36, 0, 0);
+	Scene::GetInstance()->GetContext()->IASetInputLayout(m_pBBInputLayout);
+	Scene::GetInstance()->GetContext()->IASetIndexBuffer(m_pBBIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	Scene::GetInstance()->GetContext()->IASetVertexBuffers(0, 1, &m_pBBVertexBuffer, &strides, &offsets);
+    Scene::GetInstance()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    Scene::GetInstance()->GetContext()->DrawIndexed(36, 0, 0);
 }
 

@@ -4,7 +4,7 @@ public:
 	/*
 	 *  Constructor
 	 */
-	VolumeRenderer(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, ID3DX11Effect* pEffect);
+	VolumeRenderer(ID3DX11Effect* pEffect);
 
 	/*
 	 *  Destructor
@@ -46,7 +46,11 @@ public:
 	/*
 	 *  Render a given 3D Texture into the bounding box
 	 */
-	void Render(SURFACE_VERTEX* pBBVertices, D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax, D3DXMATRIX mWorldViewProjection, ID3D11ShaderResourceView* p3DTextureSRV);
+	void Render(SURFACE_VERTEX* pBBVertices, 
+				D3DXVECTOR3 vBBMin, 
+				D3DXVECTOR3 vBBMax, 
+				D3DXMATRIX mWorldViewProjection, 
+				const unsigned int n3DTexture);
 
 private:
 	//true, if linear sampling, false if nearest neighbor
@@ -58,10 +62,6 @@ private:
 	//controls the visibility of the bounding box
 	bool m_bShowBoundingBox;
 
-	// Device
-	ID3D11Device*			m_pd3dDevice;
-	ID3D11DeviceContext*	m_pd3dImmediateContext;
-	
 	// Shader effect and variables
 	ID3DX11Effect*							m_pEffect;
 	ID3DX11EffectTechnique*					m_pVolumeRenderTechnique;

@@ -19,17 +19,17 @@ bool bShowIsoColor;
 SamplerState pointSamplerClamp
 {
 	Filter = MIN_MAG_MIP_POINT;
-	AddressU = Clamp;				// border sampling in U
-    AddressV = Clamp;				// border sampling in V
-	AddressW = Clamp;				// border sampling in W
+	AddressU = Clamp;				// clamp sampling in U
+    AddressV = Clamp;				// clamp sampling in V
+	AddressW = Clamp;				// clamp sampling in W
 };
 
 SamplerState linearSamplerClamp
 {
 	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = Clamp;				// border sampling in U
-    AddressV = Clamp;				// border sampling in V
-	AddressW = Clamp;				// border sampling in W
+	AddressU = Clamp;				// clamp sampling in U
+    AddressV = Clamp;				// clamp sampling in V
+	AddressW = Clamp;				// clamp sampling in W
 };
 
 //--------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ struct GS_DIFFUSION_OUTPUT
 {
 	float4 pos		: SV_Position;
 	float3 tex		: TEXCOORD0;
-	int sliceindex : SLICEINDEX;
+	uint sliceindex : SLICEINDEX;
 	uint RTIndex	: SV_RenderTargetArrayIndex;
 };
 
@@ -203,7 +203,6 @@ PS_DIFFUSION_OUTPUT IsoSurfacePS(GS_DIFFUSION_OUTPUT input)
 	return output;
 }
 
-
 //--------------------------------------------------------------------------------------
 // Techniques
 //--------------------------------------------------------------------------------------
@@ -240,4 +239,5 @@ technique10 Diffusion
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetDepthStencilState( DisableDepth, 0 );
 	}
+
 }

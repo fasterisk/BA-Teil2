@@ -5,17 +5,15 @@
 matrix ModelViewProjectionMatrix;
 matrix NormalMatrix;
 
-Texture2D flatColorTexture;
-Texture2D flatDistTexture;
-
 Texture2D SurfaceTexture;
+Texture2D ColorSliceTex2D;
+Texture2D DistSliceTex2D;
 
 float4 vBBMin;
 float4 vBBMax;
 
 int iSliceIndex;
 float3 vTextureSize;
-float fIsoValue;
 
 float fIsoSurfaceVal;
 
@@ -145,30 +143,31 @@ struct PS_VORONOI_OUTPUT
 	float depth		 : SV_Depth;
 };
 
-struct VS_RESOLVE_INPUT
+struct VS_2DTO3D_INPUT
 {
-	float3 pos : POSITION;
-	float3 tex : TEXCOORD;
+	float3 pos		: POSITION;
+	float2 tex		: TEXCOORD;
 };
 
-struct GS_RESOLVE_INPUT
+struct GS_2DTO3D_INPUT
 {
-	float4 pos : POSITION;
-	float3 tex : TEXCOORD;
+	float4 pos		: SV_Position;
+	float2 tex		: TEXCOORD;
 };
 
-struct GS_RESOLVE_OUTPUT
+struct PS_2DTO3D_INPUT
 {
-	float4 pos : SV_Position;
-	float3 tex : TEXCOORD;
-	uint RTIndex : SV_RenderTargetArrayIndex;
+	float4 pos		: SV_Position;
+	float2 tex		: TEXCOORD;
+	uint RTIndex	: SV_RenderTargetArrayIndex;
 };
 
-struct PS_RESOLVE_OUTPUT
+struct PS_2DTO3D_OUTPUT
 {
-	float4 color : SV_Target0;
-	float4 dist  : SV_Target1;
+	float4 color	 : SV_Target0;
+	float4 distdir	 : SV_Target1;
 };
+
 
 //--------------------------------------------------------------------------------------
 // Helper Functions
@@ -298,7 +297,6 @@ void TriangleCalcDistanceAndAppendNormalParallel(GS_TRIANGLE_VORONOI_OUTPUT inte
 
 void EdgeProjectOntoSlice(GS_EDGE_VORONOI_OUTPUT output, GS_VORONOI_INPUT vec1, GS_VORONOI_INPUT vec2, inout TriangleStream<GS_EDGE_VORONOI_OUTPUT> tStream, float fSliceDepth, bool bSliceDepthGreater)
 {
-
 	float3 a = float3(0.0f, 0.0f, 0.0f);
 
 	output.tex = vec1.tex;
@@ -390,6 +388,7 @@ void EdgeProjectOntoSlice(GS_EDGE_VORONOI_OUTPUT output, GS_VORONOI_INPUT vec1, 
 		output.pos2 = output.pos;
 		tStream.Append(output);
 		tStream.RestartStrip();
+		return;
 	}
 
 	float3 b = float3(a.x, a.y, 0);
@@ -497,6 +496,7 @@ void CalculateEdgeProjection(GS_VORONOI_INPUT vec1, GS_VORONOI_INPUT vec2, float
 void CalculatePointProjection(GS_VORONOI_INPUT vec, float fSliceDepth, inout TriangleStream<GS_VERTEX_VORONOI_OUTPUT> tStream)
 {
 	GS_VERTEX_VORONOI_OUTPUT output;
+
 	output.tex = vec.tex;
 	output.vertex = vec.pos;
 	output.pos = float4(-1.0f, -1.0f, fSliceDepth, 1.0f);
@@ -535,9 +535,9 @@ GS_VORONOI_INPUT VoronoiVS(VS_VORONOI_INPUT input)
 	return output;
 }
 
-GS_RESOLVE_INPUT ResolveVS(VS_RESOLVE_INPUT input)
+GS_2DTO3D_INPUT VS_2Dto3D(VS_2DTO3D_INPUT input)
 {
-	GS_RESOLVE_INPUT output;
+	GS_2DTO3D_INPUT output;
 	output.pos = float4(input.pos, 1.0f);
 	output.tex = input.tex;
 	return output;
@@ -860,7 +860,7 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 	}
 }
 
-[maxvertexcount(56)]
+[maxvertexcount(6)]
 void VoronoiEdgeGS(line GS_VORONOI_INPUT input[2], inout TriangleStream<GS_EDGE_VORONOI_OUTPUT> tStream)
 {
 	//Calculate depth of the current slice
@@ -884,14 +884,17 @@ void VoronoiVertexGS(point GS_VORONOI_INPUT input[1], inout TriangleStream<GS_VE
 }
 
 [maxvertexcount(3)]
-void ResolveGS(triangle GS_RESOLVE_INPUT input[3], inout TriangleStream<GS_RESOLVE_OUTPUT> tStream)
+void GS_2Dto3D(triangle GS_2DTO3D_INPUT input[3], inout TriangleStream<PS_2DTO3D_INPUT> tStream)
 {
-	GS_RESOLVE_OUTPUT output;
-	output.RTIndex = (uint)input[0].tex.z;
-	for(int v = 0; v < 3; v++)
+	PS_2DTO3D_INPUT output;
+	output.RTIndex = iSliceIndex;
+
+	
+	
+	for(int i = 0; i < 3; i++)
 	{
-		output.pos = input[v].pos;
-		output.tex = input[v].tex;
+		output.pos = input[i].pos;
+		output.tex = input[i].tex;
 		tStream.Append(output);
 	}
 	tStream.RestartStrip();
@@ -979,11 +982,32 @@ PS_VORONOI_OUTPUT VoronoiVertexPS(GS_VERTEX_VORONOI_OUTPUT input)
 	return output;
 }
 
-PS_RESOLVE_OUTPUT ResolvePS(GS_RESOLVE_OUTPUT input)
+PS_2DTO3D_OUTPUT PS_2Dto3D(PS_2DTO3D_INPUT input)
 {
-	PS_RESOLVE_OUTPUT output;
-	output.color = flatColorTexture.SampleLevel(linearSamplerBorder, input.tex.xy, 0);
-	output.dist = flatDistTexture.SampleLevel(linearSamplerBorder, input.tex.xy, 0);
+	PS_2DTO3D_OUTPUT output;
+
+	
+
+	output.color = ColorSliceTex2D.Sample(linearSamplerClamp, input.tex);
+	output.distdir = DistSliceTex2D.Sample(linearSamplerClamp, input.tex);
+
+	/*if(iSliceIndex > 255)
+	{
+		output.color = float4(0.0f, 1.0f, 0.0f, 1.0f);
+	}*/
+
+	/*if(input.RTIndex < 100)
+	{
+		output.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+	}
+	else if(input.RTIndex < 256)
+	{
+		output.color = float4(0.0f, 1.0f, 0.0f, 1.0f);
+	}
+	else
+	{
+		output.color = float4(0.0f, 0.0f, 1.0f, 1.0f);
+	}*/
 	return output;
 }
 
@@ -1024,15 +1048,16 @@ technique10 GenerateVoronoiDiagram
 	}
 }
 
-technique10 Flat2DTextureTo3D
+technique10 Technique2Dto3D
 {
-	pass F2DTTo3D
+	pass
 	{
-		SetVertexShader(CompileShader(vs_4_0, ResolveVS()));
-		SetGeometryShader(CompileShader(gs_4_0, ResolveGS()));
-		SetPixelShader(CompileShader(ps_4_0, ResolvePS()));
-		 SetRasterizerState( RS_CullDisabled );
+		SetVertexShader(CompileShader(vs_4_0, VS_2Dto3D()));
+		SetGeometryShader(CompileShader(gs_4_0, GS_2Dto3D()));
+		//SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_4_0, PS_2Dto3D()));
+		SetRasterizerState( RS_CullDisabled );
         SetBlendState( BS_NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
-        SetDepthStencilState( DSS_Disabled, 0 );
+        SetDepthStencilState( EnableDepth, 0 );
 	}
 }

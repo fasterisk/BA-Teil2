@@ -38,6 +38,12 @@
     <ClInclude Include="Diffusion.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderManager.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -58,6 +64,12 @@
     <ClCompile Include="Diffusion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VolumetricDiffusion.rc">
@@ -75,6 +87,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Diffusion.fx">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Helper.fx">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

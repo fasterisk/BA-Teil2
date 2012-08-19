@@ -391,14 +391,18 @@
     <ClInclude Include="Globals.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Surface.h" />
+    <ClInclude Include="TextureManager.h" />
     <ClInclude Include="VolumeRenderer.h" />
     <ClInclude Include="Voronoi.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Diffusion.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="VolumeRenderer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
@@ -409,10 +413,21 @@
     <ResourceCompile Include="VolumetricDiffusion.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Diffusion.fx" />
-    <None Include="Surface.fx" />
-    <None Include="VolumeRenderer.fx" />
-    <None Include="Voronoi.fx" />
+    <None Include="Diffusion.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="Helper.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="Surface.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="VolumeRenderer.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="Voronoi.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

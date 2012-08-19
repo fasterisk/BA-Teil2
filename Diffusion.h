@@ -14,30 +14,25 @@ class Diffusion
 public:
 	/*
 	 *  Constructor
-	 *	Input is the d3dDevice, d3dImmediateContext and the shader.
 	 */
-	Diffusion(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateContext, ID3DX11Effect *pDiffusionEffect);
+	Diffusion(ID3DX11Effect *pDiffusionEffect);
 
 	//Destructor
 	virtual ~Diffusion();
 
+	HRESULT Initialize(const int iTextureWidth, 
+					   const int iTextureHeight, 
+					   const int iTextureDepth);
+
 	/*
-	 *  Initialize the variables
-	 *  Input:
-	 *		pColorTex3D1	Destination Texture 1
-	 *		pColorTex3D2	Destination Texture 2
-	 *		pColor3DTex1SRV Shader Resource View for color texture 1
-	 *		pColor3DTex2SRV Shader Resource View for color texture 2
-	 *		iTextureWidth, iTextureHeight, iTextureDepth	Texturesize
-	 *		fIsoValue		Current Isovalue for getting the Isosurface
+	 *  Update the variables
 	 *
 	 *	Diffusion is rendered using ping-pong rendering - therefore we need 2 color textures
 	 */
-	HRESULT Initialize(ID3D11Texture3D *pColorTex3D1,
-					   ID3D11Texture3D *pColorTex3D2,
-					   ID3D11ShaderResourceView* pColor3DTex1SRV, 
-					   ID3D11ShaderResourceView* pColor3DTex2SRV,
-					   int iTextureWidth, int iTextureHeight, int iTextureDepth, float fIsoValue);
+	HRESULT Update(const int iTextureWidth, 
+				   const int iTextureHeight, 
+				   const int iTextureDepth, 
+				   const float fIsoValue);
 	
 	/*
 	 *  Changes the Isovalue 
@@ -50,34 +45,17 @@ public:
 	 */
 	void ShowIsoColor(bool bShow);
 
-	/*
-	 *  Applies the Diffusion Algorithm using the two SRVs and the Diffusion steps
-	 *	returns a SRV that can be rendered using the Volume Renderer
-	 */
-	ID3D11ShaderResourceView* RenderDiffusion(ID3D11ShaderResourceView* pVoronoi3DTextureSRV, 
-										      ID3D11ShaderResourceView* pDist3DTextureSRV, 
-											  int iDiffusionSteps);
+	unsigned int RenderDiffusion(const unsigned int nVoronoiTex3D,
+								 const unsigned int nDistanceTex3D, 
+								 const int iDiffusionSteps);
 
-	/*
-	 *  Returns a SRV of a 3D Texture containing only one slice of the given SRV of the 3D texture 
-	 */
-	ID3D11ShaderResourceView* GetOneDiffusionSlice(int iSliceIndex, ID3D11ShaderResourceView* pCurrentDiffusionSRV);
+	
+	unsigned int RenderOneDiffusionSlice(const int iSliceIndex, 
+										 const unsigned int nCurrentDiffusionTexture);
 
-	/*
-	 *  Returns a SRV of a Isosurface 3D texture
-	 *  Parameter has to be a Diffusion 3D texture
-	 */
-	ID3D11ShaderResourceView* RenderIsoSurface(ID3D11ShaderResourceView* pCurrentDiffusionSRV);
+	
+	unsigned int RenderIsoSurface(const unsigned int nCurrentDiffusionTexture);
 
-	/*
-	 *	Returns the current diffusion texture
-	 */
-	ID3D11Texture3D* GetCurrentDiffusionTexture();
-
-	/*
-	 *	Returns the isosurface texture
-	 */
-	ID3D11Texture3D* GetIsoSurfaceTexture();
 private:
 	
 	//Initializes the Render Target Views of the Color Textures
@@ -92,11 +70,9 @@ private:
 	//Draws the slices into the current bound 3D texture
 	void DrawSlices();
 
-	void Cleanup();
+	void DrawSlice(int iSlice);
 
-	//Device and ImmediateContext
-	ID3D11Device				*m_pd3dDevice;
-	ID3D11DeviceContext			*m_pd3dImmediateContext;
+	void Cleanup();
 
 	//Shader
 	ID3DX11Effect				*m_pDiffusionEffect;
@@ -107,19 +83,13 @@ private:
 	ID3D11Buffer                *m_pSlicesVB;
 
 	//Textures, RTVs and SRV
-	ID3D11Texture3D				*m_pColor3DTextures[2];
-	ID3D11RenderTargetView		*m_pColor3DTexturesRTV[2];
-	ID3D11ShaderResourceView	*m_pColor3DTexturesSRV[2];
+	unsigned int				m_nDiffuseTex3D[2];
 
 	//One Slice Texture, RTV and SRV
-	ID3D11Texture3D				*m_pOneSliceTexture;
-	ID3D11RenderTargetView		*m_pOneSliceTextureRTV;
-	ID3D11ShaderResourceView	*m_pOneSliceTextureSRV;
+	unsigned int				m_nOneSliceTex3D;
 
 	//IsoSurface Texture, RTV and SRV
-	ID3D11Texture3D				*m_pIsoSurfaceTexture;
-	ID3D11RenderTargetView		*m_pIsoSurfaceTextureRTV;
-	ID3D11ShaderResourceView	*m_pIsoSurfaceTextureSRV;
+	unsigned int				m_nIsoSurfaceTex3D;
 
 	//Shader variables
 	ID3DX11EffectShaderResourceVariable		*m_pColor3DTexSRVar;
@@ -129,7 +99,7 @@ private:
 	ID3DX11EffectScalarVariable				*m_pSliceIndexVar;
 	ID3DX11EffectScalarVariable				*m_pShowIsoColorVar;
 	ID3DX11EffectVectorVariable				*m_pTextureSizeVar;
-	
+
 	//3D texture size
 	int							m_iTextureWidth;
 	int							m_iTextureHeight;

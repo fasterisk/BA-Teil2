@@ -1,31 +1,23 @@
 #include "Globals.h"
 #include "Diffusion.h"
+#include "TextureManager.h"
+#include "Scene.h"
 
 /****************************************************************************
  ****************************************************************************/
-Diffusion::Diffusion(ID3D11Device *pd3dDevice, ID3D11DeviceContext *pd3dImmediateContext, ID3DX11Effect *pDiffusionEffect)
+Diffusion::Diffusion(ID3DX11Effect *pDiffusionEffect)
 {
-	m_pd3dDevice = pd3dDevice;
-	m_pd3dImmediateContext = pd3dImmediateContext;
 	m_pDiffusionEffect = pDiffusionEffect;
 
 	m_pInputLayout = NULL;
 	m_pSlicesVB = NULL;
 
-	m_pColor3DTextures[0] = NULL;
-	m_pColor3DTextures[1] = NULL;
-	m_pColor3DTexturesRTV[0] = NULL;
-	m_pColor3DTexturesRTV[1] = NULL;
-	m_pColor3DTexturesSRV[0] = NULL;
-	m_pColor3DTexturesSRV[1] = NULL;
+	m_nDiffuseTex3D[0] = 0;
+	m_nDiffuseTex3D[1] = 0;
 
-	m_pOneSliceTexture = NULL;
-	m_pOneSliceTextureRTV = NULL;
-	m_pOneSliceTextureSRV = NULL;
+	m_nOneSliceTex3D = 0;
 
-	m_pIsoSurfaceTexture = NULL;
-	m_pIsoSurfaceTextureRTV = NULL;
-	m_pIsoSurfaceTextureSRV = NULL;
+	m_nIsoSurfaceTex3D = 0;
 
 	m_iTextureWidth = 0;
 	m_iTextureHeight = 0;
@@ -48,26 +40,42 @@ void Diffusion::Cleanup()
 {
 	SAFE_RELEASE(m_pInputLayout);
 	SAFE_RELEASE(m_pSlicesVB);
-
-	SAFE_RELEASE(m_pColor3DTexturesRTV[0]);
-	SAFE_RELEASE(m_pColor3DTexturesRTV[1]);
-
-	SAFE_RELEASE(m_pOneSliceTexture);
-	SAFE_RELEASE(m_pOneSliceTextureRTV);
-	SAFE_RELEASE(m_pOneSliceTextureSRV);
-
-	SAFE_RELEASE(m_pIsoSurfaceTexture);
-	SAFE_RELEASE(m_pIsoSurfaceTextureRTV);
-	SAFE_RELEASE(m_pIsoSurfaceTextureSRV);
 }
 
 /****************************************************************************
  ****************************************************************************/
-HRESULT Diffusion::Initialize(ID3D11Texture3D *pColorTex3D1,
-							  ID3D11Texture3D *pColorTex3D2,
-							  ID3D11ShaderResourceView* pColor3DTex1SRV, 
-							  ID3D11ShaderResourceView* pColor3DTex2SRV,
-							  int iTextureWidth, int iTextureHeight, int iTextureDepth, float fIsoValue)
+HRESULT Diffusion::Initialize(const int iTextureWidth, 
+							  const int iTextureHeight, 
+							  const int iTextureDepth)
+{
+	HRESULT hr(S_OK);
+
+	m_iTextureWidth = iTextureWidth;
+	m_iTextureHeight = iTextureHeight;
+	m_iTextureDepth = iTextureDepth;
+	
+	//Initialize Techniques and Shadervariables
+	V_RETURN(InitShaders());
+
+	//Initialize Slices
+	V_RETURN(InitSlices());
+
+	m_nDiffuseTex3D[0] = TextureManager::GetInstance()->Create3DTexture("Diffusion 3D Tex1", iTextureWidth, iTextureHeight, iTextureDepth);
+	m_nDiffuseTex3D[1] = TextureManager::GetInstance()->Create3DTexture("Diffusion 3D Tex2", iTextureWidth, iTextureHeight, iTextureDepth);
+
+	m_nOneSliceTex3D = TextureManager::GetInstance()->Create3DTexture("One Slice 3D Tex", iTextureWidth, iTextureHeight, iTextureDepth);
+
+	m_nIsoSurfaceTex3D = TextureManager::GetInstance()->Create3DTexture("Isosurface 3D Tex", iTextureWidth, iTextureHeight, iTextureDepth);
+
+	return hr;
+}
+
+/****************************************************************************
+ ****************************************************************************/
+HRESULT Diffusion::Update(const int iTextureWidth, 
+						  const int iTextureHeight, 
+						  const int iTextureDepth, 
+						  const float fIsoValue)
 {
 	HRESULT hr;
 
@@ -76,64 +84,14 @@ HRESULT Diffusion::Initialize(ID3D11Texture3D *pColorTex3D1,
 	m_iTextureDepth = iTextureDepth;
 	m_fIsoValue = fIsoValue;
 
-	assert(m_pd3dDevice);
-	assert(m_pd3dImmediateContext);
-	assert(pColorTex3D1);
-	assert(pColorTex3D2);
-	assert(pColor3DTex1SRV);
-	assert(pColor3DTex2SRV);
-
-	m_pColor3DTextures[0] = pColorTex3D1;
-	m_pColor3DTextures[1] = pColorTex3D2;
-	m_pColor3DTexturesSRV[0] = pColor3DTex1SRV;
-	m_pColor3DTexturesSRV[1] = pColor3DTex2SRV;
-
-	assert(m_pColor3DTextures[0]);
-	assert(m_pColor3DTextures[1]);
-	
-	//Initialize Techniques and Shadervariables
-	V_RETURN(InitShaders());
-
-	//Initialize RTVs
-	V_RETURN(Init3DRTVs());
-
-	//Initialize Slices
 	V_RETURN(InitSlices());
 
-}
+	TextureManager::GetInstance()->Update3DTexture(m_nDiffuseTex3D[0], iTextureWidth, iTextureHeight, iTextureDepth);
+	TextureManager::GetInstance()->Update3DTexture(m_nDiffuseTex3D[1], iTextureWidth, iTextureHeight, iTextureDepth);
 
-/****************************************************************************
- ****************************************************************************/
-HRESULT Diffusion::Init3DRTVs()
-{
-	HRESULT hr;
+	TextureManager::GetInstance()->Update3DTexture(m_nOneSliceTex3D, iTextureWidth, iTextureHeight, iTextureDepth);
 
-	assert(m_pColor3DTextures[0]);
-	assert(m_pColor3DTextures[1]);
-
-	SAFE_RELEASE(m_pColor3DTexturesRTV[0]);
-	SAFE_RELEASE(m_pColor3DTexturesRTV[1]);
-
-	//create RTVs
-	D3D11_TEXTURE3D_DESC descColorTex3D1;
-	m_pColor3DTextures[0]->GetDesc(&descColorTex3D1);
-	D3D11_RENDER_TARGET_VIEW_DESC descCT3D1RTV;
-	descCT3D1RTV.Format = descColorTex3D1.Format;
-	descCT3D1RTV.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE3D;
-	descCT3D1RTV.Texture3D.MipSlice = 0;
-	descCT3D1RTV.Texture3D.FirstWSlice = 0;
-	descCT3D1RTV.Texture3D.WSize = descColorTex3D1.Depth;
-	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pColor3DTextures[0], &descCT3D1RTV, &m_pColor3DTexturesRTV[0]));
-
-	D3D11_TEXTURE3D_DESC descColorTex3D2;
-	m_pColor3DTextures[1]->GetDesc(&descColorTex3D2);
-	D3D11_RENDER_TARGET_VIEW_DESC descCT3D2RTV;
-	descCT3D2RTV.Format = descColorTex3D2.Format;
-	descCT3D2RTV.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE3D;
-	descCT3D2RTV.Texture3D.MipSlice = 0;
-	descCT3D2RTV.Texture3D.FirstWSlice = 0;
-	descCT3D2RTV.Texture3D.WSize = descColorTex3D2.Depth;
-	V_RETURN(m_pd3dDevice->CreateRenderTargetView(m_pColor3DTextures[1], &descCT3D2RTV, &m_pColor3DTexturesRTV[1]));
+	TextureManager::GetInstance()->Update3DTexture(m_nIsoSurfaceTex3D, iTextureWidth, iTextureHeight, iTextureDepth);
 
 	return S_OK;
 }
@@ -142,8 +100,6 @@ HRESULT Diffusion::Init3DRTVs()
  ****************************************************************************/
 HRESULT Diffusion::InitShaders()
 {
-	HRESULT hr;
-
 	assert(m_pDiffusionEffect);
 
 	// Get Technique and variables
@@ -191,14 +147,14 @@ HRESULT Diffusion::InitSlices()
 	passVsDesc.pShaderVariable->GetShaderDesc(passVsDesc.ShaderIndex, &effectVsDesc);
 	const void *vsCodePtr = effectVsDesc.pBytecode;
 	unsigned vsCodeLen = effectVsDesc.BytecodeLength;
-	V_RETURN(m_pd3dDevice->CreateInputLayout(inputLayout, _countof(inputLayout), vsCodePtr, vsCodeLen, &m_pInputLayout));
+	V_RETURN(Scene::GetInstance()->GetDevice()->CreateInputLayout(inputLayout, _countof(inputLayout), vsCodePtr, vsCodeLen, &m_pInputLayout));
 
 
 #define VERTEXCOUNT 6
 	// Create a vertex buffers of quads, one per slice, with texcoords to lookup from a flat 3D texture
     // and with homogenous coordinates to cover a fullscreen quad
-	DIFFUSION_VERTEX* sliceVertices = new DIFFUSION_VERTEX[VERTEXCOUNT*m_iTextureDepth];
-	DIFFUSION_VERTEX sliceVerticesTemp[4];
+	SLICE_VERTEX* sliceVertices = new SLICE_VERTEX[VERTEXCOUNT*m_iTextureDepth];
+	SLICE_VERTEX sliceVerticesTemp[4];
 	int vertexIndex = 0;
 
 	for(int z = 0; z < m_iTextureDepth; z++)
@@ -232,7 +188,7 @@ HRESULT Diffusion::InitSlices()
 
 	//create the vertex buffer
 	D3D11_BUFFER_DESC vbDesc;
-	vbDesc.ByteWidth = VERTEXCOUNT*m_iTextureDepth*sizeof(DIFFUSION_VERTEX);
+	vbDesc.ByteWidth = VERTEXCOUNT*m_iTextureDepth*sizeof(SLICE_VERTEX);
 	vbDesc.Usage = D3D11_USAGE_DEFAULT;
 	vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbDesc.CPUAccessFlags = 0;
@@ -241,7 +197,7 @@ HRESULT Diffusion::InitSlices()
 	initialData.pSysMem = sliceVertices;
 	initialData.SysMemPitch = 0;
 	initialData.SysMemSlicePitch = 0;
-	V_RETURN(m_pd3dDevice->CreateBuffer(&vbDesc, &initialData, &m_pSlicesVB));
+	V_RETURN(Scene::GetInstance()->GetDevice()->CreateBuffer(&vbDesc, &initialData, &m_pSlicesVB));
 
 	delete[] sliceVertices;
 	
@@ -264,17 +220,23 @@ void Diffusion::ShowIsoColor(bool bShow)
 
 /****************************************************************************
  ****************************************************************************/
-ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* pVoronoi3DTextureSRV, 
-								   ID3D11ShaderResourceView* pDist3DTextureSRV, 
-								   int iDiffusionSteps)
+unsigned int	Diffusion::RenderDiffusion(const unsigned int nVoronoiTex3D,
+										   const unsigned int nDistanceTex3D,
+										   int iDiffusionSteps)
 {
 	HRESULT hr(S_OK);
+
+	//store the old render targets and viewports
+    ID3D11RenderTargetView* pOldRTV = DXUTGetD3D11RenderTargetView();
+    ID3D11DepthStencilView* pOldDSV = DXUTGetD3D11DepthStencilView();
+	UINT NumViewports = 1;
+	D3D11_VIEWPORT pViewports[100];
+	Scene::GetInstance()->GetContext()->RSGetViewports( &NumViewports, &pViewports[0]);
 
 	hr = m_pTextureSizeVar->SetFloatVector(D3DXVECTOR3((float)m_iTextureWidth, (float)m_iTextureHeight, (float)m_iTextureDepth));
 	assert(hr == S_OK);
 
-	hr = m_pDist3DTexSRVar->SetResource(pDist3DTextureSRV);
-	assert(hr == S_OK);
+	TextureManager::GetInstance()->BindTextureAsSRV(nDistanceTex3D, m_pDist3DTexSRVar);
 	
 	//ping pong rendering
 	for(int i = 0; i < iDiffusionSteps; i++)
@@ -285,88 +247,62 @@ ID3D11ShaderResourceView* Diffusion::RenderDiffusion(ID3D11ShaderResourceView* p
 		if(i == 0)
 		{
 			//As first resource texture you have to use the voronoi texture
-			m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pColor3DTexturesRTV[m_iDiffTex], NULL);
-			hr = m_pColor3DTexSRVar->SetResource(pVoronoi3DTextureSRV);
-			assert(hr == S_OK);
+			TextureManager::GetInstance()->BindTextureAsRTV(m_nDiffuseTex3D[m_iDiffTex]);
+			TextureManager::GetInstance()->BindTextureAsSRV(nVoronoiTex3D, m_pColor3DTexSRVar);
 		}
 		else
 		{
 			//after the first render pass, color textures are alternated
-			m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pColor3DTexturesRTV[m_iDiffTex], NULL);
-			hr = m_pColor3DTexSRVar->SetResource(m_pColor3DTexturesSRV[1-m_iDiffTex]);
-			assert(hr == S_OK);
+			TextureManager::GetInstance()->BindTextureAsRTV(m_nDiffuseTex3D[m_iDiffTex]);
+			TextureManager::GetInstance()->BindTextureAsSRV(m_nDiffuseTex3D[1-m_iDiffTex], m_pColor3DTexSRVar);
 		}
 
 		m_iDiffTex = 1-m_iDiffTex;
 
-		hr = m_pDiffusionTechnique->GetPassByName("DiffuseTexture")->Apply(0, m_pd3dImmediateContext);
+		hr = m_pDiffusionTechnique->GetPassByName("DiffuseTexture")->Apply(0, Scene::GetInstance()->GetContext());
 		assert(hr == S_OK);
-		
+
 		//RENDER
 		DrawSlices();
 
 		//unbind textures and apply pass again to confirm this
 		hr = m_pColor3DTexSRVar->SetResource(NULL);
 		assert(hr == S_OK);
-		hr = m_pDiffusionTechnique->GetPassByName("DiffuseTexture")->Apply(0, m_pd3dImmediateContext);
+		hr = m_pDiffusionTechnique->GetPassByName("DiffuseTexture")->Apply(0, Scene::GetInstance()->GetContext());
 		assert(hr == S_OK);
 	}
 
-	return m_pColor3DTexturesSRV[1-m_iDiffTex];
+	//restore old render targets
+	Scene::GetInstance()->GetContext()->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
+	Scene::GetInstance()->GetContext()->RSSetViewports( NumViewports, &pViewports[0]);
+
+	return m_nDiffuseTex3D[1-m_iDiffTex];
 }
 
 /****************************************************************************
  ****************************************************************************/
-ID3D11ShaderResourceView* Diffusion::GetOneDiffusionSlice(int iSliceIndex, ID3D11ShaderResourceView* pCurrentDiffusionSRV)
+unsigned int	Diffusion::RenderOneDiffusionSlice(const int iSliceIndex,
+												const unsigned int nCurrentDiffusionTexture)
 {
 	HRESULT hr(S_OK);
 
-	SAFE_RELEASE(m_pOneSliceTexture);
-	SAFE_RELEASE(m_pOneSliceTextureRTV);
-	SAFE_RELEASE(m_pOneSliceTextureSRV);
-
-	//create empty 3D Texture
-	D3D11_TEXTURE3D_DESC desc;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	desc.CPUAccessFlags = 0;
-	desc.MipLevels = 1;
-	desc.MiscFlags = 0;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.Width = m_iTextureWidth;
-	desc.Height = m_iTextureHeight;
-	desc.Depth = m_iTextureDepth;
-	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	hr = m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pOneSliceTexture);
-	assert(hr == S_OK);
-	
-	//create RTV
-	D3D11_RENDER_TARGET_VIEW_DESC descRTV;
-	descRTV.Format = desc.Format;
-	descRTV.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE3D;
-	descRTV.Texture3D.MipSlice = 0;
-	descRTV.Texture3D.FirstWSlice = 0;
-	descRTV.Texture3D.WSize = desc.Depth;
-	hr = m_pd3dDevice->CreateRenderTargetView(m_pOneSliceTexture, &descRTV, &m_pOneSliceTextureRTV);
-	assert(hr == S_OK);
-
-	//create the shader resource view
-	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
-	descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
-	descSRV.Texture3D.MostDetailedMip = 0;
-	descSRV.Texture3D.MipLevels = 1;
-	descSRV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	hr = m_pd3dDevice->CreateShaderResourceView(m_pOneSliceTexture, &descSRV, &m_pOneSliceTextureSRV);
-	assert(hr == S_OK);
+	//store the old render targets and viewports
+    ID3D11RenderTargetView* pOldRTV = DXUTGetD3D11RenderTargetView();
+    ID3D11DepthStencilView* pOldDSV = DXUTGetD3D11DepthStencilView();
+	UINT NumViewports = 1;
+	D3D11_VIEWPORT pViewports[100];
+	Scene::GetInstance()->GetContext()->RSGetViewports( &NumViewports, &pViewports[0]);
 
 	//set one slice texture as render target
-	m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pOneSliceTextureRTV, NULL);
-	hr = m_pColor3DTexSRVar->SetResource(pCurrentDiffusionSRV);
-	assert(hr == S_OK);
+	TextureManager::GetInstance()->BindTextureAsRTV(m_nOneSliceTex3D);
+	TextureManager::GetInstance()->BindTextureAsSRV(nCurrentDiffusionTexture, m_pColor3DTexSRVar);
 	
+	//set shader variables
 	hr = m_pSliceIndexVar->SetFloat(iSliceIndex);
 	assert(hr == S_OK);
 
-	hr = m_pDiffusionTechnique->GetPassByName("RenderOneSlice")->Apply(0, m_pd3dImmediateContext);
+	//apply pass
+	hr = m_pDiffusionTechnique->GetPassByName("RenderOneSlice")->Apply(0, Scene::GetInstance()->GetContext());
 	assert(hr == S_OK);	
 		
 	//RENDER
@@ -374,65 +310,48 @@ ID3D11ShaderResourceView* Diffusion::GetOneDiffusionSlice(int iSliceIndex, ID3D1
 
 	hr = m_pColor3DTexSRVar->SetResource(NULL);
 	assert(hr == S_OK);
+
+	//apply pass again to unbind the resource texture
+	hr = m_pDiffusionTechnique->GetPassByName("RenderOneSlice")->Apply(0, Scene::GetInstance()->GetContext());
+	assert(hr == S_OK);	
 	
-	return m_pOneSliceTextureSRV;
+	//restore old render targets
+	Scene::GetInstance()->GetContext()->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
+	Scene::GetInstance()->GetContext()->RSSetViewports( NumViewports, &pViewports[0]);
+
+	return m_nOneSliceTex3D;
 }
 
 /****************************************************************************
  ****************************************************************************/
-ID3D11ShaderResourceView* Diffusion::RenderIsoSurface(ID3D11ShaderResourceView* pCurrentDiffusionSRV)
+unsigned int	Diffusion::RenderIsoSurface(const unsigned int nCurrentDiffusionTexture)
 {
 	HRESULT hr(S_OK);
 
-	SAFE_RELEASE(m_pIsoSurfaceTexture);
-	SAFE_RELEASE(m_pIsoSurfaceTextureRTV);
-	SAFE_RELEASE(m_pIsoSurfaceTextureSRV);
-
-	//create empty 3D Texture
-	D3D11_TEXTURE3D_DESC desc;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	desc.CPUAccessFlags = 0;
-	desc.MipLevels = 1;
-	desc.MiscFlags = 0;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.Width = m_iTextureWidth;
-	desc.Height = m_iTextureHeight;
-	desc.Depth = m_iTextureDepth;
-	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	hr = m_pd3dDevice->CreateTexture3D(&desc, NULL, &m_pIsoSurfaceTexture);
-	assert(hr == S_OK);
-	
-	//create RTV
-	D3D11_RENDER_TARGET_VIEW_DESC descRTV;
-	descRTV.Format = desc.Format;
-	descRTV.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE3D;
-	descRTV.Texture3D.MipSlice = 0;
-	descRTV.Texture3D.FirstWSlice = 0;
-	descRTV.Texture3D.WSize = desc.Depth;
-	hr = m_pd3dDevice->CreateRenderTargetView(m_pIsoSurfaceTexture, &descRTV, &m_pIsoSurfaceTextureRTV);
-	assert(hr == S_OK);
-
-	//create the shader resource view
-	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
-	descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
-	descSRV.Texture3D.MostDetailedMip = 0;
-	descSRV.Texture3D.MipLevels = 1;
-	descSRV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	hr = m_pd3dDevice->CreateShaderResourceView(m_pIsoSurfaceTexture, &descSRV, &m_pIsoSurfaceTextureSRV);
-	assert(hr == S_OK);
+	//store the old render targets and viewports
+    ID3D11RenderTargetView* pOldRTV = DXUTGetD3D11RenderTargetView();
+    ID3D11DepthStencilView* pOldDSV = DXUTGetD3D11DepthStencilView();
+	UINT NumViewports = 1;
+	D3D11_VIEWPORT pViewports[100];
+	Scene::GetInstance()->GetContext()->RSGetViewports( &NumViewports, &pViewports[0]);
 
 	//set iso surface texture as render target
-	m_pd3dImmediateContext->OMSetRenderTargets(1, &m_pIsoSurfaceTextureRTV, NULL);
-	hr = m_pColor3DTexSRVar->SetResource(pCurrentDiffusionSRV);
+	TextureManager::GetInstance()->BindTextureAsRTV(m_nIsoSurfaceTex3D);
+	TextureManager::GetInstance()->BindTextureAsSRV(nCurrentDiffusionTexture, m_pColor3DTexSRVar);
 	assert(hr == S_OK);
 	
+	//set shader variables
 	hr = m_pIsoValueVar->SetFloat(m_fIsoValue);
 	assert(hr == S_OK);
 
 	hr = m_pShowIsoColorVar->SetBool(m_bShowIsoColor);
 	assert(hr == S_OK);
+	
+	//set texture size
+	m_pTextureSizeVar->SetFloatVector(D3DXVECTOR3((float)m_iTextureWidth, (float)m_iTextureHeight, (float)m_iTextureDepth));
 
-	hr = m_pDiffusionTechnique->GetPassByName("RenderIsoSurface")->Apply(0, m_pd3dImmediateContext);
+	//apply pass
+	hr = m_pDiffusionTechnique->GetPassByName("RenderIsoSurface")->Apply(0, Scene::GetInstance()->GetContext());
 	assert(hr == S_OK);	
 	
 	//RENDER
@@ -440,8 +359,16 @@ ID3D11ShaderResourceView* Diffusion::RenderIsoSurface(ID3D11ShaderResourceView* 
 
 	hr = m_pColor3DTexSRVar->SetResource(NULL);
 	assert(hr == S_OK);
+
+	//apply pass again to unbind the resource texture
+	hr = m_pDiffusionTechnique->GetPassByName("RenderIsoSurface")->Apply(0, Scene::GetInstance()->GetContext());
+	assert(hr == S_OK);	
+
+	//restore old render targets
+	Scene::GetInstance()->GetContext()->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
+	Scene::GetInstance()->GetContext()->RSSetViewports( NumViewports, &pViewports[0]);
 	
-	return m_pIsoSurfaceTextureSRV;
+	return m_nIsoSurfaceTex3D;
 }
 
 /****************************************************************************
@@ -451,46 +378,47 @@ void Diffusion::DrawSlices()
 	assert(m_pInputLayout);
 	assert(m_pSlicesVB);
 
-	//store the old render targets and viewports
-    ID3D11RenderTargetView* pOldRTV = DXUTGetD3D11RenderTargetView();
-    ID3D11DepthStencilView* pOldDSV = DXUTGetD3D11DepthStencilView();
-	UINT NumViewports = 1;
-	D3D11_VIEWPORT pViewports[100];
-	m_pd3dImmediateContext->RSGetViewports( &NumViewports, &pViewports[0]);
-
 	// Set viewport and scissor to match the size of a single slice 
 	D3D11_VIEWPORT viewport = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight), 0.0f, 1.0f };
-    m_pd3dImmediateContext->RSSetViewports(1, &viewport);
+    Scene::GetInstance()->GetContext()->RSSetViewports(1, &viewport);
 	D3D11_RECT scissorRect = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight)};
-	m_pd3dImmediateContext->RSSetScissorRects(1, &scissorRect);
+	Scene::GetInstance()->GetContext()->RSSetScissorRects(1, &scissorRect);
 
-	UINT strides = sizeof(DIFFUSION_VERTEX);
+	UINT strides = sizeof(SLICE_VERTEX);
 	UINT offsets = 0;
 
-	m_pd3dImmediateContext->IASetInputLayout(m_pInputLayout);
-	m_pd3dImmediateContext->IASetVertexBuffers(0, 1, &m_pSlicesVB, &strides, &offsets);
-	m_pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Scene::GetInstance()->GetContext()->IASetInputLayout(m_pInputLayout);
+	Scene::GetInstance()->GetContext()->IASetVertexBuffers(0, 1, &m_pSlicesVB, &strides, &offsets);
+	Scene::GetInstance()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	for(int i = 0; i < m_iTextureDepth; i++)
 	{
-		m_pd3dImmediateContext->Draw(VERTEXCOUNT, VERTEXCOUNT*i);
+		Scene::GetInstance()->GetContext()->Draw(VERTEXCOUNT, VERTEXCOUNT*i);
 	}
-
-	//restore old render targets
-	m_pd3dImmediateContext->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
-	m_pd3dImmediateContext->RSSetViewports( NumViewports, &pViewports[0]);
 }
 
 /****************************************************************************
  ****************************************************************************/
-ID3D11Texture3D* Diffusion::GetCurrentDiffusionTexture()
+void Diffusion::DrawSlice(int iSlice)
 {
-	return m_pColor3DTextures[1-m_iDiffTex];
-}
+	assert(m_pInputLayout);
+	assert(m_pSlicesVB);
 
-/****************************************************************************
- ****************************************************************************/
-ID3D11Texture3D* Diffusion::GetIsoSurfaceTexture()
-{
-	return m_pIsoSurfaceTexture;
+	// Set viewport and scissor to match the size of a single slice 
+	D3D11_VIEWPORT viewport = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight), 0.0f, 1.0f };
+    Scene::GetInstance()->GetContext()->RSSetViewports(1, &viewport);
+	D3D11_RECT scissorRect = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight)};
+	Scene::GetInstance()->GetContext()->RSSetScissorRects(1, &scissorRect);
+
+	UINT strides = sizeof(SLICE_VERTEX);
+	UINT offsets = 0;
+
+	Scene::GetInstance()->GetContext()->IASetInputLayout(m_pInputLayout);
+	Scene::GetInstance()->GetContext()->IASetVertexBuffers(0, 1, &m_pSlicesVB, &strides, &offsets);
+	Scene::GetInstance()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	for(int i = 0; i < m_iTextureDepth; i++)
+	{
+		Scene::GetInstance()->GetContext()->Draw(VERTEXCOUNT, VERTEXCOUNT*i);
+	}
 }
