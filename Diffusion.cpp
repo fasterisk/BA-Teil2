@@ -15,9 +15,14 @@ Diffusion::Diffusion(ID3DX11Effect *pDiffusionEffect)
 	m_nDiffuseTex3D[0] = 0;
 	m_nDiffuseTex3D[1] = 0;
 
+	m_nDiffuseSliceTex2D[0] = 0;
+	m_nDiffuseSliceTex2D[1] = 0;
+
 	m_nOneSliceTex3D = 0;
+	m_nOneSliceSliceTex2D = 0;
 
 	m_nIsoSurfaceTex3D = 0;
+	m_nIsoSurfaceSliceTex2D = 0;
 
 	m_iTextureWidth = 0;
 	m_iTextureHeight = 0;
@@ -63,9 +68,14 @@ HRESULT Diffusion::Initialize(const int iTextureWidth,
 	m_nDiffuseTex3D[0] = TextureManager::GetInstance()->Create3DTexture("Diffusion 3D Tex1", iTextureWidth, iTextureHeight, iTextureDepth);
 	m_nDiffuseTex3D[1] = TextureManager::GetInstance()->Create3DTexture("Diffusion 3D Tex2", iTextureWidth, iTextureHeight, iTextureDepth);
 
+	m_nDiffuseSliceTex2D[0] = TextureManager::GetInstance()->Create2DTexture("Diffusion Slice 2D Tex1", iTextureWidth, iTextureHeight);
+	m_nDiffuseSliceTex2D[1] = TextureManager::GetInstance()->Create2DTexture("Diffusion Slice 2D Tex2", iTextureWidth, iTextureHeight);
+
 	m_nOneSliceTex3D = TextureManager::GetInstance()->Create3DTexture("One Slice 3D Tex", iTextureWidth, iTextureHeight, iTextureDepth);
+	m_nOneSliceSliceTex2D = TextureManager::GetInstance()->Create2DTexture("One Slice Slice 2D Tex", iTextureWidth, iTextureHeight);
 
 	m_nIsoSurfaceTex3D = TextureManager::GetInstance()->Create3DTexture("Isosurface 3D Tex", iTextureWidth, iTextureHeight, iTextureDepth);
+	m_nIsoSurfaceSliceTex2D = TextureManager::GetInstance()->Create2DTexture("Isosurface Slice 2D Tex", iTextureWidth, iTextureHeight);
 
 	return hr;
 }
@@ -88,10 +98,15 @@ HRESULT Diffusion::Update(const int iTextureWidth,
 
 	TextureManager::GetInstance()->Update3DTexture(m_nDiffuseTex3D[0], iTextureWidth, iTextureHeight, iTextureDepth);
 	TextureManager::GetInstance()->Update3DTexture(m_nDiffuseTex3D[1], iTextureWidth, iTextureHeight, iTextureDepth);
+	TextureManager::GetInstance()->Update2DTexture(m_nDiffuseSliceTex2D[0], iTextureWidth, iTextureHeight);
+	TextureManager::GetInstance()->Update2DTexture(m_nDiffuseSliceTex2D[1], iTextureWidth, iTextureHeight);
 
 	TextureManager::GetInstance()->Update3DTexture(m_nOneSliceTex3D, iTextureWidth, iTextureHeight, iTextureDepth);
+	TextureManager::GetInstance()->Update2DTexture(m_nOneSliceSliceTex2D, iTextureWidth, iTextureHeight);
 
 	TextureManager::GetInstance()->Update3DTexture(m_nIsoSurfaceTex3D, iTextureWidth, iTextureHeight, iTextureDepth);
+	TextureManager::GetInstance()->Update2DTexture(m_nIsoSurfaceSliceTex2D, iTextureWidth, iTextureHeight);
+
 
 	return S_OK;
 }
@@ -163,7 +178,6 @@ HRESULT Diffusion::InitSlices()
 
 		sliceVerticesTemp[0].pos = D3DXVECTOR3(-1.0f, 1.0f, 0.5f);
 		sliceVerticesTemp[0].tex = D3DXVECTOR3(0.0f, 0.0f, float(z)/float(m_iTextureDepth-1));
-		sliceVerticesTemp[0].sliceindex = z;
 
 		sliceVerticesTemp[1].pos = D3DXVECTOR3(-1.0f, -1.0f, 0.5f);
 		sliceVerticesTemp[1].tex = D3DXVECTOR3(0.0f, 1.0f, float(z)/float(m_iTextureDepth-1));
@@ -238,6 +252,12 @@ unsigned int	Diffusion::RenderDiffusion(const unsigned int nVoronoiTex3D,
 
 	TextureManager::GetInstance()->BindTextureAsSRV(nDistanceTex3D, m_pDist3DTexSRVar);
 	
+	// Set viewport and scissor to match the size of a single slice 
+	D3D11_VIEWPORT viewport = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight), 0.0f, 1.0f };
+    Scene::GetInstance()->GetContext()->RSSetViewports(1, &viewport);
+	D3D11_RECT scissorRect = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight)};
+	Scene::GetInstance()->GetContext()->RSSetScissorRects(1, &scissorRect);
+
 	//ping pong rendering
 	for(int i = 0; i < iDiffusionSteps; i++)
 	{
@@ -247,23 +267,27 @@ unsigned int	Diffusion::RenderDiffusion(const unsigned int nVoronoiTex3D,
 		if(i == 0)
 		{
 			//As first resource texture you have to use the voronoi texture
-			TextureManager::GetInstance()->BindTextureAsRTV(m_nDiffuseTex3D[m_iDiffTex]);
+			TextureManager::GetInstance()->BindTextureAsRTV(m_nDiffuseSliceTex2D[m_iDiffTex]);
 			TextureManager::GetInstance()->BindTextureAsSRV(nVoronoiTex3D, m_pColor3DTexSRVar);
 		}
 		else
 		{
 			//after the first render pass, color textures are alternated
-			TextureManager::GetInstance()->BindTextureAsRTV(m_nDiffuseTex3D[m_iDiffTex]);
+			TextureManager::GetInstance()->BindTextureAsRTV(m_nDiffuseSliceTex2D[m_iDiffTex]);
 			TextureManager::GetInstance()->BindTextureAsSRV(m_nDiffuseTex3D[1-m_iDiffTex], m_pColor3DTexSRVar);
 		}
-
-		m_iDiffTex = 1-m_iDiffTex;
 
 		hr = m_pDiffusionTechnique->GetPassByName("DiffuseTexture")->Apply(0, Scene::GetInstance()->GetContext());
 		assert(hr == S_OK);
 
 		//RENDER
-		DrawSlices();
+		for(int j = 0; j < m_iTextureDepth; j++)
+		{
+			DrawSlice(j);
+			TextureManager::GetInstance()->Render2DTextureInto3DSlice(m_nDiffuseSliceTex2D[m_iDiffTex], m_nDiffuseTex3D[m_iDiffTex], j);
+		}
+
+		m_iDiffTex = 1-m_iDiffTex;
 
 		//unbind textures and apply pass again to confirm this
 		hr = m_pColor3DTexSRVar->SetResource(NULL);
@@ -404,12 +428,6 @@ void Diffusion::DrawSlice(int iSlice)
 	assert(m_pInputLayout);
 	assert(m_pSlicesVB);
 
-	// Set viewport and scissor to match the size of a single slice 
-	D3D11_VIEWPORT viewport = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight), 0.0f, 1.0f };
-    Scene::GetInstance()->GetContext()->RSSetViewports(1, &viewport);
-	D3D11_RECT scissorRect = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight)};
-	Scene::GetInstance()->GetContext()->RSSetScissorRects(1, &scissorRect);
-
 	UINT strides = sizeof(SLICE_VERTEX);
 	UINT offsets = 0;
 
@@ -417,8 +435,5 @@ void Diffusion::DrawSlice(int iSlice)
 	Scene::GetInstance()->GetContext()->IASetVertexBuffers(0, 1, &m_pSlicesVB, &strides, &offsets);
 	Scene::GetInstance()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	for(int i = 0; i < m_iTextureDepth; i++)
-	{
-		Scene::GetInstance()->GetContext()->Draw(VERTEXCOUNT, VERTEXCOUNT*i);
-	}
+	Scene::GetInstance()->GetContext()->Draw(VERTEXCOUNT, VERTEXCOUNT*iSlice);
 }

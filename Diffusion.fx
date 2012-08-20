@@ -66,19 +66,11 @@ struct VS_DIFFUSION_INPUT
 	uint sliceindex : SLICEINDEX;
 };
 
-struct GS_DIFFUSION_INPUT
-{
-	float4 pos		: POSITION;
-	float3 tex		: TEXCOORD;
-	uint sliceindex : SLICEINDEX;
-};
-
-struct GS_DIFFUSION_OUTPUT
+struct PS_DIFFUSION_INPUT
 {
 	float4 pos		: SV_Position;
 	float3 tex		: TEXCOORD0;
 	uint sliceindex : SLICEINDEX;
-	uint RTIndex	: SV_RenderTargetArrayIndex;
 };
 
 struct PS_DIFFUSION_OUTPUT
@@ -91,48 +83,13 @@ struct PS_DIFFUSION_OUTPUT
 // Vertex Shader
 //--------------------------------------------------------------------------------------
 
-GS_DIFFUSION_INPUT DiffusionVS(VS_DIFFUSION_INPUT input)
+PS_DIFFUSION_INPUT DiffusionVS(VS_DIFFUSION_INPUT input)
 {
-	GS_DIFFUSION_INPUT output;
+	PS_DIFFUSION_INPUT output;
 	output.pos = float4(input.pos, 1.0f);
 	output.tex = input.tex;
 	output.sliceindex = input.sliceindex;
 	return output;
-}
-
-
-//--------------------------------------------------------------------------------------
-// Geometry Shader
-//--------------------------------------------------------------------------------------
-
-[maxvertexcount(3)]
-void DiffusionGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_DIFFUSION_OUTPUT> tStream)
-{
-	GS_DIFFUSION_OUTPUT output;
-	output.RTIndex = (uint)input[0].sliceindex;
-	for(int v = 0; v < 3; v++)
-	{
-		output.pos = input[v].pos;
-		output.tex = input[v].tex;
-		output.sliceindex = input[v].sliceindex;
-		tStream.Append(output);
-	}
-	tStream.RestartStrip();
-}
-
-[maxvertexcount(3)]
-void OneSliceGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_DIFFUSION_OUTPUT> tStream)
-{
-	GS_DIFFUSION_OUTPUT output;
-	output.RTIndex = (uint)input[0].sliceindex;
-	for(int v = 0; v < 3; v++)
-	{
-		output.pos = input[v].pos;
-		output.tex = input[v].tex;
-		output.sliceindex = input[v].sliceindex;
-		tStream.Append(output);
-	}
-	tStream.RestartStrip();
 }
 
 //--------------------------------------------------------------------------------------
@@ -140,7 +97,7 @@ void OneSliceGS(triangle GS_DIFFUSION_INPUT input[3], inout TriangleStream<GS_DI
 //--------------------------------------------------------------------------------------
 
 
-PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
+PS_DIFFUSION_OUTPUT DiffusionPS(PS_DIFFUSION_INPUT input)
 {
 	PS_DIFFUSION_OUTPUT output;
 
@@ -168,7 +125,7 @@ PS_DIFFUSION_OUTPUT DiffusionPS(GS_DIFFUSION_OUTPUT input)
 	return output;
 }
 
-PS_DIFFUSION_OUTPUT OneSlicePS(GS_DIFFUSION_OUTPUT input)
+PS_DIFFUSION_OUTPUT OneSlicePS(PS_DIFFUSION_INPUT input)
 {
 	PS_DIFFUSION_OUTPUT output;
 	if(input.sliceindex == iSliceIndex)
@@ -183,7 +140,7 @@ PS_DIFFUSION_OUTPUT OneSlicePS(GS_DIFFUSION_OUTPUT input)
 	return output;
 }
 
-PS_DIFFUSION_OUTPUT IsoSurfacePS(GS_DIFFUSION_OUTPUT input)
+PS_DIFFUSION_OUTPUT IsoSurfacePS(PS_DIFFUSION_INPUT input)
 {
 	PS_DIFFUSION_OUTPUT output;
 
@@ -213,7 +170,7 @@ technique10 Diffusion
 	pass DiffuseTexture
 	{
 		SetVertexShader(CompileShader(vs_4_0, DiffusionVS()));
-		SetGeometryShader(CompileShader(gs_4_0, DiffusionGS()));
+		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, DiffusionPS()));
 		SetRasterizerState( CullNone );
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
@@ -223,7 +180,7 @@ technique10 Diffusion
 	pass RenderOneSlice
 	{
 		SetVertexShader(CompileShader(vs_4_0, DiffusionVS()));
-		SetGeometryShader(CompileShader(gs_4_0, OneSliceGS()));
+		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, OneSlicePS()));
 		SetRasterizerState( CullNone );
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
@@ -233,7 +190,7 @@ technique10 Diffusion
 	pass RenderIsoSurface
 	{
 		SetVertexShader(CompileShader(vs_4_0, DiffusionVS()));
-		SetGeometryShader(CompileShader(gs_4_0, DiffusionGS()));
+		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, IsoSurfacePS()));
 		SetRasterizerState( CullNone );
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );

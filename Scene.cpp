@@ -363,11 +363,13 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 				{
 					m_wsRenderProgress = L"Rendering one slice of the Isosurface 3D Texture";
 					m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_nIsoSurfaceTexture);
+					//m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi->GetColor3DTexture());
 				}
 				else
 				{
 					m_wsRenderProgress = L"Rendering one slice of the Diffusion 3D Texture";
 					m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_nDiffusionTexture);
+					//m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi->GetColor3DTexture());
 				}
 				m_bGenerateOneSliceTexture = false;
 			}
@@ -380,11 +382,13 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 			{
 				m_wsRenderProgress = L"Rendering the Isosurface 3D Texture";
 				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_nIsoSurfaceTexture);
+				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi->GetColor3DTexture());
 			}
 			else
 			{
 				m_wsRenderProgress = L"Rendering the Diffusion 3D Texture";
 				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_nDiffusionTexture);
+				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi->GetColor3DTexture());
 			}
 
 		}

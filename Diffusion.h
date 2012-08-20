@@ -84,12 +84,15 @@ private:
 
 	//Textures, RTVs and SRV
 	unsigned int				m_nDiffuseTex3D[2];
+	unsigned int				m_nDiffuseSliceTex2D[2];
 
 	//One Slice Texture, RTV and SRV
 	unsigned int				m_nOneSliceTex3D;
+	unsigned int				m_nOneSliceSliceTex2D;
 
 	//IsoSurface Texture, RTV and SRV
 	unsigned int				m_nIsoSurfaceTex3D;
+	unsigned int				m_nIsoSurfaceSliceTex2D;
 
 	//Shader variables
 	ID3DX11EffectShaderResourceVariable		*m_pColor3DTexSRVar;
