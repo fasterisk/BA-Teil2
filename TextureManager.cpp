@@ -362,6 +362,13 @@ TextureManager::DEPTHBUFFERSTATE	TextureManager::GetDepthBufferState(const unsig
 
 /****************************************************************************
  ****************************************************************************/
+ID3D11Resource*		TextureManager::GetTexture(const unsigned int nID)
+{
+	return m_TextureMap[nID];
+}
+
+/****************************************************************************
+ ****************************************************************************/
 void	TextureManager::ItlCreate2DTexture(const std::string sDebugName,
 										   const unsigned int nID,
 										   const int iWidth, 

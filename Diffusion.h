@@ -55,6 +55,9 @@ public:
 
 	
 	unsigned int RenderIsoSurface(const unsigned int nCurrentDiffusionTexture);
+	
+	unsigned int GetIsoSurfaceTexture() const { return m_nIsoSurfaceTex3D;}
+	unsigned int GetDiffusionTexture() const { return m_nDiffuseTex3D[1-m_iDiffTex];}
 
 private:
 	

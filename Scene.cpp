@@ -3,6 +3,7 @@
 #include "VolumeRenderer.h"
 #include "Voronoi.h"
 #include "Diffusion.h"
+#include "TextureManager.h"
 
 Scene* Scene::s_pInstance = NULL;
 
@@ -568,11 +569,11 @@ HRESULT Scene::SaveCurrentVolume(LPCTSTR sDestination)
 {
 	if(m_bRenderIsoSurface)
 	{
-//		return D3DX11SaveTextureToFile(m_pd3dImmediateContext, m_pDiffusion->GetIsoSurfaceTexture(), D3DX11_IFF_DDS, sDestination);
+		return D3DX11SaveTextureToFile(m_pd3dImmediateContext, TextureManager::GetInstance()->GetTexture(m_pDiffusion->GetIsoSurfaceTexture()), D3DX11_IFF_DDS, sDestination);
 	}
 	else
 	{
-//		return D3DX11SaveTextureToFile(m_pd3dImmediateContext, m_pDiffusion->GetCurrentDiffusionTexture(), D3DX11_IFF_DDS, sDestination);
+		return D3DX11SaveTextureToFile(m_pd3dImmediateContext, TextureManager::GetInstance()->GetTexture(m_pDiffusion->GetDiffusionTexture()), D3DX11_IFF_DDS, sDestination);
 	}
 
 	return S_OK;

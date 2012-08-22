@@ -81,6 +81,7 @@ public:
 
 	TEXTURESTATE		GetTextureState(const unsigned int nID);
 	DEPTHBUFFERSTATE	GetDepthBufferState(const unsigned int nID);
+	ID3D11Resource*		GetTexture(const unsigned int nID);
 
 protected:
 	TextureManager();
