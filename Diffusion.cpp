@@ -403,8 +403,14 @@ unsigned int	Diffusion::RenderIsoSurface(const unsigned int nCurrentDiffusionTex
 	D3D11_VIEWPORT pViewports[100];
 	Scene::GetInstance()->GetContext()->RSGetViewports( &NumViewports, &pViewports[0]);
 
+	// Set viewport and scissor to match the size of a single slice 
+	D3D11_VIEWPORT viewport = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight), 0.0f, 1.0f };
+    Scene::GetInstance()->GetContext()->RSSetViewports(1, &viewport);
+	D3D11_RECT scissorRect = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight)};
+	Scene::GetInstance()->GetContext()->RSSetScissorRects(1, &scissorRect);
+
 	//set iso surface texture as render target
-	TextureManager::GetInstance()->BindTextureAsRTV(m_nIsoSurfaceTex3D);
+	TextureManager::GetInstance()->BindTextureAsRTV(m_nIsoSurfaceSliceTex2D);
 	TextureManager::GetInstance()->BindTextureAsSRV(nCurrentDiffusionTexture, m_pColor3DTexSRVar);
 	assert(hr == S_OK);
 	
@@ -421,9 +427,23 @@ unsigned int	Diffusion::RenderIsoSurface(const unsigned int nCurrentDiffusionTex
 	//apply pass
 	hr = m_pDiffusionTechnique->GetPassByName("RenderIsoSurface")->Apply(0, Scene::GetInstance()->GetContext());
 	assert(hr == S_OK);	
+
+	assert(m_pInputLayout);
+	assert(m_pSlicesVB);
+
+	UINT strides = sizeof(SLICE_VERTEX);
+	UINT offsets = 0;
+
+	Scene::GetInstance()->GetContext()->IASetInputLayout(m_pInputLayout);
+	Scene::GetInstance()->GetContext()->IASetVertexBuffers(0, 1, &m_pSlicesVB, &strides, &offsets);
+	Scene::GetInstance()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
 	//RENDER
-	//DrawSlices();
+	for(int j = 0; j < m_iTextureDepth; j++)
+	{
+		Scene::GetInstance()->GetContext()->Draw(VERTEXCOUNT, VERTEXCOUNT*j);
+		TextureManager::GetInstance()->Render2DTextureInto3DSlice(m_nIsoSurfaceSliceTex2D, m_nIsoSurfaceTex3D, j);
+	}
 
 	hr = m_pColor3DTexSRVar->SetResource(NULL);
 	assert(hr == S_OK);
