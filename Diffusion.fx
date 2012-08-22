@@ -125,18 +125,18 @@ PS_DIFFUSION_OUTPUT DiffusionPS(PS_DIFFUSION_INPUT input)
 	return output;
 }
 
-PS_DIFFUSION_OUTPUT OneSlicePS(PS_DIFFUSION_INPUT input)
+PS_DIFFUSION_OUTPUT OneSliceColorPS(PS_DIFFUSION_INPUT input)
 {
 	PS_DIFFUSION_OUTPUT output;
-	if(input.sliceindex == iSliceIndex)
-	{
-		output.color = ColorTexture.SampleLevel(pointSamplerClamp, input.tex, 0);
-		output.color.a = 1.0f;
-	}
-	else
-	{
-		output.color = float4(0.0f,0.0f,0.0f,0.0f);
-	}
+	output.color = ColorTexture.SampleLevel(pointSamplerClamp, input.tex, 0);
+	output.color.a = 1.0f;
+	return output;
+}
+
+PS_DIFFUSION_OUTPUT OneSliceBlackPS(PS_DIFFUSION_INPUT input)
+{
+	PS_DIFFUSION_OUTPUT output;
+	output.color = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	return output;
 }
 
@@ -177,11 +177,21 @@ technique10 Diffusion
         SetDepthStencilState( DisableDepth, 0 );
 	}
 
-	pass RenderOneSlice
+	pass RenderOneBlackSlice
 	{
 		SetVertexShader(CompileShader(vs_4_0, DiffusionVS()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_4_0, OneSlicePS()));
+		SetPixelShader(CompileShader(ps_4_0, OneSliceBlackPS()));
+		SetRasterizerState( CullNone );
+        SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
+        SetDepthStencilState( DisableDepth, 0 );
+	}
+	
+	pass RenderOneColorSlice
+	{
+		SetVertexShader(CompileShader(vs_4_0, DiffusionVS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_4_0, OneSliceColorPS()));
 		SetRasterizerState( CullNone );
         SetBlendState( NoBlending, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
         SetDepthStencilState( DisableDepth, 0 );

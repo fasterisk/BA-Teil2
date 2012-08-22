@@ -258,6 +258,17 @@ unsigned int	Diffusion::RenderDiffusion(const unsigned int nVoronoiTex3D,
 	D3D11_RECT scissorRect = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight)};
 	Scene::GetInstance()->GetContext()->RSSetScissorRects(1, &scissorRect);
 
+	assert(m_pInputLayout);
+	assert(m_pSlicesVB);
+
+	UINT strides = sizeof(SLICE_VERTEX);
+	UINT offsets = 0;
+
+	Scene::GetInstance()->GetContext()->IASetInputLayout(m_pInputLayout);
+	Scene::GetInstance()->GetContext()->IASetVertexBuffers(0, 1, &m_pSlicesVB, &strides, &offsets);
+	Scene::GetInstance()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+
 	//ping pong rendering
 	for(int i = 0; i < iDiffusionSteps; i++)
 	{
@@ -283,7 +294,7 @@ unsigned int	Diffusion::RenderDiffusion(const unsigned int nVoronoiTex3D,
 		//RENDER
 		for(int j = 0; j < m_iTextureDepth; j++)
 		{
-			DrawSlice(j);
+			Scene::GetInstance()->GetContext()->Draw(VERTEXCOUNT, VERTEXCOUNT*j);
 			TextureManager::GetInstance()->Render2DTextureInto3DSlice(m_nDiffuseSliceTex2D[m_iDiffTex], m_nDiffuseTex3D[m_iDiffTex], j);
 		}
 
@@ -306,7 +317,7 @@ unsigned int	Diffusion::RenderDiffusion(const unsigned int nVoronoiTex3D,
 /****************************************************************************
  ****************************************************************************/
 unsigned int	Diffusion::RenderOneDiffusionSlice(const int iSliceIndex,
-												const unsigned int nCurrentDiffusionTexture)
+													const unsigned int nCurrentDiffusionTexture)
 {
 	HRESULT hr(S_OK);
 
@@ -317,26 +328,59 @@ unsigned int	Diffusion::RenderOneDiffusionSlice(const int iSliceIndex,
 	D3D11_VIEWPORT pViewports[100];
 	Scene::GetInstance()->GetContext()->RSGetViewports( &NumViewports, &pViewports[0]);
 
-	//set one slice texture as render target
-	TextureManager::GetInstance()->BindTextureAsRTV(m_nOneSliceTex3D);
+	//set one slice 2D texture as render target
+	TextureManager::GetInstance()->BindTextureAsRTV(m_nOneSliceSliceTex2D);
 	TextureManager::GetInstance()->BindTextureAsSRV(nCurrentDiffusionTexture, m_pColor3DTexSRVar);
+
+	// Set viewport and scissor to match the size of a single slice 
+	D3D11_VIEWPORT viewport = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight), 0.0f, 1.0f };
+    Scene::GetInstance()->GetContext()->RSSetViewports(1, &viewport);
+	D3D11_RECT scissorRect = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight)};
+	Scene::GetInstance()->GetContext()->RSSetScissorRects(1, &scissorRect);
 	
 	//set shader variables
 	hr = m_pSliceIndexVar->SetFloat(iSliceIndex);
 	assert(hr == S_OK);
 
+	assert(m_pInputLayout);
+	assert(m_pSlicesVB);
+
+	UINT strides = sizeof(SLICE_VERTEX);
+	UINT offsets = 0;
+
+	Scene::GetInstance()->GetContext()->IASetInputLayout(m_pInputLayout);
+	Scene::GetInstance()->GetContext()->IASetVertexBuffers(0, 1, &m_pSlicesVB, &strides, &offsets);
+	Scene::GetInstance()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	//apply pass
-	hr = m_pDiffusionTechnique->GetPassByName("RenderOneSlice")->Apply(0, Scene::GetInstance()->GetContext());
+	hr = m_pDiffusionTechnique->GetPassByName("RenderOneBlackSlice")->Apply(0, Scene::GetInstance()->GetContext());
 	assert(hr == S_OK);	
 		
 	//RENDER
-	DrawSlices();
+	for(int j = 0; j < m_iTextureDepth; j++)
+	{
+		if(j == iSliceIndex)
+		{
+			hr = m_pDiffusionTechnique->GetPassByName("RenderOneColorSlice")->Apply(0, Scene::GetInstance()->GetContext());
+			assert(hr == S_OK);
+			Scene::GetInstance()->GetContext()->Draw(VERTEXCOUNT, VERTEXCOUNT*j);
+			hr = m_pDiffusionTechnique->GetPassByName("RenderOneBlackSlice")->Apply(0, Scene::GetInstance()->GetContext());
+			assert(hr == S_OK);
+		}
+		else
+		{
+			Scene::GetInstance()->GetContext()->Draw(VERTEXCOUNT, VERTEXCOUNT*j);
+		}
+
+		
+		TextureManager::GetInstance()->Render2DTextureInto3DSlice(m_nOneSliceSliceTex2D, m_nOneSliceTex3D, j);
+	}
 
 	hr = m_pColor3DTexSRVar->SetResource(NULL);
 	assert(hr == S_OK);
 
 	//apply pass again to unbind the resource texture
-	hr = m_pDiffusionTechnique->GetPassByName("RenderOneSlice")->Apply(0, Scene::GetInstance()->GetContext());
+	hr = m_pDiffusionTechnique->GetPassByName("RenderOneBlackSlice")->Apply(0, Scene::GetInstance()->GetContext());
 	assert(hr == S_OK);	
 	
 	//restore old render targets
@@ -379,7 +423,7 @@ unsigned int	Diffusion::RenderIsoSurface(const unsigned int nCurrentDiffusionTex
 	assert(hr == S_OK);	
 	
 	//RENDER
-	DrawSlices();
+	//DrawSlices();
 
 	hr = m_pColor3DTexSRVar->SetResource(NULL);
 	assert(hr == S_OK);
@@ -395,45 +439,3 @@ unsigned int	Diffusion::RenderIsoSurface(const unsigned int nCurrentDiffusionTex
 	return m_nIsoSurfaceTex3D;
 }
 
-/****************************************************************************
- ****************************************************************************/
-void Diffusion::DrawSlices()
-{
-	assert(m_pInputLayout);
-	assert(m_pSlicesVB);
-
-	// Set viewport and scissor to match the size of a single slice 
-	D3D11_VIEWPORT viewport = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight), 0.0f, 1.0f };
-    Scene::GetInstance()->GetContext()->RSSetViewports(1, &viewport);
-	D3D11_RECT scissorRect = { 0, 0, float(m_iTextureWidth), float(m_iTextureHeight)};
-	Scene::GetInstance()->GetContext()->RSSetScissorRects(1, &scissorRect);
-
-	UINT strides = sizeof(SLICE_VERTEX);
-	UINT offsets = 0;
-
-	Scene::GetInstance()->GetContext()->IASetInputLayout(m_pInputLayout);
-	Scene::GetInstance()->GetContext()->IASetVertexBuffers(0, 1, &m_pSlicesVB, &strides, &offsets);
-	Scene::GetInstance()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	for(int i = 0; i < m_iTextureDepth; i++)
-	{
-		Scene::GetInstance()->GetContext()->Draw(VERTEXCOUNT, VERTEXCOUNT*i);
-	}
-}
-
-/****************************************************************************
- ****************************************************************************/
-void Diffusion::DrawSlice(int iSlice)
-{
-	assert(m_pInputLayout);
-	assert(m_pSlicesVB);
-
-	UINT strides = sizeof(SLICE_VERTEX);
-	UINT offsets = 0;
-
-	Scene::GetInstance()->GetContext()->IASetInputLayout(m_pInputLayout);
-	Scene::GetInstance()->GetContext()->IASetVertexBuffers(0, 1, &m_pSlicesVB, &strides, &offsets);
-	Scene::GetInstance()->GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	Scene::GetInstance()->GetContext()->Draw(VERTEXCOUNT, VERTEXCOUNT*iSlice);
-}

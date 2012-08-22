@@ -67,11 +67,6 @@ private:
 	//Initializes Slice Vertices, Vertexbuffer and the inputlayout for rendering into the 3D textures
 	HRESULT InitSlices();
 
-	//Draws the slices into the current bound 3D texture
-	void DrawSlices();
-
-	void DrawSlice(int iSlice);
-
 	void Cleanup();
 
 	//Shader
