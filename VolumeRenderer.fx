@@ -160,7 +160,11 @@ PsOutput PS_BB_WIREFRAME(VsBBOutput input)
 PsOutput PS_BB_POSITION(VsBBOutput input)
 {
 	PsOutput output;
-	float3 col = (input.texC - vBBMin) / (vBBMax - vBBMin);
+	float3 texC;
+	texC.x = input.texC.x;
+	texC.y = -input.texC.y;
+	texC.z = input.texC.z;
+	float3 col = (texC - vBBMin) / (vBBMax - vBBMin);
 	output.color = float4(col, 1.0f);
 	return output;
 }
@@ -169,7 +173,7 @@ PsOutput PS_RAYCAST(VsSQOutput input)
 {
 	PsOutput output;
 	float2 texC = input.pos2.xy /= input.pos2.w;
-    texC.x =  0.5f*texC.x + 0.5f;
+    texC.x = 0.5f*texC.x + 0.5f;
     texC.y = -0.5f*texC.y + 0.5f;
 	float3 front = FrontTexture.Sample(linearSampler, texC).rgb;
 	float3 back = BackTexture.Sample(linearSampler, texC).rgb;

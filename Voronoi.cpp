@@ -271,54 +271,6 @@ bool Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 	Scene::GetInstance()->GetSurface2()->RenderVoronoi(m_pVoronoiDiagramTechnique, m_pSurfaceTextureVar);
 
 	// render the 2D texture slices into the 3D Textures
-
-	/*HRESULT hr;
-	SAFE_RELEASE(m_pDestColorTex3DRTV);
-	SAFE_RELEASE(m_pDestDistTex3DRTV);
-	
-	//create color texture RTV
-	D3D11_TEXTURE3D_DESC descColorTex3D;
-	m_pDestColorTex3D->GetDesc(&descColorTex3D);
-	D3D11_RENDER_TARGET_VIEW_DESC descCT3DRTV;
-	descCT3DRTV.Format = descColorTex3D.Format;
-	descCT3DRTV.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE3D;
-	descCT3DRTV.Texture3D.MipSlice = 0;
-	descCT3DRTV.Texture3D.FirstWSlice = m_iCurrentSlice;
-	descCT3DRTV.Texture3D.WSize = 1;
-	V_RETURN(Scene::GetInstance()->GetDevice()->CreateRenderTargetView(m_pDestColorTex3D, &descCT3DRTV, &m_pDestColorTex3DRTV));
-
-	//create dist texture RTV
-	D3D11_TEXTURE3D_DESC descDistTex3D;
-	m_pDestDistTex3D->GetDesc(&descDistTex3D);
-	D3D11_RENDER_TARGET_VIEW_DESC descDT3DRTV;
-	descDT3DRTV.Format = descDistTex3D.Format;
-	descDT3DRTV.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE3D;
-	descDT3DRTV.Texture3D.MipSlice = 0;
-	descDT3DRTV.Texture3D.FirstWSlice = m_iCurrentSlice;
-	descDT3DRTV.Texture3D.WSize = 1;
-	V_RETURN(Scene::GetInstance()->GetDevice()->CreateRenderTargetView(m_pDestDistTex3D, &descDT3DRTV, &m_pDestDistTex3DRTV));
-	*/
-
-	//set the 3d textures as rendertargets and the 2D textures as resources
-	/*ID3D11RenderTargetView* destTex3DRTVs[2];
-	destTex3DRTVs[0] = m_pDestColorTex3DRTV;
-	destTex3DRTVs[1] = m_pDestDistTex3DRTV;
-	Scene::GetInstance()->GetContext()->OMSetRenderTargets(2, destTex3DRTVs, NULL);
-
-	m_pVoronoiDiagramTechnique->GetPassByIndex(0)->Apply(0, Scene::GetInstance()->GetContext());
-
-	m_pColorSliceTex2DVar->SetResource(m_pColorSliceSRV);
-	m_pDistSliceTex2DVar->SetResource(m_pDistSliceSRV);
-
-	m_p2Dto3DTechnique->GetPassByIndex(0)->Apply(0, Scene::GetInstance()->GetContext());
-
-	ItlDrawCurrentSlice();
-
-	m_pColorSliceTex2DVar->SetResource(NULL);
-	m_pDistSliceTex2DVar->SetResource(NULL);
-
-	m_p2Dto3DTechnique->GetPassByIndex(0)->Apply(0, Scene::GetInstance()->GetContext());*/
-
 	TextureManager::GetInstance()->Render2DTextureInto3DSlice(m_nColorSliceTex2D, m_nColorTex3D, m_iCurrentSlice);
 	TextureManager::GetInstance()->Render2DTextureInto3DSlice(m_nDistSliceTex2D, m_nDistTex3D, m_iCurrentSlice);
 
