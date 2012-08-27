@@ -160,11 +160,7 @@ PsOutput PS_BB_WIREFRAME(VsBBOutput input)
 PsOutput PS_BB_POSITION(VsBBOutput input)
 {
 	PsOutput output;
-	float3 texC;
-	texC.x = input.texC.x;
-	texC.y = -input.texC.y;
-	texC.z = input.texC.z;
-	float3 col = (texC - vBBMin) / (vBBMax - vBBMin);
+	float3 col = (input.texC - vBBMin) / (vBBMax - vBBMin);
 	output.color = float4(col, 1.0f);
 	return output;
 }
@@ -190,10 +186,12 @@ PsOutput PS_RAYCAST(VsSQOutput input)
     
     for(int i = 0; i < iIterations; i++)
     {
+		float4 pos2 = pos;
+		pos2.y = 1 - pos2.y;
 		if(bLinearSampling)
-			src = VolumeTexture.SampleLevel(linearSampler, pos, 0).rgba;
+			src = VolumeTexture.SampleLevel(linearSampler, pos2, 0).rgba;
 		else
-			src = VolumeTexture.SampleLevel(pointSampler, pos, 0).rgba;
+			src = VolumeTexture.SampleLevel(pointSampler, pos2, 0).rgba;
 		
 		//if(!bShowIsoSurface)
 		//	src.a *= 0.01;

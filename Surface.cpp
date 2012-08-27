@@ -480,6 +480,14 @@ BOUNDINGBOX Surface::GetBoundingBox()
 		if(vCurrent.z > bbFinal.vMax.z)
 			bbFinal.vMax.z = vCurrent.z;
 	}
+	//increase the size of the bounding box a bit
+	bbFinal.vMin.x -= 0.1;
+	bbFinal.vMin.y -= 0.1;
+	bbFinal.vMin.z -= 0.1;
+	bbFinal.vMax.x += 0.1;
+	bbFinal.vMax.y += 0.1;
+	bbFinal.vMax.z += 0.1;
+	
 	return bbFinal;
 }
 
