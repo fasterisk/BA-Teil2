@@ -322,6 +322,7 @@ bool	Diffusion::RenderDiffusion(const unsigned int nVoronoiTex3D,
 	{
 		m_bRendering = false;
 		bFinished = true;
+		m_iCurrentDiffusionStep = 0;
 	}
 
 	//restore old render targets

@@ -427,75 +427,98 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 	switch( nControlID )
     {
 		case IDC_LOAD_SURFACE_1:
-			 // open a mesh file name
-			ZeroMemory(&ofnMesh, sizeof(ofnMesh));
-			ofnMesh.lStructSize = sizeof ( ofnMesh );
-			ofnMesh.hwndOwner = NULL  ;
-			ofnMesh.lpstrFile = sz;
-			ofnMesh.lpstrFile[0] = '\0';
-			ofnMesh.nMaxFile = sizeof(sz);
-			ofnMesh.lpstrFilter = L"All\0*.*\0";
-			ofnMesh.nFilterIndex =1;
-			ofnMesh.lpstrFileTitle = NULL ;
-			ofnMesh.nMaxFileTitle = 0 ;
-			ofnMesh.lpstrInitialDir=NULL ;
-			ofnMesh.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
-			GetOpenFileName( &ofnMesh );
+			{
+				// open a mesh file name
+				ZeroMemory(&ofnMesh, sizeof(ofnMesh));
+				ofnMesh.lStructSize = sizeof ( ofnMesh );
+				ofnMesh.hwndOwner = NULL  ;
+				ofnMesh.lpstrFile = sz;
+				ofnMesh.lpstrFile[0] = '\0';
+				ofnMesh.nMaxFile = sizeof(sz);
+				ofnMesh.lpstrFilter = L"All\0*.*\0";
+				ofnMesh.nFilterIndex =1;
+				ofnMesh.lpstrFileTitle = NULL ;
+				ofnMesh.nMaxFileTitle = 0 ;
+				ofnMesh.lpstrInitialDir=NULL ;
+				ofnMesh.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
+				GetOpenFileName( &ofnMesh );
 
-			if(wcslen(ofnMesh.lpstrFile) == 0)
+				if(wcslen(ofnMesh.lpstrFile) == 0)
+					break;
+
+				strMeshName = ConvertWideCharToChar(ofnMesh.lpstrFile);
+
+
+
+				// load the surface mesh into the current surface
+				hr = Scene::GetInstance()->LoadSurface1(strMeshName);
+				if(hr == S_OK)
+				{
+					g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
+					g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
+					g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
+					g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+					g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
+					g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
+					g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
+					g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
+					g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
+					Scene::GetInstance()->Render3DTexture(false);
+				}
+				else
+				{
+					MessageBox ( NULL , L"Mesh could not be loaded", ofnMesh.lpstrFile , MB_OK);
+				}
 				break;
-
-			strMeshName = ConvertWideCharToChar(ofnMesh.lpstrFile);
-
-
-
-			// load the surface mesh into the current surface
-			hr = Scene::GetInstance()->LoadSurface1(strMeshName);
-			if(hr == S_OK)
-			{
-				g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
-				g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
-				g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
-				g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
-				g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
-				g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
-				g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
-				g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
-				g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
-				Scene::GetInstance()->Render3DTexture(false);
 			}
-			else
-			{
-				MessageBox ( NULL , L"Mesh could not be loaded", ofnMesh.lpstrFile , MB_OK);
-			}
-			break;
-		
 		case IDC_LOAD_SURFACE_2:
-			 // open a mesh file name
-			ZeroMemory(&ofnMesh, sizeof(ofnMesh));
-			ofnMesh.lStructSize = sizeof ( ofnMesh );
-			ofnMesh.hwndOwner = NULL  ;
-			ofnMesh.lpstrFile = sz;
-			ofnMesh.lpstrFile[0] = '\0';
-			ofnMesh.nMaxFile = sizeof(sz);
-			ofnMesh.lpstrFilter = L"All\0*.*\0";
-			ofnMesh.nFilterIndex =1;
-			ofnMesh.lpstrFileTitle = NULL ;
-			ofnMesh.nMaxFileTitle = 0 ;
-			ofnMesh.lpstrInitialDir=NULL ;
-			ofnMesh.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
-			GetOpenFileName( &ofnMesh );
-
-			if(wcslen(ofnMesh.lpstrFile) == 0)
-				break;
-
-			strMeshName = ConvertWideCharToChar(ofnMesh.lpstrFile);
-
-
-			// load the surface mesh into the current surface
-			hr = Scene::GetInstance()->LoadSurface2(strMeshName);
-			if(hr == S_OK)
 			{
+				// open a mesh file name
+				ZeroMemory(&ofnMesh, sizeof(ofnMesh));
+				ofnMesh.lStructSize = sizeof ( ofnMesh );
+				ofnMesh.hwndOwner = NULL  ;
+				ofnMesh.lpstrFile = sz;
+				ofnMesh.lpstrFile[0] = '\0';
+				ofnMesh.nMaxFile = sizeof(sz);
+				ofnMesh.lpstrFilter = L"All\0*.*\0";
+				ofnMesh.nFilterIndex =1;
+				ofnMesh.lpstrFileTitle = NULL ;
+				ofnMesh.nMaxFileTitle = 0 ;
+				ofnMesh.lpstrInitialDir=NULL ;
+				ofnMesh.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
+				GetOpenFileName( &ofnMesh );
+
+				if(wcslen(ofnMesh.lpstrFile) == 0)
+					break;
+
+				strMeshName = ConvertWideCharToChar(ofnMesh.lpstrFile);
+
+
+				// load the surface mesh into the current surface
+				hr = Scene::GetInstance()->LoadSurface2(strMeshName);
+				if(hr == S_OK)
+				{
+					g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
+					g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
+					g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
+					g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+					g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
+					g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
+					g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
+					g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
+					g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
+					Scene::GetInstance()->Render3DTexture(false);
+				}
+				else
+				{
+					MessageBox ( NULL , L"Mesh could not be loaded", ofnMesh.lpstrFile , MB_OK);
+				}
+				break;
+			}
+		case IDC_ROTATE:
+			{
+				g_bRotatesWithMouse = true;
+				g_bCameraActive = false;
 				g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
 				g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
 				g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
@@ -506,171 +529,191 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
 				g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
 				g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
 				Scene::GetInstance()->Render3DTexture(false);
+				break;
 			}
-			else
-			{
-				MessageBox ( NULL , L"Mesh could not be loaded", ofnMesh.lpstrFile , MB_OK);
-			}
-			break;
-		case IDC_ROTATE:
-			g_bRotatesWithMouse = true;
-			g_bCameraActive = false;
-			g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
-			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
-			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
-			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
-			g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
-			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
-			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
-			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
-			g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
-			Scene::GetInstance()->Render3DTexture(false);
-			break;
 		case IDC_MOVE:
-			g_bRotatesWithMouse = false;
-			g_bCameraActive = false;
-			g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
-			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
-			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
-			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
-			g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
-			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
-			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
-			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
-			g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
-			Scene::GetInstance()->Render3DTexture(false);
-			break;
+			{
+				g_bRotatesWithMouse = false;
+				g_bCameraActive = false;
+				g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
+				g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
+				g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
+				g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+				g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
+				g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
+				g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
+				g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
+				g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);
+				Scene::GetInstance()->Render3DTexture(false);
+				break;
+			}
 		case IDC_CAMERA:
-			g_bCameraActive = true;
-			break;
+			{
+				g_bCameraActive = true;
+				break;
+			}
 		case IDC_TEXTRES_MAX_SLIDER:
-			g_bBlockMouseDragging = true;
-			g_iTextureMaximum = g_SampleUI.GetSlider(IDC_TEXTRES_MAX_SLIDER)->GetValue();
-			StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
-            g_SampleUI.GetStatic( IDC_TEXTRES_MAX_STATIC )->SetText( sz );
-			Scene::GetInstance()->UpdateTextureResolution(g_iTextureMaximum);
-			g_iTextureWidth = Scene::GetInstance()->GetTextureWidth();
-			g_iTextureHeight = Scene::GetInstance()->GetTextureHeight();
-			g_iTextureDepth = Scene::GetInstance()->GetTextureDepth();
-			StringCchPrintf( sz, 100, L"Size: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
-			g_SampleUI.GetStatic(IDC_TEXTRES_STATIC)->SetText(sz);
+			{
+				g_bBlockMouseDragging = true;
+				g_iTextureMaximum = g_SampleUI.GetSlider(IDC_TEXTRES_MAX_SLIDER)->GetValue();
+				StringCchPrintf( sz, 100, L"Max. Texture Res: %d", g_iTextureMaximum);
+				g_SampleUI.GetStatic( IDC_TEXTRES_MAX_STATIC )->SetText( sz );
+				Scene::GetInstance()->UpdateTextureResolution(g_iTextureMaximum);
+				g_iTextureWidth = Scene::GetInstance()->GetTextureWidth();
+				g_iTextureHeight = Scene::GetInstance()->GetTextureHeight();
+				g_iTextureDepth = Scene::GetInstance()->GetTextureDepth();
+				StringCchPrintf( sz, 100, L"Size: (%d,%d,%d)", g_iTextureWidth, g_iTextureHeight, g_iTextureDepth); 
+				g_SampleUI.GetStatic(IDC_TEXTRES_STATIC)->SetText(sz);
 			
-			g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
-			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
-			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
-			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
-			g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
-			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
-			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
-			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
-			g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);		
-			Scene::GetInstance()->Render3DTexture(false);
-			break;
+				g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(false);
+				g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(false);
+				g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
+				g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+				g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(false);
+				g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(false);
+				g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(false);
+				g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(false);
+				g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(false);		
+				Scene::GetInstance()->Render3DTexture(false);
+				break;
+			}
 		case IDC_ALL_SLICES:
-			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
-			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
-			Scene::GetInstance()->ChangeRenderingToAllSlices();
-			break;
+			{
+				g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(false);
+				g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(false);
+				Scene::GetInstance()->ChangeRenderingToAllSlices();
+				break;
+			}
 		case IDC_ONE_SLICE:
-			g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(true);
-			g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(true);
-			g_iSliceIndex = int((g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->GetValue()/100.0f)*g_iTextureDepth + 0.5);
-			Scene::GetInstance()->ChangeRenderingToOneSlice(g_iSliceIndex);
-			break;
-		case IDC_SLICEINDEX_SLIDER:
-			g_bBlockMouseDragging = true;
-			g_iSliceIndex = int((g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->GetValue()/100.0f)*(g_iTextureDepth-1) + 0.5);
-			StringCchPrintf( sz, 100, L"Sliceindex: %d", g_iSliceIndex);
-			g_SampleUI.GetStatic( IDC_SLICEINDEX_STATIC )->SetText( sz );
-			Scene::GetInstance()->ChangeRenderingToOneSlice(g_iSliceIndex);
-			break;
-		case IDC_SHOW_SURFACES:
-			g_bShowSurfaces = !g_bShowSurfaces;
-			break;
-		case IDC_SHOW_VOLUME:
-			g_bShowVolume = !g_bShowVolume;
-			Scene::GetInstance()->ChangeVolumeVisibility(g_bShowVolume);
-			break;
-		case IDC_SHOW_BOUNDINGBOX:
-			g_bShowBoundingBox = !g_bShowBoundingBox;
-			Scene::GetInstance()->ChangeBoundingBoxVisibility(g_bShowBoundingBox);
-			break;
-		case IDC_DIFFUSION:
-			g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(true);
-			g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(true);
-			g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(true);
-			g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(true);
-			g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(true);
-			g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(true);
-			g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(true);
-			if(g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->GetChecked())
 			{
 				g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(true);
 				g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(true);
-			}
-			g_bCameraActive = true;
-			g_SampleUI.GetRadioButton(IDC_CAMERA)->SetChecked(true);
-			g_bShowVolume = true;
-			Scene::GetInstance()->ChangeVolumeVisibility(true);
-			g_SampleUI.GetCheckBox(IDC_SHOW_VOLUME)->SetChecked(true);
-			Scene::GetInstance()->GenerateVoronoi();
-			break;
-		case IDC_DIFFSTEPS_SLIDER:
-			g_bBlockMouseDragging = true;
-			g_iDiffusionSteps = g_SampleUI.GetSlider(IDC_DIFFSTEPS_SLIDER)->GetValue();
-			StringCchPrintf(sz, 100, L"Steps: %d", g_iDiffusionSteps);
-			g_SampleUI.GetStatic(IDC_DIFFSTEPS_STATIC)->SetText(sz);
-			Scene::GetInstance()->ChangeDiffusionSteps(g_iDiffusionSteps);
-			break;
-		case IDC_SAMPLING_LINEAR:
-			Scene::GetInstance()->ChangeSampling();
-			break;
-		case IDC_SAMPLING_POINT:
-			Scene::GetInstance()->ChangeSampling();
-			break;
-		case IDC_ISO_CHECK:
-			g_bShowIsoSurface = !g_bShowIsoSurface;
-			Scene::GetInstance()->ShowIsoSurface(g_bShowIsoSurface);
-			break;
-		case IDC_ISO_SLIDER:
-			g_bBlockMouseDragging = true;
-			g_fIsoValue = g_SampleUI.GetSlider(IDC_ISO_SLIDER)->GetValue()/10000.0f;
-			StringCchPrintf( sz, 100, L"IsoValue: %.4f", g_fIsoValue);
-			g_SampleUI.GetStatic( IDC_ISO_SLIDER_STATIC )->SetText( sz );
-			Scene::GetInstance()->ChangeIsoValue(g_fIsoValue);
-			break;
-		case IDC_ISO_COLOR:
-			g_bShowIsoColor = !g_bShowIsoColor;
-			Scene::GetInstance()->ShowIsoColor(g_bShowIsoColor);
-			break;
-		case IDC_SAVEVOLUME_BUTTON:
-			// open a save file dialog
-			ZeroMemory(&ofnSave, sizeof(ofnSave));
-			ofnSave.lStructSize = sizeof(ofnSave);
-			ofnSave.hwndOwner = NULL;
-			ofnSave.lpstrFile = sz;
-			ofnSave.lpstrFile[0] = '\0';
-			ofnSave.nMaxFile = sizeof(sz);
-			ofnSave.lpstrFilter = L"DDS\0*.dds\0";
-			ofnSave.nFilterIndex =1;
-			ofnSave.lpstrFileTitle = NULL ;
-			ofnSave.nMaxFileTitle = 0 ;
-			ofnSave.lpstrInitialDir=NULL ;
-			ofnSave.lpstrDefExt = L"dds";
-			//ofnSave.Flags = OFN_PATHMUSTEXIST;
-			GetSaveFileName(&ofnSave);
-
-			if(wcslen(ofnSave.lpstrFile) == 0)
+				g_iSliceIndex = int((g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->GetValue()/100.0f)*g_iTextureDepth + 0.5);
+				Scene::GetInstance()->ChangeRenderingToOneSlice(g_iSliceIndex);
 				break;
+			}
+		case IDC_SLICEINDEX_SLIDER:
+			{
+				g_bBlockMouseDragging = true;
+				g_iSliceIndex = int((g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->GetValue()/100.0f)*(g_iTextureDepth-1) + 0.5);
+				StringCchPrintf( sz, 100, L"Sliceindex: %d", g_iSliceIndex);
+				g_SampleUI.GetStatic( IDC_SLICEINDEX_STATIC )->SetText( sz );
+				Scene::GetInstance()->ChangeRenderingToOneSlice(g_iSliceIndex);
+				break;
+			}
+		case IDC_SHOW_SURFACES:
+			{
+				g_bShowSurfaces = !g_bShowSurfaces;
+				break;
+			}
+		case IDC_SHOW_VOLUME:
+			{
+				g_bShowVolume = !g_bShowVolume;
+				Scene::GetInstance()->ChangeVolumeVisibility(g_bShowVolume);
+				break;
+			}
+		case IDC_SHOW_BOUNDINGBOX:
+			{
+				g_bShowBoundingBox = !g_bShowBoundingBox;
+				Scene::GetInstance()->ChangeBoundingBoxVisibility(g_bShowBoundingBox);
+				break;
+			}
+		case IDC_DIFFUSION:
+			{
+				g_SampleUI.GetRadioButton(IDC_ALL_SLICES)->SetVisible(true);
+				g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->SetVisible(true);
+				g_SampleUI.GetCheckBox(IDC_ISO_CHECK)->SetVisible(true);
+				g_SampleUI.GetStatic(IDC_ISO_SLIDER_STATIC)->SetVisible(true);
+				g_SampleUI.GetSlider(IDC_ISO_SLIDER)->SetVisible(true);
+				g_SampleUI.GetCheckBox(IDC_ISO_COLOR)->SetVisible(true);
+				g_SampleUI.GetButton(IDC_SAVEVOLUME_BUTTON)->SetVisible(true);
+				if(g_SampleUI.GetRadioButton(IDC_ONE_SLICE)->GetChecked())
+				{
+					g_SampleUI.GetStatic(IDC_SLICEINDEX_STATIC)->SetVisible(true);
+					g_SampleUI.GetSlider(IDC_SLICEINDEX_SLIDER)->SetVisible(true);
+				}
+				g_bCameraActive = true;
+				g_SampleUI.GetRadioButton(IDC_CAMERA)->SetChecked(true);
+				g_bShowVolume = true;
+				Scene::GetInstance()->ChangeVolumeVisibility(true);
+				g_SampleUI.GetCheckBox(IDC_SHOW_VOLUME)->SetChecked(true);
+				Scene::GetInstance()->GenerateVoronoi();
+				break;
+			}
+		case IDC_DIFFSTEPS_SLIDER:
+			{
+				g_bBlockMouseDragging = true;
+				int iDiffusionSteps = g_SampleUI.GetSlider(IDC_DIFFSTEPS_SLIDER)->GetValue();
+				if(g_iDiffusionSteps != iDiffusionSteps)
+				{
+					g_iDiffusionSteps = iDiffusionSteps;
+					StringCchPrintf(sz, 100, L"Steps: %d", g_iDiffusionSteps);
+					g_SampleUI.GetStatic(IDC_DIFFSTEPS_STATIC)->SetText(sz);
+					Scene::GetInstance()->ChangeDiffusionSteps(g_iDiffusionSteps);
+				}
+				break;
+			}
+		case IDC_SAMPLING_LINEAR:
+			{
+				Scene::GetInstance()->ChangeSampling();
+				break;
+			}
+		case IDC_SAMPLING_POINT:
+			{
+				Scene::GetInstance()->ChangeSampling();
+				break;
+			}
+		case IDC_ISO_CHECK:
+			{
+				g_bShowIsoSurface = !g_bShowIsoSurface;
+				Scene::GetInstance()->ShowIsoSurface(g_bShowIsoSurface);
+				break;
+			}
+		case IDC_ISO_SLIDER:
+			{
+				g_bBlockMouseDragging = true;
+				g_fIsoValue = g_SampleUI.GetSlider(IDC_ISO_SLIDER)->GetValue()/10000.0f;
+				StringCchPrintf( sz, 100, L"IsoValue: %.4f", g_fIsoValue);
+				g_SampleUI.GetStatic( IDC_ISO_SLIDER_STATIC )->SetText( sz );
+				Scene::GetInstance()->ChangeIsoValue(g_fIsoValue);
+				break;
+			}
+		case IDC_ISO_COLOR:
+			{
+				g_bShowIsoColor = !g_bShowIsoColor;
+				Scene::GetInstance()->ShowIsoColor(g_bShowIsoColor);
+				break;
+			}
+		case IDC_SAVEVOLUME_BUTTON:
+			{
+				// open a save file dialog
+				ZeroMemory(&ofnSave, sizeof(ofnSave));
+				ofnSave.lStructSize = sizeof(ofnSave);
+				ofnSave.hwndOwner = NULL;
+				ofnSave.lpstrFile = sz;
+				ofnSave.lpstrFile[0] = '\0';
+				ofnSave.nMaxFile = sizeof(sz);
+				ofnSave.lpstrFilter = L"DDS\0*.dds\0";
+				ofnSave.nFilterIndex =1;
+				ofnSave.lpstrFileTitle = NULL ;
+				ofnSave.nMaxFileTitle = 0 ;
+				ofnSave.lpstrInitialDir=NULL ;
+				ofnSave.lpstrDefExt = L"dds";
+				//ofnSave.Flags = OFN_PATHMUSTEXIST;
+				GetSaveFileName(&ofnSave);
 
-			hr = Scene::GetInstance()->SaveCurrentVolume(ofnSave.lpstrFile);
+				if(wcslen(ofnSave.lpstrFile) == 0)
+					break;
 
-			if(hr != S_OK)
-				MessageBox ( NULL , L"Texture could not be saved!", ofnSave.lpstrFile , MB_OK);
-			else
-				MessageBox ( NULL , L"Texture saved!", ofnSave.lpstrFile , MB_OK);
+				hr = Scene::GetInstance()->SaveCurrentVolume(ofnSave.lpstrFile);
 
-			break;
+				if(hr != S_OK)
+					MessageBox ( NULL , L"Texture could not be saved!", ofnSave.lpstrFile , MB_OK);
+				else
+					MessageBox ( NULL , L"Texture saved!", ofnSave.lpstrFile , MB_OK);
+
+				break;
+			}
     }
 
 }
