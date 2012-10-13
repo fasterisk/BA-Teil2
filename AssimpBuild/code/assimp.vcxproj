@@ -29,6 +29,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -630,11 +631,6 @@
     <ClInclude Include="..\..\Assimp\include\Compiler\pushpack1.h" />
     <ClInclude Include="..\..\Assimp\include\Compiler\poppack1.h" />
     <ClInclude Include="..\..\Assimp\code\pstdint.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="AssimpBuild/ZERO_CHECK.vcxproj">
-      <Project>82C56F0D-12AE-4474-BDD6-2634D70EED7C</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

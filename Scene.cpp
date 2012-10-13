@@ -129,15 +129,15 @@ HRESULT Scene::ItlInitSurfaces()
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
 	V_RETURN(m_pSurface1->Initialize("Media\\meshes\\Cube\\cube.obj", "Media\\meshes\\Textures\\red.JPG"));
 	m_pSurface1->Scale(2.4f);
-	m_pSurface1->Translate(0.0f, -0.6f, -0.5f);
+	//m_pSurface1->Translate(0.0f, -0.6f, -0.5f);
 	m_pSurface1->SetIsoColor(0.0f);
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\Cone\\cone.obj", "Media\\meshes\\Textures\\military_camouflage.JPG"));
+	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\Cone\\cone.obj", "Media\\meshes\\Textures\\yellow.JPG"));
 	m_pSurface2->SetIsoColor(1.0f);
 	m_pSurface2->Scale(1.9f);
-	m_pSurface2->RotateX(3*PI/2);
+	//m_pSurface2->RotateX(3*PI/2);
 
 	m_pControlledSurface = m_pSurface1;
 
@@ -309,12 +309,7 @@ void Scene::UpdateTextureResolution(int iMaxRes)
  ****************************************************************************/
 void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 {
-	//show surfaces
-	if(bShowSurfaces)
-	{
-		m_pSurface1->Render(mViewProjection);
-		m_pSurface2->Render(mViewProjection);
-	}
+	bool bContinue = true;
 
 	if(m_bGenerateVoronoi) //if voronoi has to be generated
 	{
@@ -323,76 +318,86 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		 *	Voronoi diagram is generated in more steps. this is done because if it would be generated all at once,
 		 *  the graphics driver would crash due to a timeout
 		 */
-		bool b = m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
+		bContinue = m_pVoronoi->RenderVoronoi(m_vMin, m_vMax);
 		m_wsRenderProgress = m_pVoronoi->GetRenderProgress();
-		if(b)
+		if(bContinue)
 		{
 			m_bGenerateVoronoi = false;
 			m_bGenerateDiffusion = true;
 			m_bRender3DTexture = true;
 			m_wsRenderProgress = L"Generate Diffusion...";
-			return;
-		}
-		else
-		{
-			m_bRender3DTexture = false;
 		}
 	}
 
-	if(m_bRender3DTexture && m_bShowVolume)//if 3d texture should be rendered by the volumerenderer
+	if(bContinue && m_bRender3DTexture && m_bShowVolume)//if 3d texture should be rendered by the volumerenderer
 	{
 		
 		if(m_bGenerateDiffusion)//generate the diffusion
 		{
-			m_nDiffusionTexture = m_pDiffusion->RenderDiffusion(m_pVoronoi->GetColor3DTexture(),
-															  m_pVoronoi->GetDistance3DTexture(), 
-															  m_iDiffusionSteps);
-			m_bGenerateDiffusion = false;
+			bContinue = m_pDiffusion->RenderDiffusion(m_pVoronoi->GetColor3DTexture(),
+													  m_pVoronoi->GetDistance3DTexture(), 
+													  m_iDiffusionSteps);
+			m_wsRenderProgress = m_pDiffusion->GetRenderProgress();
+
+			if(bContinue)
+			{
+				m_bGenerateDiffusion = false;
+			}
 		}
 
-		if(m_bRenderIsoSurface && m_bIsoValueChanged)//generate iso surface
+		if(bContinue && m_bRenderIsoSurface && m_bIsoValueChanged)//generate iso surface
 		{
-			m_nIsoSurfaceTexture = m_pDiffusion->RenderIsoSurface(m_nDiffusionTexture);
+			m_nIsoSurfaceTexture = m_pDiffusion->RenderIsoSurface(m_pDiffusion->GetDiffusionTexture());
 			m_bIsoValueChanged = false;
 		}
 		
-		if(m_bDrawAllSlices == false)//draw only one slice
+		if(bContinue)
 		{
-			if(m_bGenerateOneSliceTexture)
-			{			
+			if(m_bDrawAllSlices == false)//draw only one slice
+			{
+				if(m_bGenerateOneSliceTexture)
+				{			
+					if(m_bRenderIsoSurface)
+					{
+						m_wsRenderProgress = L"Rendering one slice of the Isosurface 3D Texture";
+						m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_nIsoSurfaceTexture);
+						//m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi->GetColor3DTexture());
+					}
+					else
+					{
+						m_wsRenderProgress = L"Rendering one slice of the Diffusion 3D Texture";
+						m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_pDiffusion->GetDiffusionTexture());
+						//m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi->GetColor3DTexture());
+					}
+					m_bGenerateOneSliceTexture = false;
+				}
+				
+				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_nOneSliceTexture);
+			}
+			else//draw all slices
+			{
 				if(m_bRenderIsoSurface)
 				{
-					m_wsRenderProgress = L"Rendering one slice of the Isosurface 3D Texture";
-					m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_nIsoSurfaceTexture);
-					//m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi->GetColor3DTexture());
+					m_wsRenderProgress = L"Rendering the Isosurface 3D Texture";
+					m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_nIsoSurfaceTexture);
+					//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi->GetColor3DTexture());
 				}
 				else
 				{
-					m_wsRenderProgress = L"Rendering one slice of the Diffusion 3D Texture";
-					m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_nDiffusionTexture);
-					//m_nOneSliceTexture = m_pDiffusion->RenderOneDiffusionSlice(m_iCurrentSlice, m_pVoronoi->GetColor3DTexture());
+					m_wsRenderProgress = L"Rendering the Diffusion 3D Texture";
+					m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pDiffusion->GetDiffusionTexture());
+					//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi->GetColor3DTexture());
 				}
-				m_bGenerateOneSliceTexture = false;
-			}
-			
-			m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_nOneSliceTexture);
-		}
-		else //draw all slices
-		{
-			if(m_bRenderIsoSurface)
-			{
-				m_wsRenderProgress = L"Rendering the Isosurface 3D Texture";
-				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_nIsoSurfaceTexture);
-				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi->GetColor3DTexture());
-			}
-			else
-			{
-				m_wsRenderProgress = L"Rendering the Diffusion 3D Texture";
-				m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_nDiffusionTexture);
-				//m_pVolumeRenderer->Render(m_pBBVertices, m_vMin, m_vMax, mViewProjection, m_pVoronoi->GetColor3DTexture());
 			}
 
 		}
+	}
+
+	//show surfaces
+	if(bShowSurfaces)
+	{
+		m_pSurface1->Render(mViewProjection);
+		m_pSurface2->Render(mViewProjection);
 	}
 }	
 
@@ -403,6 +408,7 @@ void Scene::ChangeIsoValue(float fIsoValue)
 	m_fIsoValue = fIsoValue;
 	m_pDiffusion->ChangeIsoValue(fIsoValue);
 	m_bIsoValueChanged = true;
+	m_bGenerateOneSliceTexture = true;
 }
 
 /****************************************************************************
@@ -412,6 +418,7 @@ void Scene::ShowIsoSurface(bool bShow)
 	m_bRenderIsoSurface = bShow;
 	m_pVolumeRenderer->ShowIsoSurface(bShow);
 	m_bIsoValueChanged = true;
+	m_bGenerateOneSliceTexture = true;
 }
 
 /****************************************************************************
@@ -420,6 +427,7 @@ void Scene::ShowIsoColor(bool bShow)
 {
 	m_pDiffusion->ShowIsoColor(bShow);
 	m_bIsoValueChanged = true;
+	m_bGenerateOneSliceTexture = true;
 }
 
 /****************************************************************************
@@ -429,6 +437,7 @@ void Scene::ChangeDiffusionSteps(int iDiffusionSteps)
 	m_iDiffusionSteps = iDiffusionSteps;
 	m_bGenerateDiffusion = true;
 	m_bIsoValueChanged = true;
+	m_bGenerateOneSliceTexture = true;
 }
 
 /****************************************************************************
@@ -448,6 +457,7 @@ HRESULT Scene::ChangeRenderingToAllSlices()
 {
 	HRESULT hr;
 	m_bDrawAllSlices = true;
+	m_bGenerateOneSliceTexture = true;
 	return S_OK;
 }
 
@@ -551,9 +561,9 @@ void Scene::GenerateVoronoi()
 
 /****************************************************************************
  ****************************************************************************/
-void Scene::Render3DTexture(bool bRenderVoronoi)
+void Scene::Render3DTexture(bool bRender3DTexture)
 {
-	m_bRender3DTexture = bRenderVoronoi;
+	m_bRender3DTexture = bRender3DTexture;
 }
 
 /****************************************************************************

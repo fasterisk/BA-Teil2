@@ -227,7 +227,6 @@ protected:
 	ID3DX11Effect*					m_pVoronoiEffect;
 
 	//Textures
-	unsigned int m_nDiffusionTexture;
 	unsigned int m_nIsoSurfaceTexture;
 	unsigned int m_nOneSliceTexture;
 

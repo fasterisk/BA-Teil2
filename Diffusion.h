@@ -43,11 +43,11 @@ public:
 	 *  if true		shows the color of the Isosurface at this point of the diffusion texture
 	 *  if false	shows the isosurface as white surface
 	 */
-	void ShowIsoColor(bool bShow);
+	void	ShowIsoColor(bool bShow);
 
-	unsigned int RenderDiffusion(const unsigned int nVoronoiTex3D,
-								 const unsigned int nDistanceTex3D, 
-								 const int iDiffusionSteps);
+	bool	RenderDiffusion(const unsigned int nVoronoiTex3D,
+							const unsigned int nDistanceTex3D, 
+							const int iDiffusionSteps);
 
 	
 	unsigned int RenderOneDiffusionSlice(const int iSliceIndex, 
@@ -58,6 +58,11 @@ public:
 	
 	unsigned int GetIsoSurfaceTexture() const { return m_nIsoSurfaceTex3D;}
 	unsigned int GetDiffusionTexture() const { return m_nDiffuseTex3D[1-m_iDiffTex];}
+
+	/*
+	 * Returns the current rendering progress
+	 */
+	std::wstring GetRenderProgress();
 
 private:
 	
@@ -114,6 +119,11 @@ private:
 
 	//Determines if isosurfaces is white or gets the color of the diffusion texture
 	bool						m_bShowIsoColor;
+
+	//Variables to store the current render progress
+	int							m_iCurrentDiffusionStep;
+	bool						m_bRendering;
+	int							m_iDiffusionSteps;
 };
 
 #endif

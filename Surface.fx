@@ -101,9 +101,9 @@ VsOutput VS_COLOR(VsInput input)
     return output;
 }
 
-VsWOutput VS_WIREFRAME(VsInput input)
+VsOutput VS_WIREFRAME(VsInput input)
 {
-	VsWOutput output;
+	VsOutput output;
 	output.Pos = mul(float4(input.Pos, 1.0f), ModelViewProjectionMatrix);
 	return output;
 }
@@ -119,14 +119,14 @@ PsOutput PS_COLOR( VsOutput input )
     PsOutput output;
     output.Color = SurfaceTexture.Sample(textureSampler, input.TexCoord);
 
-	output.Color.a = 0.1f;
+	output.Color.a = 0.25f;
     return output;
 }
 
-PsWOutput PS_WIREFRAME(VsWOutput input)
+PsOutput PS_WIREFRAME(VsOutput input)
 {
-	PsWOutput output;
-	output.Color = float4(0.0, 1.0, 0.0, 1.0);
+	PsOutput output;
+	output.Color = SurfaceTexture.Sample(textureSampler, input.TexCoord);
 	return output;
 }
 
@@ -147,13 +147,13 @@ technique10 RenderColor
         SetRasterizerState(CullNone);
     }
 
-	/*pass
+	pass
 	{
-		SetVertexShader(CompileShader(vs_4_0, VS_WIREFRAME()));
+		SetVertexShader(CompileShader(vs_4_0, VS_COLOR()));
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS_WIREFRAME()));
 
-		SetDepthStencilState( DisableDepth, 0);
+		SetDepthStencilState(DisableDepth, 0);
 		SetRasterizerState(Wireframe);
-	}*/
+	}
 }

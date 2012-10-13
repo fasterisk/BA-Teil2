@@ -77,6 +77,10 @@ HRESULT Diffusion::Initialize(const int iTextureWidth,
 	m_nIsoSurfaceTex3D = TextureManager::GetInstance()->Create3DTexture("Isosurface 3D Tex", iTextureWidth, iTextureHeight, iTextureDepth);
 	m_nIsoSurfaceSliceTex2D = TextureManager::GetInstance()->Create2DTexture("Isosurface Slice 2D Tex", iTextureWidth, iTextureHeight);
 
+	m_iCurrentDiffusionStep = 0;
+	m_bRendering = false;
+	m_iDiffusionSteps = 0;
+
 	return hr;
 }
 
@@ -107,6 +111,9 @@ HRESULT Diffusion::Update(const int iTextureWidth,
 	TextureManager::GetInstance()->Update3DTexture(m_nIsoSurfaceTex3D, iTextureWidth, iTextureHeight, iTextureDepth);
 	TextureManager::GetInstance()->Update2DTexture(m_nIsoSurfaceSliceTex2D, iTextureWidth, iTextureHeight);
 
+	m_iCurrentDiffusionStep = 0;
+	m_bRendering = false;
+	m_iDiffusionSteps = 0;
 
 	return S_OK;
 }
@@ -234,11 +241,14 @@ void Diffusion::ShowIsoColor(bool bShow)
 
 /****************************************************************************
  ****************************************************************************/
-unsigned int	Diffusion::RenderDiffusion(const unsigned int nVoronoiTex3D,
-										   const unsigned int nDistanceTex3D,
-										   int iDiffusionSteps)
+bool	Diffusion::RenderDiffusion(const unsigned int nVoronoiTex3D,
+								   const unsigned int nDistanceTex3D,
+								   int iDiffusionSteps)
 {
 	HRESULT hr(S_OK);
+
+	m_iDiffusionSteps = iDiffusionSteps;
+	bool bFinished = false;
 
 	//store the old render targets and viewports
     ID3D11RenderTargetView* pOldRTV = DXUTGetD3D11RenderTargetView();
@@ -270,12 +280,13 @@ unsigned int	Diffusion::RenderDiffusion(const unsigned int nVoronoiTex3D,
 
 
 	//ping pong rendering
-	for(int i = 0; i < iDiffusionSteps; i++)
+	if(m_iCurrentDiffusionStep < iDiffusionSteps)
 	{
-		hr = m_pPolySizeVar->SetFloat(1.0 - (float)(i)/(float)iDiffusionSteps);
+		m_bRendering = true;
+		hr = m_pPolySizeVar->SetFloat(1.0 - (float)(m_iCurrentDiffusionStep)/(float)iDiffusionSteps);
 		assert(hr == S_OK);
 
-		if(i == 0)
+		if(m_iCurrentDiffusionStep == 0)
 		{
 			//As first resource texture you have to use the voronoi texture
 			TextureManager::GetInstance()->BindTextureAsRTV(m_nDiffuseSliceTex2D[m_iDiffTex]);
@@ -292,13 +303,14 @@ unsigned int	Diffusion::RenderDiffusion(const unsigned int nVoronoiTex3D,
 		assert(hr == S_OK);
 
 		//RENDER
-		for(int j = 0; j < m_iTextureDepth; j++)
+		for(int i = 0; i < m_iTextureDepth; i++)
 		{
-			Scene::GetInstance()->GetContext()->Draw(VERTEXCOUNT, VERTEXCOUNT*j);
-			TextureManager::GetInstance()->Render2DTextureInto3DSlice(m_nDiffuseSliceTex2D[m_iDiffTex], m_nDiffuseTex3D[m_iDiffTex], j);
+			Scene::GetInstance()->GetContext()->Draw(VERTEXCOUNT, VERTEXCOUNT*i);
+			TextureManager::GetInstance()->Render2DTextureInto3DSlice(m_nDiffuseSliceTex2D[m_iDiffTex], m_nDiffuseTex3D[m_iDiffTex], i);
 		}
-
+		
 		m_iDiffTex = 1-m_iDiffTex;
+		m_iCurrentDiffusionStep++;
 
 		//unbind textures and apply pass again to confirm this
 		hr = m_pColor3DTexSRVar->SetResource(NULL);
@@ -306,12 +318,17 @@ unsigned int	Diffusion::RenderDiffusion(const unsigned int nVoronoiTex3D,
 		hr = m_pDiffusionTechnique->GetPassByName("DiffuseTexture")->Apply(0, Scene::GetInstance()->GetContext());
 		assert(hr == S_OK);
 	}
+	else
+	{
+		m_bRendering = false;
+		bFinished = true;
+	}
 
 	//restore old render targets
 	Scene::GetInstance()->GetContext()->OMSetRenderTargets( 1,  &pOldRTV,  pOldDSV );
 	Scene::GetInstance()->GetContext()->RSSetViewports( NumViewports, &pViewports[0]);
 
-	return m_nDiffuseTex3D[1-m_iDiffTex];
+	return bFinished;//m_nDiffuseTex3D[1-m_iDiffTex];
 }
 
 /****************************************************************************
@@ -459,3 +476,16 @@ unsigned int	Diffusion::RenderIsoSurface(const unsigned int nCurrentDiffusionTex
 	return m_nIsoSurfaceTex3D;
 }
 
+/****************************************************************************
+ ****************************************************************************/
+std::wstring Diffusion::GetRenderProgress()
+{
+	if(m_bRendering)
+	{
+		std::wstringstream sstm;
+		sstm << "Generating Diffusion Texture... Step "<< m_iCurrentDiffusionStep+1 << " of " << m_iDiffusionSteps;
+		return sstm.str();
+	}
+
+	return L"Generation of Diffusion Texture completed!";
+}
