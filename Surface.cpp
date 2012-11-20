@@ -346,12 +346,11 @@ HRESULT Surface::LoadMesh(std::string strMeshName, std::string* pTextureName /* 
 	}
 	else
 	{
-		//MessageBox ( NULL , L"Mesh successfully loaded. Please choose a color in the next dialog!", ConvertMultibyteToWideChar(strMeshName).c_str(), MB_OK);
-
 		D3DXCOLOR cColor;
 
 		if(pColor == NULL)
 		{
+			MessageBox ( NULL , L"Mesh successfully loaded. Please choose a color in the next dialog!", ConvertMultibyteToWideChar(strMeshName).c_str(), MB_OK);
 			CHOOSECOLOR cc;                 // common dialog box structure 
 			static COLORREF acrCustClr[16]; // array of custom colors 
 			HBRUSH hbrush;                  // brush handle 
