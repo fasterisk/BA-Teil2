@@ -53,6 +53,8 @@ bool						g_bShowIsoColor = false;
 bool						g_bShowVolume = false;
 bool						g_bShowBoundingBox = true;
 
+
+
 // Texthelper
 CDXUTTextHelper*            g_pTxtHelper = NULL;
 

@@ -127,16 +127,17 @@ HRESULT Scene::ItlInitSurfaces()
 
 	// Create surface1 and its buffers
 	m_pSurface1 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface1->Initialize("Media\\meshes\\Cube\\cube.obj", "Media\\meshes\\Textures\\red.JPG"));
-	m_pSurface1->Scale(2.4f);
-	//m_pSurface1->Translate(0.0f, -0.6f, -0.5f);
+	V_RETURN(m_pSurface1->Initialize("Media\\meshes\\Sphere\\sphere.obj", D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)));
+	m_pSurface1->Scale(2.0f);
 	m_pSurface1->SetIsoColor(0.0f);
 	
 	// Create surface2 and its buffers
 	m_pSurface2 = new Surface(m_pd3dDevice, m_pd3dImmediateContext, m_pSurfaceEffect);
-	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\Cone\\cone.obj", "Media\\meshes\\Textures\\yellow.JPG"));
+	V_RETURN(m_pSurface2->Initialize("Media\\meshes\\teapot.obj", D3DXCOLOR(0.0f, 0.5f, 1.0f, 1.0f)));
 	m_pSurface2->SetIsoColor(1.0f);
-	m_pSurface2->Scale(1.9f);
+	m_pSurface2->Scale(1.4f);
+	m_pSurface2->Translate(0.0f, -0.4f, 0.0f);
+
 	//m_pSurface2->RotateX(3*PI/2);
 
 	m_pControlledSurface = m_pSurface1;
@@ -326,6 +327,14 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 			m_bGenerateDiffusion = true;
 			m_bRender3DTexture = true;
 			m_wsRenderProgress = L"Generate Diffusion...";
+			/*GetSystemTime(&m_tEndRenderingVoronoi);
+			
+			std::wstringstream ssStream;
+			ssStream << "START: "<< m_tStartRenderingVoronoi.wHour << ":" << m_tStartRenderingVoronoi.wMinute << ":" << m_tStartRenderingVoronoi.wSecond << "." << m_tStartRenderingVoronoi.wMilliseconds << std::endl;
+			ssStream << "END: "<< m_tEndRenderingVoronoi.wHour << ":" << m_tEndRenderingVoronoi.wMinute << ":" << m_tEndRenderingVoronoi.wSecond << "." << m_tEndRenderingVoronoi.wMilliseconds << std::endl;
+			MessageBox ( NULL , ssStream.str().c_str(), L"Renderingtime of Voronoi", MB_OK);
+			
+			GetSystemTime(&m_tStartRenderingDiffusion);*/
 		}
 	}
 
@@ -342,6 +351,13 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 			if(bContinue)
 			{
 				m_bGenerateDiffusion = false;
+				
+				/*GetSystemTime(&m_tEndRenderingDiffusion);
+				std::wstringstream ssStream;
+				ssStream << "START: "<< m_tStartRenderingDiffusion.wHour << ":" << m_tStartRenderingDiffusion.wMinute << ":" << m_tStartRenderingDiffusion.wSecond << "." << m_tStartRenderingDiffusion.wMilliseconds << std::endl;
+				ssStream << "END: "<< m_tEndRenderingDiffusion.wHour << ":" << m_tEndRenderingDiffusion.wMinute << ":" << m_tEndRenderingDiffusion.wSecond << "." << m_tEndRenderingDiffusion.wMilliseconds << std::endl;
+				MessageBox ( NULL , ssStream.str().c_str(), L"Renderingtime of Diffusion", MB_OK);*/
+				
 			}
 		}
 
@@ -349,6 +365,12 @@ void Scene::Render(D3DXMATRIX mViewProjection, bool bShowSurfaces)
 		{
 			m_nIsoSurfaceTexture = m_pDiffusion->RenderIsoSurface(m_pDiffusion->GetDiffusionTexture());
 			m_bIsoValueChanged = false;
+
+			/*GetSystemTime(&m_tEndRenderingIsoSurface);
+			std::wstringstream ssStream;
+			ssStream << "START: "<< m_tStartRenderingIsoSurface.wHour << ":" << m_tStartRenderingIsoSurface.wMinute << ":" << m_tStartRenderingIsoSurface.wSecond << "." << m_tStartRenderingIsoSurface.wMilliseconds << std::endl;
+			ssStream << "END: "<< m_tEndRenderingIsoSurface.wHour << ":" << m_tEndRenderingIsoSurface.wMinute << ":" << m_tEndRenderingIsoSurface.wSecond << "." << m_tEndRenderingIsoSurface.wMilliseconds << std::endl;
+			MessageBox ( NULL , ssStream.str().c_str(), L"Renderingtime of Isosurface", MB_OK);*/
 		}
 		
 		if(bContinue)
@@ -419,6 +441,8 @@ void Scene::ShowIsoSurface(bool bShow)
 	m_pVolumeRenderer->ShowIsoSurface(bShow);
 	m_bIsoValueChanged = true;
 	m_bGenerateOneSliceTexture = true;
+	if(bShow)
+		GetSystemTime(&m_tStartRenderingIsoSurface);
 }
 
 /****************************************************************************
@@ -539,13 +563,13 @@ void Scene::ScaleSurface2(float fFactor)
 HRESULT Scene::LoadSurface1(std::string strMeshName)
 {
 	HRESULT hr(S_OK);
-	V_RETURN(m_pSurface1->LoadMesh(strMeshName, "notexture"));
+	V_RETURN(m_pSurface1->LoadMesh(strMeshName));
 	return hr;
 }
 HRESULT Scene::LoadSurface2(std::string strMeshName)
 {
 	HRESULT hr(S_OK);
-	V_RETURN(m_pSurface2->LoadMesh(strMeshName, "notexture"));
+	V_RETURN(m_pSurface2->LoadMesh(strMeshName));
 	return hr;
 }
 
@@ -557,6 +581,8 @@ void Scene::GenerateVoronoi()
 	m_bGenerateDiffusion = false;
 	m_bIsoValueChanged = true;
 	m_bRender3DTexture = false;
+
+	GetSystemTime(&m_tStartRenderingVoronoi);
 }
 
 /****************************************************************************

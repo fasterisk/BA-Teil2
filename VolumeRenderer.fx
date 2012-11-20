@@ -28,6 +28,13 @@ DepthStencilState DisableDepth
 	StencilEnable = FALSE;
 };
 
+DepthStencilState EnableDepth
+{
+    DepthEnable = TRUE;
+    DepthWriteMask = ALL;
+    DepthFunc = LESS_EQUAL;
+};
+
 RasterizerState CullFront
 {
     MultiSampleEnable = True;
@@ -250,7 +257,7 @@ technique10 VolumeRendering
 
 		SetBlendState(AlphaBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetRasterizerState(CullBack);
-		SetDepthStencilState( DisableDepth, 0 );
+		SetDepthStencilState( EnableDepth, 0 );
 	}
 
 	pass Wireframe

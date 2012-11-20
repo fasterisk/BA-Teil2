@@ -15,6 +15,8 @@ float4 vBBMax;
 int iSliceIndex;
 float3 vTextureSize;
 
+bool bIsTextured;
+
 float fIsoSurfaceVal;
 
 //--------------------------------------------------------------------------------------
@@ -101,6 +103,7 @@ struct VS_VORONOI_INPUT
 {
 	float3 pos		: POSITION;
 	float2 tex		: TEXCOORD;
+	float4 color	: COLOR;
 };
 
 struct GS_VORONOI_INPUT
@@ -108,15 +111,17 @@ struct GS_VORONOI_INPUT
 	float4 pos		: POSITION;
 	float3 pos2		: TEXTURE0;
 	float2 tex		: TEXCOORD;
+	float4 color	: COLOR;
 };
 
 struct GS_TRIANGLE_VORONOI_OUTPUT
 {
-	float4 pos		: SV_Position;
-	float3 normal	: NORMAL;
-	float2 tex		: TEXCOORD;
-	float4 pos2			: TEXTURE0;
-	float4 trianglepoint : TEXTURE1;
+	float4 pos				: SV_Position;
+	float3 normal			: NORMAL;
+	float2 tex				: TEXCOORD;
+	float4 pos2				: TEXTURE0;
+	float4 trianglepoint	: TEXTURE1;
+	float4 color			: COLOR;
 };
 
 struct GS_EDGE_VORONOI_OUTPUT
@@ -126,6 +131,7 @@ struct GS_EDGE_VORONOI_OUTPUT
 	float4 vec1		: TEXTURE0;
 	float4 vec2		: TEXTURE1;
 	float4 pos2		: TEXTURE2;
+	float4 color	: COLOR;
 };
 
 struct GS_VERTEX_VORONOI_OUTPUT
@@ -134,6 +140,7 @@ struct GS_VERTEX_VORONOI_OUTPUT
 	float2 tex		: TEXCOORD;
 	float4 vertex	: TEXTURE0;
 	float4 pos2		: TEXTURE1;
+	float4 color	: COLOR;
 };
 
 struct PS_VORONOI_OUTPUT
@@ -215,6 +222,7 @@ void TriangleCalcDistanceAndAppend(triangle GS_TRIANGLE_VORONOI_OUTPUT vertices[
 		output.pos2 = output.pos;
 		output.trianglepoint = vertices[0].pos;
 		output.tex = vertices[v].tex;
+		output.color = vertices[v].color;
 		tStream.Append(output);
 	}
 	tStream.RestartStrip();
@@ -240,54 +248,66 @@ void TriangleCalcDistanceAndAppendNormalParallel(GS_TRIANGLE_VORONOI_OUTPUT inte
 
 	output.pos = float4(vec2L.xy, sliceDepth, 1.0f);
 	output.tex = interVec2.tex;
+	output.color = interVec2.color;
 	output.pos2 = output.pos;
 	tStream.Append(output);
 	output.pos = float4(vec1L.xy, sliceDepth, 1.0f);
 	output.tex = interVec1.tex;
+	output.color = interVec1.color;
 	output.pos2 = output.pos;
 	tStream.Append(output);
 	output.pos = float4(interVec1.pos.xy, sliceDepth, 1.0f);
 	output.tex = interVec1.tex;
+	output.color = interVec1.color;
 	output.pos2 = output.pos;
 	tStream.Append(output);
 	tStream.RestartStrip();
 	output.pos = float4(vec2L.xy, sliceDepth, 1.0f);
 	output.tex = interVec2.tex;
+	output.color = interVec2.color;
 	output.pos2 = output.pos;
 	tStream.Append(output);
 	output.pos = float4(interVec1.pos.xy, sliceDepth, 1.0f);
 	output.tex = interVec1.tex;
+	output.color = interVec1.color;
 	output.pos2 = output.pos;
 	tStream.Append(output);
 	output.pos = float4(interVec2.pos.xy, sliceDepth, 1.0f);
 	output.tex = interVec2.tex;
+	output.color = interVec2.color;
 	output.pos2 = output.pos;
 	tStream.Append(output);
 	tStream.RestartStrip();
 
 	output.pos = float4(interVec2.pos.xy, sliceDepth, 1.0f);
 	output.tex = interVec2.tex;
+	output.color = interVec2.color;
 	output.pos2 = output.pos;
 	tStream.Append(output);
 	output.pos = float4(interVec1.pos.xy, sliceDepth, 1.0f);
 	output.tex = interVec1.tex;
+	output.color = interVec1.color;
 	output.pos2 = output.pos;
 	tStream.Append(output);
 	output.pos = float4(vec1R.xy, sliceDepth, 1.0f);
 	output.tex = interVec1.tex;
+	output.color = interVec1.color;
 	output.pos2 = output.pos;
 	tStream.Append(output);
 	tStream.RestartStrip();
 	output.pos = float4(interVec2.pos.xy, sliceDepth, 1.0f);
 	output.tex = interVec2.tex;
+	output.color = interVec2.color;
 	output.pos2 = output.pos;
 	tStream.Append(output);
 	output.pos = float4(vec1R.xy, sliceDepth, 1.0f);
 	output.tex = interVec1.tex;
+	output.color = interVec1.color;
 	output.pos2 = output.pos;
 	tStream.Append(output);
 	output.pos = float4(vec2R.xy, sliceDepth, 1.0f);
 	output.tex = interVec2.tex;
+	output.color = interVec2.color;
 	output.pos2 = output.pos;
 	tStream.Append(output);
 	tStream.RestartStrip();
@@ -300,6 +320,7 @@ void EdgeProjectOntoSlice(GS_EDGE_VORONOI_OUTPUT output, GS_VORONOI_INPUT vec1, 
 	float3 a = float3(0.0f, 0.0f, 0.0f);
 
 	output.tex = vec1.tex;
+	output.color = vec1.color;
 
 	vec1.pos /= vec1.pos.w;
 	vec2.pos /= vec2.pos.w;
@@ -455,6 +476,7 @@ void CalculateEdgeProjection(GS_VORONOI_INPUT vec1, GS_VORONOI_INPUT vec2, float
 	GS_EDGE_VORONOI_OUTPUT output;
 	output.vec1 = vec1.pos;
 	output.vec2 = vec2.pos;
+	output.color = vec1.color;
 
 	if(vec1.pos.z <= fSliceDepth && vec2.pos.z <= fSliceDepth)
 	{
@@ -497,8 +519,10 @@ void CalculatePointProjection(GS_VORONOI_INPUT vec, float fSliceDepth, inout Tri
 {
 	GS_VERTEX_VORONOI_OUTPUT output;
 
+	output.color = vec.color;
 	output.tex = vec.tex;
 	output.vertex = vec.pos;
+
 	output.pos = float4(-1.0f, -1.0f, fSliceDepth, 1.0f);
 	output.pos2 = output.pos;
 	tStream.Append(output);
@@ -532,6 +556,7 @@ GS_VORONOI_INPUT VoronoiVS(VS_VORONOI_INPUT input)
 	output.pos = mul(float4(input.pos, 1.0f), ModelViewProjectionMatrix);
 	output.pos2 = input.pos;
 	output.tex = input.tex;
+	output.color = input.color;
 	return output;
 }
 
@@ -553,12 +578,15 @@ void VoronoiTriangleGS( triangle GS_VORONOI_INPUT input[3], inout TriangleStream
 	GS_TRIANGLE_VORONOI_OUTPUT triangle1[3];
 	triangle1[0].pos = input[0].pos;
 	triangle1[0].tex = input[0].tex;
+	triangle1[0].color = input[0].color;
 	triangle1[0].trianglepoint = float4(0.0, 0.0, 0.0, 0.0);//dummy initialization, so that shader compiles
 	triangle1[1].pos = input[1].pos;
 	triangle1[1].tex = input[1].tex;
+	triangle1[1].color = input[1].color;
 	triangle1[1].trianglepoint = float4(0.0, 0.0, 0.0, 0.0);
 	triangle1[2].pos = input[2].pos;
 	triangle1[2].tex = input[2].tex;
+	triangle1[2].color = input[2].color;
 	triangle1[2].trianglepoint = float4(0.0, 0.0, 0.0, 0.0);
 
 	float3 u = input[0].pos2 - input[1].pos2;
@@ -908,7 +936,10 @@ PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
 
-	output.color = SurfaceTexture.Sample(linearSamplerClamp, input.tex);
+	if(bIsTextured)
+		output.color = SurfaceTexture.Sample(linearSamplerClamp, input.tex);
+	else
+		output.color = input.color;
 	output.color.a = fIsoSurfaceVal;
 
 	float3 tex = normalize(vTextureSize);
@@ -934,7 +965,10 @@ PS_VORONOI_OUTPUT VoronoiTrianglePS(GS_TRIANGLE_VORONOI_OUTPUT input)
 PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
-	output.color = SurfaceTexture.Sample(linearSamplerClamp, input.tex);
+	if(bIsTextured)
+		output.color = SurfaceTexture.Sample(linearSamplerClamp, input.tex);
+	else
+		output.color = input.color;
 	output.color.a = fIsoSurfaceVal;
 
 	float3 tex = normalize(vTextureSize);
@@ -963,7 +997,10 @@ PS_VORONOI_OUTPUT VoronoiEdgePS(GS_EDGE_VORONOI_OUTPUT input)
 PS_VORONOI_OUTPUT VoronoiVertexPS(GS_VERTEX_VORONOI_OUTPUT input)
 {
 	PS_VORONOI_OUTPUT output;
-	output.color = SurfaceTexture.Sample(linearSamplerClamp, input.tex);
+	if(bIsTextured)
+		output.color = SurfaceTexture.Sample(linearSamplerClamp, input.tex);
+	else
+		output.color = input.color;
 	output.color.a = fIsoSurfaceVal;
 
 	float3 tex = normalize(vTextureSize);

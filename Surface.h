@@ -37,14 +37,20 @@ public:
 	void SetIsoColor(float fIsoColor);
 
 	/*
+	 * Getter for the boolean flag if this surface is textured.
+	 */
+	bool IsTextured() { return m_bIsTextured; }
+
+	/*
 	 *  Loads a new mesh for this surface
 	 */
-	HRESULT LoadMesh(std::string strMeshName, std::string strTextureName);
+	HRESULT LoadMesh(std::string strMeshName, std::string* pTextureName = NULL, D3DXCOLOR* pColor = NULL);
 
 	/*
 	 *  Initialize the surface (only called at creation)
 	 */
 	HRESULT Initialize(std::string strMeshName, std::string strTextureName);
+	HRESULT Initialize(std::string strMeshName, D3DXCOLOR cColor);
 
 	/*
 	 *  Render surface
@@ -77,6 +83,7 @@ protected:
 	ID3D11InputLayout*				m_pInputLayout;
 	ID3DX11EffectMatrixVariable		*m_pModelViewProjectionVar;
 	ID3DX11EffectShaderResourceVariable *m_pSurfaceTextureVar;
+	ID3DX11EffectScalarVariable		*m_pIsTexturedVar;
 
 	/*
 	 *  Vertices of this surface
@@ -90,8 +97,8 @@ protected:
 	ID3D11Buffer*	m_pTriangleVertexBuffer;
 	ID3D11Buffer*	m_pTriangleIndexBuffer;
 	ID3D11Buffer*	m_pEdgeIndexBuffer;
-	unsigned int m_mNumVertices;
-	unsigned int m_mNumIndices;
+	unsigned int m_nNumVertices;
+	unsigned int m_nNumIndices;
 
 	/*
 	 *  Texture of the surface and its SRV
@@ -111,6 +118,13 @@ protected:
 	 *  Isocolor of this surface
 	 */
 	float m_fIsoColor;
+
+	/*
+	 *	Determines if the surface is rendered with texture or color
+	 */
+	bool m_bIsTextured;
+
+	bool m_bHasTextureCoords;
 
 };
 

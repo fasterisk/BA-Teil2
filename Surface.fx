@@ -48,6 +48,8 @@ SamplerState textureSampler
 matrix	ModelViewProjectionMatrix;
 matrix	NormalMatrix;
 
+bool bIsTextured;
+
 Texture2D SurfaceTexture;
 
 //--------------------------------------------------------------------------------------
@@ -56,6 +58,7 @@ struct VsInput
 {
     float3 Pos      : POSITION;
     float2 TexCoord : TEXCOORD;
+	float4 Color	: COLOR;
 };
 
 
@@ -63,28 +66,13 @@ struct VsOutput
 {
 	float4 Pos		: SV_POSITION;
 	float2 TexCoord	: TEXCOORD;
+	float4 Color	: COLOR;
 };
 
-struct VsNormalOutput
-{
-	float4 Pos		: SV_POSITION;
-	float2 TexCoord	: TEXCOORD;
-	float3 Pos2		: TEXTURE0;
-};
-
-struct VsWOutput
-{
-	float4 Pos		: SV_POSITION;
-};
 
 struct PsOutput
 {
     float4 Color    : SV_Target0;
-};
-
-struct PsWOutput
-{
-	float4 Color    : SV_Target0;
 };
 
 //--------------------------------------------------------------------------------------
@@ -97,7 +85,7 @@ VsOutput VS_COLOR(VsInput input)
 
     output.Pos = mul(float4(input.Pos, 1.0f), ModelViewProjectionMatrix);
 	output.TexCoord = input.TexCoord;
-
+	output.Color = input.Color;
     return output;
 }
 
@@ -105,6 +93,7 @@ VsOutput VS_WIREFRAME(VsInput input)
 {
 	VsOutput output;
 	output.Pos = mul(float4(input.Pos, 1.0f), ModelViewProjectionMatrix);
+	output.Color = input.Color;
 	return output;
 }
 
@@ -117,7 +106,18 @@ VsOutput VS_WIREFRAME(VsInput input)
 PsOutput PS_COLOR( VsOutput input )
 {
     PsOutput output;
-    output.Color = SurfaceTexture.Sample(textureSampler, input.TexCoord);
+	if(bIsTextured)
+	{
+		output.Color = SurfaceTexture.Sample(textureSampler, input.TexCoord);
+		output.Color.a = 1.0f;
+	}
+	else
+	{
+		//output.Color = float4(input.Color.r, 0.0, 0.0, 1.0);
+		//output.Color = float4(input.Color.g, 0.0, 0.0, 1.0);
+		//output.Color = float4(input.Color.b, 0.0, 0.0, 1.0);
+		output.Color = input.Color;
+	}
 
 	output.Color.a = 0.25f;
     return output;
@@ -126,7 +126,19 @@ PsOutput PS_COLOR( VsOutput input )
 PsOutput PS_WIREFRAME(VsOutput input)
 {
 	PsOutput output;
-	output.Color = SurfaceTexture.Sample(textureSampler, input.TexCoord);
+	if(bIsTextured)
+	{
+		output.Color = SurfaceTexture.Sample(textureSampler, input.TexCoord);
+		output.Color.a = 1.0f;
+	}
+	else
+	{
+		//output.Color = float4(input.Color.r, 0.0, 0.0, 1.0);
+		//output.Color = float4(input.Color.g, 0.0, 0.0, 1.0);
+		//output.Color = float4(input.Color.b, 0.0, 0.0, 1.0);
+		//output.Color = float4(input.Color.a, 0.0, 0.0, 1.0);
+		output.Color = input.Color;
+	}
 	return output;
 }
 

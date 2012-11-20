@@ -42,6 +42,7 @@ struct SURFACE_VERTEX
 {
 	D3DXVECTOR3 pos;
 	D3DXVECTOR2 texcoord;
+	D3DXVECTOR4 color;
 };
 
 //vertex structure used for slice rendring

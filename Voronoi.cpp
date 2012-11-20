@@ -117,11 +117,13 @@ HRESULT Voronoi::ItlInitSliceBuffer()
 	SAFE_RELEASE(m_pInputLayout);
 	SAFE_RELEASE(m_pSlicesVB);
 
-	const D3D11_INPUT_ELEMENT_DESC inputlayout[] = 
-	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	const D3D11_INPUT_ELEMENT_DESC inputlayout[] =
+    {
+        { "POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD",	0, DXGI_FORMAT_R32G32_FLOAT, 0, 3*sizeof(float), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR",		0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 5*sizeof(float), D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
+
 	D3DX11_PASS_SHADER_DESC passVsDesc;
 	m_p2Dto3DTechnique->GetPassByIndex(0)->GetVertexShaderDesc(&passVsDesc);
 	D3DX11_EFFECT_SHADER_DESC effectVsDesc;
@@ -182,6 +184,7 @@ HRESULT Voronoi::ItlInitShaders()
 	m_pIsoSurfaceVar			= m_pVoronoiEffect->GetVariableByName("fIsoSurfaceVal")->AsScalar();
 	m_pColorSliceTex2DVar		= m_pVoronoiEffect->GetVariableByName("ColorSliceTex2D")->AsShaderResource();
 	m_pDistSliceTex2DVar		= m_pVoronoiEffect->GetVariableByName("DistSliceTex2D")->AsShaderResource();
+	m_pIsTexturedVar			= m_pVoronoiEffect->GetVariableByName("bIsTextured")->AsScalar();
 
 	assert(m_pVoronoiDiagramTechnique);
 	assert(m_pModelViewProjectionVar);
@@ -263,11 +266,13 @@ bool Voronoi::RenderVoronoi(D3DXVECTOR3 vBBMin, D3DXVECTOR3 vBBMax)
 	m_pModelViewProjectionVar->SetMatrix(mModel1Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix1);
 	m_pIsoSurfaceVar->SetFloat(Scene::GetInstance()->GetSurface1()->GetIsoColor());
+	m_pIsTexturedVar->SetBool(Scene::GetInstance()->GetSurface1()->IsTextured());
 	Scene::GetInstance()->GetSurface1()->RenderVoronoi(m_pVoronoiDiagramTechnique, m_pSurfaceTextureVar);
 
 	m_pModelViewProjectionVar->SetMatrix(mModel2Orth);
 	m_pNormalMatrixVar->SetMatrix(mNormalMatrix2);
 	m_pIsoSurfaceVar->SetFloat(Scene::GetInstance()->GetSurface2()->GetIsoColor());
+	m_pIsTexturedVar->SetBool(Scene::GetInstance()->GetSurface2()->IsTextured());
 	Scene::GetInstance()->GetSurface2()->RenderVoronoi(m_pVoronoiDiagramTechnique, m_pSurfaceTextureVar);
 
 	// render the 2D texture slices into the 3D Textures

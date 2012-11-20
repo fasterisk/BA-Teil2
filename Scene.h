@@ -240,6 +240,14 @@ protected:
 	HRESULT CreateEffect(WCHAR* name, ID3DX11Effect **ppEffect);
 	HRESULT CompileShaderFromFile( WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut );
 
+	// variables for measuring the time it took to render
+	SYSTEMTIME	m_tStartRenderingVoronoi;
+	SYSTEMTIME	m_tEndRenderingVoronoi;
+	SYSTEMTIME	m_tStartRenderingDiffusion;
+	SYSTEMTIME	m_tEndRenderingDiffusion;
+	SYSTEMTIME m_tStartRenderingIsoSurface;
+	SYSTEMTIME	m_tEndRenderingIsoSurface;
+
 };
 
 #endif //_SCENE_H_
